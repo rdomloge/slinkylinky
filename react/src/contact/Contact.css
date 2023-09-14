@@ -1,0 +1,57 @@
+.committee-member {
+    margin: 1rem;
+    background-color: #f3f3f3;
+    box-shadow: 10px 10px 30px grey;
+    padding: 1rem;
+    width: 300px;
+    border-radius: 5px;
+    position: relative;
+    float: left;
+    
+    .info {
+        padding: 2rem 1rem 1rem 1rem;
+        vertical-align: middle;
+***REMOVED***
+    .profile-pic {
+        width: 7rem;
+        height: 7rem;
+        float: left;
+        margin-right: 1rem;
+        vertical-align: middle;
+        border-radius: 50%;
+        position: relative;
+        z-index: 1;
+***REMOVED***
+    .shaded-area {
+        clip-path: polygon(0% 0%, 10% 0%, 30% 100%, 0% 100%);
+        background: #2e92e9;
+        float: left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+***REMOVED***
+    .name {
+        font-size: large;
+        font-weight: bold;
+***REMOVED***
+    .role {
+        position: absolute;
+        top: 8px;
+        left: 12px;
+        font-size: larger;
+        font-weight: bold;
+        color: #4d4dbf;
+        background-color: #f3f3f3;
+        border-style: solid;
+        border-width: thin;
+        padding: 3px;
+        z-index: 2;
+***REMOVED***
+    .phone {
+        margin-left: 1rem;
+***REMOVED***
+    
+}
