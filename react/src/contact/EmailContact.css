@@ -1,0 +1,9 @@
+.email {
+    overflow-wrap: break-word;
+    .icon {
+        padding: 4px;
+        vertical-align: middle;
+        float: left;
+        color: coral;
+    }
+}

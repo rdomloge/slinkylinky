@@ -1,0 +1,13 @@
+.contact {
+
+    .icon {
+        padding: 4px;
+        vertical-align: middle;
+        color: coral;
+    }
+    .number {
+        display: inline-block;
+        color: darkgray;
+    }
+}
+
