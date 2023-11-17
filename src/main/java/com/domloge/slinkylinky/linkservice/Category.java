@@ -1,8 +1,0 @@
-package com.domloge.slinkylinky.linkservice;
-
-public enum Category {
-    Beauty, Boats, Buildings, Business, Care_Home, Cars, Coaching, Commercial_Washing, Construction, Consulting, Design, Ecommerce, Education, Electrician,
-    Environment, Family, Fashion, Financial_Products, Fitness, Gambling, General, Health, Helicopter_Removals, Holidays, Home_Improvement, Islam, IT, Lifestyle,
-    Management_Consultants, Manufacturing, Marketing, Music, Parenting, Pets, Photography, Privacy_Training, Retail_Premises, Reviews, Security, Transport, 
-    Websites, Weddings
-}

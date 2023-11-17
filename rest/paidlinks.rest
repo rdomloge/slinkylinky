@@ -1,0 +1,7 @@
+POST {{host}}/paidlinks
+Content-Type: application/json
+
+{
+  "blogger": "http://localhost:8080/bloggers/1",
+  "client": "http://localhost:8080/clients/1"
+}

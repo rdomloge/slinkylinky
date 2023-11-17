@@ -16,6 +16,10 @@ Content-Type: application/json
 ###
 GET {{host}}/bloggers/1
 ###
-GET {{host}}/bloggers/search/findByCategoriesIn?categories=Weddings,Pets
+GET {{host}}/bloggers/search/findByCategories_NameIn?categories=Weddings,Pets
 ###
-GET {{host}}/bloggers/search/findByCategoriesIn?categories=Pets
+GET {{host}}/bloggers/search/findByCategories_NameIn?categories=Pets
+###
+GET {{host}}/bloggers/search/findByCategories_NameIn?categories=Family
+###
+GET {{host}}/bloggers/search/findByCategories_NameInWithAvailability?categories=Pets,Beauty&clientId=1

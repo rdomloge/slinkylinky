@@ -8,5 +8,6 @@ import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 @RepositoryRestResource(collectionResourceRel = "paidlinks", path = "paidlinks")
 public interface PaidLinkRepo extends CrudRepository <PaidLink, Long> {
     
+    // void createByBlogger_IdAndClient_Id(int logger_id, int client_id);
 
 }
