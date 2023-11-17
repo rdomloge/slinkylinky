@@ -1,0 +1,17 @@
+GET {{host}}/clients
+###
+POST {{host}}/clients
+Content-Type: application/json
+
+{"name": "Berkley Castle Wewddings",
+"email": "www.berkeleycastleweddings.co.uk",
+"categories": ["WEDDINGS", "BUSINESS"] }
+###
+POST {{host}}/clients
+Content-Type: application/json
+
+{"name": "Hedsor House",
+"email": "www.hedsor.com",
+"categories": ["WEDDINGS", "BUSINESS"] }
+###
+GET {{host}}/clients/1

@@ -1,0 +1,21 @@
+GET {{host}}/bloggers
+###
+POST {{host}}/bloggers
+Content-Type: application/json
+
+{"name": "Thrifty Bride",
+"email": "hello@thethriftybride.co.uk",
+"categories": ["WEDDINGS", "BUSINESS"] }
+###
+POST {{host}}/bloggers
+Content-Type: application/json
+
+{"name": "Katrina Rohman",
+"email": "rohmankatrina@gmail.com",
+"categories": ["WEDDINGS", "BUSINESS"] }
+###
+GET {{host}}/bloggers/1
+###
+GET {{host}}/bloggers/search/findByCategoriesIn?categories=Weddings,Pets
+###
+GET {{host}}/bloggers/search/findByCategoriesIn?categories=Pets
