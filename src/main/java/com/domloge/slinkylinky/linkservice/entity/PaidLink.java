@@ -21,5 +21,5 @@ public class PaidLink {
     private Blogger blogger;
 
     @ManyToOne
-    private Client client;
+    private LinkDemand linkDemand;
 }

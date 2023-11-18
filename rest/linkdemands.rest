@@ -1,17 +1,17 @@
-GET {{host}}/clients
+GET {{host}}/linkdemands
 ###
-POST {{host}}/clients
+POST {{host}}/linkdemands
 Content-Type: application/json
 
 {"name": "Berkley Castle Wewddings",
 "email": "www.berkeleycastleweddings.co.uk",
 "categories": ["WEDDINGS", "BUSINESS"] }
 ###
-POST {{host}}/clients
+POST {{host}}/linkdemands
 Content-Type: application/json
 
 {"name": "Hedsor House",
 "email": "www.hedsor.com",
 "categories": ["WEDDINGS", "BUSINESS"] }
 ###
-GET {{host}}/clients/1
+GET {{host}}/linkdemands/2

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.linkservice.entity.Blogger;
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.Client;
+import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +26,7 @@ public class SetupHandler {
     private void setupData() {
         setupCategories();
         setupBloggers();
-        setupClients();
+        setupLinkDemands();
     }
     
 
@@ -37,10 +37,10 @@ public class SetupHandler {
     }
 
 
-    private void setupClients() {
-        List<Client> clients = loader.loadObjectList(Client.class, "clients.csv");
-        log.info("Found {} clients in CSV", clients.size());
-        clients.stream().forEach(c -> setupService.persist(c));
+    private void setupLinkDemands() {
+        List<LinkDemand> linkDemands = loader.loadObjectList(LinkDemand.class, "linkdemand.csv");
+        log.info("Found {} linkdemands in CSV", linkDemands.size());
+        linkDemands.stream().forEach(c -> setupService.persist(c));
     }
 
 

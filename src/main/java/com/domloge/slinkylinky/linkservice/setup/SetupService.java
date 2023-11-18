@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.domloge.slinkylinky.linkservice.entity.Blogger;
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.Client;
+import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 import com.domloge.slinkylinky.linkservice.repo.BloggerRepo;
 import com.domloge.slinkylinky.linkservice.repo.CategoryRepo;
-import com.domloge.slinkylinky.linkservice.repo.ClientRepo;
+import com.domloge.slinkylinky.linkservice.repo.LinkDemandRepo;
 
 import jakarta.transaction.Transactional;
 
@@ -22,7 +22,7 @@ public class SetupService {
     private BloggerRepo bloggerRepo;
 
     @Autowired
-    private ClientRepo clientRepo;
+    private LinkDemandRepo clientRepo;
 
     @Autowired
     private CategoryRepo categoryRepo;
@@ -38,7 +38,7 @@ public class SetupService {
     }
 
     @Transactional
-    public void persist(Client c) {
+    public void persist(LinkDemand c) {
         List<Category> clientCategories = c.getCategories();
         List<Category> dbCategories = new LinkedList<>();
 

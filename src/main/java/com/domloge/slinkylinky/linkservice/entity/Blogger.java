@@ -20,6 +20,8 @@ public class Blogger {
 
     private String name;
     private String email;
+    private int da;
+    private String website;
 
     @ManyToMany
     private List<Category> categories;

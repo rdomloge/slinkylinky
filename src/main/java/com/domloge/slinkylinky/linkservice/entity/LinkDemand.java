@@ -1,5 +1,7 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -13,16 +15,25 @@ import lombok.Setter;
 @Entity
 @Getter 
 @Setter
-public class Client {
+public class LinkDemand {
+
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyy");
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
     private String name;
-    private String email;
-    private String website;
+    private String url;
+    private int daNeeded;
+    private String anchorText;
+    private String domain;
+    private String requested;
 
     @ManyToMany
     private List<Category> categories;
+
+    public LocalDate getRequestedDate() {
+        return LocalDate.parse(requested, format);
+    }
 }

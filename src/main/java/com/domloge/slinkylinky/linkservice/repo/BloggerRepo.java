@@ -9,7 +9,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import com.domloge.slinkylinky.linkservice.entity.Blogger;
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.Client;
+import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 
 @RepositoryRestResource(collectionResourceRel = "bloggers", path = "bloggers")
 public interface BloggerRepo extends CrudRepository <Blogger, Long> {
@@ -20,9 +20,10 @@ public interface BloggerRepo extends CrudRepository <Blogger, Long> {
     @Query(nativeQuery = true,
         value = "SELECT b.* FROM blogger b, blogger_categories bc, category c "+
                 "WHERE b.id NOT IN "+
-                "  (SELECT pl.blogger_id FROM paid_link pl WHERE pl.client_id = ?2) "+
+                "  (SELECT pl.blogger_id FROM paid_link pl WHERE pl.link_demand_id = ?2) "+
                 "AND b.id=bc.blogger_id "+
                 "AND bc.categories_id=c.id "+
-                "AND c.name in (?1)")
-    List<Blogger> findByCategories_NameInWithAvailability(List<String> categories, int clientId);
+                "AND c.name in (?1) " +
+                "AND b.DA >= ?3")
+    List<Blogger> findByCategories_NameInWithAvailability(List<String> categories, int linkDemandId, int daNeeded);
 }
