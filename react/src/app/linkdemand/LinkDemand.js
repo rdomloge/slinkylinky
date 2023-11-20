@@ -40,7 +40,6 @@ class LinkDemand extends React.Component {
     ***REMOVED*** else {
             return (
                 <>
-                    <div>This is some demand</div>
                     <ul>
                         {this.state.linkdemands._embedded.linkdemands.map(ld => (
                             <li>{ld.name} {ld.url} 
