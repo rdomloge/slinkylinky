@@ -1,6 +1,6 @@
 'use client'
 
-import React, {useState, useEffect} from 'react'
+import CategoriesCard from '@/components/categoriescard'
 
 export default function SupplierCard({supplier}) {
     return (
@@ -9,6 +9,7 @@ export default function SupplierCard({supplier}) {
             <div>DA: {supplier.da}</div>
             <div>Website: {supplier.website}</div>
             <div>Email: {supplier.email}</div>
+            <CategoriesCard categoriesUrl={supplier._links.categories.href}/>
         </div>
     )
 }
