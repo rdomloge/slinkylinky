@@ -2,6 +2,7 @@
 
 import '@/styles/globals.css'
 import React, {useState, useEffect} from 'react'
+import Category from './category';
 
 export default function CategoriesCard(props) {
     const [categories, setCategories] = useState(null);
@@ -17,10 +18,10 @@ export default function CategoriesCard(props) {
         }, []
     );
 
-    if(categories === null) return <p>NULL</p>;
+    if(categories === null) return <p>...</p>;
     else return (
-        <div className="card">
-            {categories._embedded.categories.map( (c) => <div>{c.name}</div>)}
+        <div className="child-card">
+            {categories._embedded.categories.map( (c) => <Category name={c.name}/>)}
         </div>
     );
 }

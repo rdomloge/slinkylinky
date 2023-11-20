@@ -4,6 +4,7 @@ import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
 import LinkDemandCard from '@/components/linkdemandcard'
 import SupplierCard from '@/components/suppliercard'
+import PageTitle from '@/components/pagetitle'
 
 export default function App() {
     const router = useRouter()
@@ -32,11 +33,12 @@ export default function App() {
     );
 
     return (
-        <div>
+        <main className="flex min-h-screen flex-col justify-between p-10">
+            <PageTitle title="Matching suppliers"/>
             <LinkDemandCard linkdemand={demand} />
-            <h1>Matching suppliers</h1>
-            <SupplierList suppliers={suppliers}/>
-        </div>
+            <div>Suppliers</div>
+            <SupplierList suppliers={suppliers} />
+        </main>
     );
 }
 
