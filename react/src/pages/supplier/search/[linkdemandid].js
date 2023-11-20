@@ -37,17 +37,27 @@ export default function App() {
             <PageTitle title="Matching suppliers"/>
             <LinkDemandCard linkdemand={demand} />
             <div>Suppliers</div>
-            <SupplierList suppliers={suppliers} />
+            <SupplierList suppliers={suppliers} linkdemand={demand}/>
         </main>
     );
 }
 
-function SupplierList({suppliers}) {
+function parseId(entity) {
+    const url = entity._links.self.href;
+    const id = url.substring(url.lastIndexOf('/')+1);
+    return id;
+}
+
+function SupplierList(props) {
     
-    if(suppliers === null) return <p>Loading...</p>;
+    if(props.suppliers === null || props.demand === null) return <p>Loading...</p>;
     else return (
         <div>
-            {suppliers._embedded.bloggers.map((s) => <SupplierCard supplier={s} key={s.website} />)}
+            {props.suppliers._embedded.bloggers.map((s) => (
+                <a href={'/paidlink/staging?supplierId='+parseId(s)+'&linkDemandId='+parseId(props.linkdemand)}>
+                    <SupplierCard supplier={s} key={s.website} />
+                </a>
+            ))}
         </div>
     );
 }
