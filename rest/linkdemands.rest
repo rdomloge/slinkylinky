@@ -15,3 +15,5 @@ Content-Type: application/json
 "categories": ["WEDDINGS", "BUSINESS"] }
 ###
 GET {{host}}/linkdemands/2
+###
+GET {{host}}/linkdemands/search/findDemandForSupplierId?supplierId=120&linkdemandIdToIgnore=5
