@@ -2,8 +2,8 @@
 
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
-import LinkDemandCard from '@/components/linkdemand'
-import SupplierCard from '@/components/supplier'
+import LinkDemandCard from '@/components/linkdemandcard'
+import SupplierCard from '@/components/suppliercard'
 
 export default function App() {
     const router = useRouter()
@@ -14,14 +14,16 @@ export default function App() {
         () => {
             if(router.isReady) {
                 const demandUrl = 'http://localhost:8080/linkdemands/'+ router.query.linkdemandid;
-                fetch(demandUrl)
-                    .then((response) => response.json())
-                    .then((json) => setDemand(json));
-
                 const suppliersUrl = 'http://localhost:8080/bloggers/search/findBloggersForLinkDemandId?linkDemandId='+ router.query.linkdemandid;
-                fetch(suppliersUrl)
-                    .then((response) => response.json())
-                    .then((json) => setSuppliers(json));
+
+                Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
+                    .then(([resDemand, resSuppliers]) => 
+                        Promise.all([resDemand.json(), resSuppliers.json()])
+                    )
+                    .then(([dataDemand, dataSuppliers]) => {
+                        setDemand(dataDemand);
+                        setSuppliers(dataSuppliers);
+                    });
             } 
             else {
                 console.log('Router not ready yet')
@@ -32,6 +34,7 @@ export default function App() {
     return (
         <div>
             <LinkDemandCard linkdemand={demand} />
+            <h1>Matching suppliers</h1>
             <SupplierList suppliers={suppliers}/>
         </div>
     );
