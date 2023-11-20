@@ -43,7 +43,7 @@ class LinkDemand extends React.Component {
                     <ul>
                         {this.state.linkdemands._embedded.linkdemands.map(ld => (
                             <li>{ld.name} {ld.url} 
-                            <a href={'http://localhost:8080/bloggers/search/findBloggersForLinkDemandId?linkDemandId='+this.parseId(ld)}>GO</a></li>
+                            <a href={'/supplier/search/'+this.parseId(ld)}>GO</a></li>
                         ))}
                     </ul>
                 </>
