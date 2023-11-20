@@ -29,6 +29,7 @@ body {
 
 .child-card {
   margin: 0.6em;
+  display: flex;
 }
 
 .pageTitle {
@@ -44,4 +45,5 @@ body {
   width: fit-content;
   border-radius: 15px;
   padding: 0.5em;
+  margin: 0.2em;
 }
