@@ -2,7 +2,7 @@
 
 import React from 'react';
 import './LinkDemand.css';
-
+import LinkDemandCard from '@/components/linkdemandcard';
 
 class LinkDemand extends React.Component {
 
@@ -42,8 +42,11 @@ class LinkDemand extends React.Component {
                 <>
                     <ul>
                         {this.state.linkdemands._embedded.linkdemands.map(ld => (
-                            <li>{ld.name} {ld.url} 
-                            <a href={'/supplier/search/'+this.parseId(ld)}>GO</a></li>
+                            <li>
+                                <a href={'/supplier/search/'+this.parseId(ld)}>
+                                    <LinkDemandCard linkdemand={ld} />
+                                </a>
+                            </li>
                         ))}
                     </ul>
                 </>

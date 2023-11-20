@@ -4,7 +4,7 @@ import CategoriesCard from '@/components/categoriescard'
 
 export default function SupplierCard({supplier}) {
     return (
-        <div className="card">
+        <div className="list-card card">
             <div>{supplier.name}</div>
             <div>DA: {supplier.da}</div>
             <div>Website: {supplier.website}</div>

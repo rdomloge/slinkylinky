@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
 @layer components {
     .card {
       background-color: theme(colors.white);
@@ -9,4 +25,23 @@
       padding: theme(spacing.6);
       box-shadow: theme(boxShadow.xl);
 ***REMOVED***
-  }
+}
+
+.child-card {
+  margin: 0.6em;
+}
+
+.pageTitle {
+  font-size: 300%;
+}
+
+.list-card {
+  margin: 1em;
+}
+
+.lozenge {
+  background: rgb(198, 195, 250);
+  width: fit-content;
+  border-radius: 15px;
+  padding: 0.5em;
+}
