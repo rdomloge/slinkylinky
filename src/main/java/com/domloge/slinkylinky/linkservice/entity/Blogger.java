@@ -22,6 +22,10 @@ public class Blogger {
     private String email;
     private int da;
     private String website;
+    private int weWriteFee;
+    private int semRushAuthorityScore;
+    private int semRushUkMonthlyTraffic;
+    private int semRushUkJan23Traffic;
 
     @ManyToMany
     private List<Category> categories;

@@ -1,5 +1,6 @@
 package com.domloge.slinkylinky.linkservice.setup;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,13 +27,18 @@ public class SetupService {
 
     @Autowired
     private CategoryRepo categoryRepo;
+
+    
     
     @Transactional
     public void persist(Blogger b) {
         List<Category> bloggerCategories = b.getCategories();
         List<Category> dbCategories = new LinkedList<>();
 
-        bloggerCategories.forEach(bc -> dbCategories.add(categoryRepo.findByName(bc.getName())));
+        bloggerCategories.stream()
+            .map(c -> c.getName().split(","))
+            .forEach(names -> Arrays.stream(names)
+                .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
         b.setCategories(dbCategories);
         bloggerRepo.save(b);
     }
