@@ -48,7 +48,10 @@ public class SetupService {
         List<Category> clientCategories = c.getCategories();
         List<Category> dbCategories = new LinkedList<>();
 
-        clientCategories.forEach(cc -> dbCategories.add(categoryRepo.findByName(cc.getName())));
+        clientCategories.stream()
+            .map(cc -> cc.getName().split(","))
+            .forEach(names -> Arrays.stream(names)
+                .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
         c.setCategories(dbCategories);
         clientRepo.save(c);
     }
