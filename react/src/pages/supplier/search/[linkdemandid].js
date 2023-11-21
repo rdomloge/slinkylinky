@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import LinkDemandCard from '@/components/linkdemandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
+import Layout from '@/components/layout'
 
 export default function App() {
     const router = useRouter()
@@ -33,12 +34,12 @@ export default function App() {
     );
 
     return (
-        <main className="flex min-h-screen flex-col justify-between p-10">
+        <Layout>
             <PageTitle title="Matching suppliers"/>
             <LinkDemandCard linkdemand={demand} />
             <div>Suppliers</div>
             <SupplierList suppliers={suppliers} linkdemand={demand}/>
-        </main>
+        </Layout>
     );
 }
 
