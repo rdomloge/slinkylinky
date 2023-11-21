@@ -3,6 +3,8 @@
 import React from 'react';
 import './LinkDemand.css';
 import LinkDemandCard from '@/components/linkdemandcard';
+import PageTitle from '@/components/pagetitle'
+import Layout from '@/components/layout';
 
 class LinkDemand extends React.Component {
 
@@ -40,15 +42,18 @@ class LinkDemand extends React.Component {
         } else {
             return (
                 <>
-                    <ul>
-                        {this.state.linkdemands._embedded.linkdemands.map(ld => (
-                            <li>
-                                <a href={'/supplier/search/'+this.parseId(ld)}>
-                                    <LinkDemandCard linkdemand={ld} />
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                    <Layout>
+                        <PageTitle title="Demand"/>
+                        <ul>
+                            {this.state.linkdemands._embedded.linkdemands.map(ld => (
+                                <li>
+                                    <a href={'/supplier/search/'+this.parseId(ld)}>
+                                        <LinkDemandCard linkdemand={ld} />
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </Layout>
                 </>
             )
             }
