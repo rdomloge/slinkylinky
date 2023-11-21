@@ -40,13 +40,19 @@ export default function App() {
     if(supplier && demand && otherDemands) {
         return (
             <main className="flex min-h-screen flex-col justify-between p-10">
-                <PageTitle title="Staging"/>
-                <SupplierCard supplier={supplier}/>
-                <LinkDemandCard linkdemand={demand}/>
-                <p>Other matching demand:</p>
-                {otherDemands._embedded.linkdemands.map( (d) => 
-                    <LinkDemandCard linkdemand={d} />
-                )}
+                    <PageTitle title="Staging"/>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <SupplierCard supplier={supplier}/>
+                            <LinkDemandCard linkdemand={demand}/>
+                        </div>
+                        <div>
+                            <p>Other matching demand:</p>
+                            {otherDemands._embedded.linkdemands.map( (d) => 
+                                <LinkDemandCard linkdemand={d} />
+                                )}
+                        </div>
+                    </div>
             </main>
         );
 ***REMOVED***
