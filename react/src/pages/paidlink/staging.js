@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import LinkDemandCard from '@/components/linkdemandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
+import Layout from '@/components/layout'
 
 export default function App() {
     const searchParams = useSearchParams()
@@ -39,7 +40,7 @@ export default function App() {
 
     if(supplier && demand && otherDemands) {
         return (
-            <main className="flex min-h-screen flex-col justify-between p-10">
+            <Layout>
                     <PageTitle title="Staging"/>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -53,7 +54,7 @@ export default function App() {
                                 )}
                         </div>
                     </div>
-            </main>
+            </Layout>
         );
 ***REMOVED***
     else {
