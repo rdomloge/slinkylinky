@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import LinkDemand from './linkdemand/LinkDemand'
 import PageTitle from '@/components/pagetitle'
 
