@@ -11,4 +11,3 @@ RUN echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesourc
 RUN apt-get update
 RUN apt-get install -y nodejs
 WORKDIR /adminwebsite
-RUN npm install react-grid-layout
