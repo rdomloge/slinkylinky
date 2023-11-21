@@ -3,26 +3,26 @@
 import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import React, {useState, useEffect} from 'react'
-import SupplierCard from "@/components/suppliercard";
+import CategoryListItem from "@/components/CategoryListItem";
 
-export default function ListBloggers() {
-    const [bloggers, setBloggers] = useState()
-    const catUrl = "http://localhost:8080/bloggers";
+export default function ListCategories() {
+    const [categories, setCategories] = useState()
+    const catUrl = "http://localhost:8080/categories";
 
     useEffect(
         () => {
             fetch(catUrl)
                 .then( (res) => res.json())
-                .then( (data) => setBloggers(data));
+                .then( (data) => setCategories(data));
     ***REMOVED***, []
     );
 
-    if(bloggers) {
+    if(categories) {
         return (
             <Layout>
-                <PageTitle title="Suppliers"/>
+                <PageTitle title="Categories"/>
                 <ol>
-                    {bloggers._embedded.bloggers.map( (s) => <li><SupplierCard supplier={s}/></li>)}
+                    {categories._embedded.categories.map( (c) => <li><CategoryListItem category={c}/></li>)}
                 </ol>
             </Layout>
         );
