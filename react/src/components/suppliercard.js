@@ -16,7 +16,7 @@ export default function SupplierCard({supplier}) {
             <div>Fee: &pound;{supplier.weWriteFee}</div>
             <div>SEM rush authority: {supplier.semRushAuthorityScore}</div>
             <div>SEM rush UK monthly: {supplier.semRushUkMonthlyTraffic}</div>
-            <div>SEM rush UK Jan'23: {supplier.semRushUkJan23Traffic}</div>
+            <div>SEM rush UK Jan &apos;23: {supplier.semRushUkJan23Traffic}</div>
             <CategoriesCard categoriesUrl={supplier._links.categories.href}/>
         </div>
     )
