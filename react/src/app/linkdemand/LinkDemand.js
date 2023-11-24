@@ -19,7 +19,7 @@ class LinkDemand extends React.Component {
     }
 
     componentDidMount() {
-        const url = 'http://localhost:8080/linkdemands';
+        const url = 'http://localhost:8080/linkdemands/search/findUnsatisfiedDemand';
 
         fetch(url)
             .then(res => res.json())
