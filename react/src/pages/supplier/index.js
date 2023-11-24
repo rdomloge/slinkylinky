@@ -7,13 +7,28 @@ import SupplierCard from "@/components/suppliercard";
 
 export default function ListBloggers() {
     const [bloggers, setBloggers] = useState()
-    const catUrl = "http://localhost:8080/bloggers";
+    // const [categories, setCategories] = useState()
+    const bloggersUrl = "http://localhost:8080/bloggers";
+    // const catUrl = "http://localhost:8080/categories";
+
+    function parseId(entity) {
+        const url = entity._links.self.href;
+        const id = url.substring(url.lastIndexOf('/')+1);
+        return id;
+***REMOVED***
 
     useEffect(
         () => {
-            fetch(catUrl)
+            fetch(bloggersUrl)
                 .then( (res) => res.json())
                 .then( (data) => setBloggers(data));
+
+            // Promise.all([fetch(bloggersUrl), fetch(catUrl)])
+            //     .then( ([resBloggers, resCategories]) => 
+            //         Promise.all([resBloggers.json(), resCategories.json()]).then( ([bloggers, categories]) => {
+            //             setBloggers(bloggers);
+            //             setCategories(categories);
+            //     ***REMOVED***));
     ***REMOVED***, []
     );
 
@@ -22,7 +37,7 @@ export default function ListBloggers() {
             <Layout>
                 <PageTitle title="Suppliers"/>
                 <ol>
-                    {bloggers._embedded.bloggers.map( (s) => <li><SupplierCard supplier={s}/></li>)}
+                    {bloggers._embedded.bloggers.map( (s) => <li key={parseId(s)}><SupplierCard supplier={s}/></li>)}
                 </ol>
             </Layout>
         );

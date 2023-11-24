@@ -46,9 +46,9 @@ class LinkDemand extends React.Component {
                         <PageTitle title="Demand"/>
                         <ul>
                             {this.state.linkdemands._embedded.linkdemands.map(ld => (
-                                <li>
+                                <li key={"li-"+this.parseId(ld)}>
                                     <a href={'/supplier/search/'+this.parseId(ld)}>
-                                        <LinkDemandCard linkdemand={ld} />
+                                        <LinkDemandCard linkdemand={ld} key={"ldc-"+this.parseId(ld)} />
                                     </a>
                                 </li>
                             ))}

@@ -9,6 +9,12 @@ export default function ListCategories() {
     const [categories, setCategories] = useState()
     const catUrl = "http://localhost:8080/categories";
 
+    function parseId(entity) {
+        const url = entity._links.self.href;
+        const id = url.substring(url.lastIndexOf('/')+1);
+        return id;
+***REMOVED***
+
     useEffect(
         () => {
             fetch(catUrl)
@@ -22,7 +28,7 @@ export default function ListCategories() {
             <Layout>
                 <PageTitle title="Categories"/>
                 <ol>
-                    {categories._embedded.categories.map( (c) => <li><CategoryListItem category={c}/></li>)}
+                    {categories._embedded.categories.map( (c) => <li key={parseId(c)}><CategoryListItem category={c}/></li>)}
                 </ol>
             </Layout>
         );
