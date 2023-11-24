@@ -41,19 +41,31 @@ export default function App() {
     ), [selectedOtherDemands];
 
     const handleSubmit = () => {
-        console.log("CLICK");
-        console.log("Supplier: "+supplier);
-        console.log("Demand: "+demand);
-        console.log("Other demand: "+otherDemands);
 
-        const url = "http://localhost:8080/proposals";
-        const data = {
+        const aggregateDemand = selectedOtherDemands.concat([demand]);
+
+        const paidlinkUrl = "http://localhost:8080/paidlinks";
+        aggregateDemand.forEach((ld) => {
+            const plData = {
+                "blogger": "http://localhost:8080/bloggers/"+parseId(supplier),
+                "linkDemand": "http://localhost:8080/linkdemands/"+parseId(ld)
+        ***REMOVED***
+            const body = JSON.stringify(plData);
+            fetch(paidlinkUrl, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: body
+        ***REMOVED***);
+    ***REMOVED***);
+        
+        const proposalUrl = "http://localhost:8080/proposals";
+        const pData = {
             "supplier": supplier,
-            "demands": selectedOtherDemands.concat([demand]) 
+            "demands": aggregateDemand 
     ***REMOVED***
-        fetch(url, {
+        fetch(proposalUrl, {
             method: 'POST',
-            body: JSON.stringify(data)
+            body: JSON.stringify(pData)
     ***REMOVED***);
 ***REMOVED***
 
