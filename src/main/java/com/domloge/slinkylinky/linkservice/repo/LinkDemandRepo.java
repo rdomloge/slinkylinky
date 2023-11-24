@@ -7,7 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import com.domloge.slinkylinky.linkservice.entity.Blogger;
 import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 
 @RepositoryRestResource(collectionResourceRel = "linkdemands", path = "linkdemands")
@@ -27,6 +26,11 @@ public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
                 "AND ld.id != ?2 "+
                 "ORDER BY b.we_write_fee ASC, "+
                 "   b.sem_rush_uk_jan23traffic DESC, "+
-                "   b.sem_rush_authority_score DESC")
+                "   b.sem_rush_authority_score DESC ")
     List<LinkDemand> findDemandForSupplierId(int supplierId, int linkdemandIdToIgnore);
+
+    @Query(nativeQuery = true,
+        value = "SELECT ld.* FROM link_demand ld "+
+                "WHERE ld.id NOT IN (SELECT pl.link_demand_id FROM paid_link pl)")
+    List<LinkDemand> findUnsatisfiedDemand();
 }
