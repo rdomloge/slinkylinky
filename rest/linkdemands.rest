@@ -16,4 +16,6 @@ Content-Type: application/json
 ###
 GET {{host}}/linkdemands/2
 ###
-GET {{host}}/linkdemands/search/findDemandForSupplierId?supplierId=120&linkdemandIdToIgnore=5
+GET {{host}}/linkdemands/search/findDemandForSupplierId?supplierId=1&linkdemandIdToIgnore=4
+###
+GET {{host}}/linkdemands/search/findUnsatisfiedDemand
