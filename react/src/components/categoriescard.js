@@ -9,7 +9,6 @@ export default function CategoriesCard(props) {
     
     useEffect(
         () => {      
-            console.log("Loading categories, using URL "+props.categoriesUrl);
             fetch(props.categoriesUrl)
                 .then(res => res.json())
                 .then((c) => setCategories(c)
@@ -21,7 +20,7 @@ export default function CategoriesCard(props) {
     if(categories === null) return <p>...</p>;
     else return (
         <div className="child-card">
-            {categories._embedded.categories.map( (c) => <Category name={c.name}/>)}
+            {categories._embedded.categories.map( (c) => <Category name={c.name} key={c.name}/>)}
         </div>
     );
 }

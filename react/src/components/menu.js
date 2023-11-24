@@ -1,14 +1,15 @@
 'use client'
 
 import '@/styles/globals.css'
+import Link from 'next/link';
 
 export default function Menu() {
     
     return (
         <div className="pt-5 px-3">
-            <div><a href="/">Demand</a></div>
-            <div><a href="/categories">Categories</a></div>
-            <div><a href="/supplier">Suppliers</a></div>
+            <div><Link href="/">Demand</Link></div>
+            <div><Link href="/categories">Categories</Link></div>
+            <div><Link href="/supplier">Suppliers</Link></div>
             <div>Paid links</div>
         </div>
     );
