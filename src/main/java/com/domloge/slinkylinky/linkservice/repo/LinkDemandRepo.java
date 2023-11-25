@@ -24,6 +24,7 @@ public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
                         "WHERE pl.blogger_id=b.id AND pl.link_demand_id=ld.id) "+
                 "AND b.DA >= ld.da_needed "+
                 "AND ld.id != ?2 "+
+                "AND ld.id NOT IN (SELECT pl.link_demand_id FROM paid_link pl) "+
                 "ORDER BY b.we_write_fee ASC, "+
                 "   b.sem_rush_uk_jan23traffic DESC, "+
                 "   b.sem_rush_authority_score DESC ")
