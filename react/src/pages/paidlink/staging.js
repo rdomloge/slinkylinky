@@ -27,9 +27,16 @@ export default function App() {
         console.log("Change to selections: "+JSON.stringify(selectedOtherDemands));
         const domains = [];
         selectedOtherDemands.forEach((d) => {
+            if(selectedOtherDemands.length > 2) {
+                const button = document.getElementById("submitproposal");
+                button.disabled = true;
+                alert("Too many links");
+                return;
+            }
             if(domains.includes(d.domain)) {
                 const button = document.getElementById("submitproposal");
                 button.disabled = true;
+                alert("Duplicate domain");
             }
             else {
                 domains.push(d.domain);
@@ -43,6 +50,7 @@ export default function App() {
     const handleSubmit = () => {
 
         const aggregateDemand = selectedOtherDemands.concat([demand]);
+        const plPromises = [];
 
         const paidlinkUrl = "http://localhost:8080/paidlinks";
         aggregateDemand.forEach((ld) => {
@@ -50,22 +58,32 @@ export default function App() {
                 "blogger": "http://localhost:8080/bloggers/"+parseId(supplier),
                 "linkDemand": "http://localhost:8080/linkdemands/"+parseId(ld)
             }
-            const body = JSON.stringify(plData);
-            fetch(paidlinkUrl, {
+            plPromises.push(fetch(paidlinkUrl, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
-                body: body
-            });
+                body: JSON.stringify(plData)
+            }));
         });
         
-        const proposalUrl = "http://localhost:8080/proposals";
-        const pData = {
-            "supplier": supplier,
-            "demands": aggregateDemand 
-        }
-        fetch(proposalUrl, {
-            method: 'POST',
-            body: JSON.stringify(pData)
+        const plLocations = []
+        Promise.all(plPromises).then( (responses) => {
+            responses.forEach( (resp) => {
+                plLocations.push(resp.headers.get('Location'))
+                }
+            )
+            const proposalUrl = "http://localhost:8080/proposals";
+            const pData = {
+                "paidLinks": plLocations,
+                "dateCreated": new Date().toISOString()
+            }
+            fetch(proposalUrl, {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(pData)
+            }).then( (resp) => {
+                const locationUrl = resp.headers.get('Location')
+                location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
+            });
         });
     }
 
@@ -96,7 +114,7 @@ export default function App() {
     if(supplier && demand && otherDemands) {
         return (
             <Layout>
-                    <PageTitle title="Staging"/>
+                    <PageTitle title="Proposal Staging"/>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <SupplierCard supplier={supplier}/>
