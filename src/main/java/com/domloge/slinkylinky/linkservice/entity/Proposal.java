@@ -1,6 +1,6 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.Entity;
@@ -19,18 +19,24 @@ public class Proposal {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    
+    private LocalDateTime dateCreated;
 
-    private LocalDate dateSentToSupplier;
-    private LocalDate dateAcceptedBySupplier;
-    private LocalDate dateBlogLive;
-    private LocalDate dateInvoiceReceived;
-    private LocalDate dateInvoicePaid;
+    private LocalDateTime dateSentToSupplier;
+    private boolean proposalSent;
+
+    private LocalDateTime dateAcceptedBySupplier;
+    private boolean proposalAccepted;
+
+    private LocalDateTime dateBlogLive;
+    private boolean blogLive;
+
+    private LocalDateTime dateInvoiceReceived;
+    private boolean invoiceReceived;
+
+    private LocalDateTime dateInvoicePaid;
     
     private boolean contentReady;
-    private boolean proposalSent;
-    private boolean proposalAccepted;
-    private boolean blogLive;
-    private boolean invoiceReceived;
 
     @OneToMany
     private List<PaidLink> paidLinks;

@@ -7,7 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 
 @RepositoryRestResource(collectionResourceRel = "proposals", path = "proposals")
-@CrossOrigin(originPatterns = {"*localhost*"})
+@CrossOrigin(exposedHeaders = "*")
 public interface ProposalRepo extends CrudRepository <Proposal, Long> {
     
 }

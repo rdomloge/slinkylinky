@@ -1,0 +1,37 @@
+GET {{host}}/proposals
+###
+
+POST {{host}}/proposals
+Content-Type: application/json
+
+{
+  "paidLinks": ["http://localhost:8080/paidlinks/2", "http://localhost:8080/paidlinks/1"],
+  "dateCreated": "2023-11-24T14:45:00Z"
+}
+###
+PATCH {{host}}/proposals/1
+Content-Type: application/json
+
+{
+  "contentReady": true,
+  "proposalSent": true
+}
+###
+PATCH {{host}}/proposals/2
+Content-Type: application/json
+
+{
+  "contentReady": true,
+  "proposalSent": true,
+  "proposalAccepted": true
+}
+###
+PATCH {{host}}/proposals/3
+Content-Type: application/json
+
+{
+  "contentReady": true,
+  "proposalSent": true,
+  "proposalAccepted": true,
+  "invoiceReceived": true
+}
