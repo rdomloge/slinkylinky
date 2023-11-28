@@ -43,4 +43,6 @@ public interface BloggerRepo extends CrudRepository <Blogger, Long> {
                 "   b.sem_rush_uk_jan23traffic DESC, "+
                 "   b.sem_rush_authority_score DESC")
     List<Blogger> findBloggersForLinkDemandId(int linkDemandId);
+
+    Blogger findByDomainIgnoreCase(String domain);
 }

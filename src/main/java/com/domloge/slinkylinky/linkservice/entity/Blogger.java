@@ -2,6 +2,8 @@ package com.domloge.slinkylinky.linkservice.entity;
 
 import java.util.List;
 
+import com.domloge.slinkylinky.linkservice.Util;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,6 +24,7 @@ public class Blogger {
     private String email;
     private int da;
     private String website;
+    private String domain;
     private int weWriteFee;
     private int semRushAuthorityScore;
     private int semRushUkMonthlyTraffic;
@@ -29,4 +32,9 @@ public class Blogger {
 
     @ManyToMany
     private List<Category> categories;
+
+    public void setWebsite(String website) {
+        this.website = website;
+        this.domain = Util.stripDomain(website);
+    }
 }

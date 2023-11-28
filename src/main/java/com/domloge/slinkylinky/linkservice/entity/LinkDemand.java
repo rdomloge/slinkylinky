@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import com.domloge.slinkylinky.linkservice.Util;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,10 +25,10 @@ public class LinkDemand {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String name;
-    private String url;
-    private int daNeeded;
-    private String anchorText;
+    private String name;//
+    private String url;//
+    private int daNeeded;//
+    private String anchorText;//
     private String domain;
     private String requested;
 
@@ -35,5 +37,9 @@ public class LinkDemand {
 
     public LocalDate getRequestedDate() {
         return LocalDate.parse(requested, format);
+    }
+
+    public void setDomain(String domain) {
+        this.domain = Util.stripDomain(domain); // it's sometimes got www.
     }
 }
