@@ -32,9 +32,9 @@ export default function App() {
 
     return (
         <Layout>
-            <PageTitle title="Matching suppliers"/>
+            <PageTitle title="Demand details"/>
             <LinkDemandCard linkdemand={demand} />
-            <div>Suppliers</div>
+            <div>Matching suppliers</div>
             <SupplierList suppliers={suppliers} linkdemand={demand}/>
         </Layout>
     );
