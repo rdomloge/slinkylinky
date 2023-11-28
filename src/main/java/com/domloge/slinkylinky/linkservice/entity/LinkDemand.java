@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.entity;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import com.domloge.slinkylinky.linkservice.Util;
@@ -19,7 +20,8 @@ import lombok.Setter;
 @Setter
 public class LinkDemand {
 
-    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyy");
+    private static final DateTimeFormatter csvFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter browserFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,10 +38,20 @@ public class LinkDemand {
     private List<Category> categories;
 
     public LocalDate getRequestedDate() {
-        return LocalDate.parse(requested, format);
+        try {
+            return LocalDate.parse(requested, browserFormat);
+        }
+        catch(DateTimeParseException dtpex) {
+            return LocalDate.parse(requested, csvFormat);
+        }
     }
 
     public void setDomain(String domain) {
         this.domain = Util.stripDomain(domain); // it's sometimes got www.
+    }
+
+    public void setUrl(String url) {
+        this.domain = Util.stripDomain(url);
+        this.url = url;
     }
 }
