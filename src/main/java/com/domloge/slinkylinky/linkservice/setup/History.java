@@ -1,7 +1,5 @@
 package com.domloge.slinkylinky.linkservice.setup;
 
-import org.springframework.hateoas.Link;
-
 import lombok.Getter;
 import lombok.Setter;
 
