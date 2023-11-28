@@ -1,13 +1,15 @@
 GET {{host}}/linkdemands
 ###
+GET {{host}}/linkdemands/107
+###
 POST {{host}}/linkdemands
 Content-Type: application/json
 
-{"name": "Berkley Castle Wewddings",
-    "url": "www.dcwhite.co.uk",
+{"name": "Highclere Gin Weddings",
+    "url": "www.hiccup.co.uk",
     "daNeeded": 10,
-    "anchorText": "Engineering Consultants",
-    "domain": "dcwhite.co.uk",
+    "anchorText": "Let's get sloshed people",
+    "domain": "hiccup.co.uk",
     "requested": "27/11/2023",
     "requestedDate": "2023-11-27",
     "categories": ["http://localhost:8080/categories/42", "http://localhost:8080/categories/4"] }
@@ -48,6 +50,15 @@ Content-Type: application/json
     "requestedDate": "2023-11-24",
     "categories": ["http://localhost:8080/categories/8", "http://localhost:8080/categories/4"] }
 
+###
+POST {{host}}/linkdemands
+Content-Type: application/json
+
+{"daNeeded":"23",
+    "name":"Ken",
+    "anchorText":"Anchortext",
+    "url":"https://www.disney.com",
+    "categories":["http://localhost:8080/categories/5","http://localhost:8080/categories/4"]}
 ###
 GET {{host}}/linkdemands/2
 ###
