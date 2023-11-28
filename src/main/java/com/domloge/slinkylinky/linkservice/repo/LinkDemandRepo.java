@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 
 @RepositoryRestResource(collectionResourceRel = "linkdemands", path = "linkdemands")
-@CrossOrigin(originPatterns = {"*localhost*"})
+@CrossOrigin(exposedHeaders = "*")
 public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
     
     @Query(nativeQuery = true,
@@ -19,9 +19,9 @@ public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
                 "AND bc.categories_id=ldc.categories_id "+
                 "AND ldc.link_demand_id=ld.id "+
                 "AND bc.blogger_id=b.id "+
-                "AND b.website NOT IN "+
-                "   (SELECT b.website FROM blogger b, paid_link pl, link_demand ld "+
-                        "WHERE pl.blogger_id=b.id AND pl.link_demand_id=ld.id) "+
+                "AND b.domain NOT IN "+
+                "   (SELECT b.domain FROM blogger b, paid_link pl, link_demand ld "+
+                        "WHERE pl.blogger_id=b.id AND pl.link_demand_id=ld.id AND ld.id=?1) "+
                 "AND b.DA >= ld.da_needed "+
                 "AND ld.id != ?2 "+
                 "AND ld.id NOT IN (SELECT pl.link_demand_id FROM paid_link pl) "+
