@@ -35,8 +35,11 @@ public class Proposal {
     private boolean invoiceReceived;
 
     private LocalDateTime dateInvoicePaid;
+    private boolean invoicePaid;
     
     private boolean contentReady;
+
+    private String liveLinkUrl;
 
     @OneToMany
     private List<PaidLink> paidLinks;
