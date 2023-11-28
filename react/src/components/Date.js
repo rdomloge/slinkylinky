@@ -1,7 +1,16 @@
 export default function NiceDate(props) {
-    return (
-        <>
-            <p>{new Date(props.isostring).toDateString()}</p>
-        </>
-    );
+    if(null != props.isostring) {
+        return (
+            <>
+                <span>{new Date(props.isostring).toDateString()}</span>
+            </>
+        );
+***REMOVED***
+    else {
+        return (
+            <>
+                <span>-</span>
+            </>
+        );
+***REMOVED***
 }
