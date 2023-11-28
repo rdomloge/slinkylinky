@@ -35,3 +35,6 @@ Content-Type: application/json
   "proposalAccepted": true,
   "invoiceReceived": true
 }
+###
+http://localhost:8080/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
+?startDate=2023-1-01T00:00&endDate=2023-11-26T00:00
