@@ -7,6 +7,7 @@ import Layout from '@/components/layout'
 import SupplierCard from '@/components/suppliercard'
 import LinkDemandCard from '@/components/linkdemandcard'
 import TrafficLights from '@/components/ProposalTrafficLights'
+import NiceDate from '@/components/Date'
 
 export default function Proposal() {
     const router = useRouter()
@@ -14,6 +15,7 @@ export default function Proposal() {
     const [paidLinks, setPaidLinks] = useState()
     const [supplier, setSupplier] = useState()
     const [linkDemands, setLinkDemands] = useState()
+    const [showModal, setShowModal] = useState()
 
     function parseId(entity) {
         const url = entity._links.self.href;
@@ -65,10 +67,21 @@ export default function Proposal() {
                 <Layout>
                     <PageTitle title="Proposal"/>
                     <div>{proposal.dateCreated}</div>
-                    <TrafficLights proposal={proposal}/>
+                    <TrafficLights proposal={proposal} updateHandler={setProposal}/>
+                    <span>{proposal.liveLinkUrl}</span>
                     <div className="grid grid-cols-3">
                         <div>
                             <SupplierCard supplier={supplier}/>
+                            <div className="card list-card">
+                                <div className="grid grid-cols-2">
+                                    <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
+                                    <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
+                                    <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
+                                    <span>Date invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
+                                    <span>Date invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
+                                    <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
+                                </div>
+                            </div>
                         </div>
                         <div className="col-span-2">
                             {linkDemands.map( (ld) => <LinkDemandCard linkdemand={ld} key={parseId(ld)}/>)}

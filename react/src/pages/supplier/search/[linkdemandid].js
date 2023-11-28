@@ -26,9 +26,6 @@ export default function App() {
                         setDemand(dataDemand);
                         setSuppliers(dataSuppliers);
                     });
-            } 
-            else {
-                console.log('Router not ready yet')
             }
         }, [router.isReady]
     );
@@ -55,8 +52,8 @@ function SupplierList(props) {
     else return (
         <div>
             {props.suppliers._embedded.bloggers.map((s) => (
-                <a href={'/paidlink/staging?supplierId='+parseId(s)+'&linkDemandId='+parseId(props.linkdemand)} key={parseId(props.linkdemand)}>
-                    <SupplierCard supplier={s} key={s.website} />
+                <a href={'/paidlinks/staging?supplierId='+parseId(s)+'&linkDemandId='+parseId(props.linkdemand)} key={parseId(s)}>
+                    <SupplierCard supplier={s} />
                 </a>
             ))}
         </div>

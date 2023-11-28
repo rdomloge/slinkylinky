@@ -11,7 +11,7 @@ export default function Menu() {
             <div><Link href="/categories">Categories</Link></div>
             <div><Link href="/supplier">Suppliers</Link></div>
             <div><Link href="/proposals">Proposals</Link></div>
-            <div>Paid links</div>
+            <div><Link href="/paidlinks">Paid links</Link></div>
         </div>
     );
 }
