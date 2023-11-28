@@ -1,6 +1,9 @@
 package com.domloge.slinkylinky.linkservice.setup;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,9 +29,26 @@ public class SetupHandler {
     private void setupData() {
         setupCategories();
         setupBloggers();
-        setupLinkDemands();
+        // setupLinkDemands();
+        setupHistory();
     }
     
+
+    private void setupHistory() {
+        List<History> histories = loader.loadObjectList(History.class, "history.csv");
+        log.info("Found {} histories in CSV", histories.size());
+        Map<String, List<History>> map = new HashMap<>();
+        histories.forEach( h -> {
+            if( ! map.containsKey(h.getPostPlacement())) {
+                map.put(h.getPostPlacement(), new LinkedList<>());
+            }
+            map.get(h.getPostPlacement()).add(h);
+        });
+
+        map.values().stream().forEach( 
+            historiesWithMatchingPostPlacements -> setupService.persist(historiesWithMatchingPostPlacements));
+    }
+
 
     private void setupCategories() {
         List<Category> categories = loader.loadObjectList(Category.class, "categories.csv");
