@@ -8,10 +8,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "liveLinkUrl")})
 @Getter 
 @Setter
 public class Proposal {
@@ -40,6 +43,7 @@ public class Proposal {
     private boolean contentReady;
 
     private String liveLinkUrl;
+    private String liveLinkTitle;
 
     @OneToMany
     private List<PaidLink> paidLinks;

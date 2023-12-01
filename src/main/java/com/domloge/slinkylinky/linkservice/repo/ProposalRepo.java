@@ -14,4 +14,6 @@ import com.domloge.slinkylinky.linkservice.entity.Proposal;
 public interface ProposalRepo extends CrudRepository <Proposal, Long> {
     
     List<Proposal> findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual(LocalDateTime endDate, LocalDateTime startDate);
+
+    Proposal findByLiveLinkUrl(String liveLinkUrl);
 }

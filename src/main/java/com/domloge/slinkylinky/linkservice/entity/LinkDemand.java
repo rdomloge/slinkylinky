@@ -12,6 +12,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -33,6 +35,7 @@ public class LinkDemand {
     private String anchorText;//
     private String domain;
     private String requested;
+    private String createdBy;
 
     @ManyToMany
     private List<Category> categories;

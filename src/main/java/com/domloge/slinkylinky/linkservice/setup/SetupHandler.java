@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.linkservice.entity.Blogger;
 import com.domloge.slinkylinky.linkservice.entity.Category;
+import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -29,8 +30,16 @@ public class SetupHandler {
         setupCategories();
         setupBloggers();
         setupHistory();
+        setupDemand();
     }
     
+
+    private void setupDemand() {
+        List<LinkDemand> demands = loader.loadObjectList(LinkDemand.class, "linkdemand.csv");
+        log.info("Found {} demand in CSV", demands.size());
+        demands.forEach(d -> setupService.persist(d));
+    }
+
 
     private void setupHistory() {
         List<History> histories = loader.loadObjectList(History.class, "history.csv");

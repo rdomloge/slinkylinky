@@ -58,10 +58,11 @@ Content-Type: application/json
     "name":"Ken",
     "anchorText":"Anchortext",
     "url":"https://www.disney.com",
+    "requested": "2023-12-01",
     "categories":["http://localhost:8080/categories/5","http://localhost:8080/categories/4"]}
 ###
-GET {{host}}/linkdemands/2
+GET {{host}}/linkdemands/search/findById?id=2&projection=fullLinkDemand
 ###
 GET {{host}}/linkdemands/search/findDemandForSupplierId?supplierId=1&linkdemandIdToIgnore=4
 ###
-GET {{host}}/linkdemands/search/findUnsatisfiedDemand
+GET {{host}}/linkdemands/search/findUnsatisfiedDemand?projection=fullLinkDemand

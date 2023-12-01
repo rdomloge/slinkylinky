@@ -48,32 +48,44 @@ public class SetupService {
     
     @Transactional
     public void persist(Blogger b) {
-        List<Category> bloggerCategories = b.getCategories();
-        List<Category> dbCategories = new LinkedList<>();
+        if(null == bloggerRepo.findByDomainIgnoreCase(b.getDomain())) {
 
-        bloggerCategories.stream()
-            .map(c -> c.getName().split(","))
-            .forEach(names -> Arrays.stream(names)
-                .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
-        b.setCategories(dbCategories);
-        bloggerRepo.save(b);
+            List<Category> bloggerCategories = b.getCategories();
+            List<Category> dbCategories = new LinkedList<>();
+
+            bloggerCategories.stream()
+                .map(c -> c.getName().split(","))
+                .forEach(names -> Arrays.stream(names)
+                    .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+            b.setCategories(dbCategories);
+            bloggerRepo.save(b);
+        }
     }
 
     @Transactional
-    public void persist(LinkDemand c) {
-        List<Category> clientCategories = c.getCategories();
-        List<Category> dbCategories = new LinkedList<>();
+    public void persist(LinkDemand ld) {
 
-        clientCategories.stream()
-            .map(cc -> cc.getName().split(","))
-            .forEach(names -> Arrays.stream(names)
-                .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
-        c.setCategories(dbCategories);
-        linkDemandRepo.save(c);
+        if(null == linkDemandRepo.findByUrl(ld.getUrl())) {
+
+            List<Category> clientCategories = ld.getCategories();
+            List<Category> dbCategories = new LinkedList<>();
+
+            clientCategories.stream()
+                .map(cc -> cc.getName().split(","))
+                .forEach(names -> Arrays.stream(names)
+                    .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+            ld.setCategories(dbCategories);
+            linkDemandRepo.save(ld);
+        }
+        else {
+            log.info("Already have link demand {}", ld.getName());
+        }
     }
 
     public void persist(Category c) {
-        categoryRepo.save(c);
+        if(null == categoryRepo.findByName(c.getName())) {
+            categoryRepo.save(c);
+        }
     }
 
     @Transactional
@@ -88,6 +100,13 @@ public class SetupService {
             return;
         }
         if(histories.size() > 3) throw new RuntimeException("There are "+histories.size()+" histories for "+histories.get(0).getPostPlacement());
+        
+        String liveLinkUrl = findLiveLink(histories);
+        if(null != proposalRepo.findByLiveLinkUrl(liveLinkUrl)) {
+            return;
+        }
+        
+        
         List<PaidLink> paidLinks = new LinkedList<>();
         histories.forEach(h -> {
             PaidLink pl = new PaidLink();
@@ -107,6 +126,7 @@ public class SetupService {
             demand.setRequested(h.getRequested());
             demand.setUrl(h.getClientWebsite());
             demand.setCategories(Arrays.asList(categoryRepo.findByName(h.getCategory())));
+            demand.setCreatedBy("historical");
             linkDemandRepo.save(demand);
 
             pl.setBlogger(blogger);
@@ -124,20 +144,20 @@ public class SetupService {
         p.setInvoicePaid(true);
         p.setProposalAccepted(true);
         p.setProposalSent(true);
-        p.setLiveLinkUrl(findLiveLink(histories));
+        p.setLiveLinkUrl(liveLinkUrl);
+        p.setLiveLinkTitle(findLiveLinkTitle(histories));
+        p.setDateBlogLive(findLiveLinkDelivered(histories));
         proposalRepo.save(p);
     }
 
-    // public static void main(String[] args) {
-    //     History h1 = new History();
-    //     History h2 = new History();
-    //     History h3 = new History();
-    //     h1.setRequested("27/10/2023");
-    //     h2.setRequested("26/10/2023");
-    //     h3.setRequested("25/10/2023");
-    //     LocalDateTime latest = findLatestDateCreated(Arrays.asList(h1, h2, h3));
-    //     System.out.println("Latest: "+latest);
-    // }
+    private LocalDateTime findLiveLinkDelivered(List<History> histories) {
+        Set<String> delivereds = histories.stream()
+            .map(h -> h.getDelivered())
+            .collect(Collectors.toSet());
+        if(delivereds.size() != 1) throw new RuntimeException("Wrong number of delivereds");
+        String delivered = delivereds.toArray(new String[]{})[0];
+        return Util.parse(delivered); 
+    }
 
     private static String findLiveLink(List<History> histories) {
         Set<String> links = histories.stream()
@@ -145,6 +165,14 @@ public class SetupService {
             .collect(Collectors.toSet());
         if(links.size() != 1) throw new RuntimeException("Wrong number of live links");
         return links.toArray(new String[]{})[0];
+    }
+
+    private static String findLiveLinkTitle(List<History> histories) {
+        Set<String> titles = histories.stream()
+            .map(h -> h.getPostTitle())
+            .collect(Collectors.toSet());
+        if(titles.size() != 1) throw new RuntimeException("Wrong number of live link titles");
+        return titles.toArray(new String[]{})[0];
     }
 
     private static LocalDateTime findLatestDateCreated(List<History> histories) {

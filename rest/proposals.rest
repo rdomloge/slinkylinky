@@ -36,5 +36,10 @@ Content-Type: application/json
   "invoiceReceived": true
 }
 ###
-http://localhost:8080/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
-?startDate=2023-1-01T00:00&endDate=2023-11-26T00:00
+GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
+?startDate=2023-01-01T00:00&endDate=2023-11-26T00:00
+###
+GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
+?startDate=2023-01-01T00:00&endDate=2023-11-26T00:00&projection=fullProposal
+###
+GET {{host}}/proposals/73?projection=fullProposal

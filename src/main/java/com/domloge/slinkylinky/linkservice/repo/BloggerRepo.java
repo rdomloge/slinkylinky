@@ -8,6 +8,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.domloge.slinkylinky.linkservice.entity.Blogger;
+import com.domloge.slinkylinky.linkservice.entity.FullBloggerProjection;
 
 @RepositoryRestResource(collectionResourceRel = "bloggers", path = "bloggers")
 @CrossOrigin(originPatterns = {"*localhost*"})
@@ -39,7 +40,7 @@ public interface BloggerRepo extends CrudRepository <Blogger, Long> {
                 "ORDER BY b.we_write_fee ASC, "+
                 "   b.sem_rush_uk_jan23traffic DESC, "+
                 "   b.sem_rush_authority_score DESC")
-    List<Blogger> findBloggersForLinkDemandId(int linkDemandId);
+    Blogger[] findBloggersForLinkDemandId(int linkDemandId);
 
     Blogger findByDomainIgnoreCase(String domain);
 }

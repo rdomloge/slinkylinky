@@ -1,0 +1,41 @@
+package com.domloge.slinkylinky.linkservice.entity;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.data.rest.core.config.Projection;
+
+@Projection(name="fullProposal", types = {Proposal.class})
+public interface FullProposalProjection {
+
+    LocalDateTime getDateCreated();
+
+    LocalDateTime getDateSentToSupplier();
+
+    boolean isProposalSent();
+
+    LocalDateTime getDateAcceptedBySupplier();
+
+    boolean isProposalAccepted();
+
+    LocalDateTime getDateBlogLive();
+
+    boolean isBlogLive();
+
+    LocalDateTime getDateInvoiceReceived();
+
+    boolean isInvoiceReceived();
+
+    LocalDateTime getDateInvoicePaid();
+
+    boolean isInvoicePaid();
+
+    boolean isContentReady();
+
+    String getLiveLinkUrl();
+
+    String getLiveLinkTitle();
+
+    FullPaidLinkProjection[] getPaidLinks();
+    
+}
