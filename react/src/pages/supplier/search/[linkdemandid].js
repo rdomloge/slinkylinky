@@ -15,8 +15,9 @@ export default function App() {
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = 'http://localhost:8080/linkdemands/'+ router.query.linkdemandid;
-                const suppliersUrl = 'http://localhost:8080/bloggers/search/findBloggersForLinkDemandId?linkDemandId='+ router.query.linkdemandid;
+                const demandUrl = 'http://localhost:8080/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
+                const suppliersUrl = 'http://localhost:8080/bloggers/search/findBloggersForLinkDemandId?linkDemandId='
+                    + router.query.linkdemandid+"&projection=fullBlogger";
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => 
@@ -27,15 +28,15 @@ export default function App() {
                         setSuppliers(dataSuppliers);
                 ***REMOVED***);
         ***REMOVED***
-    ***REMOVED***, [router.isReady]
+    ***REMOVED***, [router.isReady, router.query.linkdemandid]
     );
 
     return (
         <Layout>
-            <PageTitle title="Demand details"/>
+            <PageTitle title="Find a matching supplier"/>
             <LinkDemandCard linkdemand={demand} />
             <div>Matching suppliers</div>
-            <SupplierList suppliers={suppliers} linkdemand={demand}/>
+            <SupplierList suppliers={suppliers} linkdemand={demand} linkdemandid={router.query.linkdemandid}/>
         </Layout>
     );
 }
@@ -51,8 +52,8 @@ function SupplierList(props) {
     if(props.suppliers === null || props.demand === null) return <p>Loading...</p>;
     else return (
         <div>
-            {props.suppliers._embedded.bloggers.map((s) => (
-                <a href={'/paidlinks/staging?supplierId='+parseId(s)+'&linkDemandId='+parseId(props.linkdemand)} key={parseId(s)}>
+            {props.suppliers.map((s,index) => (
+                <a href={'/paidlinks/staging?supplierId='+s.id+'&linkDemandId='+props.linkdemandid} key={index}>
                     <SupplierCard supplier={s} />
                 </a>
             ))}

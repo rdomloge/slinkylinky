@@ -7,9 +7,7 @@ import SupplierCard from "@/components/suppliercard";
 
 export default function ListBloggers() {
     const [bloggers, setBloggers] = useState()
-    // const [categories, setCategories] = useState()
-    const bloggersUrl = "http://localhost:8080/bloggers";
-    // const catUrl = "http://localhost:8080/categories";
+    const bloggersUrl = "http://localhost:8080/bloggers?projection=fullBlogger";
 
     function parseId(entity) {
         const url = entity._links.self.href;
@@ -22,13 +20,6 @@ export default function ListBloggers() {
             fetch(bloggersUrl)
                 .then( (res) => res.json())
                 .then( (data) => setBloggers(data));
-
-            // Promise.all([fetch(bloggersUrl), fetch(catUrl)])
-            //     .then( ([resBloggers, resCategories]) => 
-            //         Promise.all([resBloggers.json(), resCategories.json()]).then( ([bloggers, categories]) => {
-            //             setBloggers(bloggers);
-            //             setCategories(categories);
-            //     ***REMOVED***));
     ***REMOVED***, []
     );
 

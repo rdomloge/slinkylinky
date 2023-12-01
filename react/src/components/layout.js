@@ -4,11 +4,16 @@ import React from 'react';
 import Menu from './menu';
 import Image from 'next/image'
 import Icon from '@/components/logo.png'
+import Profile from './profile';
 
 const Layout =({children}) =>{
+    
     return(
         <>
-            <Image src={Icon} width={377/3} height={119/3} alt="Logo" className="p-1"/>
+            <div className='grid grid-cols-2'>
+                <Image src={Icon} width={377/3} height={119/3} alt="Logo" className="p-1 inline-block"/>
+                <Profile/>
+            </div>
             <div className="grid grid-cols-8 gap-2">
                 <div className="">
                     <Menu/>         

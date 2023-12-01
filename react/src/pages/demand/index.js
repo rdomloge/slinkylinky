@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react';
-import './LinkDemand.css';
 import LinkDemandCard from '@/components/linkdemandcard';
 import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/layout';
@@ -20,7 +19,7 @@ class LinkDemand extends React.Component {
 ***REMOVED***
 
     componentDidMount() {
-        const url = 'http://localhost:8080/linkdemands/search/findUnsatisfiedDemand';
+        const url = 'http://localhost:8080/linkdemands/search/findUnsatisfiedDemand?projection=fullLinkDemand';
 
         fetch(url)
             .then(res => res.json())
@@ -44,8 +43,8 @@ class LinkDemand extends React.Component {
             return (
                 <>
                     <Layout>
-                        <PageTitle title="Demand"/>
-                        <div className="absolute top-4 right-4">
+                        <PageTitle title={"Demand ("+this.state.linkdemands.length+")"}/>
+                        <div className="inline-block content-center">
                             <Link href='/demand/Add'>
                                 <button id="createnew" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
                                     New
@@ -53,10 +52,10 @@ class LinkDemand extends React.Component {
                             </Link>
                         </div>
                         <div className="grid grid-cols-2">
-                        {this.state.linkdemands._embedded.linkdemands.map(ld => (
-                            <div key={"li-"+this.parseId(ld)}>
-                                <a href={'/supplier/search/'+this.parseId(ld)}>
-                                    <LinkDemandCard linkdemand={ld} key={"ldc-"+this.parseId(ld)} />
+                        {this.state.linkdemands.map( (ld,index) => (
+                            <div key={"li-"+index}>
+                                <a href={'/supplier/search/'+ld.id}>
+                                    <LinkDemandCard linkdemand={ld} key={index} />
                                 </a>
                             </div>
                         ))}

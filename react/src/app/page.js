@@ -1,7 +1,7 @@
-import LinkDemand from './linkdemand/LinkDemand'
+
 
 export default function Home() {
   return (
-    <LinkDemand/>
+    <p>Nothing here any more</p>
   )
 }
