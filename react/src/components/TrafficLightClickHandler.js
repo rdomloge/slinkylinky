@@ -15,6 +15,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         if(propertyName === "blogLive")
             if(proposal.blogLive) {
                 proposal.liveLinkUrl = null
+                proposal.liveLinkTitle = null
                 toggle()
             }
             else {
@@ -24,10 +25,11 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             toggle();
     }
 
-    function setCapturedValue(url) {
+    function setCapturedValue(url, title) {
         proposal.liveLinkUrl = url;
-        if("" === url) 
-            console.log("Blank URL");
+        proposal.liveLinkTitle = title;
+        if("" === url || "" === title) 
+            console.log("Blank URL or title");
         else
             toggle();
     }
@@ -38,6 +40,10 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         postData[propertyName] = ! proposal[propertyName]
         if(null != propertyDate) {
             postData[propertyDate] = postData[propertyName] ? new Date().toISOString() : null
+        }
+        if("blogLive" === propertyName) {
+            postData.liveLinkUrl = proposal.liveLinkUrl
+            postData.liveLinkTitle = proposal.liveLinkTitle
         }
         const bodyJson = JSON.stringify(postData)
 
@@ -61,7 +67,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         </div>
         <div>
             {showModal ?
-                <LiveLinkModal submitHandler={(url) => setCapturedValue(url)} cancelHandler={() => {setShowModal(false)}}/>
+                <LiveLinkModal submitHandler={(url,title) => setCapturedValue(url,title)} cancelHandler={() => {setShowModal(false)}}/>
                 :
                 null
             }

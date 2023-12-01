@@ -2,11 +2,11 @@
 
 import '@/styles/globals.css'
 
-export default function Category(props) {
+export default function Category({category}) {
     
     return (
         <div className="lozenge">
-            {props.name}
+            {category.name}
         </div>
     );
 }

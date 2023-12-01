@@ -4,6 +4,7 @@ import '@/styles/globals.css'
 import CategoriesCard from '@/components/categoriescard'
 import Image from 'next/image'
 import Icon from '@/components/shoppingcart.png'
+import NiceDate from './Date'
 
 export default function LinkDemandCard({linkdemand}) {
     
@@ -15,8 +16,8 @@ export default function LinkDemandCard({linkdemand}) {
                 <div>{linkdemand.name}</div>
                 <div>{linkdemand.url}</div>
                 <div>Domain Authority needed {linkdemand.daNeeded}</div>
-                <div>Requested {linkdemand.requested}</div>
-                <CategoriesCard categoriesUrl={linkdemand._links.categories.href}/>
+                <div><NiceDate isostring={linkdemand.requestedDate}/></div>
+                <CategoriesCard categories={linkdemand.categories}/>
             </div>
         );
     }

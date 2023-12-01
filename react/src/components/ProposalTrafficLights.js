@@ -3,7 +3,7 @@ import TrafficLightClickHandler from "./TrafficLightClickHandler";
 
 export default function TrafficLights({proposal, updateHandler}) {
     return (
-        <div className="p-2 m-2 h-12">
+        <div className="p-2 m-2 h-13">
             <TrafficLightClickHandler proposal={proposal} updateHandler={updateHandler} propertyName="contentReady">
                 <TrafficLight text="Content" value={proposal.contentReady} />
             </TrafficLightClickHandler>

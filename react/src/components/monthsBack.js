@@ -39,31 +39,31 @@ export default function MonthsBack() {
 
     const months = lastNMonths(5);
     return (
-        <span>
+        <span className='display-block'>
             <div className={classFor(4)}>
-                <a href="/proposals?minusMonths=4">
+                <Link href="/proposals?minusMonths=4">
                     {months[4]}
-                </a>
+                </Link>
             </div>
             <div className={classFor(3)}>
-                <a href="/proposals?minusMonths=3">
+                <Link href="/proposals?minusMonths=3">
                     {months[3]}
-                </a>
+                </Link>
             </div>
             <div className={classFor(2)}>
-                <a href="/proposals?minusMonths=2">
+                <Link href="/proposals?minusMonths=2">
                     {months[2]}
-                </a>
+                </Link>
             </div>
             <div className={classFor(1)}>
-                <a href="/proposals?minusMonths=1">
+                <Link href="/proposals?minusMonths=1">
                     {months[1]}
-                </a>
+                </Link>
             </div>
             <div className={classFor(0)}>
-                <a href="/proposals">
+                <Link href="/proposals">
                     {months[0]}
-                </a>
+                </Link>
             </div>
         </span>
     );

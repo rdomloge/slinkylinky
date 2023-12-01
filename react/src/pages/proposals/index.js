@@ -49,7 +49,8 @@ export default function ListProposals() {
         const proposalsUrl = 
             "http://localhost:8080/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual"+
             "?startDate="+firstDateString+"T00:00"+
-            "&endDate="+lastDateString+"T23:59";
+            "&endDate="+lastDateString+"T23:59"+
+            "&projection=fullProposal";
         return proposalsUrl;
     }
     
@@ -70,7 +71,7 @@ export default function ListProposals() {
                     .then( (data) => setProposals(data));
             }
             
-        }, [router.isReady]
+        }, [router.isReady, router.query.minusMonths]
     );
 
     if(proposals) {

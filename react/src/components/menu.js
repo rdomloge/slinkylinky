@@ -7,7 +7,7 @@ export default function Menu() {
     
     return (
         <div className="pt-5 px-3">
-            <div><Link href="/">Demand</Link></div>
+            <div><Link href="/demand">Demand</Link></div>
             <div><Link href="/categories">Categories</Link></div>
             <div><Link href="/supplier">Suppliers</Link></div>
             <div><Link href="/proposals">Proposals</Link></div>

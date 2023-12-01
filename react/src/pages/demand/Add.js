@@ -2,12 +2,15 @@ import React, {useState, useEffect} from 'react'
 import CategorySelector from "@/components/CategorySelector";
 import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
+import { useSession } from "next-auth/react";
 
 export default function NewDemand() {
 
     const [demand, setDemand] = useState({})
+    const { data: session } = useSession();
 
     function submitHandler() {
+        demand.createdBy = session.user.email
         console.log("Demand: "+JSON.stringify(demand))
         const demandUrl = "http://localhost:8080/linkdemands"
 
@@ -19,7 +22,7 @@ export default function NewDemand() {
         .then( (resp) => {
             if(resp.ok) {
                 const locationUrl = resp.headers.get('Location')
-                location.href = "/supplier/search/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
+                location.href = "/demand/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
             }
             else {
                 console.log("Created failed");
@@ -35,7 +38,7 @@ export default function NewDemand() {
     return (
         <Layout>
             <PageTitle title="New demand"/>
-            <div className="absolute top-4 right-4">
+            <div className="content-center">
                 <button id="createnew" onClick={submitHandler} 
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
                     Submit
@@ -66,7 +69,7 @@ export default function NewDemand() {
                         </label>
                         <input onChange={(e)=>demand.url=e.target.value}
                             className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-url" />
-                        <p className="text-gray-600 text-xs italic">We'll work out the domain from this</p>
+                        <p className="text-gray-600 text-xs italic">We&apos;ll work out the domain from this</p>
                     </div>
                 </div>
                 <div className="flex flex-wrap -mx-3 mb-2">
