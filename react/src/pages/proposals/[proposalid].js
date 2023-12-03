@@ -36,7 +36,7 @@ export default function Proposal() {
                 <Layout>
                     <PageTitle title="Proposal"/>
                     <div><NiceDate isostring={proposal.dateCreated}/></div>
-                    <TrafficLights proposal={proposal} updateHandler={setProposal}/>
+                    <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
                     {proposal.blogLive ?
                         <div className="card grid grid-cols-3 m-4">
                             <span className='text-center font-extrabold text-lg col-span-2'>{proposal.liveLinkTitle}</span>

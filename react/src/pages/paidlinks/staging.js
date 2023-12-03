@@ -115,20 +115,16 @@ export default function App() {
         return (
             <Layout>
                     <PageTitle title="Proposal Staging"/>
+                    <button id="submitproposal" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                        onClick={() => handleSubmit(searchParams.get('supplierId'))}>
+                        Submit
+                    </button>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <SupplierCard supplier={supplier}/>
                             <LinkDemandCard linkdemand={demand}/>
                         </div>
                         <div>
-                            
-                            <div className="absolute top-4 right-4">
-                                <button id="submitproposal" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                    onClick={() => handleSubmit(searchParams.get('supplierId'))}>
-                                    Submit
-                                </button>
-                            </div>
-                            
                             <p>Other matching demand:</p>
                             
                             {otherDemands.map( (d,index) => 
