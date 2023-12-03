@@ -5,12 +5,16 @@ import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import Link from "next/link";
 import React, {useState, useEffect} from 'react'
+import { useSession } from "next-auth/react";
 import { useRouter } from 'next/router'
 import MonthsBack from "@/components/monthsBack";
+import OwnerFilter from "@/components/OwnerFilter";
 
 export default function ListProposals() {
     const [proposals, setProposals] = useState()
+    const [personal, setPersonal] = useState()
     const router = useRouter()
+    const { data: session } = useSession();
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
@@ -61,30 +65,49 @@ export default function ListProposals() {
         return id;
 ***REMOVED***
 
+    function filterForThisUser(data) {
+        if(personal) {
+            const filteredProposals = data.filter( (p) => {
+                return paidLinksContainsDemandForMe(p.paidLinks)
+        ***REMOVED***)
+            return filteredProposals
+    ***REMOVED***
+        else {
+            return data
+    ***REMOVED***
+***REMOVED***
+
+    function paidLinksContainsDemandForMe(paidLinks) {
+        if( ! session) return true;
+        var forMe = false;
+        paidLinks.forEach( pl => {if(pl.linkDemand.createdBy === session.user.email) forMe = true***REMOVED***
+        return forMe;
+***REMOVED***
+
     useEffect(
         () => {
             if(router.isReady) {
 
                 const minusMonths = router.query.minusMonths
+                
                 fetch(buildUrl(minusMonths))
                     .then( (res) => res.json())
-                    .then( (data) => setProposals(data));
+                    .then( (data) => setProposals(filterForThisUser(data._embedded.proposals)));
         ***REMOVED***
             
-    ***REMOVED***, [router.isReady, router.query.minusMonths]
+    ***REMOVED***, [router.isReady, router.query.minusMonths, personal]
     );
 
     if(proposals) {
         return (
             <Layout>
-                <PageTitle title="Proposals"/>
+                <PageTitle title={"Proposals ("+proposals.length+")"}/>
                 <MonthsBack/>
+                <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
                 <ul>
-                {proposals._embedded.proposals.map( (p) => 
+                {proposals.map( (p) => 
                     <li className="m-2" key={parseId(p)}>
-                        <Link href={"/proposals/"+parseId(p)}>
                         <ProposalListItem proposal={p}/>
-                        </Link>
                     </li>
                 )}
                 </ul>

@@ -9,7 +9,11 @@ import DemandHeadline from './DemandHeadline';
 
 export default function ProposalListItem({proposal}) {
 
-    const [supplier, setSupplier] = useState()
+    function parseId(entity) {
+        const url = entity._links.self.href;
+        const id = url.substring(url.lastIndexOf('/')+1);
+        return id;
+***REMOVED***
 
     return (
         <>
@@ -28,13 +32,16 @@ export default function ProposalListItem({proposal}) {
                         </div>
                     : null}
                     <div>
-                        <TrafficLights proposal={proposal}/>
+                        <TrafficLights proposal={proposal} interactive={false}/>
                     </div>
                 </div>
                 <div className='col-span-2 m-3'>
+                    <Link href={"/proposals/"+parseId(proposal)} className='font-semibold text-right text-2xl'>
+                        <p className='font-semibold text-right text-2xl'>View</p>
+                    </Link>
                     <p className='font-semibold text-right'>Demand</p>
                        {proposal.paidLinks.map( 
-                            pl => <DemandHeadline linkDemand={pl.linkDemand}/> )} 
+                            (pl,index) => <DemandHeadline linkDemand={pl.linkDemand} key={index}/> )} 
                 </div>
             </div>
         </>
