@@ -8,7 +8,7 @@ export default function CategoriesCard({categories}) {
     
 
     return (
-        <div className="child-card">
+        <div className="child-card flex flex-wrap">
             {categories.map( (c,index) => <Category category={c} key={index}/> )}
         </div>
     );
