@@ -1,0 +1,32 @@
+GET {{host}}/suppliers
+###
+POST {{host}}/suppliers
+Content-Type: application/json
+
+{"name": "Thrifty Bride",
+"email": "hello@thethriftybride.co.uk",
+"categories": ["WEDDINGS", "BUSINESS"] }
+###
+POST {{host}}/suppliers
+Content-Type: application/json
+
+{"name": "Katrina Rohman",
+"email": "rohmankatrina@gmail.com",
+"categories": ["WEDDINGS", "BUSINESS"] }
+###
+GET {{host}}/suppliers/1
+###
+GET {{host}}/suppliers/search/findByCategories_NameIn?categories=Weddings,Pets
+###
+GET {{host}}/suppliers/search/findByCategories_NameIn?categories=Pets
+###
+GET {{host}}/suppliers/search/findByCategories_NameIn?categories=Family
+###
+GET {{host}}/suppliers/search/findByCategories_NameInWithAvailability?categories=Family&linkDemandId=1&daNeeded=15
+###
+GET {{host}}/suppliers/search/findSuppliersForLinkDemandId?linkDemandId=107&projection=fullSupplier
+###
+GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn?name=Paul&email=mon&categories=Family&projection=fullSupplier&page=1&size=5
+###
+GET {{host}}/suppliers/count
+
