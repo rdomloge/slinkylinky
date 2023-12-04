@@ -4,9 +4,9 @@ import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import React, {useState, useEffect} from 'react'
 import SupplierCard from "@/components/suppliercard";
-import TextFilter from "@/components/TextFilter";
-import DemandStats from "@/components/DemandStats";
+import TextInput from "@/components/TextInput";
 import CategoryFilter from "@/components/CategorySelector";
+import Link from "next/link";
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()
@@ -21,15 +21,11 @@ export default function ListBloggers() {
                                     filterOrBlank("email")+
                                     filterOrBlank("name")+
                                     categoriesToCsvArray();
+              
+            fetch(suppliersUrl)
+                .then( (res) => res.json())
+                .then( (data) => setSuppliers(data));
             
-            // if(filter && (filter.length >= 3 || categoriesFilter)) {
-                fetch(suppliersUrl)
-                    .then( (res) => res.json())
-                    .then( (data) => setSuppliers(data));
-            // }
-            // else {
-            //     setSuppliers([])
-            // }
     ***REMOVED***, [filter, categoriesFilter]
     );
 
@@ -54,14 +50,21 @@ export default function ListBloggers() {
     return (
         <Layout>
             <PageTitle title="Suppliers" count={suppliers ? suppliers.length : ""}/>
-            <DemandStats/>
-            <TextFilter changeHandler={(value) =>setFilter(value)} label="Name or email filter"/>
-            <div className="w-1/2">
+            <div className="w-1/4 pr-8 inline-block">
+                <TextInput changeHandler={(value) =>setFilter(value)} label="Name or email filter"/>
+            </div>
+            <div className="w-1/3 pr-8 inline-block">
                 <CategoryFilter changeHandler={categoriesFilterChangeHandler} label="Category filter"/>
             </div>
             {suppliers ?
                 <div className="grid grid-cols-3">
-                    {suppliers.map( (s, index) => <div key={index}><SupplierCard supplier={s}/></div>)}
+                    {suppliers.map( (s, index) => 
+                        <div key={index}>
+                            <Link href={"/supplier/"+s.id}>
+                                <SupplierCard supplier={s}/>
+                            </Link>
+                        </div>
+                    )}
                 </div> 
             :
                 <p>Set a filter</p>
