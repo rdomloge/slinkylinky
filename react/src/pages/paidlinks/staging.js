@@ -54,7 +54,7 @@ export default function App() {
         const paidlinkUrl = "http://localhost:8080/paidlinks";
         aggregateDemand.forEach((ld) => {
             const plData = {
-                "blogger": "http://localhost:8080/bloggers/"+supplierId,
+                "supplier": "http://localhost:8080/suppliers/"+supplierId,
                 "linkDemand": "http://localhost:8080/linkdemands/"+ld.id
         ***REMOVED***
             plPromises.push(fetch(paidlinkUrl, {
@@ -92,7 +92,7 @@ export default function App() {
                 const supplierId = searchParams.get('supplierId')
                 const linkDemandId = searchParams.get('linkDemandId')
                 const demandUrl = 'http://localhost:8080/linkdemands/'+ linkDemandId+"?projection=fullLinkDemand";
-                const supplierUrl = 'http://localhost:8080/bloggers/'+ supplierId+"?projection=fullBlogger";
+                const supplierUrl = 'http://localhost:8080/suppliers/'+ supplierId+"?projection=fullSupplier";
                 const otherDemandsUrl = 'http://localhost:8080/linkdemands/search/findDemandForSupplierId?supplierId='
                                             + supplierId +'&linkdemandIdToIgnore='+linkDemandId+"&projection=fullLinkDemand";
 

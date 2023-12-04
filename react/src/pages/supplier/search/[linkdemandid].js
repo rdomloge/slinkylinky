@@ -16,8 +16,8 @@ export default function App() {
         () => {
             if(router.isReady) {
                 const demandUrl = 'http://localhost:8080/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
-                const suppliersUrl = 'http://localhost:8080/bloggers/search/findBloggersForLinkDemandId?linkDemandId='
-                    + router.query.linkdemandid+"&projection=fullBlogger";
+                const suppliersUrl = 'http://localhost:8080/suppliers/search/findSuppliersForLinkDemandId?linkDemandId='
+                    + router.query.linkdemandid+"&projection=fullSupplier";
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => 

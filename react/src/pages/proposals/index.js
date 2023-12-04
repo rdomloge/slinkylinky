@@ -51,7 +51,7 @@ export default function ListProposals() {
 
 
         const proposalsUrl = 
-            "http://localhost:8080/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual"+
+            "http://localhost:8080/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc"+
             "?startDate="+firstDateString+"T00:00"+
             "&endDate="+lastDateString+"T23:59"+
             "&projection=fullProposal";
