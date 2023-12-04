@@ -17,6 +17,7 @@ export default function LinkDemandCard({linkdemand}) {
                 <div>{linkdemand.url}</div>
                 <div>Domain Authority needed {linkdemand.daNeeded}</div>
                 <div><NiceDate isostring={linkdemand.requestedDate}/></div>
+                <p>Created by {linkdemand.createdBy}</p>
                 <CategoriesCard categories={linkdemand.categories}/>
             </div>
         );

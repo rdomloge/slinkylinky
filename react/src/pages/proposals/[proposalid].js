@@ -25,7 +25,7 @@ export default function Proposal() {
                     .then( (p) => {
                         setProposal(p);
                         setLinkDemands(p.paidLinks.map(pl => pl.linkDemand))
-                        setSupplier(p.paidLinks[0].blogger);
+                        setSupplier(p.paidLinks[0].supplier);
                     });
             }
         }, [router.isReady, router.query.proposalid]);

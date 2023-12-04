@@ -3,6 +3,7 @@ import CategorySelector from "@/components/CategorySelector";
 import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import { useSession } from "next-auth/react";
+import CategoryFilter from '@/components/CategorySelector';
 
 export default function NewDemand() {
 
@@ -82,12 +83,7 @@ export default function NewDemand() {
                         <p className="text-red-500 text-xs italic">Required</p>
                     </div>
                     <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
-                        <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-                            Categories
-                        </label>
-                        <div className="relative">
-                            <CategorySelector changeHandler={categoryChangeHandler}/>
-                        </div>
+                        <CategorySelector changeHandler={categoryChangeHandler} label="Categories"/>
                     </div>
                     <div className="w-full md:w-3/3 px-3 mb-6 md:mb-0">
                     <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">

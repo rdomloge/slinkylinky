@@ -20,7 +20,7 @@ export default function ProposalListItem({proposal}) {
             <div className="card grid grid-cols-9">
                 <div className='col-span-7'>
                     <NiceDate isostring={proposal.dateCreated}/>
-                    {<SupplierSummary supplier={proposal.paidLinks[0].blogger}/>}
+                    {<SupplierSummary supplier={proposal.paidLinks[0].supplier}/>}
                     {proposal.blogLive ?
                         <div>
                             <Link href={proposal.liveLinkUrl}>
@@ -37,7 +37,7 @@ export default function ProposalListItem({proposal}) {
                 </div>
                 <div className='col-span-2 m-3'>
                     <Link href={"/proposals/"+parseId(proposal)} className='font-semibold text-right text-2xl'>
-                        <p className='font-semibold text-right text-2xl'>View</p>
+                        <p className='font-semibold text-right text-2xl mb-4'>View</p>
                     </Link>
                     <p className='font-semibold text-right'>Demand</p>
                        {proposal.paidLinks.map( 
