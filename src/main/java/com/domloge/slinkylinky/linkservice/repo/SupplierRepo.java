@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 
 @RepositoryRestResource(collectionResourceRel = "suppliers", path = "suppliers")
-@CrossOrigin(originPatterns = {"*localhost*"})
+@CrossOrigin()
 public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>, CrudRepository <Supplier, Long> {
     
     
@@ -19,18 +19,16 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
 
 
     @Query(nativeQuery = true,
-        value = "SELECT s.* FROM supplier s, supplier_categories sc, link_demand ld, link_demand_categories ldc "+
-                "WHERE ld.id=?1 "+
-                "AND sc.categories_id=ldc.categories_id "+
-                "AND ldc.link_demand_id=ld.id "+
-                "AND sc.supplier_id=s.id "+
-                "AND s.domain NOT IN "+
-                "   (SELECT s.domain FROM supplier s, paid_link pl, link_demand ld "+
-                        "WHERE pl.supplier_id=s.id AND pl.link_demand_id=ld.id) "+
-                "AND s.DA >= ld.da_needed "+
-                "ORDER BY s.we_write_fee ASC, "+
-                "   s.sem_rush_uk_jan23traffic DESC, "+
-                "   s.sem_rush_authority_score DESC")
+        value = "select s.* from supplier s "+
+        "left outer join supplier_categories sc on sc.supplier_id=s.id "+
+        "left outer join link_demand_categories ldc on ldc.link_demand_id=?1 "+
+        "where s.id not in ( "+
+        "    select pl.supplier_id from paid_link pl "+
+        "        where pl.id in "+
+        "            (select demand.id from link_demand demand where demand.domain = "+
+        "                (select demand.domain from link_demand demand where demand.id = 108))) "+
+        "AND s.DA >= (select demand.da_needed from link_demand demand where demand.id=108) "+
+        "AND sc.categories_id=ldc.categories_id")
     Supplier[] findSuppliersForLinkDemandId(int linkDemandId);
 
     Supplier findByDomainIgnoreCase(String domain);
