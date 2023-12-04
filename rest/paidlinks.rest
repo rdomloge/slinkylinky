@@ -2,7 +2,7 @@ POST {{host}}/paidlinks
 Content-Type: application/json
 
 {
-  "blogger": "http://localhost:8080/bloggers/4",
+  "supplier": "http://localhost:8080/suppliers/4",
   "linkDemand": "http://localhost:8080/linkdemands/50"
 }
 ###
