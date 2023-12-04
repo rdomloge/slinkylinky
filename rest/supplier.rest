@@ -29,4 +29,14 @@ GET {{host}}/suppliers/search/findSuppliersForLinkDemandId?linkDemandId=107&proj
 GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn?name=Paul&email=mon&categories=Family&projection=fullSupplier&page=1&size=5
 ###
 GET {{host}}/suppliers/count
+###
+PATCH {{host}}/suppliers/52
+Content-Type: application/json
 
+{"name":"Tiffany Tates","domain":"lingermagazine.com",
+"categories":["http://localhost:8080/categories/1{?projection}","http://localhost:8080/categories/2{?projection}"],
+"email":"info@lingermagazine.com","weWriteFee":82,"website":"https://www.lingermagazine.com/","da":20,
+"semRushAuthorityScore":11,"semRushUkMonthlyTraffic":0,"semRushUkJan23Traffic":0
+}
+###
+GET {{host}}/suppliers/search/findSuppliersForLinkDemandId?linkDemandId=108&demandDomain=hysons.co.uk&projection=fullSupplier
