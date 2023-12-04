@@ -1,7 +1,7 @@
 import AsyncSelect from 'react-select/async';
 import React, {useState, useEffect} from 'react'
 
-export default function CategorySelector({changeHandler, label}) {
+export default function CategorySelector({changeHandler, label, initialValue}) {
 
     const [allCategories, setAllCategories] = useState()
 
@@ -46,13 +46,14 @@ export default function CategorySelector({changeHandler, label}) {
 ***REMOVED***
 
     return (
-        <div className="w-full px-3 mb-6 md:mb-0">
+        <div className="w-full px-3 mb-6 md:mb-0 mt-8">
             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-name">
                 {label}
             </label>
             <AsyncSelect
                 onChange={changeHandler}
                 defaultOptions
+                defaultValue={initialValue}
                 cacheOptions
                 closeMenuOnSelect={false}
                 isMulti
