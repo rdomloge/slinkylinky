@@ -17,8 +17,8 @@ export default function ProposalListItem({proposal}) {
 
     return (
         <>
-            <div className="card grid grid-cols-9">
-                <div className='col-span-7'>
+            <div className="card grid grid-cols-11">
+                <div className='col-span-8'>
                     <NiceDate isostring={proposal.dateCreated}/>
                     {<SupplierSummary supplier={proposal.paidLinks[0].supplier}/>}
                     {proposal.blogLive ?
@@ -35,7 +35,7 @@ export default function ProposalListItem({proposal}) {
                         <TrafficLights proposal={proposal} interactive={false}/>
                     </div>
                 </div>
-                <div className='col-span-2 m-3'>
+                <div className='col-span-3 m-3'>
                     <Link href={"/proposals/"+parseId(proposal)} className='font-semibold text-right text-2xl'>
                         <p className='font-semibold text-right text-2xl mb-4'>View</p>
                     </Link>
