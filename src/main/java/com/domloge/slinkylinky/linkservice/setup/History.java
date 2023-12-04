@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class History {
 
-    private int Month;
+    private int month;
     private String companyName;
     private String daNeeded;
     private String anchorText;

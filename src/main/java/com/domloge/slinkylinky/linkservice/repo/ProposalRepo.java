@@ -13,7 +13,8 @@ import com.domloge.slinkylinky.linkservice.entity.Proposal;
 @CrossOrigin(exposedHeaders = "*")
 public interface ProposalRepo extends CrudRepository <Proposal, Long> {
     
-    List<Proposal> findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual(LocalDateTime endDate, LocalDateTime startDate);
+    List<Proposal> findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
+        LocalDateTime endDate, LocalDateTime startDate);
 
     Proposal findByLiveLinkUrl(String liveLinkUrl);
 }

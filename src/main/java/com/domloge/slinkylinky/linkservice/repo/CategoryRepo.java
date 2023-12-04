@@ -11,4 +11,6 @@ import com.domloge.slinkylinky.linkservice.entity.Category;
 public interface CategoryRepo extends CrudRepository <Category, Long> {
     
     Category findByName(String name);
+
+    Category[] findByNameContainsIgnoreCase(String name);
 }

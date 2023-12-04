@@ -18,7 +18,7 @@ import lombok.Setter;
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = "domain")})
 @Getter 
 @Setter
-public class Blogger {
+public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

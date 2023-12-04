@@ -10,6 +10,4 @@ import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 @CrossOrigin(exposedHeaders = "*")
 public interface PaidLinkRepo extends CrudRepository <PaidLink, Long> {
     
-    // void createByBlogger_IdAndClient_Id(int logger_id, int client_id);
-
 }

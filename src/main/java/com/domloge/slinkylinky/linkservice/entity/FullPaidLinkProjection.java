@@ -5,7 +5,7 @@ import org.springframework.data.rest.core.config.Projection;
 @Projection(name="fullPaidlink", types = {PaidLink.class})
 public interface FullPaidLinkProjection {
     
-    FullBloggerProjection getBlogger();
+    FullSupplierProjection getSupplier();
 
     
     FullLinkDemandProjection getLinkDemand();

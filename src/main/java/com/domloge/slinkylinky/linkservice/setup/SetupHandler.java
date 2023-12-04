@@ -8,7 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.domloge.slinkylinky.linkservice.entity.Blogger;
+import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 
@@ -28,7 +28,7 @@ public class SetupHandler {
     @PostConstruct
     private void setupData() {
         setupCategories();
-        setupBloggers();
+        setupSuppliers();
         setupHistory();
         setupDemand();
     }
@@ -62,10 +62,10 @@ public class SetupHandler {
         categories.stream().forEach(c -> setupService.persist(c));
     }
 
-    private void setupBloggers() {
-        List<Blogger> bloggers = loader.loadObjectList(Blogger.class, "bloggers.csv");
-        log.info("Found {} bloggers in CSV", bloggers.size());
-        bloggers.stream().forEach(b -> setupService.persist(b));
+    private void setupSuppliers() {
+        List<Supplier> suppliers = loader.loadObjectList(Supplier.class, "bloggers.csv");
+        log.info("Found {} suppliers in CSV", suppliers.size());
+        suppliers.stream().forEach(b -> setupService.persist(b));
         
     }
 }

@@ -2,8 +2,8 @@ package com.domloge.slinkylinky.linkservice.entity;
 
 import org.springframework.data.rest.core.config.Projection;
 
-@Projection(name="fullBlogger", types = {Blogger.class})
-public interface FullBloggerProjection {
+@Projection(name="fullSupplier", types = {Supplier.class})
+public interface FullSupplierProjection {
 
     String getName();
 

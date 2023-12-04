@@ -11,12 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.domloge.slinkylinky.linkservice.Util;
-import com.domloge.slinkylinky.linkservice.entity.Blogger;
+import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
-import com.domloge.slinkylinky.linkservice.repo.BloggerRepo;
+import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
 import com.domloge.slinkylinky.linkservice.repo.CategoryRepo;
 import com.domloge.slinkylinky.linkservice.repo.LinkDemandRepo;
 import com.domloge.slinkylinky.linkservice.repo.PaidLinkRepo;
@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SetupService {
 
     @Autowired
-    private BloggerRepo bloggerRepo;
+    private SupplierRepo supplierRepo;
 
     @Autowired
     private LinkDemandRepo linkDemandRepo;
@@ -47,18 +47,18 @@ public class SetupService {
     
     
     @Transactional
-    public void persist(Blogger b) {
-        if(null == bloggerRepo.findByDomainIgnoreCase(b.getDomain())) {
+    public void persist(Supplier s) {
+        if(null == supplierRepo.findByDomainIgnoreCase(s.getDomain())) {
 
-            List<Category> bloggerCategories = b.getCategories();
+            List<Category> supplierCategories = s.getCategories();
             List<Category> dbCategories = new LinkedList<>();
 
-            bloggerCategories.stream()
+            supplierCategories.stream()
                 .map(c -> c.getName().split(","))
                 .forEach(names -> Arrays.stream(names)
                     .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
-            b.setCategories(dbCategories);
-            bloggerRepo.save(b);
+            s.setCategories(dbCategories);
+            supplierRepo.save(s);
         }
     }
 
@@ -75,6 +75,7 @@ public class SetupService {
                 .forEach(names -> Arrays.stream(names)
                     .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
             ld.setCategories(dbCategories);
+            ld.setCreatedBy("historical");
             linkDemandRepo.save(ld);
         }
         else {
@@ -111,10 +112,10 @@ public class SetupService {
         histories.forEach(h -> {
             PaidLink pl = new PaidLink();
             String bloggerWebsite = h.getBloggerWebsite();
-            Blogger blogger = bloggerRepo.findByDomainIgnoreCase(Util.stripDomain(bloggerWebsite));
+            Supplier supplier = supplierRepo.findByDomainIgnoreCase(Util.stripDomain(bloggerWebsite));
             
-            if(null == blogger) {
-                log.error("Could not resolve blogger from {}", bloggerWebsite);
+            if(null == supplier) {
+                log.error("Could not resolve supplier from {}", bloggerWebsite);
                 return;
             }
 
@@ -129,7 +130,7 @@ public class SetupService {
             demand.setCreatedBy("historical");
             linkDemandRepo.save(demand);
 
-            pl.setBlogger(blogger);
+            pl.setSupplier(supplier);
             pl.setLinkDemand(demand);
             paidLinkRepo.save(pl);
             paidLinks.add(pl);
