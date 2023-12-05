@@ -28,7 +28,10 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
         "            (select demand.id from link_demand demand where demand.domain = "+
         "                (select demand.domain from link_demand demand where demand.id = 108))) "+
         "AND s.DA >= (select demand.da_needed from link_demand demand where demand.id=108) "+
-        "AND sc.categories_id=ldc.categories_id")
+        "AND sc.categories_id=ldc.categories_id "+
+        "ORDER BY s.we_write_fee ASC, "+
+                "   s.sem_rush_uk_jan23traffic DESC, "+
+                "   s.sem_rush_authority_score DESC")
     Supplier[] findSuppliersForLinkDemandId(int linkDemandId);
 
     Supplier findByDomainIgnoreCase(String domain);
