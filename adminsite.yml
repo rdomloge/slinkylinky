@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminsite
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminsite
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: adminsite
+        version: v1
+    spec:
+      containers:
+        - name: linkservice
+          image: rdomloge/slinky-linky-adminsite:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: LOGLEVEL
+              value: "INFO"
+          startupProbe:
+            httpGet:
+              path: /demand
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 2
+            timeoutSeconds: 2
