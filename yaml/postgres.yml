@@ -20,6 +20,9 @@ spec:
         - name: postgres
           image: postgres
           imagePullPolicy: Always
+          env:
+            - name: POSTGRES_PASSWORD
+              value: CHANGEME
           resources:
             requests:
               cpu: "1000m"
