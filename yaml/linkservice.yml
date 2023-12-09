@@ -29,7 +29,7 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: spring.datasource.url
+            - name: spring_datasource_url
               value: jdbc:postgresql://postgres-service:5432/slinkylinky?user=slinkylinky&password=sl
           startupProbe:
             httpGet:
