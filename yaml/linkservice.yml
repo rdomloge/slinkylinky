@@ -31,11 +31,11 @@ spec:
           env:
             - name: spring_datasource_url
               value: jdbc:postgresql://postgres-service:5432/slinkylinky?user=slinkylinky&password=sl
-          startupProbe:
-            httpGet:
-              path: /api/categories
-              port: 8080
-            initialDelaySeconds: 60
-            failureThreshold: 30
-            periodSeconds: 2
-            timeoutSeconds: 2
+          # startupProbe:
+          #   httpGet:
+          #     path: /api/categories
+          #     port: 8080
+          #   initialDelaySeconds: 60
+          #   failureThreshold: 30
+          #   periodSeconds: 2
+          #   timeoutSeconds: 2
