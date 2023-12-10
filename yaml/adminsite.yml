@@ -19,6 +19,9 @@ spec:
         - name: linkservice
           image: rdomloge/slinky-linky-adminwebsite:latest
           imagePullPolicy: Always
+          env:
+            - name: NEXT_PUBLIC_API_BASE
+              value: http://10.0.0.12:8090
           resources:
             requests:
               cpu: "100m"
@@ -28,9 +31,6 @@ spec:
               memory: "128Mi"
           ports:
             - containerPort: 3000
-          env:
-            - name: LOGLEVEL
-              value: "INFO"
           startupProbe:
             httpGet:
               path: /demand
