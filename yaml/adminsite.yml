@@ -36,5 +36,6 @@ spec:
               path: /demand
               port: 3000
             initialDelaySeconds: 20
+            failureThreshold: 30
             periodSeconds: 2
             timeoutSeconds: 2
