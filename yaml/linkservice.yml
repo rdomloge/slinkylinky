@@ -33,7 +33,7 @@ spec:
               value: jdbc:postgresql://postgres-service:5432/slinkylinky?user=slinkylinky&password=sl
           startupProbe:
             httpGet:
-              path: /categories
+              path: /api/categories
               port: 8080
             initialDelaySeconds: 30
             failureThreshold: 30
