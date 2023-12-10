@@ -1,0 +1,38 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: add-cors-header
+  namespace: slinkylinky
+spec:
+  headers:
+    customResponseHeaders:
+      Access-Control-Allow-Origin: "*"
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: slinkylinky-ingress
+  namespace: slinkylinky
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: slinkylinky-add-cors-header@kubernetescrd
+spec:
+  rules:
+    - host: rdomloge.synology.me
+      http: &http_rules
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: 
+                name: adminwebsite-service
+                port: 
+                  number: 80
+          - path: /categories
+            pathType: Prefix
+            backend:
+              service:
+                name: linkservice-service
+                port: 
+                  number: 8090
