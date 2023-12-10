@@ -19,7 +19,7 @@ export default function Proposal() {
     useEffect(
         () => {
             if(router.isReady) {
-                const proposalsUrl = "http://localhost:8080/proposals/"+router.query.proposalid+"?projection=fullProposal";
+                const proposalsUrl = "/proposals/"+router.query.proposalid+"?projection=fullProposal";
                 fetch(proposalsUrl)
                     .then( (res) => res.json())
                     .then( (p) => {

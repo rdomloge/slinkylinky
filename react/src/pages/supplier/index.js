@@ -15,7 +15,7 @@ export default function ListBloggers() {
 
     useEffect(
         () => {
-            const suppliersUrl = "http://localhost:8080/suppliers/search"+
+            const suppliersUrl = "/suppliers/search"+
                                     "/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn"+
                                     "?projection=fullSupplier"+
                                     filterOrBlank("email")+
@@ -50,6 +50,13 @@ export default function ListBloggers() {
     return (
         <Layout>
             <PageTitle title="Suppliers" count={suppliers ? suppliers.length : ""}/>
+            <div className="content-center">
+                <Link href='/supplier/Add'>
+                    <button id="createnew" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
+                        New
+                    </button>
+                </Link>
+            </div>
             <div className="w-1/4 pr-8 inline-block">
                 <TextInput changeHandler={(value) =>setFilter(value)} label="Name or email filter"/>
             </div>
