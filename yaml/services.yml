@@ -31,3 +31,18 @@ spec:
   #type: ClusterIP
 
 ---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminwebsite-service
+  namespace: slinkylinky
+spec:
+  type: LoadBalancer
+  selector:
+    app: adminwebsite
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3080
+  #type: ClusterIP
