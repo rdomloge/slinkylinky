@@ -28,7 +28,7 @@ spec:
               service: 
                 name: adminwebsite-service
                 port: 
-                  number: 80
+                  number: 3000
           - path: /categories
             pathType: Prefix
             backend:
