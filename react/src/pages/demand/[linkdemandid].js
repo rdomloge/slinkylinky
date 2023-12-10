@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import LinkDemandCard from '@/components/linkdemandcard'
 import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/layout'
+import AddOrEditDemand from '@/components/AddOrEditDemand'
 
 export default function LinkDemand() {
     const router = useRouter()
@@ -13,19 +14,22 @@ export default function LinkDemand() {
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = 'http://localhost:8080/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
+                const demandUrl = '/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
                 fetch(demandUrl)
                     .then(res => res.json())
-                        .then(json => setDemand(json));
+                        .then(json => {
+                            json.id = router.query.linkdemandid;
+                            setDemand(json);
+                        });
             }
         }, [router.isReady, router.query.linkdemandid]
     )
 
     return (
         <Layout>
-            <PageTitle title="Demand"/>
+            <PageTitle title="Edit Demand"/>
             {demand ? 
-                <LinkDemandCard linkdemand={demand}/>
+                <AddOrEditDemand demand={demand}/>
             : <>Loading...</>}
         </Layout>
     );

@@ -11,13 +11,15 @@ export default function App() {
     const router = useRouter()
     const [demand, setDemand] = useState(null);
     const [suppliers, setSuppliers] = useState(null);
+    const [existingLinkCount, setExistingLinkCount] = useState()
 
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = 'http://localhost:8080/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
-                const suppliersUrl = 'http://localhost:8080/suppliers/search/findSuppliersForLinkDemandId?linkDemandId='
+                const demandUrl = "/linkdemands/"+ router.query.linkdemandid+"?projection=fullLinkDemand";
+                const suppliersUrl = "/suppliers/search/findSuppliersForLinkDemandId?linkDemandId="
                     + router.query.linkdemandid+"&projection=fullSupplier";
+                const existingLinkCountUrl = "/paidlinks/search/countByLinkDemand_domain?domain="
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => 
@@ -26,6 +28,9 @@ export default function App() {
                     .then(([dataDemand, dataSuppliers]) => {
                         setDemand(dataDemand);
                         setSuppliers(dataSuppliers);
+                        fetch(existingLinkCountUrl+dataDemand.domain)
+                            .then(resCount => resCount.json())
+                            .then(count => setExistingLinkCount(count));
                     });
             }
         }, [router.isReady, router.query.linkdemandid]
@@ -34,7 +39,12 @@ export default function App() {
     return (
         <Layout>
             <PageTitle title="Find a matching supplier"/>
-            <LinkDemandCard linkdemand={demand} />
+            <div className='flex'>
+                <div className='flex-1'>
+                    <LinkDemandCard linkdemand={demand} />
+                </div>
+                <div className='card flex-none text-lg font-bold m-4 text-zinc-600'>There are <span className='text-5xl'>{existingLinkCount}</span> historical links tracked for this domain</div>
+            </div>
             <div>Matching suppliers</div>
             <SupplierList suppliers={suppliers} linkdemand={demand} linkdemandid={router.query.linkdemandid}/>
         </Layout>
