@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: linkservice
-          image: rdomloge/slinky-linky-adminsite:latest
+          image: rdomloge/slinky-linky-adminwebsite:latest
           imagePullPolicy: Always
           resources:
             requests:
