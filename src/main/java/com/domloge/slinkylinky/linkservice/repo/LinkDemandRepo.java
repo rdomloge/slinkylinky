@@ -33,7 +33,8 @@ public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
 
     @Query(nativeQuery = true,
         value = "SELECT ld.* FROM link_demand ld "+
-                "WHERE ld.id NOT IN (SELECT pl.link_demand_id FROM paid_link pl)")
+                "WHERE ld.id NOT IN (SELECT pl.link_demand_id FROM paid_link pl) "+
+                "ORDER BY ld.requested ASC, ld.name ASC")
     LinkDemand[] findUnsatisfiedDemand();
 
     LinkDemand findByUrl(String url);

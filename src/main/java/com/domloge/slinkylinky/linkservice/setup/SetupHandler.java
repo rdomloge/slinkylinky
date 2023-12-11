@@ -35,7 +35,7 @@ public class SetupHandler {
     
 
     private void setupDemand() {
-        List<LinkDemand> demands = loader.loadObjectList(LinkDemand.class, "linkdemand.csv");
+        List<SetupLinkDemand> demands = loader.loadObjectList(SetupLinkDemand.class, "linkdemand.csv");
         log.info("Found {} demand in CSV", demands.size());
         demands.forEach(d -> setupService.persist(d));
     }
@@ -46,10 +46,10 @@ public class SetupHandler {
         log.info("Found {} histories in CSV", histories.size());
         Map<String, List<History>> map = new HashMap<>();
         histories.forEach( h -> {
-            if( ! map.containsKey(h.getPostPlacement())) {
-                map.put(h.getPostPlacement(), new LinkedList<>());
+            if( ! map.containsKey(h.getPostPlacement()+h.getDelivered())) {
+                map.put(h.getPostPlacement()+h.getDelivered(), new LinkedList<>());
             }
-            map.get(h.getPostPlacement()).add(h);
+            map.get(h.getPostPlacement()+h.getDelivered()).add(h);
         });
 
         map.values().stream().forEach( 
@@ -63,7 +63,7 @@ public class SetupHandler {
     }
 
     private void setupSuppliers() {
-        List<Supplier> suppliers = loader.loadObjectList(Supplier.class, "bloggers.csv");
+        List<SetupSupplier> suppliers = loader.loadObjectList(SetupSupplier.class, "bloggers.csv");
         log.info("Found {} suppliers in CSV", suppliers.size());
         suppliers.stream().forEach(b -> setupService.persist(b));
         

@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.linkservice.setup;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,11 +25,16 @@ public class Loader {
             CsvSchema bootstrapSchema = CsvSchema.emptySchema().withHeader();
             CsvMapper mapper = new CsvMapper();
             mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-            File file = new ClassPathResource(fileName).getFile();
+            // File file = new ClassPathResource(fileName).getFile();
             MappingIterator<T> readValues = 
-            mapper.reader(type).with(bootstrapSchema).readValues(file);
+                mapper.reader(type).with(bootstrapSchema).readValues(new ClassPathResource(fileName).getInputStream());
             return readValues.readAll();
-        } catch (Exception e) {
+        } 
+        catch(FileNotFoundException fnex) {
+            log.error("Could not load {}, it is missing", fileName);
+            return Collections.emptyList();
+        }
+        catch (Exception e) {
             log.error("Error occurred while loading object list from file " + fileName, e);
             return Collections.emptyList();
         }

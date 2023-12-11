@@ -23,6 +23,10 @@ public interface FullSupplierProjection {
 
     Integer getSemRushUkJan23Traffic();
 
+    boolean isThirdParty();
+
+    boolean isDisabled();
+
     FullCategoryProjection[] getCategories();
 
 }

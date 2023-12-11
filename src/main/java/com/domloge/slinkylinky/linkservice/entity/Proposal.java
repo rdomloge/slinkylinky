@@ -3,10 +3,15 @@ package com.domloge.slinkylinky.linkservice.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -14,7 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "liveLinkUrl")})
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "liveLinkUrl")}, indexes = {@Index(columnList = "dateCreated")})
 @Getter 
 @Setter
 public class Proposal {
@@ -45,6 +50,7 @@ public class Proposal {
     private String liveLinkUrl;
     private String liveLinkTitle;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.SUBSELECT)
     private List<PaidLink> paidLinks;
 }

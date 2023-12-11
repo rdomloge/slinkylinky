@@ -33,4 +33,7 @@ public class History {
         throw new RuntimeException("Cannot understand "+getDa());    
     }
     
+    public int getCostInt() {
+        return Integer.parseInt(cost.replace("£", ""));
+    }
 }

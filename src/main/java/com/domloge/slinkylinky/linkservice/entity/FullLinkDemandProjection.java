@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.springframework.data.rest.core.config.Projection;
 
@@ -17,11 +18,9 @@ public interface FullLinkDemandProjection {
 
     String getDomain();
 
-    String getRequested();
+    LocalDateTime getRequested();
 
     String getCreatedBy();
 
     FullCategoryProjection[] getCategories();
-
-    LocalDate getRequestedDate();
 }

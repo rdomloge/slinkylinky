@@ -1,22 +1,31 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.domloge.slinkylinky.linkservice.Util;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+@Table(indexes = {@Index(columnList="name"), 
+                    @Index(columnList = "daNeeded"),
+                    @Index(columnList = "domain"),
+                    @Index(columnList = "requested")})
 @Entity
 @Getter 
 @Setter
@@ -34,18 +43,20 @@ public class LinkDemand {
     private int daNeeded;//
     private String anchorText;//
     private String domain;
-    private String requested;
+    private LocalDateTime requested;
     private String createdBy;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
     private List<Category> categories;
 
-    public LocalDate getRequestedDate() {
+
+    public void setRequestedFromString(String s) {
         try {
-            return LocalDate.parse(requested, browserFormat);
+            setRequested(LocalDate.parse(s, browserFormat).atStartOfDay());
         }
         catch(DateTimeParseException dtpex) {
-            return LocalDate.parse(requested, csvFormat);
+            setRequested(LocalDate.parse(s, csvFormat).atStartOfDay());
         }
     }
 

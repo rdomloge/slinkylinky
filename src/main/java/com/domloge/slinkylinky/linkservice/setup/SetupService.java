@@ -47,39 +47,104 @@ public class SetupService {
     
     
     @Transactional
-    public void persist(Supplier s) {
-        if(null == supplierRepo.findByDomainIgnoreCase(s.getDomain())) {
+    public void persist(SetupSupplier ss) {
+        if(null == supplierRepo.findByDomainIgnoreCase(ss.getDomain())) {
 
-            List<Category> supplierCategories = s.getCategories();
+            List<Category> supplierCategories = ss.getCategories();
             List<Category> dbCategories = new LinkedList<>();
 
             supplierCategories.stream()
                 .map(c -> c.getName().split(","))
                 .forEach(names -> Arrays.stream(names)
                     .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+
+            Supplier s = new Supplier();
             s.setCategories(dbCategories);
+            s.setDa(ss.getDa());
+            s.setDomain(ss.getDomain());
+            s.setEmail(ss.getEmail());
+            s.setName(ss.getName());
+            setSemRush(s, ss);
+            setWeWriteFee(s, ss);
+            s.setWebsite(ss.getWebsite());
             supplierRepo.save(s);
         }
     }
 
+    private void setSemRush(Supplier s, SetupSupplier ss) {
+        
+        try {
+            s.setSemRushAuthorityScore(Integer.parseInt(ss.getSemRushAuthorityScore()));
+        } 
+        catch(NumberFormatException n) {
+            s.setSemRushAuthorityScore(0);
+        }
+
+        try {
+            s.setSemRushUkJan23Traffic(Integer.parseInt(ss.getSemRushUkJan23Traffic()));
+        }
+        catch(NumberFormatException n) {
+            s.setSemRushUkJan23Traffic(0);
+        }
+        
+        try {
+            s.setSemRushUkMonthlyTraffic(Integer.parseInt(ss.getSemRushUkMonthlyTraffic()));
+        }
+        catch(NumberFormatException n) {
+            s.setSemRushUkMonthlyTraffic(0);
+        }
+    }
+
+    private void setWeWriteFee(Supplier s, SetupSupplier ss) {
+        String fee = ss.getWeWriteFee();
+        if(fee.contains("$")) {
+            int amt = (int)Double.parseDouble(fee.substring(fee.indexOf("$")+1));
+            s.setWeWriteFee(amt);
+            s.setWeWriteFeeCurrency("$");
+        }
+        else if(fee.contains("£")) {
+            int amt = (int)Double.parseDouble(fee.substring(fee.indexOf("£")+1));
+            s.setWeWriteFee(amt);
+            s.setWeWriteFeeCurrency("£");
+        }
+    }
+
     @Transactional
-    public void persist(LinkDemand ld) {
+    public void persist(SetupLinkDemand sld) {
 
-        if(null == linkDemandRepo.findByUrl(ld.getUrl())) {
+        if(null == linkDemandRepo.findByUrl(sld.getUrl())) {
 
-            List<Category> clientCategories = ld.getCategories();
+            if(sld.getPostTitle() != null && sld.getPostTitle().trim().length() > 0) {
+                log.warn("@@@ Ignoring already fulfilled demand: "+sld.getName());
+                return;
+            }
+
+            List<Category> clientCategories = sld.getCategories();
             List<Category> dbCategories = new LinkedList<>();
 
-            clientCategories.stream()
-                .map(cc -> cc.getName().split(","))
-                .forEach(names -> Arrays.stream(names)
-                    .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+            if(clientCategories == null || clientCategories.size() == 0) {
+                log.warn("@@@ There are no categories for {}", sld.getName());
+            }
+            else {
+                clientCategories.stream()
+                    .map(cc -> cc.getName().split(","))
+                    .forEach(names -> Arrays.stream(names)
+                        .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+            }
+
+            LinkDemand ld = new LinkDemand();
+            ld.setAnchorText(sld.getAnchorText());
+            ld.setDaNeeded(sld.getDaNeededInt());
+            ld.setDomain(sld.getDomain());
+            ld.setName(sld.getName());
+            ld.setRequestedFromString(sld.getRequested());
+            ld.setUrl(sld.getUrl());
             ld.setCategories(dbCategories);
             ld.setCreatedBy("historical");
             linkDemandRepo.save(ld);
         }
         else {
-            log.info("Already have link demand {}", ld.getName());
+            log.info("Already have link demand {}", sld.getName());
         }
     }
 
@@ -92,15 +157,21 @@ public class SetupService {
     @Transactional
     public void persist(List<History> histories) {
         History head = histories.get(0);
-        if(head.getName().toLowerCase().equals("fatjoe")) {
-            log.error("Ignoring FJ link from {} for {}", head.getBloggerWebsite(), head.getClientWebsite());
+        // if(head.getName().toLowerCase().equals("fatjoe")) {
+        //     log.error("Ignoring FJ link from {} for {}", head.getBloggerWebsite(), head.getClientWebsite());
+        //     return;
+        // }
+        
+        if("done".equalsIgnoreCase(head.getPostPlacement())) {
+            log.warn("### Ignoring {} histories for post placement {}", histories.size(), head.getPostPlacement());
             return;
         }
-        if(head.getName().toLowerCase().equals("micaela")) {
-            log.error("Ignoring Micaela link from {} for {}", head.getBloggerWebsite(), head.getClientWebsite());
-            return;
+
+        if(histories.size() > 3) {
+            log.warn("###################################################################################################");
+            log.warn("There are "+histories.size()+" histories for post placement "+histories.get(0).getPostPlacement());
+            log.warn("###################################################################################################");
         }
-        if(histories.size() > 3) throw new RuntimeException("There are "+histories.size()+" histories for "+histories.get(0).getPostPlacement());
         
         String liveLinkUrl = findLiveLink(histories);
         if(null != proposalRepo.findByLiveLinkUrl(liveLinkUrl)) {
@@ -114,9 +185,12 @@ public class SetupService {
             String bloggerWebsite = h.getBloggerWebsite();
             Supplier supplier = supplierRepo.findByDomainIgnoreCase(Util.stripDomain(bloggerWebsite));
             
-            if(null == supplier) {
-                log.error("Could not resolve supplier from {}", bloggerWebsite);
-                return;
+            if(null == supplier && (
+                h.getName().equalsIgnoreCase("micaela")
+                ||
+                h.getName().equalsIgnoreCase("fatjoe")
+                )) {
+                supplier = createThirdPartySupplier(h);
             }
 
             LinkDemand demand = new LinkDemand();
@@ -124,7 +198,7 @@ public class SetupService {
             demand.setDaNeeded(h.getDaNeededInt());
             demand.setDomain(h.getClientWebsite());
             demand.setName(h.getCompanyName());
-            demand.setRequested(h.getRequested());
+            demand.setRequestedFromString(h.getRequested());
             demand.setUrl(h.getClientWebsite());
             demand.setCategories(Arrays.asList(categoryRepo.findByName(h.getCategory())));
             demand.setCreatedBy("historical");
@@ -151,11 +225,23 @@ public class SetupService {
         proposalRepo.save(p);
     }
 
+    private Supplier createThirdPartySupplier(History h) {
+        Supplier supplier = new Supplier();
+        supplier.setThirdParty(true);
+        supplier.setName(h.getName());
+        supplier.setDa(Integer.parseInt(h.getDa()));
+        supplier.setEmail("n/a");
+        supplier.setWeWriteFee(h.getCostInt());
+        supplier.setWebsite(h.getBloggerWebsite());
+        return supplierRepo.save(supplier);
+    }
+
     private LocalDateTime findLiveLinkDelivered(List<History> histories) {
         Set<String> delivereds = histories.stream()
             .map(h -> h.getDelivered())
             .collect(Collectors.toSet());
-        if(delivereds.size() != 1) throw new RuntimeException("Wrong number of delivereds");
+        if(delivereds.size() != 1) 
+            throw new RuntimeException("Wrong number of delivereds: "+delivereds);
         String delivered = delivereds.toArray(new String[]{})[0];
         return Util.parse(delivered); 
     }
@@ -164,7 +250,8 @@ public class SetupService {
         Set<String> links = histories.stream()
             .map(h -> h.getPostPlacement())
             .collect(Collectors.toSet());
-        if(links.size() != 1) throw new RuntimeException("Wrong number of live links");
+        if(links.size() != 1) 
+            throw new RuntimeException("Wrong number of live links: "+links);
         return links.toArray(new String[]{})[0];
     }
 
