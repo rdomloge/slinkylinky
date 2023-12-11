@@ -32,7 +32,7 @@ spec:
             httpGet:
               path: /demand
               port: 3000
-            initialDelaySeconds: 180
+            initialDelaySeconds: 10
             failureThreshold: 30
             periodSeconds: 10
             timeoutSeconds: 5
