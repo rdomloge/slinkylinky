@@ -16,12 +16,9 @@ spec:
         version: v1
     spec:
       containers:
-        - name: linkservice
+        - name: adminwebsite
           image: rdomloge/slinky-linky-adminwebsite:latest
           imagePullPolicy: Always
-          env:
-            - name: NEXT_PUBLIC_API_BASE
-              value: http://10.0.0.12:8090
           resources:
             requests:
               cpu: "100m"
@@ -35,7 +32,7 @@ spec:
             httpGet:
               path: /demand
               port: 3000
-            initialDelaySeconds: 60
+            initialDelaySeconds: 180
             failureThreshold: 30
             periodSeconds: 10
             timeoutSeconds: 5
