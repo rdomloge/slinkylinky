@@ -28,6 +28,197 @@ public class SupplierRepoTest {
     @Autowired
     private CategoryRepo categoryRepo;
 
+    @Autowired
+    private PaidLinkRepo paidLinkRepo;
+
+    
+
+    @Test
+    public void testFindSuppliersForLinkDemandId_disabledAndThirdPartyIgnored() {
+        // GIVEN
+        // save some categories to use
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        // create the suppliers
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setDa(35);
+            s.setCategories(testCategories);
+        });
+        testSuppliers.get(0).setDisabled(true);        // no match
+        testSuppliers.get(1).setThirdParty(true);   // no match
+        testSuppliers.get(0).setDa(30);
+        testSuppliers.get(1).setDa(30);
+        testSuppliers.get(2).setDa(30); // match
+        testSuppliers.get(3).setDa(30); // match
+        testSuppliers.get(4).setDa(30); // match
+        supplierRepo.saveAll(testSuppliers);
+
+        // create the link demand
+        LinkDemand ld = new LinkDemand();
+        ld.setDaNeeded(20);
+        ld.setCategories(testCategories);
+        LinkDemand dbLd = linkDemandRepo.save(ld);
+
+        // WHEN
+        // Call the method under test
+        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+
+        // THEN
+        assertThat(result.length).isEqualTo(3);
+        assertThat(result[0].getName()).isEqualTo("Supplier 3");
+        assertThat(result[1].getName()).isEqualTo("Supplier 4");
+        assertThat(result[2].getName()).isEqualTo("Supplier 5");
+    }
+
+    @Test
+    public void testFindSuppliersForLinkDemandId_multiSupplierMatchingDa() {
+        // GIVEN
+        // save some categories to use
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        // create the suppliers
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setCategories(testCategories);
+            s.setThirdParty(false);
+            s.setDisabled(false);
+        });
+        
+        testSuppliers.get(0).setDa(20); // match
+        testSuppliers.get(1).setDa(20); // match
+        testSuppliers.get(2).setDa(10); // no match
+        testSuppliers.get(3).setDa(10); // no match
+        testSuppliers.get(4).setDa(10); // no match
+        supplierRepo.saveAll(testSuppliers);
+
+        // create the link demand
+        LinkDemand ld = new LinkDemand();
+        ld.setDaNeeded(20);
+        ld.setCategories(testCategories);
+        LinkDemand dbLd = linkDemandRepo.save(ld);
+
+        // WHEN
+        // Call the method under test
+        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+
+        // THEN
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getName()).isEqualTo("Supplier 1");
+        assertThat(result[1].getName()).isEqualTo("Supplier 2");
+    }
+
+    @Test
+    public void testFindSuppliersForLinkDemandId_multiSupplierMultiCategoryMatch() {
+        // GIVEN
+        // save some categories to use
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        // create the suppliers
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setDa(35);
+            s.setThirdParty(false);
+            s.setDisabled(false);
+        });
+        testSuppliers.get(0).setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // match
+        testSuppliers.get(1).setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // match
+        testSuppliers.get(2).setCategories(Arrays.asList(testCategories.get(2), testCategories.get(3))); // no match
+        testSuppliers.get(3).setCategories(Arrays.asList(testCategories.get(2), testCategories.get(3))); // no match
+        testSuppliers.get(4).setCategories(Arrays.asList(testCategories.get(2), testCategories.get(3))); // no match
+        supplierRepo.saveAll(testSuppliers);
+
+        // create the link demand
+        LinkDemand ld = new LinkDemand();
+        ld.setDaNeeded(20);
+        ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
+        LinkDemand dbLd = linkDemandRepo.save(ld);
+
+        // WHEN
+        // Call the method under test
+        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+
+        // THEN
+        assertThat(result.length).isEqualTo(2);
+        assertThat(result[0].getName()).isEqualTo("Supplier 1");
+        assertThat(result[1].getName()).isEqualTo("Supplier 2");
+    }
+
+    @Test
+    public void testFindSuppliersForLinkDemandId_oneSupplierMultiCategoryMatch() {
+        // GIVEN
+        // save some categories to use
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        // create the suppliers
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setDa(35);
+            s.setThirdParty(false);
+            s.setDisabled(false);
+        });
+        testSuppliers.get(0).setCategories(Arrays.asList(testCategories.get(0))); // match
+        testSuppliers.get(1).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(2).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(3).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(4).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
+        supplierRepo.saveAll(testSuppliers);
+
+        // create the link demand
+        LinkDemand ld = new LinkDemand();
+        ld.setDaNeeded(20);
+        ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
+        LinkDemand dbLd = linkDemandRepo.save(ld);
+
+        // WHEN
+        // Call the method under test
+        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+
+        // THEN
+        assertThat(result.length).isEqualTo(1);
+        assertThat(result[0].getName()).isEqualTo("Supplier 1");
+    }
+
+    @Test
+    public void testFindSuppliersForLinkDemandId_oneSupplierOneCategoryMatch() {
+        // GIVEN
+        // save some categories to use
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        // create the suppliers
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setDa(35);
+            s.setThirdParty(false);
+            s.setDisabled(false);
+        });
+        testSuppliers.get(0).setCategories(Arrays.asList(testCategories.get(0)));
+        testSuppliers.get(1).setCategories(Arrays.asList(testCategories.get(1)));
+        testSuppliers.get(2).setCategories(Arrays.asList(testCategories.get(1)));
+        testSuppliers.get(3).setCategories(Arrays.asList(testCategories.get(1)));
+        testSuppliers.get(4).setCategories(Arrays.asList(testCategories.get(1)));
+        supplierRepo.saveAll(testSuppliers);
+
+        // create the link demand
+        LinkDemand ld = new LinkDemand();
+        ld.setDaNeeded(20);
+        ld.setCategories(Arrays.asList(testCategories.get(0)));
+        LinkDemand dbLd = linkDemandRepo.save(ld);
+
+        // WHEN
+        // Call the method under test
+        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+
+        // THEN
+        assertThat(result.length).isEqualTo(1);
+        assertThat(result[0].getName()).isEqualTo("Supplier 1");
+    }
+
     @Test
     public void testFindSuppliersForLinkDemandId_previousSupplierNotSuggested() {
         // GIVEN
@@ -57,9 +248,11 @@ public class SupplierRepoTest {
         previousLd.setUrl("https://www.disney.com");
         previousLd.setCategories(testCategories);
         previousLd.setDaNeeded(20);
+        linkDemandRepo.save(previousLd);
         PaidLink pl = new PaidLink();
         pl.setSupplier(testSuppliers.get(0));
         pl.setLinkDemand(previousLd);
+        paidLinkRepo.save(pl);
 
         
         // WHEN
