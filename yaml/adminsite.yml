@@ -22,10 +22,10 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "64Mi"
+              memory: "96Mi"
             limits:
               cpu: "4000m"
-              memory: "128Mi"
+              memory: "256Mi"
           ports:
             - containerPort: 3000
           startupProbe:
