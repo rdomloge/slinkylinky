@@ -15,7 +15,7 @@ spec:
           - name: backup
             image: postgres
             command: ["pg_dump"]
-            args: ["-h", "postgres-service", "-U", "slinkylinky", "-d", "slinkylinky", "-f", "/backup/$(echo `printf \"%(%Y-%m-%d_%H:%M:%S_%Z)T\n\"`)-backup.sql"]
+            args: ["-h", "postgres-service", "-U", "slinkylinky", "-d", "slinkylinky", "-f", "/backup/$(date +%Y-%m-%dT%H)-backup.sql"]
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
