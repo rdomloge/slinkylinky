@@ -4,6 +4,8 @@ metadata:
   name: postgres-backup
   namespace: slinkylinky
 spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   schedule: "0 * * * *"
   jobTemplate:
     spec:
