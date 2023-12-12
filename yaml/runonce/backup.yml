@@ -15,7 +15,7 @@ spec:
           - name: backup
             image: postgres
             command: ["/bin/sh"]
-            args: ["pg_dump", "-h", "postgres-service", "-U", "slinkylinky", "-d", "slinkylinky", "-f", $(FILENAME)]
+            args: ["-c", "pg_dump", "-h", "postgres-service", "-U", "slinkylinky", "-d", "slinkylinky", "-f", $(FILENAME)]
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
