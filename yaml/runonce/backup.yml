@@ -1,4 +1,4 @@
-apiVersion: batch/v1 CronJob
+apiVersion: batch/v1CronJob
 kind: CronJob
 metadata:
   name: postgres-backup
