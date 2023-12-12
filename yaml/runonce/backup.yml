@@ -23,7 +23,7 @@ spec:
               - name: PGPASSWORD
                 value: CHANGEME
               - name: FILENAME
-                value: $(date --date="+1 hour" +"%Y-%m-%dT%H:%M:%SZ")
+                value: $(date --date="now" +"%Y-%m-%dT%H:%M:%SZ")
           restartPolicy: OnFailure
           volumes:
           - name: backup-volume
