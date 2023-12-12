@@ -14,14 +14,16 @@ spec:
           containers:
           - name: backup
             image: postgres
-            command: ["pg_dump"]
-            args: ["-h", "postgres-service", "-U", "slinkylinky", "-d", "slinkylinky", "-f", "/backup/`$(date +%Y-%m-%dT%H)`-backup.sql"]
+            command: ["/bin/sh"]
+            args: ["pg_dump", "-h", "postgres-service", "-U", "slinkylinky", "-d", "slinkylinky", "-f", $(FILENAME)]
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
             env:
               - name: PGPASSWORD
                 value: CHANGEME
+              - name: FILENAME
+                value: /backup/$(date "%Y-%m-%dT%H:%M:%SZ")-backup.sql
           restartPolicy: OnFailure
           volumes:
           - name: backup-volume
