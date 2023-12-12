@@ -15,7 +15,7 @@ spec:
           - name: backup
             image: postgres
             command: ["/bin/sh"]
-            args: ["-c", "pg_dump -h postgres-service -U slinkylinky -d slinkylinky -f $(FILENAME)"]
+            args: ["-c", "pg_dump -h postgres-service -U slinkylinky -d slinkylinky -f /backup/$(FILENAME)-backup.sql"]
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
@@ -23,7 +23,7 @@ spec:
               - name: PGPASSWORD
                 value: CHANGEME
               - name: FILENAME
-                value: '/backup/$(date "%Y-%m-%dT%H:%M:%SZ")-backup.sql'
+                value: $(date "%Y-%m-%dT%H:%M:%SZ")
           restartPolicy: OnFailure
           volumes:
           - name: backup-volume
