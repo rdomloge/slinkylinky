@@ -65,6 +65,8 @@ GET {{host}}/linkdemands/search/findById?id=2&projection=fullLinkDemand
 ###
 GET {{host}}/linkdemands/search/findDemandForSupplierId?supplierId=1&linkdemandIdToIgnore=4
 ###
-GET {{host}}/linkdemands/search/findUnsatisfiedDemand?projection=fullLinkDemand
+GET {{host}}/.rest/linkdemands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullLinkDemand
+###
+GET {{host}}/.rest/linkdemands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullLinkDemand
 ###
 GET {{host}}/linkdemands/108?projection=fullLinkDemand
