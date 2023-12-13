@@ -14,7 +14,7 @@ export default function LinkDemand() {
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = '/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
+                const demandUrl = '/.rest/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
                 fetch(demandUrl)
                     .then(res => res.json())
                         .then(json => {

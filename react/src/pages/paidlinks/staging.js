@@ -51,11 +51,11 @@ export default function App() {
         const aggregateDemand = selectedOtherDemands.concat([demand]);
         const plPromises = [];
 
-        const paidlinkUrl = "http://localhost:8080/paidlinks";
+        const paidlinkUrl = "/.rest/paidlinks";
         aggregateDemand.forEach((ld) => {
             const plData = {
-                "supplier": "http://localhost:8080/suppliers/"+supplierId,
-                "linkDemand": "http://localhost:8080/linkdemands/"+ld.id
+                "supplier": "/suppliers/"+supplierId,
+                "linkDemand": "/linkdemands/"+ld.id
             }
             plPromises.push(fetch(paidlinkUrl, {
                 method: 'POST',
@@ -70,7 +70,7 @@ export default function App() {
                 plLocations.push(resp.headers.get('Location'))
                 }
             )
-            const proposalUrl = "http://localhost:8080/proposals";
+            const proposalUrl = "/.rest/proposals";
             const pData = {
                 "paidLinks": plLocations,
                 "dateCreated": new Date().toISOString()
@@ -91,10 +91,10 @@ export default function App() {
             if(searchParams.has('supplierId') && searchParams.has('linkDemandId')) {
                 const supplierId = searchParams.get('supplierId')
                 const linkDemandId = searchParams.get('linkDemandId')
-                const demandUrl = 'http://localhost:8080/linkdemands/'+ linkDemandId+"?projection=fullLinkDemand";
-                const supplierUrl = 'http://localhost:8080/suppliers/'+ supplierId+"?projection=fullSupplier";
-                const otherDemandsUrl = 'http://localhost:8080/linkdemands/search/findDemandForSupplierId?supplierId='
-                                            + supplierId +'&linkdemandIdToIgnore='+linkDemandId+"&projection=fullLinkDemand";
+                const demandUrl = "/.rest/linkdemands/"+ linkDemandId+"?projection=fullLinkDemand";
+                const supplierUrl = "/.rest/suppliers/"+ supplierId+"?projection=fullSupplier";
+                const otherDemandsUrl = "/.rest/linkdemands/search/findDemandForSupplierId?supplierId="
+                                            + supplierId + "&linkdemandIdToIgnore="+linkDemandId+"&projection=fullLinkDemand";
 
                 Promise.all([fetch(demandUrl), fetch(supplierUrl), fetch(otherDemandsUrl)])
                     .then(([resDemand, resSupplier, resOtherDemands]) => 

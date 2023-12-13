@@ -3,20 +3,40 @@
 import CategoriesCard from '@/components/categoriescard'
 import Image from 'next/image'
 import Icon from '@/components/shipping.png'
+import Link from 'next/link'
 
-export default function SupplierCard({supplier}) {
+export default function SupplierCard({supplier, editable}) {
     return (
         <div className="list-card card">
             
             <Image src={Icon} width={32} height={32} alt="Shipping icon"/>
-            <div>{supplier.name}</div>
+            {supplier.thirdParty ? 
+                <p className='text-blue-500 font-bold text-right float-right'>3rd</p>
+            : null}
+            {editable ?
+            <Link href={"/supplier/"+supplier.id}>
+                <p className='text-right float-right'>Edit</p>
+            </Link>
+            :null}
+            <div className={supplier.disabled?"text-gray-300":""}>{supplier.name}</div>
             <div>DA: {supplier.da}</div>
-            <div>Website: {supplier.website}</div>
-            <div>Email: {supplier.email}</div>
-            <div>Fee: &pound;{supplier.weWriteFee}</div>
-            <div>SEM rush authority: {supplier.semRushAuthorityScore}</div>
-            <div>SEM rush UK monthly: {supplier.semRushUkMonthlyTraffic}</div>
-            <div>SEM rush UK Jan &apos;23: {supplier.semRushUkJan23Traffic}</div>
+            <Link href={supplier.website}>
+                <div>Website: {supplier.website}</div>
+            </Link>
+            <Link href={"mailto:"+supplier.email}>
+                <div>Email: {supplier.email}</div>
+            </Link>
+            <div>Fee: {supplier.weWriteFeeCurrency}{supplier.weWriteFee}</div>
+            <div className='grid grid-cols-3 gap-x-4 inline-grid auto-cols-min'>
+                <div className='col-span-2'>SEM rush authority</div>
+                <div>{supplier.semRushAuthorityScore}</div>
+            
+                <div className='col-span-2'>SEM rush UK monthly</div>
+                <div>{supplier.semRushUkMonthlyTraffic}</div>
+            
+                <div className='col-span-2'>SEM rush UK Jan &apos;23</div>
+                <div>{supplier.semRushUkJan23Traffic}</div>
+            </div>
             <CategoriesCard categories={supplier.categories}/>
         </div>
     )

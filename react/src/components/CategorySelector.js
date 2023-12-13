@@ -5,6 +5,14 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
 
     const [allCategories, setAllCategories] = useState()
 
+    const useableInitialValue = initialValue ? initialValue.map(c=>({value:extractUrl(c), label: c.name})) : []
+
+    function extractUrl(category) {
+        const url = category._links.self.href
+        if(url.indexOf('{') > -1) return url.substring(0, url.indexOf('{'))
+        else return url
+    }
+
     function parseId(entity) {
         const url = entity._links.self.href;
         const id = url.substring(url.lastIndexOf('/')+1);
@@ -40,9 +48,9 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
 
     function buildUrlForInputValue(inputValue) {
         if(inputValue) {
-            return "http://localhost:8080/categories/search/findByNameContainsIgnoreCase?name="+inputValue
+            return "/.rest/categories/search/findByNameContainsIgnoreCase?name="+inputValue
         }
-        else return "http://localhost:8080/categories";
+        else return "/.rest/categories";
     }
 
     return (
@@ -53,7 +61,7 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
             <AsyncSelect
                 onChange={changeHandler}
                 defaultOptions
-                defaultValue={initialValue}
+                defaultValue={useableInitialValue}
                 cacheOptions
                 closeMenuOnSelect={false}
                 isMulti

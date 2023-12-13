@@ -35,7 +35,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
     }
     
     function toggle() {
-        const proposalUrl = "/proposals/"+parseId(proposal);
+        const proposalUrl = "/.rest/proposals/"+parseId(proposal);
         const postData = {}
         postData[propertyName] = ! proposal[propertyName]
         if(null != propertyDate) {

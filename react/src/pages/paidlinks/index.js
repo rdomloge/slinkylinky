@@ -4,7 +4,7 @@ import PageTitle from "@/components/pagetitle";
 
 export default function PaidLinks() {
 
-    const paidLinksUrl = "/paidlinks"
+    const paidLinksUrl = "/.rest/paidlinks"
     const [paidLinks, setPaidlinks] = useState()
 
     useEffect( () => {

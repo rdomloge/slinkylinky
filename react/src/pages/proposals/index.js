@@ -51,7 +51,7 @@ export default function ListProposals() {
 
 
         const proposalsUrl = 
-            "/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc"+
+            "/.rest/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc"+
             "?startDate="+firstDateString+"T00:00"+
             "&endDate="+lastDateString+"T23:59"+
             "&projection=fullProposal";
