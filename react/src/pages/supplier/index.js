@@ -63,7 +63,7 @@ export default function ListBloggers() {
     return (
         <Layout>
             <PageTitle title="Suppliers" count={suppliers ? suppliers.length : ""}/> 
-            <span className='pb-4'>{supplierCount} // total suppliers</span>
+            <span className='pb-4'>{supplierCount} &#47;&#47; total suppliers</span>
             <div className="content-center pt-2">
                 <Link href='/supplier/Add'>
                     <SessionButton labelText="New"/>
@@ -79,7 +79,7 @@ export default function ListBloggers() {
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <SupplierCard supplier={s}/>
+                            <SupplierCard supplier={s} editable={true}/>
                         </div>
                     )}
                 </div> 
