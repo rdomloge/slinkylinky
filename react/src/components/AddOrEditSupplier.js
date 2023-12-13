@@ -3,10 +3,10 @@
 import CategorySelector from '@/components/CategorySelector'
 import Image from 'next/image'
 import Icon from '@/components/shipping.png'
-import TextInput from '@/components/TextInput'
-import NumberInput from '@/components/NumberInput'
+import TextInput from '@/components/atoms/TextInput'
+import NumberInput from '@/components/atoms/NumberInput'
 import React, {useState} from 'react';
-import DisableToggle from './DisableToggle'
+import DisableToggle from './atoms/DisableToggle'
 
 export default function AddOrEditSupplier({supplier}) {
 

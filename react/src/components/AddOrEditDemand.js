@@ -4,8 +4,8 @@ import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import { useSession } from "next-auth/react";
 import CategoryFilter from '@/components/CategorySelector';
-import TextInput from '@/components/TextInput';
-import NumberInput from '@/components/NumberInput';
+import TextInput from '@/components/atoms/TextInput';
+import NumberInput from '@/components/atoms/NumberInput';
 
 export default function AddOrEditDemand({demand}) {
 
