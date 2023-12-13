@@ -8,6 +8,8 @@ import org.springframework.data.rest.core.config.Projection;
 @Projection(name="fullLinkDemand", types = {LinkDemand.class})
 public interface FullLinkDemandProjection {
     
+    long getId();
+    
     String getName();
 
     String getUrl();

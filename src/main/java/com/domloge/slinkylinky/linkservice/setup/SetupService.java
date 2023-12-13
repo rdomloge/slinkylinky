@@ -112,7 +112,7 @@ public class SetupService {
     @Transactional
     public void persist(SetupLinkDemand sld) {
 
-        if(null == linkDemandRepo.findByUrl(sld.getUrl())) {
+        if(null == linkDemandRepo.findByUrlAndAnchorText(sld.getUrl(), sld.getAnchorText())) {
 
             if(sld.getPostTitle() != null && sld.getPostTitle().trim().length() > 0) {
                 log.warn("@@@ Ignoring already fulfilled demand: "+sld.getName());

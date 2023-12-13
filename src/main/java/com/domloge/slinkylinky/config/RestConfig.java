@@ -35,6 +35,10 @@ public class RestConfig implements RepositoryRestConfigurer {
           Proposal.class, 
           PaidLink.class, 
           Category.class,
-          FullLinkDemandProjection.class);
+          FullLinkDemandProjection.class,
+          FullSupplierProjection.class,
+          FullProposalProjection.class,
+          FullPaidLinkProjection.class,
+          FullCategoryProjection.class);
     }
 }

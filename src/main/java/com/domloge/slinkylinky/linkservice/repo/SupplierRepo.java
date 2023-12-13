@@ -39,5 +39,6 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
 
     Supplier[] findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn(String email, String name, String... categories);
 
-    long count();
+    @Query("select count(s) from Supplier s")
+    long findCount();
 }

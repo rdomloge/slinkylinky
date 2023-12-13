@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
+import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 
 @DataJpaTest
@@ -25,9 +26,113 @@ public class LinkDemandRepoTest {
     @Autowired
     private CategoryRepo categoryRepo;
 
+    @Autowired
+    private PaidLinkRepo paidLinkRepo;
 
     @Test
-    public void testFindDemandForSupplierId_domainNotMatching() {
+    public void testFindDemandForSupplierId_noDomainDupes() {
+        // Given
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+        
+        Supplier testSupplier = createTestSupplier();
+        testSupplier.setCategories(testCategories);
+        testSupplier = supplierRepo.save(testSupplier);
+
+        LinkDemand selectedDemand = createTestLinkDemand();
+        selectedDemand.setCategories(testCategories);
+        selectedDemand = linkDemandRepo.save(selectedDemand);
+
+        LinkDemand otherMatchingDemandFromSameClient = createTestLinkDemand();
+        otherMatchingDemandFromSameClient.setCategories(testCategories);
+        linkDemandRepo.save(otherMatchingDemandFromSameClient);
+
+        
+        // WHEN
+        // Call the method under test
+        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)selectedDemand.getId());
+
+        // THEN        
+        assertThat(result.length).isEqualTo(0);
+    }
+
+    @Test
+    public void testFindDemandForSupplierId_noMatchPreviousPaidLinks() {
+        // Given
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+        
+        Supplier testSupplier = createTestSupplier();
+        testSupplier.setCategories(testCategories);
+        testSupplier = supplierRepo.save(testSupplier);
+
+        LinkDemand testLinkDemand = createTestLinkDemand();
+        testLinkDemand.setCategories(testCategories);
+        testLinkDemand.setDaNeeded(5);
+        testLinkDemand = linkDemandRepo.save(testLinkDemand);
+
+        LinkDemand otherMatchingDemand = createTestLinkDemand();
+        otherMatchingDemand.setCategories(testCategories);
+        otherMatchingDemand.setDaNeeded(5);
+        otherMatchingDemand.setUrl("www.toysrus.com");
+        linkDemandRepo.save(otherMatchingDemand);
+
+        LinkDemand currentDemandPreviouslyLinkedFromSupplier = createTestLinkDemand();
+        currentDemandPreviouslyLinkedFromSupplier.setCategories(testCategories);
+        currentDemandPreviouslyLinkedFromSupplier.setUrl("www.bca.co.uk");
+        currentDemandPreviouslyLinkedFromSupplier.setDaNeeded(testSupplier.getDa());
+        linkDemandRepo.save(currentDemandPreviouslyLinkedFromSupplier);
+        PaidLink paidLink = new PaidLink();
+        paidLink.setLinkDemand(currentDemandPreviouslyLinkedFromSupplier);
+        paidLink.setSupplier(testSupplier);
+        paidLinkRepo.save(paidLink);
+        
+        // WHEN
+        // Call the method under test
+        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+
+        // THEN        
+        assertThat(result.length).isEqualTo(1);
+        assertThat(result[0]).isEqualTo(otherMatchingDemand);
+    }
+
+
+    @Test
+    public void testFindDemandForSupplierId_categoriesMatch() {
+        // Given
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+        
+        Supplier testSupplier = createTestSupplier();
+        testSupplier.setCategories(testCategories.subList(3, 4));
+        testSupplier = supplierRepo.save(testSupplier);
+
+        LinkDemand testLinkDemand = createTestLinkDemand();
+        testLinkDemand = linkDemandRepo.save(testLinkDemand);
+
+        LinkDemand catNotMatchingLd = createTestLinkDemand();
+        catNotMatchingLd.setCategories(testCategories.subList(0, 2));
+        catNotMatchingLd.setDaNeeded(testSupplier.getDa());
+        catNotMatchingLd.setUrl("www.bca.co.uk");
+        LinkDemand catMatchingLd = createTestLinkDemand();
+        catMatchingLd.setCategories(testCategories.subList(3, 4));
+        catMatchingLd.setUrl("www.disney.com");
+        catMatchingLd.setDaNeeded(testSupplier.getDa());
+
+        linkDemandRepo.saveAll(List.of(catNotMatchingLd, catMatchingLd));
+        
+        // WHEN
+        // Call the method under test
+        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+
+        // THEN        
+        assertThat(result.length).isEqualTo(1);
+        LinkDemand[] expectedLinkDemands = { catMatchingLd }; 
+        assertThat(result).isEqualTo(expectedLinkDemands);
+    }
+
+    @Test
+    public void testFindDemandForSupplierId_daMatches() {
         // Given
         List<Category> testCategories = createTestCategories();
         categoryRepo.saveAll(testCategories);

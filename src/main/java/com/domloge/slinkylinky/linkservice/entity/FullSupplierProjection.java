@@ -5,6 +5,8 @@ import org.springframework.data.rest.core.config.Projection;
 @Projection(name="fullSupplier", types = {Supplier.class})
 public interface FullSupplierProjection {
 
+    long getId();
+
     String getName();
 
     String getEmail();
@@ -26,6 +28,8 @@ public interface FullSupplierProjection {
     boolean isThirdParty();
 
     boolean isDisabled();
+
+    String getWeWriteFeeCurrency();
 
     FullCategoryProjection[] getCategories();
 

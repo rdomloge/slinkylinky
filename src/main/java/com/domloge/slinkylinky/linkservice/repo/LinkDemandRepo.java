@@ -15,16 +15,15 @@ import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
 public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
     
     @Query(nativeQuery = true,
-        value = "SELECT ld.* FROM link_demand ld, supplier s, supplier_categories sc, link_demand_categories ldc "+
+        value = "SELECT ld.* FROM link_demand ld, supplier s "+
                 "WHERE s.id=?1 "+
-                "AND sc.categories_id=ldc.categories_id "+
-                "AND ldc.link_demand_id=ld.id "+
-                "AND sc.supplier_id=s.id "+
                 "AND s.domain NOT IN "+
                 "   (SELECT s.domain FROM supplier s, paid_link pl, link_demand ld "+
                         "WHERE pl.supplier_id=s.id AND pl.link_demand_id=ld.id AND ld.id=?1) "+
                 "AND s.DA >= ld.da_needed "+
-                "AND ld.id != ?2 "+
+                "AND ld.id in (select ldc.link_demand_id from link_demand_categories ldc where ldc.categories_id in "+
+                        "(select c.id from category c inner join supplier_categories sc on sc.categories_id=c.id where sc.supplier_id=?1)) "+
+                "AND ld.domain != (SELECT ld.domain FROM link_demand ld  where ld.id = ?2) "+
                 "AND ld.id NOT IN (SELECT pl.link_demand_id FROM paid_link pl) "+
                 "ORDER BY s.we_write_fee ASC, "+
                 "   s.sem_rush_uk_jan23traffic DESC, "+
@@ -37,7 +36,7 @@ public interface LinkDemandRepo extends CrudRepository <LinkDemand, Long> {
                 "ORDER BY ld.requested ASC, ld.name ASC")
     LinkDemand[] findUnsatisfiedDemand();
 
-    LinkDemand findByUrl(String url);
+    LinkDemand[] findByUrlAndAnchorText(String url, String anchorText);
 
     LinkDemand findById(int id);
 }
