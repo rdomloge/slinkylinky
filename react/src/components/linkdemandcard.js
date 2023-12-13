@@ -4,7 +4,7 @@ import '@/styles/globals.css'
 import CategoriesCard from '@/components/categoriescard'
 import Image from 'next/image'
 import Icon from '@/components/shoppingcart.png'
-import NiceDate from './Date'
+import NiceDate from './atoms/Date'
 import Link from 'next/link'
 
 export default function LinkDemandCard({linkdemand, fullfilable, editable}) {

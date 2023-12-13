@@ -9,9 +9,9 @@ import Icon from '@/pages/supplier/upthere.png'
 import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import SupplierCard from "@/components/suppliercard";
-import TextInput from "@/components/TextInput";
+import TextInput from "@/components/atoms/TextInput";
 import CategoryFilter from "@/components/CategorySelector";
-import SessionButton from "@/components/Button";
+import SessionButton from "@/components/atoms/Button";
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()

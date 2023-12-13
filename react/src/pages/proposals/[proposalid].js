@@ -7,7 +7,7 @@ import Layout from '@/components/layout'
 import SupplierCard from '@/components/suppliercard'
 import LinkDemandCard from '@/components/linkdemandcard'
 import TrafficLights from '@/components/ProposalTrafficLights'
-import NiceDate from '@/components/Date'
+import NiceDate from '@/components/atoms/Date'
 import Link from 'next/link'
 
 export default function Proposal() {

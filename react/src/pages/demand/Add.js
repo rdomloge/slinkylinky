@@ -3,8 +3,8 @@ import CategorySelector from "@/components/CategorySelector";
 import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
 import { useSession } from "next-auth/react";
-import TextInput from '@/components/TextInput';
-import NumberInput from '@/components/NumberInput';
+import TextInput from '@/components/atoms/TextInput';
+import NumberInput from '@/components/atoms/NumberInput';
 import AddOrEditDemand from '@/components/AddOrEditDemand';
 
 export default function NewDemand() {

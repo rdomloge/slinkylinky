@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 
-import NiceDate from "./Date";
+import NiceDate from "./atoms/Date";
 import TrafficLights from "./ProposalTrafficLights";
 import SupplierSummary from './supplierSummary';
 import Link from 'next/link';
