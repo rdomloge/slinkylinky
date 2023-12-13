@@ -7,7 +7,7 @@ import CategoryListItem from "@/components/CategoryListItem";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()
-    const catUrl = "/categories";
+    const catUrl = "/.rest/categories";
 
     function parseId(entity) {
         const url = entity._links.self.href;

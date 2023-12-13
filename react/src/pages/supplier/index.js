@@ -1,21 +1,34 @@
 'use client'
 
+import React, {useState, useEffect} from 'react'
+import Link from "next/link";
+
+import Image from 'next/image'
+import Icon from '@/pages/supplier/upthere.png'
+
 import Layout from "@/components/layout";
 import PageTitle from "@/components/pagetitle";
-import React, {useState, useEffect} from 'react'
 import SupplierCard from "@/components/suppliercard";
 import TextInput from "@/components/TextInput";
 import CategoryFilter from "@/components/CategorySelector";
-import Link from "next/link";
+import SessionButton from "@/components/Button";
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()
     const [filter, setFilter] = useState()
     const [categoriesFilter, setCategoriesFilter] = useState()
+    const [supplierCount, setSupplierCount] = useState()
+
+    useEffect(() => {
+        const countUrl = "/.rest/suppliers/search/findCount"
+        fetch(countUrl)
+            .then( (res) => res.json())
+            .then( (data) => setSupplierCount(data));
+***REMOVED***);
 
     useEffect(
         () => {
-            const suppliersUrl = "/suppliers/search"+
+            const suppliersUrl = "/.rest/suppliers/search"+
                                     "/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn"+
                                     "?projection=fullSupplier"+
                                     filterOrBlank("email")+
@@ -49,12 +62,11 @@ export default function ListBloggers() {
     
     return (
         <Layout>
-            <PageTitle title="Suppliers" count={suppliers ? suppliers.length : ""}/>
-            <div className="content-center">
+            <PageTitle title="Suppliers" count={suppliers ? suppliers.length : ""}/> 
+            <span className='pb-4'>{supplierCount} // total suppliers</span>
+            <div className="content-center pt-2">
                 <Link href='/supplier/Add'>
-                    <button id="createnew" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
-                        New
-                    </button>
+                    <SessionButton labelText="New"/>
                 </Link>
             </div>
             <div className="w-1/4 pr-8 inline-block">
@@ -63,18 +75,21 @@ export default function ListBloggers() {
             <div className="w-1/3 pr-8 inline-block">
                 <CategoryFilter changeHandler={categoriesFilterChangeHandler} label="Category filter"/>
             </div>
-            {suppliers ?
+            {suppliers && suppliers.length > 0 ?
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <Link href={"/supplier/"+s.id}>
-                                <SupplierCard supplier={s}/>
-                            </Link>
+                            <SupplierCard supplier={s}/>
                         </div>
                     )}
                 </div> 
             :
-                <p>Set a filter</p>
+            <div className="flex flex-col h-full">
+                <div className="flex justify-center items-center flex-grow">
+                    <Image src={Icon} width={227} height={222} alt="Up arrow" className="p-1 inline-block"/>
+                    <p className="text-slate-500 text-8xl">Set a filter</p>
+                </div>
+            </div>
         ***REMOVED***
             
         </Layout>

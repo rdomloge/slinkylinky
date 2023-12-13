@@ -7,6 +7,7 @@ import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/layout';
 import Link from 'next/link';
 import OwnerFilter from '@/components/OwnerFilter';
+import SessionButton from '@/components/Button';
 
 export default function LinkDemand() {
     const [personal, setPersonal] = useState()
@@ -14,7 +15,7 @@ export default function LinkDemand() {
     const { data: session } = useSession();
 
     useEffect( () => {
-        const url = "/linkdemands/search/findUnsatisfiedDemand?projection=fullLinkDemand"
+        const url = "/.rest/linkdemands/search/findUnsatisfiedDemand?projection=fullLinkDemand"
 
         fetch(url)
             .then(res => res.json())
@@ -44,18 +45,14 @@ export default function LinkDemand() {
                 <PageTitle title={"Demand ("+linkDemands.length+")"}/>
                 <div className="inline-block content-center">
                     <Link href='/demand/Add'>
-                        <button id="createnew" disabled={!session}
-                            className={"text-white font-bold py-2 px-4 border border-blue-700 rounded "
-                                +(session ? "bg-blue-500 hover:bg-blue-700" : "bg-grey-500 hover:bg-grey-700")}>
-                            New
-                        </button>
+                        <SessionButton labelText="New"/>
                     </Link>
                 </div>
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
                 <div className="grid grid-cols-2">
                 {linkDemands.map( (ld,index) => (
-                    <div key={"li-"+index}>
-                        <LinkDemandCard linkdemand={ld} key={index} active={true}/>
+                    <div key={index}>
+                        <LinkDemandCard linkdemand={ld} key={index} fullfilable={true} editable={true}/>
                     </div>
                 ))}
                 </div>

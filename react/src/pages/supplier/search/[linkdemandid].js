@@ -16,10 +16,10 @@ export default function App() {
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = "/linkdemands/"+ router.query.linkdemandid+"?projection=fullLinkDemand";
-                const suppliersUrl = "/suppliers/search/findSuppliersForLinkDemandId?linkDemandId="
+                const demandUrl = "/.rest/linkdemands/"+ router.query.linkdemandid+"?projection=fullLinkDemand";
+                const suppliersUrl = "/.rest/suppliers/search/findSuppliersForLinkDemandId?linkDemandId="
                     + router.query.linkdemandid+"&projection=fullSupplier";
-                const existingLinkCountUrl = "/paidlinks/search/countByLinkDemand_domain?domain="
+                const existingLinkCountUrl = "/.rest/paidlinks/search/countByLinkDemand_domain?domain="
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => 

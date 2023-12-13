@@ -1,9 +1,8 @@
-FROM rdomloge/react-build 
+FROM node:current-slim
 
 WORKDIR /adminwebsite
 
 COPY react .
-RUN rm -r node_modules
 RUN npm i
 RUN npm run build
 CMD [ "npm", "run", "start" ]
