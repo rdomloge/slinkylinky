@@ -10,15 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
+import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 
 @DataJpaTest
-public class LinkDemandRepoTest {
+public class DemandRepoTest {
 
     @Autowired
-    private LinkDemandRepo linkDemandRepo;
+    private DemandRepo linkDemandRepo;
 
     @Autowired
     private SupplierRepo supplierRepo;
@@ -39,18 +39,18 @@ public class LinkDemandRepoTest {
         testSupplier.setCategories(testCategories);
         testSupplier = supplierRepo.save(testSupplier);
 
-        LinkDemand selectedDemand = createTestLinkDemand();
+        Demand selectedDemand = createTestLinkDemand();
         selectedDemand.setCategories(testCategories);
         selectedDemand = linkDemandRepo.save(selectedDemand);
 
-        LinkDemand otherMatchingDemandFromSameClient = createTestLinkDemand();
+        Demand otherMatchingDemandFromSameClient = createTestLinkDemand();
         otherMatchingDemandFromSameClient.setCategories(testCategories);
         linkDemandRepo.save(otherMatchingDemandFromSameClient);
 
         
         // WHEN
         // Call the method under test
-        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)selectedDemand.getId());
+        Demand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)selectedDemand.getId());
 
         // THEN        
         assertThat(result.length).isEqualTo(0);
@@ -66,30 +66,30 @@ public class LinkDemandRepoTest {
         testSupplier.setCategories(testCategories);
         testSupplier = supplierRepo.save(testSupplier);
 
-        LinkDemand testLinkDemand = createTestLinkDemand();
+        Demand testLinkDemand = createTestLinkDemand();
         testLinkDemand.setCategories(testCategories);
         testLinkDemand.setDaNeeded(5);
         testLinkDemand = linkDemandRepo.save(testLinkDemand);
 
-        LinkDemand otherMatchingDemand = createTestLinkDemand();
+        Demand otherMatchingDemand = createTestLinkDemand();
         otherMatchingDemand.setCategories(testCategories);
         otherMatchingDemand.setDaNeeded(5);
         otherMatchingDemand.setUrl("www.toysrus.com");
         linkDemandRepo.save(otherMatchingDemand);
 
-        LinkDemand currentDemandPreviouslyLinkedFromSupplier = createTestLinkDemand();
+        Demand currentDemandPreviouslyLinkedFromSupplier = createTestLinkDemand();
         currentDemandPreviouslyLinkedFromSupplier.setCategories(testCategories);
         currentDemandPreviouslyLinkedFromSupplier.setUrl("www.bca.co.uk");
         currentDemandPreviouslyLinkedFromSupplier.setDaNeeded(testSupplier.getDa());
         linkDemandRepo.save(currentDemandPreviouslyLinkedFromSupplier);
         PaidLink paidLink = new PaidLink();
-        paidLink.setLinkDemand(currentDemandPreviouslyLinkedFromSupplier);
+        paidLink.setDemand(currentDemandPreviouslyLinkedFromSupplier);
         paidLink.setSupplier(testSupplier);
         paidLinkRepo.save(paidLink);
         
         // WHEN
         // Call the method under test
-        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+        Demand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
 
         // THEN        
         assertThat(result.length).isEqualTo(1);
@@ -107,14 +107,14 @@ public class LinkDemandRepoTest {
         testSupplier.setCategories(testCategories.subList(3, 4));
         testSupplier = supplierRepo.save(testSupplier);
 
-        LinkDemand testLinkDemand = createTestLinkDemand();
+        Demand testLinkDemand = createTestLinkDemand();
         testLinkDemand = linkDemandRepo.save(testLinkDemand);
 
-        LinkDemand catNotMatchingLd = createTestLinkDemand();
+        Demand catNotMatchingLd = createTestLinkDemand();
         catNotMatchingLd.setCategories(testCategories.subList(0, 2));
         catNotMatchingLd.setDaNeeded(testSupplier.getDa());
         catNotMatchingLd.setUrl("www.bca.co.uk");
-        LinkDemand catMatchingLd = createTestLinkDemand();
+        Demand catMatchingLd = createTestLinkDemand();
         catMatchingLd.setCategories(testCategories.subList(3, 4));
         catMatchingLd.setUrl("www.disney.com");
         catMatchingLd.setDaNeeded(testSupplier.getDa());
@@ -123,11 +123,11 @@ public class LinkDemandRepoTest {
         
         // WHEN
         // Call the method under test
-        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+        Demand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
 
         // THEN        
         assertThat(result.length).isEqualTo(1);
-        LinkDemand[] expectedLinkDemands = { catMatchingLd }; 
+        Demand[] expectedLinkDemands = { catMatchingLd }; 
         assertThat(result).isEqualTo(expectedLinkDemands);
     }
 
@@ -141,14 +141,14 @@ public class LinkDemandRepoTest {
         testSupplier.setCategories(testCategories);
         testSupplier = supplierRepo.save(testSupplier);
 
-        LinkDemand testLinkDemand = createTestLinkDemand();
+        Demand testLinkDemand = createTestLinkDemand();
         testLinkDemand = linkDemandRepo.save(testLinkDemand);
 
-        LinkDemand daNotMatchingLd = createTestLinkDemand();
+        Demand daNotMatchingLd = createTestLinkDemand();
         daNotMatchingLd.setCategories(testCategories);
         daNotMatchingLd.setDaNeeded(testSupplier.getDa() + 1);
         daNotMatchingLd.setUrl("www.bca.co.uk");
-        LinkDemand daMatchingLd = createTestLinkDemand();
+        Demand daMatchingLd = createTestLinkDemand();
         daMatchingLd.setCategories(testCategories);
         daMatchingLd.setUrl("www.disney.com");
         daMatchingLd.setDaNeeded(testSupplier.getDa());
@@ -157,16 +157,16 @@ public class LinkDemandRepoTest {
         
         // WHEN
         // Call the method under test
-        LinkDemand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+        Demand[] result = linkDemandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
 
         // THEN        
         assertThat(result.length).isEqualTo(1);
-        LinkDemand[] expectedLinkDemands = { daMatchingLd }; 
+        Demand[] expectedLinkDemands = { daMatchingLd }; 
         assertThat(result).isEqualTo(expectedLinkDemands);
     }
 
-    private LinkDemand createTestLinkDemand() {
-        LinkDemand linkDemand = new LinkDemand();
+    private Demand createTestLinkDemand() {
+        Demand linkDemand = new Demand();
         linkDemand.setName("Test Link Demand");
         linkDemand.setUrl("www.testlinkdemand.com");
         linkDemand.setAnchorText("Test Anchor Text");

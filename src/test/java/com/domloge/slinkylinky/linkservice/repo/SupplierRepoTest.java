@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
+import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 
@@ -23,7 +23,7 @@ public class SupplierRepoTest {
     private SupplierRepo supplierRepo;
 
     @Autowired
-    private LinkDemandRepo linkDemandRepo; 
+    private DemandRepo linkDemandRepo; 
 
     @Autowired
     private CategoryRepo categoryRepo;
@@ -56,10 +56,10 @@ public class SupplierRepoTest {
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(testCategories);
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -95,10 +95,10 @@ public class SupplierRepoTest {
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(testCategories);
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -132,10 +132,10 @@ public class SupplierRepoTest {
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -169,10 +169,10 @@ public class SupplierRepoTest {
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -205,10 +205,10 @@ public class SupplierRepoTest {
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Arrays.asList(testCategories.get(0)));
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -237,21 +237,21 @@ public class SupplierRepoTest {
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(testCategories);
         ld.setUrl("https://www.disney.com");
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // link one of the suppliers to a /previous/ link demand with the same domain
-        LinkDemand previousLd = new LinkDemand();
-        previousLd.setUrl("https://www.disney.com");
-        previousLd.setCategories(testCategories);
-        previousLd.setDaNeeded(20);
-        linkDemandRepo.save(previousLd);
+        Demand previousD = new Demand();
+        previousD.setUrl("https://www.disney.com");
+        previousD.setCategories(testCategories);
+        previousD.setDaNeeded(20);
+        linkDemandRepo.save(previousD);
         PaidLink pl = new PaidLink();
         pl.setSupplier(testSuppliers.get(0));
-        pl.setLinkDemand(previousLd);
+        pl.setDemand(previousD);
         paidLinkRepo.save(pl);
 
         
@@ -279,10 +279,10 @@ public class SupplierRepoTest {
         });
         supplierRepo.saveAll(testSuppliers);
 
-        LinkDemand ld = new LinkDemand();
+        Demand ld = new Demand();
         ld.setDaNeeded(100);
         ld.setCategories(testCategories);
-        LinkDemand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = linkDemandRepo.save(ld);
 
         // when
         // Call the method under test

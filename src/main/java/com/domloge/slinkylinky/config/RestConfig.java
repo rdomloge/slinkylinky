@@ -8,11 +8,11 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.FullCategoryProjection;
-import com.domloge.slinkylinky.linkservice.entity.FullLinkDemandProjection;
+import com.domloge.slinkylinky.linkservice.entity.FullDemandProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullPaidLinkProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullProposalProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullSupplierProjection;
-import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
+import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 
@@ -26,16 +26,16 @@ public class RestConfig implements RepositoryRestConfigurer {
             .addProjection(FullProposalProjection.class)
             .addProjection(FullPaidLinkProjection.class)
             .addProjection(FullSupplierProjection.class)
-            .addProjection(FullLinkDemandProjection.class)
+            .addProjection(FullDemandProjection.class)
             .addProjection(FullCategoryProjection.class);
         
         config.exposeIdsFor(
-          LinkDemand.class, 
+          Demand.class, 
           Supplier.class, 
           Proposal.class, 
           PaidLink.class, 
           Category.class,
-          FullLinkDemandProjection.class,
+          FullDemandProjection.class,
           FullSupplierProjection.class,
           FullProposalProjection.class,
           FullPaidLinkProjection.class,

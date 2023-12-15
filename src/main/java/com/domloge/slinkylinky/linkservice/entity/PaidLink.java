@@ -31,5 +31,5 @@ public class PaidLink {
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(nullable = false, referencedColumnName="id")
-    private LinkDemand linkDemand;
+    private Demand demand;
 }

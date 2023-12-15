@@ -10,6 +10,6 @@ import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 @CrossOrigin(exposedHeaders = "*")
 public interface PaidLinkRepo extends CrudRepository <PaidLink, Long> {
 
-    long countByLinkDemand_domain(String domain);
+    long countByDemand_domain(String domain);
     
 }

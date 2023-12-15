@@ -29,7 +29,7 @@ import lombok.Setter;
 @Entity
 @Getter 
 @Setter
-public class LinkDemand {
+public class Demand {
 
     private static final DateTimeFormatter csvFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter browserFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");

@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.rest.core.config.Projection;
 
-@Projection(name="fullLinkDemand", types = {LinkDemand.class})
-public interface FullLinkDemandProjection {
+@Projection(name="fullLinkDemand", types = {Demand.class})
+public interface FullDemandProjection {
     
     long getId();
     

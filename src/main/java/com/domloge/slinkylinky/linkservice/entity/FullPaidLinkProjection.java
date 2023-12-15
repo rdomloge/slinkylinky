@@ -8,5 +8,5 @@ public interface FullPaidLinkProjection {
     FullSupplierProjection getSupplier();
 
     
-    FullLinkDemandProjection getLinkDemand();
+    FullDemandProjection getDemand();
 }
