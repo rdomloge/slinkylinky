@@ -14,7 +14,7 @@ Content-Type: application/json
 "email": "rohmankatrina@gmail.com",
 "categories": ["WEDDINGS", "BUSINESS"] }
 ###
-GET {{host}}/suppliers/1
+GET {{host}}/suppliers/1?projection=fullSupplier
 ###
 GET {{host}}/suppliers/search/findByCategories_NameIn?categories=Weddings,Pets
 ###
