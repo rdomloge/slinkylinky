@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-export default function SelectableLinkDemandCard({children, onSelectedHandler, onDeselectedHandler}) {
+export default function SelectableDemandCard({children, onSelectedHandler, onDeselectedHandler}) {
     const [checked, setChecked] = useState(false);
 
     const handleChange = () => { 

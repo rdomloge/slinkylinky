@@ -2,27 +2,26 @@
 
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
-import LinkDemandCard from '@/components/linkdemandcard'
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/layout'
+import Layout from '@/components/Layout'
 import AddOrEditDemand from '@/components/AddOrEditDemand'
 
-export default function LinkDemand() {
+export default function Demand() {
     const router = useRouter()
     const [demand, setDemand] = useState(null);
 
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = '/.rest/linkdemands/'+ router.query.linkdemandid+"?projection=fullLinkDemand";
+                const demandUrl = '/.rest/demands/'+ router.query.demandid+"?projection=fullDemand";
                 fetch(demandUrl)
                     .then(res => res.json())
                         .then(json => {
-                            json.id = router.query.linkdemandid;
+                            json.id = router.query.demandid;
                             setDemand(json);
                         });
             }
-        }, [router.isReady, router.query.linkdemandid]
+        }, [router.isReady, router.query.demandid]
     )
 
     return (

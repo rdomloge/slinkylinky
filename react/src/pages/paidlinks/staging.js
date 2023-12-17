@@ -2,11 +2,11 @@
 
 import React, {useState, useEffect} from 'react'
 import { useSearchParams } from 'next/navigation'
-import LinkDemandCard from '@/components/linkdemandcard'
+import DemandCard from '@/components/demandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/layout'
-import SelectableLinkDemandCard from '@/components/SelectableLinkDemandCard'
+import Layout from '@/components/Layout'
+import SelectableDemandCard from '@/components/SelectableDemandCard'
 
 function parseId(entity) {
     const url = entity._links.self.href;
@@ -55,7 +55,7 @@ export default function App() {
         aggregateDemand.forEach((ld) => {
             const plData = {
                 "supplier": "/suppliers/"+supplierId,
-                "linkDemand": "/linkdemands/"+ld.id
+                "demand": "/demands/"+ld.id
             }
             plPromises.push(fetch(paidlinkUrl, {
                 method: 'POST',
@@ -88,20 +88,20 @@ export default function App() {
 
     useEffect(
         () => {
-            if(searchParams.has('supplierId') && searchParams.has('linkDemandId')) {
+            if(searchParams.has('supplierId') && searchParams.has('demandId')) {
                 const supplierId = searchParams.get('supplierId')
-                const linkDemandId = searchParams.get('linkDemandId')
-                const demandUrl = "/.rest/linkdemands/"+ linkDemandId+"?projection=fullLinkDemand";
+                const demandId = searchParams.get('demandId')
+                const demandUrl = "/.rest/demands/"+ demandId+"?projection=fullDemand";
                 const supplierUrl = "/.rest/suppliers/"+ supplierId+"?projection=fullSupplier";
-                const otherDemandsUrl = "/.rest/linkdemands/search/findDemandForSupplierId?supplierId="
-                                            + supplierId + "&linkdemandIdToIgnore="+linkDemandId+"&projection=fullLinkDemand";
+                const otherDemandsUrl = "/.rest/demands/search/findDemandForSupplierId?supplierId="
+                                            + supplierId + "&demandIdToIgnore="+demandId+"&projection=fullDemand";
 
                 Promise.all([fetch(demandUrl), fetch(supplierUrl), fetch(otherDemandsUrl)])
                     .then(([resDemand, resSupplier, resOtherDemands]) => 
                         Promise.all([resDemand.json(), resSupplier.json(), resOtherDemands.json()])
                     )
                     .then(([dataDemand, dataSupplier, dataOtherDemands]) => {
-                        dataDemand.id = linkDemandId; // eurgh... have to find a way to get spring data rest to include the IDs
+                        dataDemand.id = demandId; // eurgh... have to find a way to get spring data rest to include the IDs
                         setDemand(dataDemand);
                         setSupplier(dataSupplier);
                         setOtherDemands(dataOtherDemands);
@@ -122,13 +122,13 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <SupplierCard supplier={supplier}/>
-                            <LinkDemandCard linkdemand={demand}/>
+                            <DemandCard demand={demand}/>
                         </div>
                         <div>
                             <p>Other matching demand:</p>
                             
                             {otherDemands.map( (d,index) => 
-                                <SelectableLinkDemandCard 
+                                <SelectableDemandCard 
                                         onSelectedHandler={() => {
                                             console.log("Selected");
                                             selectedOtherDemands.push(d);
@@ -141,8 +141,8 @@ export default function App() {
                                             setSelectedOtherDemands([...selectedOtherDemands]);
                                         }} 
                                         key={index}>
-                                    <LinkDemandCard linkdemand={d} />
-                                </SelectableLinkDemandCard>
+                                    <DemandCard demand={d} />
+                                </SelectableDemandCard>
                                 )}
                         </div>
                     </div>

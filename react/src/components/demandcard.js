@@ -7,31 +7,32 @@ import Icon from '@/components/shoppingcart.png'
 import NiceDate from './atoms/Date'
 import Link from 'next/link'
 
-export default function LinkDemandCard({linkdemand, fullfilable, editable}) {
+export default function DemandCard({demand, fullfilable, editable}) {
     
-    if(linkdemand === null) return <p>NULL</p>;
+    if(demand === null) return <p>NULL</p>;
     else {
         return (
             <div className="card list-card flex">
                 <div className='flex-1'>
                     <Image src={Icon} width={32} height={32} alt="Shopping cart icon"/>
-                    <div>{linkdemand.name}</div>
-                    <Link href={linkdemand.url} target='_blank'>
-                        <div>{linkdemand.url}</div>
+                    <div>{demand.name}</div>
+                    <Link href={demand.url} target='_blank'>
+                        <div>{demand.url}</div>
                     </Link>
-                    <div>Domain Authority needed {linkdemand.daNeeded}</div>
-                    <div><NiceDate isostring={linkdemand.requested}/></div>
-                    <p>Created by {linkdemand.createdBy}</p>
-                    <CategoriesCard categories={linkdemand.categories}/>
+                    <div>Anchor: {demand.anchorText}</div>
+                    <div>Domain Authority needed {demand.daNeeded}</div>
+                    <div><NiceDate isostring={demand.requested}/></div>
+                    <p>Created by {demand.createdBy}</p>
+                    <CategoriesCard categories={demand.categories}/>
                 </div>
                 <div className='flex-initial'>
                     {fullfilable ?
-                    <Link href={'/supplier/search/'+linkdemand.id}>
+                    <Link href={'/supplier/search/'+demand.id}>
                         <span className='block text-lg font-bold'>Fullfil</span>
                     </Link>
                     :null}
                     {editable ?
-                    <Link href={'/demand/'+linkdemand.id}>
+                    <Link href={'/demand/'+demand.id}>
                         <span className='block text-right'>Edit</span>
                     </Link>
                     :null}

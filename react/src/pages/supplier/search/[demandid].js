@@ -2,10 +2,10 @@
 
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
-import LinkDemandCard from '@/components/linkdemandcard'
+import DemandCard from '@/components/demandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/layout'
+import Layout from '@/components/Layout'
 
 export default function App() {
     const router = useRouter()
@@ -16,10 +16,10 @@ export default function App() {
     useEffect(
         () => {
             if(router.isReady) {
-                const demandUrl = "/.rest/linkdemands/"+ router.query.linkdemandid+"?projection=fullLinkDemand";
-                const suppliersUrl = "/.rest/suppliers/search/findSuppliersForLinkDemandId?linkDemandId="
-                    + router.query.linkdemandid+"&projection=fullSupplier";
-                const existingLinkCountUrl = "/.rest/paidlinks/search/countByLinkDemand_domain?domain="
+                const demandUrl = "/.rest/demands/"+ router.query.demandid+"?projection=fullDemand";
+                const suppliersUrl = "/.rest/suppliers/search/findSuppliersForDemandId?demandId="
+                    + router.query.demandid+"&projection=fullSupplier";
+                const existingLinkCountUrl = "/.rest/paidlinks/search/countByDemand_domain?domain="
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => 
@@ -33,7 +33,7 @@ export default function App() {
                             .then(count => setExistingLinkCount(count));
                     });
             }
-        }, [router.isReady, router.query.linkdemandid]
+        }, [router.isReady, router.query.demandid]
     );
 
     return (
@@ -41,12 +41,12 @@ export default function App() {
             <PageTitle title="Find a matching supplier"/>
             <div className='flex'>
                 <div className='flex-1'>
-                    <LinkDemandCard linkdemand={demand} />
+                    <DemandCard demand={demand} />
                 </div>
                 <div className='card flex-none text-lg font-bold m-4 text-zinc-600'>There are <span className='text-5xl'>{existingLinkCount}</span> historical links tracked for this domain</div>
             </div>
             <div>Matching suppliers</div>
-            <SupplierList suppliers={suppliers} linkdemand={demand} linkdemandid={router.query.linkdemandid}/>
+            <SupplierList suppliers={suppliers} demand={demand} demandid={router.query.demandid}/>
         </Layout>
     );
 }
@@ -63,7 +63,7 @@ function SupplierList(props) {
     else return (
         <div>
             {props.suppliers.map((s,index) => (
-                <a href={'/paidlinks/staging?supplierId='+s.id+'&linkDemandId='+props.linkdemandid} key={index}>
+                <a href={'/paidlinks/staging?supplierId='+s.id+'&demandId='+props.demandid} key={index}>
                     <SupplierCard supplier={s} />
                 </a>
             ))}

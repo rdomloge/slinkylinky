@@ -3,9 +3,9 @@
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/layout'
+import Layout from '@/components/Layout'
 import SupplierCard from '@/components/suppliercard'
-import LinkDemandCard from '@/components/linkdemandcard'
+import DemandCard from '@/components/demandcard'
 import TrafficLights from '@/components/ProposalTrafficLights'
 import NiceDate from '@/components/atoms/Date'
 import Link from 'next/link'
@@ -14,7 +14,7 @@ export default function Proposal() {
     const router = useRouter()
     const [proposal, setProposal] = useState()
     const [supplier, setSupplier] = useState()
-    const [linkDemands, setLinkDemands] = useState()
+    const [demands, setDemands] = useState()
 
     useEffect(
         () => {
@@ -24,7 +24,7 @@ export default function Proposal() {
                     .then( (res) => res.json())
                     .then( (p) => {
                         setProposal(p);
-                        setLinkDemands(p.paidLinks.map(pl => pl.linkDemand))
+                        setDemands(p.paidLinks.map(pl => pl.demand))
                         setSupplier(p.paidLinks[0].supplier);
                     });
             }
@@ -62,7 +62,7 @@ export default function Proposal() {
                             </div>
                         </div>
                         <div className="col-span-2">
-                            {linkDemands.map( (ld) => <LinkDemandCard linkdemand={ld} key={ld.name}/>)}
+                            {demands.map( (ld) => <DemandCard demand={ld} key={ld.name}/>)}
                         </div>
                     </div>
                 </Layout>
