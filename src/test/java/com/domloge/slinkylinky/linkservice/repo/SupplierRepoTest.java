@@ -63,7 +63,7 @@ public class SupplierRepoTest {
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // THEN
         assertThat(result.length).isEqualTo(3);
@@ -102,7 +102,7 @@ public class SupplierRepoTest {
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // THEN
         assertThat(result.length).isEqualTo(2);
@@ -139,7 +139,7 @@ public class SupplierRepoTest {
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // THEN
         assertThat(result.length).isEqualTo(2);
@@ -176,7 +176,7 @@ public class SupplierRepoTest {
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // THEN
         assertThat(result.length).isEqualTo(1);
@@ -212,7 +212,7 @@ public class SupplierRepoTest {
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // THEN
         assertThat(result.length).isEqualTo(1);
@@ -257,7 +257,7 @@ public class SupplierRepoTest {
         
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // THEN
         assertThat(result.length).isEqualTo(testSuppliers.size() - 1);
@@ -286,7 +286,7 @@ public class SupplierRepoTest {
 
         // when
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForLinkDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
 
         // Assert the results
         assertThat(result.length).isEqualTo(0);
