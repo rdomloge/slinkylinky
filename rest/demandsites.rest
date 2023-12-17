@@ -1,0 +1,21 @@
+GET {{host}}/demandsites/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase?name=sk
+###
+GET {{host}}/demands/219?projection=fullLinkDemand
+###
+GET {{host}}/demandsites/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase?name=air&email=air
+###
+PATCH {{host}}/demandsites/10
+Content-Type: application/json
+
+{
+  "name": "Fresh Air Fitness",
+  "id": 10,
+  "url": "www.freshairfitness.co.uk",
+  "createdBy": "historical",
+  "domain": "freshairfitness.co.uk",
+  "categories": [
+    "http://10.0.0.229:8080/.rest/categories/2{?projection}",
+    "http://10.0.0.229:8080/.rest/categories/6{?projection}"
+  ],
+  "email": "n/a"
+}

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
+import com.domloge.slinkylinky.linkservice.entity.Demand;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +31,12 @@ public class SetupHandler {
         setupSuppliers();
         setupHistory();
         setupDemand();
+        setupService.linkDemandsToTheirDemandSites();
     }
     
 
     private void setupDemand() {
-        List<SetupLinkDemand> demands = loader.loadObjectList(SetupLinkDemand.class, "linkdemand.csv");
+        List<SetupDemand> demands = loader.loadObjectList(SetupDemand.class, "demand.csv");
         log.info("Found {} demand in CSV", demands.size());
         demands.forEach(d -> setupService.persist(d));
     }
