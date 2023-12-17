@@ -1,4 +1,4 @@
-import Layout from "@/components/layout";
+import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
 import AddOrEditSupplier from "@/components/AddOrEditSupplier";
 import React, {useState, useEffect} from 'react';

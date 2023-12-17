@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from 'next/image'
 import Icon from '@/pages/supplier/upthere.png'
 
-import Layout from "@/components/layout";
+import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
 import SupplierCard from "@/components/suppliercard";
 import TextInput from "@/components/atoms/TextInput";

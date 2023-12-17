@@ -1,6 +1,6 @@
 'use client'
 
-import Layout from "@/components/layout";
+import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
 import React, {useState, useEffect} from 'react'
 import CategoryListItem from "@/components/CategoryListItem";

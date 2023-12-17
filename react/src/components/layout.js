@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import Menu from './menu';
+import Menu from './Menu';
 import Image from 'next/image'
 import Icon from '@/components/logo.png'
 import Profile from './profile';
