@@ -11,16 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.domloge.slinkylinky.linkservice.Util;
-import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.LinkDemand;
+import com.domloge.slinkylinky.linkservice.entity.DemandSite;
+import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
-import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
+import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.repo.CategoryRepo;
-import com.domloge.slinkylinky.linkservice.repo.LinkDemandRepo;
+import com.domloge.slinkylinky.linkservice.repo.DemandSiteRepo;
+import com.domloge.slinkylinky.linkservice.repo.DemandRepo;
 import com.domloge.slinkylinky.linkservice.repo.PaidLinkRepo;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
+import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +35,7 @@ public class SetupService {
     private SupplierRepo supplierRepo;
 
     @Autowired
-    private LinkDemandRepo linkDemandRepo;
+    private DemandRepo demandRepo;
 
     @Autowired
     private CategoryRepo categoryRepo;
@@ -44,7 +46,57 @@ public class SetupService {
     @Autowired
     private ProposalRepo proposalRepo;
 
-    
+    @Autowired
+    private DemandSiteRepo demandSiteRepo;
+
+    int linked = 0;
+    int ignored = 0;
+    int demandSitesCreated = 0;
+
+    @Transactional
+    public void linkDemandsToTheirDemandSites() {
+                
+        LinkedList<Demand> demands = new LinkedList<>();
+        demandRepo.findAll().forEach(demands::add);
+
+        demands.forEach(d -> {
+            DemandSite demandSite = demandSiteRepo.findByDomainIgnoreCase(d.getDomain());
+            if(null == demandSite) {
+                log.warn("No demandSite found for {}", d.getDomain());
+                DemandSite ds = new DemandSite();
+                ds.setDomain(d.getDomain());
+                ds.setUrl(d.getUrl());
+                ds.setName(d.getName());
+                ds.setEmail("n/a");
+                ds.setCreatedBy("historical");
+                ds.setDemands(Arrays.asList(d));
+                demandSiteRepo.save(ds);
+                demandSitesCreated++;
+                linked++;
+            }
+            else {
+                
+                // does the demandSite already have this demand?
+                demandSite.getDemands().stream()
+                    .filter(demand -> demand.getId() == d.getId())
+                    .findFirst()
+                    .ifPresentOrElse((demand) -> {
+                        log.debug("DemandSite {} already has demand {}", demandSite.getName(), demand.getName());
+                        ignored++;
+                    }, () -> {
+                        log.debug("Adding demand {} to demandSite {}", d.getName(), demandSite.getName());
+                        LinkedList<Demand> newList = new LinkedList<>();
+                        newList.addAll(demandSite.getDemands());
+                        newList.add(d);
+                        demandSite.setDemands(newList);
+                        demandSiteRepo.save(demandSite);
+                        linked++;
+                    });
+            }
+        });
+        log.info("Finished linking demandSites to demands. {} total demands, {} linked, {} ignored, {} demandSites created", 
+            demands.size(), linked, ignored, demandSitesCreated);
+    }
     
     @Transactional
     public void persist(SetupSupplier ss) {
@@ -110,41 +162,42 @@ public class SetupService {
     }
 
     @Transactional
-    public void persist(SetupLinkDemand sld) {
+    public void persist(SetupDemand sd) {
 
-        if(null == linkDemandRepo.findByUrlAndAnchorText(sld.getUrl(), sld.getAnchorText())) {
+        Demand[] searchResults = demandRepo.findByUrlAndAnchorText(sd.getUrl(), sd.getAnchorText());
+        if(null ==  searchResults || searchResults.length == 0) {
 
-            if(sld.getPostTitle() != null && sld.getPostTitle().trim().length() > 0) {
-                log.warn("@@@ Ignoring already fulfilled demand: "+sld.getName());
+            if(sd.getPostTitle() != null && sd.getPostTitle().trim().length() > 0) {
+                log.warn("@@@ Ignoring already fulfilled demand: "+sd.getName());
                 return;
             }
 
-            List<Category> clientCategories = sld.getCategories();
+            List<Category> demandSiteCategories = sd.getCategories();
             List<Category> dbCategories = new LinkedList<>();
 
-            if(clientCategories == null || clientCategories.size() == 0) {
-                log.warn("@@@ There are no categories for {}", sld.getName());
+            if(demandSiteCategories == null || demandSiteCategories.size() == 0) {
+                log.warn("@@@ There are no categories for {}", sd.getName());
             }
             else {
-                clientCategories.stream()
+                demandSiteCategories.stream()
                     .map(cc -> cc.getName().split(","))
                     .forEach(names -> Arrays.stream(names)
                         .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
             }
 
-            LinkDemand ld = new LinkDemand();
-            ld.setAnchorText(sld.getAnchorText());
-            ld.setDaNeeded(sld.getDaNeededInt());
-            ld.setDomain(sld.getDomain());
-            ld.setName(sld.getName());
-            ld.setRequestedFromString(sld.getRequested());
-            ld.setUrl(sld.getUrl());
+            Demand ld = new Demand();
+            ld.setAnchorText(sd.getAnchorText());
+            ld.setDaNeeded(sd.getDaNeededInt());
+            ld.setDomain(sd.getDomain());
+            ld.setName(sd.getName());
+            ld.setRequestedFromString(sd.getRequested());
+            ld.setUrl(sd.getUrl());
             ld.setCategories(dbCategories);
             ld.setCreatedBy("historical");
-            linkDemandRepo.save(ld);
+            demandRepo.save(ld);
         }
         else {
-            log.info("Already have link demand {}", sld.getName());
+            log.info("Already have link demand {}", sd.getName());
         }
     }
 
@@ -157,10 +210,6 @@ public class SetupService {
     @Transactional
     public void persist(List<History> histories) {
         History head = histories.get(0);
-        // if(head.getName().toLowerCase().equals("fatjoe")) {
-        //     log.error("Ignoring FJ link from {} for {}", head.getBloggerWebsite(), head.getClientWebsite());
-        //     return;
-        // }
         
         if("done".equalsIgnoreCase(head.getPostPlacement())) {
             log.warn("### Ignoring {} histories for post placement {}", histories.size(), head.getPostPlacement());
@@ -193,7 +242,7 @@ public class SetupService {
                 supplier = createThirdPartySupplier(h);
             }
 
-            LinkDemand demand = new LinkDemand();
+            Demand demand = new Demand();
             demand.setAnchorText(h.getAnchorText());
             demand.setDaNeeded(h.getDaNeededInt());
             demand.setDomain(h.getClientWebsite());
@@ -202,10 +251,10 @@ public class SetupService {
             demand.setUrl(h.getClientWebsite());
             demand.setCategories(Arrays.asList(categoryRepo.findByName(h.getCategory())));
             demand.setCreatedBy("historical");
-            linkDemandRepo.save(demand);
+            demandRepo.save(demand);
 
             pl.setSupplier(supplier);
-            pl.setLinkDemand(demand);
+            pl.setDemand(demand);
             paidLinkRepo.save(pl);
             paidLinks.add(pl);
         });

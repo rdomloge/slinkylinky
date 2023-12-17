@@ -1,8 +1,8 @@
-GET {{host}}/linkdemands
+GET {{host}}/demands
 ###
-GET {{host}}/linkdemands/107
+GET {{host}}/demands/107
 ###
-POST {{host}}/linkdemands
+POST {{host}}/demands
 Content-Type: application/json
 
 {"name": "Highclere Gin Weddings",
@@ -14,7 +14,7 @@ Content-Type: application/json
     "requestedDate": "2023-11-27",
     "categories": ["http://localhost:8080/categories/42", "http://localhost:8080/categories/4"] }
 ###
-POST {{host}}/linkdemands
+POST {{host}}/demands
 Content-Type: application/json
 
 {"name": "Murder She Wrote Retirement Home",
@@ -26,7 +26,7 @@ Content-Type: application/json
     "requestedDate": "2023-11-26",
     "categories": ["http://localhost:8080/categories/5", "http://localhost:8080/categories/4"] }
 ###
-POST {{host}}/linkdemands
+POST {{host}}/demands
 Content-Type: application/json
 
 {"name": "Ricks Rentals",
@@ -38,7 +38,7 @@ Content-Type: application/json
     "requestedDate": "2023-11-25",
     "categories": ["http://localhost:8080/categories/6", "http://localhost:8080/categories/4"] }
 ###
-POST {{host}}/linkdemands
+POST {{host}}/demands
 Content-Type: application/json
 
 {"name": "Carlas Clean Crew",
@@ -51,22 +51,24 @@ Content-Type: application/json
     "categories": ["http://localhost:8080/categories/8", "http://localhost:8080/categories/4"] }
 
 ###
-POST {{host}}/linkdemands
+POST {{host}}/demands
 Content-Type: application/json
 
 {"daNeeded":"23",
     "name":"Ken",
     "anchorText":"Anchortext",
     "url":"https://www.disney.com",
-    "requested": "2023-12-01",
-    "categories":["http://localhost:8080/categories/5","http://localhost:8080/categories/4"]}
+    "requested": "2023-12-15T00:00:00.000Z",
+    "categories":["http://localhost:8080/.rest/categories/5","http://localhost:8080/.rest/categories/4"]}
 ###
-GET {{host}}/linkdemands/search/findById?id=2&projection=fullLinkDemand
+GET {{host}}/demands/search/findById?id=2&projection=fullLinkDemand
 ###
-GET {{host}}/linkdemands/search/findDemandForSupplierId?supplierId=1&linkdemandIdToIgnore=4
+GET {{host}}/demands/search/findDemandForSupplierId?supplierId=1&linkdemandIdToIgnore=4
 ###
-GET {{host}}/.rest/linkdemands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullLinkDemand
+GET {{host}}/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullLinkDemand
 ###
-GET {{host}}/.rest/linkdemands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullLinkDemand
+GET {{host}}/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullLinkDemand
 ###
-GET {{host}}/linkdemands/108?projection=fullLinkDemand
+GET {{host}}/demands/108?projection=fullLinkDemand
+###
+GET {{host}}/demands/search/findDemandForSupplierId?supplierId=99&linkdemandIdToIgnore=245

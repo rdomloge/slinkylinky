@@ -28,7 +28,7 @@ public interface DemandRepo extends CrudRepository <Demand, Long> {
                 "ORDER BY s.we_write_fee ASC, "+
                 "   s.sem_rush_uk_jan23traffic DESC, "+
                 "   s.sem_rush_authority_score DESC ")
-    Demand[] findDemandForSupplierId(int supplierId, int linkdemandIdToIgnore);
+    Demand[] findDemandForSupplierId(int supplierId, int demandIdToIgnore);
 
     @Query(nativeQuery = true,
         value = "SELECT ld.* FROM demand ld "+

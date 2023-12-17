@@ -1,11 +1,10 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.springframework.data.rest.core.config.Projection;
 
-@Projection(name="fullLinkDemand", types = {Demand.class})
+@Projection(name="fullDemand", types = {Demand.class})
 public interface FullDemandProjection {
     
     long getId();

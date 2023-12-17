@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SetupLinkDemand {
+public class SetupDemand {
     
     private String name;
     private String url;

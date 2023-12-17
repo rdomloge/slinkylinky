@@ -33,7 +33,7 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
         "ORDER BY s.we_write_fee ASC, "+                                    
         "   s.sem_rush_uk_jan23traffic DESC, "+
         "   s.sem_rush_authority_score DESC")
-    Supplier[] findSuppliersForLinkDemandId(int linkDemandId);
+    Supplier[] findSuppliersForDemandId(int demandId);
 
     Supplier findByDomainIgnoreCase(String domain);
 
