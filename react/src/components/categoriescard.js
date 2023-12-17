@@ -2,14 +2,18 @@
 
 import '@/styles/globals.css'
 import React, {useState, useEffect} from 'react'
-import Category from './category';
+import Category, { CategoryLite } from './category';
 
 export default function CategoriesCard({categories}) {
     
 
     return (
-        <div className="child-card flex flex-wrap">
-            {categories.map( (c,index) => <Category category={c} key={index}/> )}
-        </div>
+        <>
+        {categories ?
+            <div className="child-card flex flex-wrap">
+                {categories.map( (c,index) => <CategoryLite category={c} key={index}/> )}
+            </div>
+        : null}
+        </>
     );
 }
