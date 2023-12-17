@@ -12,3 +12,13 @@ export default function SessionButton({labelText}) {
         </button>
     );
 }
+
+export function ClickHandlerButton({labelText, clickHandler, disabled}) {
+    return (
+        <button className={"text-white font-bold py-2 px-4 border border-blue-700 rounded "
+                            +(disabled ? "bg-grey-500 hover:bg-grey-700" : "bg-blue-500 hover:bg-blue-700")}
+                disabled={disabled} onClick={clickHandler ? clickHandler : ()=>{}}>
+            {labelText}
+        </button>
+    );
+}
