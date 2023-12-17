@@ -1,7 +1,7 @@
 'use client'
 
 import ProposalListItem from "@/components/ProposalListItem";
-import Layout from "@/components/layout";
+import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
 import Link from "next/link";
 import React, {useState, useEffect} from 'react'
@@ -80,7 +80,7 @@ export default function ListProposals() {
     function paidLinksContainsDemandForMe(paidLinks) {
         if( ! session) return true;
         var forMe = false;
-        paidLinks.forEach( pl => {if(pl.linkDemand.createdBy === session.user.email) forMe = true***REMOVED***
+        paidLinks.forEach( pl => {if(pl.demand.createdBy === session.user.email) forMe = true***REMOVED***
         return forMe;
 ***REMOVED***
 

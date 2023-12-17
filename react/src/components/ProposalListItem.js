@@ -41,7 +41,7 @@ export default function ProposalListItem({proposal}) {
                     </Link>
                     <p className='font-semibold text-right'>Demand</p>
                        {proposal.paidLinks.map( 
-                            (pl,index) => <DemandHeadline linkDemand={pl.linkDemand} key={index}/> )} 
+                            (pl,index) => <DemandHeadline demand={pl.demand} key={index}/> )} 
                 </div>
             </div>
         </>
