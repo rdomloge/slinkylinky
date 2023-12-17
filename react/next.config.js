@@ -1,5 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+
+    webpack: (config, context) => {
+      // Enable polling based on env variable being set
+      if(process.env.NEXT_WEBPACK_USEPOLLING) {
+        config.watchOptions = {
+          poll: 5000,
+          aggregateTimeout:2000,
+          ignored: ['**/node_modules']
+        }
+      }
+      return config
+    },
   
     async redirects() {
         return [
