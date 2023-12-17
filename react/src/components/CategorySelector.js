@@ -7,10 +7,20 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
 
     const useableInitialValue = initialValue ? initialValue.map(c=>({value:extractUrl(c), label: c.name})) : []
 
+    console.log("Initial value for cat selector: "+JSON.stringify(useableInitialValue))
+
     function extractUrl(category) {
-        const url = category._links.self.href
-        if(url.indexOf('{') > -1) return url.substring(0, url.indexOf('{'))
-        else return url
+
+        if(category._links) {
+            const url = category._links.self.href
+            if(url.indexOf('{') > -1) return url.substring(0, url.indexOf('{'))
+            else return url
+        }
+        else {
+            const url = location.protocol + "//" + location.hostname + ":" + location.port + "/.rest/categories/" + category.id
+            console.log("Build URL: "+url)
+            return url
+        }
     }
 
     function parseId(entity) {
