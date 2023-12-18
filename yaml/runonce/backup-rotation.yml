@@ -15,7 +15,7 @@ spec:
           - name: backup
             image: rdomloge/backup-rotation
             command: ["rotate-backups"]
-            args: ["--dry-run -H 24 -d 3 -w 1 -m 12 /backup"]
+            args: ["--dry-run", "-H", "24", "-d", "3", "-w", "1", "-m", "12", "/backup"]
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
