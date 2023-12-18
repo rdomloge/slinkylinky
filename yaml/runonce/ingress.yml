@@ -31,8 +31,8 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    traefik.ingress.kubernetes.io/router.middlewares: slinkylinky-add-cors-header@kubernetescrd,slinkylinky-ipwhitelist
-    
+    traefik.ingress.kubernetes.io/router.middlewares: slinkylinky-add-cors-header@kubernetescrd
+    kubernetes.io/ingress.allow-http: "false"    
 spec:
   rules:
     - host: rdomloge.synology.me
