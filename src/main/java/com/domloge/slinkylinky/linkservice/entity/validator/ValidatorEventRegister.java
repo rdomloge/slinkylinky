@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.linkservice.entity;
+package com.domloge.slinkylinky.linkservice.entity.validator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,14 +21,14 @@ public class ValidatorEventRegister implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        List<String> events = Arrays.asList("beforeCreate");
+        List<String> events = Arrays.asList("beforeCreate", "beforeSave");
         for (Map.Entry<String, Validator> entry : validators.entrySet()) {
             events.stream()
-              .filter(p -> entry.getKey().startsWith(p))
-              .findFirst()
-              .ifPresent(
-                p -> validatingRepositoryEventListener
-               .addValidator(p, entry.getValue()));
+                .filter(p -> entry.getKey().startsWith(p))
+                .forEach(
+                    p -> 
+                        validatingRepositoryEventListener.addValidator(p, entry.getValue()));
         }
+        
     }
 }

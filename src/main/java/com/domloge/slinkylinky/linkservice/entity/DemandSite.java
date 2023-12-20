@@ -37,6 +37,7 @@ public class DemandSite {
     private String url;//
     private String domain;
     private String createdBy;
+    private String updatedBy;
     private String email;
 
     @ManyToMany(fetch = FetchType.EAGER)

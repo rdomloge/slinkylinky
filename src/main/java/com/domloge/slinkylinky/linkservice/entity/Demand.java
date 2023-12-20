@@ -45,6 +45,7 @@ public class Demand {
     private String domain;
     private LocalDateTime requested;
     private String createdBy;
+    private String updatedBy;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)

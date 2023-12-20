@@ -50,6 +50,10 @@ public class Proposal {
     private String liveLinkUrl;
     private String liveLinkTitle;
 
+    private String createdBy;
+
+    private String updatedBy;
+
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<PaidLink> paidLinks;

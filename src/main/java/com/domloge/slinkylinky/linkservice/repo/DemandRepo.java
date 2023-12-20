@@ -1,13 +1,10 @@
 package com.domloge.slinkylinky.linkservice.repo;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
-import com.domloge.slinkylinky.linkservice.entity.FullDemandProjection;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 
 @RepositoryRestResource(collectionResourceRel = "demands", path = "demands")

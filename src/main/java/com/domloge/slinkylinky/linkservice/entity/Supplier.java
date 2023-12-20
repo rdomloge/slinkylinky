@@ -46,6 +46,9 @@ public class Supplier {
 
     private boolean disabled;
 
+    private String createdBy;
+    private String updatedBy;   
+
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
     private List<Category> categories;
