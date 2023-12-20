@@ -50,7 +50,7 @@ export default function Demand() {
                 <PageTitle title={"Demand ("+demands.length+")"}/>
                 <div className="inline-block content-center">
                     <Link href='/demand/Add'>
-                        <SessionButton labelText="New"/>
+                        <SessionButton label="New"/>
                     </Link>
                 </div>
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>

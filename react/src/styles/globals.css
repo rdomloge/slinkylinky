@@ -9,6 +9,14 @@ body {
   
 }
 
+.colourOfBackground {
+  background-color: rgb(214, 219, 220);
+}
+
+.timelineDot {
+  inset-inline-start: -0.5rem;
+}
+
 @layer components {
     .card {
       background-color: theme(colors.white);

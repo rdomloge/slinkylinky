@@ -14,3 +14,9 @@ export default function NiceDate(props) {
         );
     }
 }
+
+export function NiceDateTime({isostring}) {
+    return (
+        <span>{new Date(isostring).toLocaleString()}</span>
+    );
+}
