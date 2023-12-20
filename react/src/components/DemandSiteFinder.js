@@ -4,6 +4,8 @@ import DemandSiteSearchResult from './DemandSite';
 import Modal from './atoms/Modal';
 import TextInput from './atoms/TextInput';
 import { ClickHandlerButton } from './atoms/Button';
+import Image from 'next/image';
+import Icon from '@/pages/demand/arrow-bend-up-left.svg';
 
 export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}) {
     const { data: session } = useSession();
@@ -20,7 +22,6 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
                 .then(data => setSearchResults(data))
         }
         else {
-            console.log("Search term too short: "+searchTerm)
             setSearchResults([])
         }
     }, [searchTerm]);
@@ -50,16 +51,15 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
 
     return (
         <>
-        <p className="text-end">Demand sites</p>
-        <div className="float-right">
+        <div>
             <div className="grid place-content-end">
-                <ClickHandlerButton labelText="Create new site" clickHandler={()=>setShowModal(true)} />
+                <ClickHandlerButton label="Create new site" clickHandler={()=>setShowModal(true)} />
                 {showModal ?
-                    <Modal dismissHandler={()=>setShowModal(false)} title="Create new demand site">
+                    <Modal dismissHandler={()=>setShowModal(false)} title="Create new demand site" width="w-1/3">
                         <TextInput changeHandler={setNewDemandsiteName} label="Name"/>
                         <TextInput changeHandler={setNewDemandsiteWebsite} label="Website"/>
                         <div className="pt-4">
-                            <ClickHandlerButton labelText="Submit" clickHandler={()=>createNewDemandSite(newDemandsiteName, newDemandsiteWebsite)}/>
+                            <ClickHandlerButton label="Submit" clickHandler={()=>createNewDemandSite(newDemandsiteName, newDemandsiteWebsite)}/>
                         </div>
                     </Modal>
                 : null}
@@ -68,7 +68,13 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
                 searchResults.map( (sr,index) => 
                     <DemandSiteSearchResult demandSite={sr} key={index} selectedHandler={demandsiteSelectedHandler}/>
                 )
-            : <p className="text-end">Search term too short or nothing found</p>}
+            :
+            <div className="">
+                <Image src={Icon} alt="arrow up and left" /> 
+                <p className="text-slate-500 text-7xl">Specify a name</p>
+                <p className="text-slate-500 text-4xl pt-4">3 characters min.</p>
+            </div>
+            }
         </div>
         </>
     );    

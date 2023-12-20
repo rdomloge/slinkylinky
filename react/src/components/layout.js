@@ -18,7 +18,7 @@ const Layout =({children}) =>{
                 <div className="">
                     <Menu/>         
                 </div>
-                <div className="col-span-7">
+                <div className="col-span-7 h-full">
                     {children}
                 </div>
             </div>

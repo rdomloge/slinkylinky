@@ -1,18 +1,18 @@
 import React, {useState} from 'react'
-import CategorySelector from "@/components/CategorySelector";
 import { useSession } from "next-auth/react";
 import TextInput from '@/components/atoms/TextInput';
 import NumberInput from '@/components/atoms/NumberInput';
 import DemandSiteFinder from './DemandSiteFinder';
 import Loading from './Loading';
 import CategoriesCard from './categoriescard';
+import { EditDemandSubmitButton } from './atoms/Button';
+import { fixForPosting } from './CategoryUtil'; 
 
 export default function AddOrEditDemand({demand, updateNudge}) {
 
     const { data: session } = useSession();
     const [searchTerm, setSearchTerm] = useState()
     const [demandsite, setDemandsite] = useState()
-    const [demandName, setDemandName] = useState("")
         
 
     function submitHandler() {
@@ -22,11 +22,13 @@ export default function AddOrEditDemand({demand, updateNudge}) {
         const requestedDate = new Date(demand.requested)
         demand.requested = requestedDate.toISOString()
 
-        if(demand.categories && demand.categories.length > 0 && demand.categories[0].name) {
-            demand.categories = demand.categories.map((c)=>"/.rest/categories/" + c.id)
-        }
+        fixForPosting(demand)
 
         if(demand.id) {
+
+            delete demand._links
+            demand.updatedBy = session.user.email
+
             fetch(demandUrl+"/"+demand.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
@@ -81,19 +83,20 @@ export default function AddOrEditDemand({demand, updateNudge}) {
         <div className="flex">
             <div className="flex-1">
                 <div className="content-center mb-4">
-                    <button id="createnew" onClick={submitHandler} disabled={!demandsite}
-                        className={"text-white font-bold py-2 p-4 border border-blue-700 rounded "+(demandsite?"bg-blue-500 hover:bg-blue-700":"bg-grey-500 hover:bg-grey-700")}>
-                        Submit
-                    </button>
+                    <EditDemandSubmitButton submitHandler={submitHandler} demand={demand} demandsite={demandsite}/>
                 </div>
                 <div>
                 <form className="w-full max-w-lg card">
                     <div className="flex flex-wrap -mx-3 mb-6">
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                            <TextInput label="name" stateValue={demandName} disabled={demandsite} changeHandler={(e)=>{
-                                demand.name=e
-                                setSearchTerm(e)
-                            }} initialValue={demand.name}/>
+                            {demandsite ?
+                                <p className="h-full flex items-center text-xl">{demandsite.name}</p>
+                            :
+                                <TextInput label="name" disabled={demandsite} changeHandler={(e)=>{
+                                    demand.name=e
+                                    setSearchTerm(e)
+                                }} initialValue={demand.name}/>
+                            }
                         </div>
                         <div className="w-full md:w-1/2 px-3">
                             <TextInput label="Anchor text" changeHandler={(e)=>demand.anchorText=e} initialValue={demand.anchorText}/>

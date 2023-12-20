@@ -1,5 +1,7 @@
 'use client'
 
+import { useSession } from "next-auth/react";
+
 import CategorySelector from '@/components/CategorySelector'
 import Image from 'next/image'
 import Icon from '@/components/shipping.png'
@@ -7,9 +9,10 @@ import TextInput from '@/components/atoms/TextInput'
 import NumberInput from '@/components/atoms/NumberInput'
 import React, {useState} from 'react';
 import DisableToggle from './atoms/DisableToggle'
+import { fixForPosting } from "./CategoryUtil";
 
 export default function AddOrEditSupplier({supplier}) {
-
+    const { data: session } = useSession();
     const [errorMsg, setErrorMsg] = useState()
 
     function handleError(message) {
@@ -21,11 +24,13 @@ export default function AddOrEditSupplier({supplier}) {
         const supplierUrl = "/.rest/suppliers"
         const patchData = {...supplier}
         delete patchData._links
-        if(supplier.categories) {
-            patchData.categories = supplier.categories.map((c)=>c.value ? c.value : c._links.self.href)
-        }
+        
+        fixForPosting(patchData)
 
         if(supplier.id) {
+
+            patchData.updatedBy = session.user.email
+            
             fetch(supplierUrl+"/"+supplier.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
@@ -42,6 +47,10 @@ export default function AddOrEditSupplier({supplier}) {
             .catch(err => { handleError("Oops") });
         }
         else {
+
+            patchData.createdBy = session.user.email
+            if( ! patchData.weWriteFeeCurrency) patchData.weWriteFeeCurrency = "£"
+
             fetch(supplierUrl, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
@@ -100,6 +109,9 @@ export default function AddOrEditSupplier({supplier}) {
                 <div className='w-28 inline-block pr-8 mt-8'>
                     <NumberInput initialValue={supplier.semRushUkJan23Traffic} label={"SEM rush UK Jan '23"} 
                         changeHandler={(e)=>supplier.semRushUkJan23Traffic = e}/>
+                </div>
+                <div className='w-20 inline-block pr-8 mt-8'>
+                    <TextInput initialValue="£" label="Currency" changeHandler={(e)=>supplier.weWriteFeeCurrency = e} maxLen={1}/>
                 </div>
                 <div className='w-1/2 mt-8'>
                     <CategorySelector label="Categories"

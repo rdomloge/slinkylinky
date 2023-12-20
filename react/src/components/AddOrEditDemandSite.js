@@ -1,30 +1,27 @@
 'use client'
 
-import React, {useState} from 'react'
-import CategorySelector from "@/components/CategorySelector";
 import { useSession } from "next-auth/react";
+import CategorySelector from "@/components/CategorySelector";
 import TextInput from '@/components/atoms/TextInput';
-import NumberInput from '@/components/atoms/NumberInput';
+import SessionButton from "./atoms/Button";
+import { fixForPosting } from "./CategoryUtil";
 
 
 export default function AddOrEditDemandSite({demandSite}) {
 
     const { data: session } = useSession();
-    
-
 
     function submitHandler() {
         
         console.log("Demand: "+JSON.stringify(demandSite))
         const demandSiteUrl = "/.rest/demandsites"
-        const requestedDate = new Date(demandSite.requested)
-        // demandSite.requested = requestedDate.toISOString()
-
-        if(demandSite.categories && demandSite.categories[0].name) {
-            demandSite.categories = demandSite.categories.map((c)=>c.value ? c.value : c._links.self.href)
-        }
+        delete demandSite.domain
+                
+        fixForPosting(demandSite)
 
         if(demandSite.id) {
+            demandSite.updatedBy = session.user.email
+
             fetch(demandSiteUrl+"/"+demandSite.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
@@ -56,8 +53,6 @@ export default function AddOrEditDemandSite({demandSite}) {
     //             }
     //         });
         }
-
-        
     // }
 
     function categoryChangeHandler(categories) {
@@ -69,18 +64,14 @@ export default function AddOrEditDemandSite({demandSite}) {
         <div className="flex">
             <div className="flex-1">
                 <div className="content-center mb-4">
-                    <button id="createnew" onClick={submitHandler} 
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 p-4 border border-blue-700 rounded">
-                        Submit
-                    </button>
+                    <SessionButton label="Submit" clickHandler={submitHandler}/>
                 </div>
                 <div>
                 <form className="w-full max-w-lg card">
                     <div className="flex flex-wrap -mx-3 mb-6">
-                        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                        <div className="w-full px-3 mb-6 md:mb-0">
                             <TextInput label="name" initialValue={demandSite.name} changeHandler={(e)=>{
                                 demandSite.name=e
-                                setSearchTerm(e)
                             }} />
                         </div>
                     </div>
@@ -93,12 +84,10 @@ export default function AddOrEditDemandSite({demandSite}) {
                         <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
                             <CategorySelector changeHandler={categoryChangeHandler} label="Categories" initialValue={demandSite.categories}/>
                         </div>
-                        
                     </div>
                     </form>
                 </div>
             </div>
-           
         </div>
     );
 }
