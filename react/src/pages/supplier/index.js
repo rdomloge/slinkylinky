@@ -66,7 +66,7 @@ export default function ListBloggers() {
             <span className='pb-4'>{supplierCount} &#47;&#47; total suppliers</span>
             <div className="content-center pt-2">
                 <Link href='/supplier/Add'>
-                    <SessionButton labelText="New"/>
+                    <SessionButton label="New"/>
                 </Link>
             </div>
             <div className="w-1/4 pr-8 inline-block">
@@ -79,7 +79,7 @@ export default function ListBloggers() {
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <SupplierCard supplier={s} editable={true}/>
+                            <SupplierCard supplier={s} editable={true} linkable={true}/>
                         </div>
                     )}
                 </div> 

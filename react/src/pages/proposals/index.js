@@ -1,12 +1,16 @@
 'use client'
 
+import React, {useState, useEffect} from 'react'
+import { useSession } from "next-auth/react";
+import { useRouter } from 'next/router'
+
+import Image from 'next/image'
+import Icon from '@/pages/proposals/grid.svg'
+
 import ProposalListItem from "@/components/ProposalListItem";
 import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
 import Link from "next/link";
-import React, {useState, useEffect} from 'react'
-import { useSession } from "next-auth/react";
-import { useRouter } from 'next/router'
 import MonthsBack from "@/components/monthsBack";
 import OwnerFilter from "@/components/OwnerFilter";
 
@@ -102,6 +106,9 @@ export default function ListProposals() {
         return (
             <Layout>
                 <PageTitle title={"Proposals ("+proposals.length+")"}/>
+                <Link href="/tabular/This-Months-Proposals" className="inline-block">
+                    <Image src={Icon} alt="Grid view" />
+                </Link>
                 <MonthsBack/>
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
                 <ul>

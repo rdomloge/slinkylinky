@@ -2,6 +2,8 @@
 
 import React, {useState, useEffect} from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useSession } from "next-auth/react";
+
 import DemandCard from '@/components/demandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
@@ -15,6 +17,7 @@ function parseId(entity) {
 }
 
 export default function App() {
+    const { data: session } = useSession();
     const searchParams = useSearchParams()
     
     const [demand, setDemand] = useState(null);
@@ -73,7 +76,8 @@ export default function App() {
             const proposalUrl = "/.rest/proposals";
             const pData = {
                 "paidLinks": plLocations,
-                "dateCreated": new Date().toISOString()
+                "dateCreated": new Date().toISOString(),
+                "createdBy": session.user.email
         ***REMOVED***
             fetch(proposalUrl, {
                 method: 'POST',

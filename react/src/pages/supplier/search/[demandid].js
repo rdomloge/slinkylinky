@@ -61,10 +61,10 @@ function SupplierList(props) {
     
     if(props.suppliers === null || props.demand === null) return <p>Loading...</p>;
     else return (
-        <div>
+        <div className="grid grid-cols-3">
             {props.suppliers.map((s,index) => (
                 <a href={'/paidlinks/staging?supplierId='+s.id+'&demandId='+props.demandid} key={index}>
-                    <SupplierCard supplier={s} />
+                    <SupplierCard supplier={s} linkable={false}/>
                 </a>
             ))}
         </div>
