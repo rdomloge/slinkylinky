@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Icon from '@/components/shipping.png'
 import Link from 'next/link'
 
-export default function SupplierCard({supplier, editable}) {
+export default function SupplierCard({supplier, editable, linkable}) {
     return (
         <div className="list-card card">
             
@@ -20,12 +20,22 @@ export default function SupplierCard({supplier, editable}) {
             :null}
             <div className={supplier.disabled?"text-gray-300":""}>{supplier.name}</div>
             <div>DA: {supplier.da}</div>
-            <Link href={supplier.website}>
-                <div>Website: {supplier.website}</div>
-            </Link>
-            <Link href={"mailto:"+supplier.email}>
-                <div>Email: {supplier.email}</div>
-            </Link>
+            {linkable ?
+                <>
+                <Link href={supplier.website}>
+                    <p className="truncate">Website: {supplier.website}</p>
+                </Link>
+                 <Link href={"mailto:"+supplier.email}>
+                    <p className="truncate">Email: {supplier.email}</p>
+                </Link>
+                </>
+            :
+                <>
+                <p className="truncate">Website: {supplier.website}</p>
+                <p className="truncate">Email: {supplier.email}</p>
+                </>
+        ***REMOVED***
+           
             <div>Fee: {supplier.weWriteFeeCurrency}{supplier.weWriteFee}</div>
             <div className='grid grid-cols-3 gap-x-4 inline-grid auto-cols-min'>
                 <div className='col-span-2'>SEM rush authority</div>

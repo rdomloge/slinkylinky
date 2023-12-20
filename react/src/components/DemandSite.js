@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CategoryLite } from "./category";
 import Image from "next/image";
 import ArrowIcon from '@/pages/demand/left-arrow.svg'
+import SessionButton, { SessionBlock } from "./atoms/Button";
 
 export default function DemandSiteSearchResult({demandSite, selectedHandler}) {
     return (
@@ -17,7 +18,7 @@ export default function DemandSiteSearchResult({demandSite, selectedHandler}) {
                     {demandSite.demands.length}
                 </span>
                 <p className="text-lg">{demandSite.name}</p>
-                <p>{demandSite.domain}</p>
+                <p className="mb-6">{demandSite.domain}</p>
                 {demandSite.categories.map( (c,index) => <CategoryLite category={c} key={index}/> )}
             </div>
         </div>
@@ -27,9 +28,11 @@ export default function DemandSiteSearchResult({demandSite, selectedHandler}) {
 export function DemandSiteListItemLite({demandSite}) {
     return (
         <div className="card list-card">
-            <Link href={"/demandsites/"+demandSite.id}>
-                <p className='text-right float-right'>Edit</p>
-            </Link>
+            <SessionBlock>
+                <Link href={"/demandsites/"+demandSite.id}>
+                    <p className='text-right float-right'>Edit</p>
+                </Link>
+            </SessionBlock>
             <p className="text-lg">{demandSite.name}</p>
             <p>{demandSite.domain}</p>
             {demandSite.categories.map( (c,index) =>

@@ -4,8 +4,9 @@ import '@/styles/globals.css'
 import CategoriesCard from '@/components/categoriescard'
 import Image from 'next/image'
 import Icon from '@/components/shoppingcart.png'
-import NiceDate from './atoms/Date'
+import NiceDate from './atoms/DateTime'
 import Link from 'next/link'
+import { SessionBlock } from './atoms/Button'
 
 export default function DemandCard({demand, fullfilable, editable}) {
     
@@ -25,18 +26,20 @@ export default function DemandCard({demand, fullfilable, editable}) {
                     <p>Created by {demand.createdBy}</p>
                     <CategoriesCard categories={demand.categories}/>
                 </div>
-                <div className='flex-initial'>
-                    {fullfilable ?
-                    <Link href={'/supplier/search/'+demand.id}>
-                        <span className='block text-lg font-bold'>Fullfil</span>
-                    </Link>
-                    :null}
-                    {editable ?
-                    <Link href={'/demand/'+demand.id}>
-                        <span className='block text-right'>Edit</span>
-                    </Link>
-                    :null}
-                </div>
+                <SessionBlock>
+                    <div className='flex-initial'>
+                        {fullfilable ?
+                        <Link href={'/supplier/search/'+demand.id}>
+                            <span className='block text-lg font-bold'>Fullfil</span>
+                        </Link>
+                        :null}
+                        {editable ?
+                        <Link href={'/demand/'+demand.id}>
+                            <span className='block text-right'>Edit</span>
+                        </Link>
+                        :null}
+                    </div>
+                </SessionBlock>
             </div>
         );
 ***REMOVED***

@@ -1,9 +1,16 @@
-import Link from "next/link";
-import LiveLinkModal from "./LiveLinkModal";
-import React, {useState, useEffect} from 'react'
+
+import { useSession } from "next-auth/react";
+import React, {useState} from 'react'
+
+import Modal from "./atoms/Modal";
+import TextInput from "./atoms/TextInput";
+import { ClickHandlerButton } from "./atoms/Button";
 
 export default function TrafficLightClickHandler({children, proposal, updateHandler, propertyName, propertyDate}) {
+    const { data: session } = useSession();
     const [showModal, setShowModal] = useState(false)
+    const [postTitle, setPostTitle] = useState("")
+    const [postUrl, setPostUrl] = useState("")
 
     function parseId(entity) {
         const url = entity._links.self.href;
@@ -37,6 +44,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
     function toggle() {
         const proposalUrl = "/.rest/proposals/"+parseId(proposal);
         const postData = {}
+        postData.updatedBy = session.user.email
         postData[propertyName] = ! proposal[propertyName]
         if(null != propertyDate) {
             postData[propertyDate] = postData[propertyName] ? new Date().toISOString() : null
@@ -67,7 +75,17 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         </div>
         <div>
             {showModal ?
-                <LiveLinkModal submitHandler={(url,title) => setCapturedValue(url,title)} cancelHandler={() => {setShowModal(false)}}/>
+                <Modal dismissHandler={()=>setShowModal(false)} title="Post details" width="w-1/3">
+                    <TextInput label="Post titlë" changeHandler={(e)=>setPostTitle(e)}/>
+                    <TextInput label="Live link URL" changeHandler={(e)=>setPostUrl(e)}/>
+                    <div className="pt-4">
+                        <ClickHandlerButton label="Submit" 
+                            clickHandler={()=> {
+                                setCapturedValue(postUrl,postTitle);
+                                setShowModal(false);
+                         ***REMOVED***}/>
+                    </div>
+                </Modal>
                 :
                 null
         ***REMOVED***
