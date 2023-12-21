@@ -15,6 +15,16 @@ spec:
         app: adminwebsite
         version: v1
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: namespace
+                    operator: In
+                    values:
+                      - slinkylinky
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: adminwebsite
           image: rdomloge/slinky-linky-adminwebsite:1.2

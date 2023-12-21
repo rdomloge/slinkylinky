@@ -15,6 +15,16 @@ spec:
         app: linkservice
         version: v1
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: namespace
+                    operator: In
+                    values:
+                      - slinkylinky
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: linkservice
           image: rdomloge/slinky-linky-linkservice:1.2
