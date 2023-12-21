@@ -16,6 +16,16 @@ spec:
         app: postgres
         version: v1
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: namespace
+                    operator: In
+                    values:
+                      - slinkylinky
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: postgres
           image: postgres
