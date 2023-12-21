@@ -21,10 +21,12 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             - labelSelector:
                 matchExpressions:
-                  - key: namespace
+                  - key: app
                     operator: In
                     values:
-                      - slinkylinky
+                      - linkservice
+                      - adminwebsite
+                      - postgres
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: postgres
