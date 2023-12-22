@@ -34,6 +34,12 @@ public interface DemandRepo extends CrudRepository <Demand, Long> {
     Demand[] findUnsatisfiedDemandOrderedByRequested();
 
     @Query(nativeQuery = true,
+        value = "SELECT d.* FROM demand d "+
+                "WHERE d.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
+                "AND d.domain = ?1")
+    Demand[] findUnsatisfiedDemandByDomain(String domain);
+
+    @Query(nativeQuery = true,
         value = "SELECT ld.* FROM demand ld "+
                 "WHERE ld.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
                 "ORDER BY ld.da_needed DESC, ld.name ASC")
