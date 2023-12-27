@@ -13,6 +13,7 @@ import PageTitle from "@/components/pagetitle";
 import Link from "next/link";
 import MonthsBack from "@/components/monthsBack";
 import OwnerFilter from "@/components/OwnerFilter";
+import Loading from '@/components/Loading';
 
 export default function ListProposals() {
     const [proposals, setProposals] = useState()
@@ -102,15 +103,15 @@ export default function ListProposals() {
     ***REMOVED***, [router.isReady, router.query.minusMonths, personal]
     );
 
-    if(proposals) {
-        return (
-            <Layout>
-                <PageTitle title={"Proposals ("+proposals.length+")"}/>
-                <Link href="/tabular/This-Months-Proposals" className="inline-block">
-                    <Image src={Icon} alt="Grid view" />
-                </Link>
-                <MonthsBack/>
-                <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
+    return (
+        <Layout>
+            <PageTitle title="Proposals" count={proposals}/>
+            <Link href="/tabular/This-Months-Proposals" className="inline-block mr-4">
+                <Image src={Icon} alt="Grid view" height={13} width={13}/>
+            </Link>
+            <MonthsBack/>
+            <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
+            {proposals ?
                 <ul>
                 {proposals.map( (p) => 
                     <li className="m-2" key={parseId(p)}>
@@ -118,10 +119,9 @@ export default function ListProposals() {
                     </li>
                 )}
                 </ul>
-            </Layout>
-        );
-***REMOVED***
-    else {
-        return <div>Loading...</div>
-***REMOVED***
+            : 
+                <Loading />
+        ***REMOVED***
+        </Layout>
+    );
 }

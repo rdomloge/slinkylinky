@@ -9,6 +9,7 @@ import DemandCard from '@/components/demandcard'
 import TrafficLights from '@/components/ProposalTrafficLights'
 import NiceDate from '@/components/atoms/DateTime'
 import Link from 'next/link'
+import Loading from '@/components/Loading'
 
 export default function Proposal() {
     const router = useRouter()
@@ -30,11 +31,11 @@ export default function Proposal() {
         ***REMOVED***
     ***REMOVED***, [router.isReady, router.query.proposalid]);
     
-    if(proposal) {
-        return (
-            <>
-                <Layout>
-                    <PageTitle title="Proposal"/>
+    return (
+            <Layout>
+                <PageTitle title="Proposal"/>
+                {proposal ?
+                    <>
                     <div><NiceDate isostring={proposal.dateCreated}/></div>
                     <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
                     {proposal.blogLive ?
@@ -65,11 +66,10 @@ export default function Proposal() {
                             {demands.map( (ld) => <DemandCard demand={ld} key={ld.name}/>)}
                         </div>
                     </div>
-                </Layout>
-            </>
-        );
-***REMOVED***
-    else {
-        return <>Loading...</>
-***REMOVED***
+                    </>
+                :
+                    <Loading />
+            ***REMOVED***
+            </Layout>
+    );
 }

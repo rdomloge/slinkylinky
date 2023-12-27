@@ -9,6 +9,7 @@ import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/Layout'
 import SelectableDemandCard from '@/components/SelectableDemandCard'
+import Loading from '@/components/Loading';
 
 function parseId(entity) {
     const url = entity._links.self.href;
@@ -115,45 +116,44 @@ export default function App() {
     ***REMOVED***, [searchParams]
     );   
 
-    if(supplier && demand && otherDemands) {
-        return (
-            <Layout>
-                    <PageTitle title="Proposal Staging"/>
-                    <button id="submitproposal" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                        onClick={() => handleSubmit(searchParams.get('supplierId'))}>
-                        Submit
-                    </button>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <SupplierCard supplier={supplier}/>
-                            <DemandCard demand={demand}/>
-                        </div>
-                        <div>
-                            <p>Other matching demand:</p>
-                            
-                            {otherDemands.map( (d,index) => 
-                                <SelectableDemandCard 
-                                        onSelectedHandler={() => {
-                                            console.log("Selected");
-                                            selectedOtherDemands.push(d);
-                                            setSelectedOtherDemands([...selectedOtherDemands]);
-                                    ***REMOVED***} 
-                                        onDeselectedHandler={() => {
-                                            console.log("Deselected");
-                                            const pos = selectedOtherDemands.indexOf(d);
-                                            if(pos != -1)  selectedOtherDemands.splice(pos, 1);
-                                            setSelectedOtherDemands([...selectedOtherDemands]);
-                                    ***REMOVED***} 
-                                        key={index}>
-                                    <DemandCard demand={d} />
-                                </SelectableDemandCard>
-                                )}
-                        </div>
+    return (
+        <Layout>
+            <PageTitle title="Proposal Staging"/>
+                <button id="submitproposal" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                    onClick={() => handleSubmit(searchParams.get('supplierId'))}>
+                    Submit
+                </button>
+            {(supplier && demand && otherDemands) ?
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <SupplierCard supplier={supplier}/>
+                        <DemandCard demand={demand}/>
                     </div>
-            </Layout>
-        );
-***REMOVED***
-    else {
-        return (<div>Loading...</div>);
-***REMOVED***
+                    <div>
+                        <p>Other matching demand:</p>
+                        
+                        {otherDemands.map( (d,index) => 
+                            <SelectableDemandCard 
+                                    onSelectedHandler={() => {
+                                        console.log("Selected");
+                                        selectedOtherDemands.push(d);
+                                        setSelectedOtherDemands([...selectedOtherDemands]);
+                                ***REMOVED***} 
+                                    onDeselectedHandler={() => {
+                                        console.log("Deselected");
+                                        const pos = selectedOtherDemands.indexOf(d);
+                                        if(pos != -1)  selectedOtherDemands.splice(pos, 1);
+                                        setSelectedOtherDemands([...selectedOtherDemands]);
+                                ***REMOVED***} 
+                                    key={index}>
+                                <DemandCard demand={d} />
+                            </SelectableDemandCard>
+                            )}
+                    </div>
+                </div>
+            : 
+                <Loading />
+        ***REMOVED***
+        </Layout>
+    );
 }

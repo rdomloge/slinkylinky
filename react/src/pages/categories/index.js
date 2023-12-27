@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
 import React, {useState, useEffect} from 'react'
 import CategoryListItem from "@/components/CategoryListItem";
+import Loading from "@/components/Loading";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()
@@ -19,21 +20,22 @@ export default function ListCategories() {
         () => {
             fetch(catUrl)
                 .then( (res) => res.json())
-                .then( (data) => setCategories(data));
+                .then( (data) => setCategories(data._embedded.categories));
     ***REMOVED***, []
     );
 
-    if(categories) {
-        return (
-            <Layout>
-                <PageTitle title="Categories"/>
+    
+    return (
+        <Layout>
+            <PageTitle title="Categories" count={categories}/>
+            {categories ?
                 <ol>
-                    {categories._embedded.categories.map( (c) => <li key={parseId(c)}><CategoryListItem category={c}/></li>)}
+                    {categories.map( (c) => <li key={parseId(c)}><CategoryListItem category={c}/></li>)}
                 </ol>
-            </Layout>
-        );
-***REMOVED***
-    else {
-        return <div>Loading...</div>
-***REMOVED***
+            : 
+                <Loading />
+        ***REMOVED***
+        </Layout>
+    );
+    
 }
