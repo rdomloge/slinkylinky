@@ -35,25 +35,7 @@ export default function AddOrEditDemandSite({demandSite}) {
                 }
             })
         }
-    //     else {
-    //         demandSite.createdBy = session.user.email
-    //         fetch(demandSiteUrl, {
-    //             method: 'POST',
-    //             headers: {'Content-Type':'application/json'},
-    //             body: JSON.stringify(demandSite)
-    //         })
-    //         .then( (resp) => {
-    //             if(resp.ok) {
-    //                 const locationUrl = resp.headers.get('Location')
-    //                 console.log("New demandSite created at "+locationUrl)
-    //                 location.href = "/demandSite";
-    //             }
-    //             else {
-    //                 console.log("Created failed: "+JSON.stringify(resp));
-    //             }
-    //         });
-        }
-    // }
+    }
 
     function categoryChangeHandler(categories) {
         const categoryHrefs = categories.map(c => c.value)
