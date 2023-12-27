@@ -35,25 +35,7 @@ export default function AddOrEditDemandSite({demandSite}) {
             ***REMOVED***
         ***REMOVED***)
     ***REMOVED***
-    //     else {
-    //         demandSite.createdBy = session.user.email
-    //         fetch(demandSiteUrl, {
-    //             method: 'POST',
-    //             headers: {'Content-Type':'application/json'},
-    //             body: JSON.stringify(demandSite)
-    //     ***REMOVED***)
-    //         .then( (resp) => {
-    //             if(resp.ok) {
-    //                 const locationUrl = resp.headers.get('Location')
-    //                 console.log("New demandSite created at "+locationUrl)
-    //                 location.href = "/demandSite";
-    //         ***REMOVED***
-    //             else {
-    //                 console.log("Created failed: "+JSON.stringify(resp));
-    //         ***REMOVED***
-    //     ***REMOVED***);
-    ***REMOVED***
-    // }
+***REMOVED***
 
     function categoryChangeHandler(categories) {
         const categoryHrefs = categories.map(c => c.value)
