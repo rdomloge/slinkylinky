@@ -26,6 +26,18 @@ body {
     }
 }
 
+.third-party {
+  background-color: rgb(170, 220, 244);
+  border-radius: 90%;
+  padding: 3px;
+  right: -10px; 
+  top: -10px;
+  position: absolute;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(108, 108, 108);
+}
+
 .child-card {
   margin: 0.6em;
   display: flex;

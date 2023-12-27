@@ -18,9 +18,17 @@ export default function Demand() {
     const [sortCol, setSortCol] = useState();
 
     useEffect( () => {
+        const storedSortOrder = window.localStorage.getItem("demandSortOrder");
+        if(storedSortOrder) {
+            setSortCol(storedSortOrder);
+        }
+    }, [] )
+
+    useEffect( () => {
+        
         const requestedOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand"
         const daNeededOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullDemand"
-        const url = sortCol === "daNeeded" ? daNeededOrderUrl : requestedOrderUrl;
+        const url = (sortCol) === "daNeeded" ? daNeededOrderUrl : requestedOrderUrl;
 
         fetch(url)
             .then(res => res.json())
@@ -38,24 +46,37 @@ export default function Demand() {
         }
     }
 
+    function setSortOrder(e) {
+        setSortCol(e);
+        window.localStorage.setItem("demandSortOrder", e);
+    }
+
     function parseId(demand) {
         const url = demand._links.self.href;
         const id = url.substring(url.lastIndexOf('/')+1);
         return id;
     }
 
-    if(demands) {
-        return (
-            <Layout>
-                <PageTitle title={"Demand ("+demands.length+")"}/>
-                <div className="inline-block content-center">
-                    <Link href='/demand/Add'>
-                        <SessionButton label="New"/>
-                    </Link>
-                </div>
-                <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
-                <Select label="Sort" changeHandler={ (e) => setSortCol(e)} selected={sortCol}
-                    options={[{value: "requested", name: "Requested (ASC)"}, {value: "daNeeded", name: "DA (DESC)"}]}/>
+    function buildSortOptions() {
+        return [
+            {value: "requested", name: "Requested (ASC)"}, 
+            {value: "daNeeded", name: "DA (DESC)"}
+        ]
+    }
+
+    return (
+        <Layout>
+            <PageTitle title="Demand" count={demands}/>
+            <div className="inline-block content-center">
+                <Link href='/demand/Add'>
+                    <SessionButton label="New"/>
+                </Link>
+            </div>
+            <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
+            <Select label="Sort" changeHandler={ (e) => setSortOrder(e)} value={sortCol}
+                options={buildSortOptions()}/>
+
+            {demands ? 
                 <div className="grid grid-cols-2">
                 {demands.map( (ld,index) => (
                     <div key={index}>
@@ -63,10 +84,10 @@ export default function Demand() {
                     </div>
                 ))}
                 </div>
-            </Layout>
-        );
-    }
-    else {
-        return (<Loading/>);
-    }
+            : 
+                <Loading />
+            }
+        </Layout>
+    );
+    
 }
