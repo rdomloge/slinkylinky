@@ -27,7 +27,7 @@ export default function EntityAuditTrail() {
     return (
         <Layout>
             <PageTitle title="Audit trail"/>
-            <ol className="relative border-s border-gray-600 dark:border-gray-700">                  
+            <ol className="relative border-s border-gray-600 dark:border-gray-700">
                 {trail 
                 ?
                     trail.map( (ar,index) => {return <TimelineEntry date={ar.eventTime} what={ar.what} detail={ar.detail} previousDetail={index>0?trail[index-1].detail:""} who={ar.who} key={index}/>} )
