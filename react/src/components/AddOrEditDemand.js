@@ -132,7 +132,7 @@ export default function AddOrEditDemand({demand, updateNudge}) {
             </div>
             <div className="flex-1 p-4">
                 {demand.id ?
-                    <p>Edit mode</p>
+                    <p></p>
                 :
                 <DemandSiteFinder searchTerm={searchTerm} demandsiteSelectedHandler={demandsiteSelectedHandler}/> }
             </div>
