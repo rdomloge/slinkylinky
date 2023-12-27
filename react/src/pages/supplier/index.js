@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import Link from "next/link";
 
 import Image from 'next/image'
-import Icon from '@/pages/supplier/upthere.png'
+import Icon from '@/pages/supplier/arrow-bend-up.svg'
 
 import Layout from "@/components/Layout";
 import PageTitle from "@/components/pagetitle";
@@ -24,7 +24,7 @@ export default function ListBloggers() {
         fetch(countUrl)
             .then( (res) => res.json())
             .then( (data) => setSupplierCount(data));
-    });
+    }, []);
 
     useEffect(
         () => {
@@ -59,10 +59,19 @@ export default function ListBloggers() {
         setCategoriesFilter(categories)
     }
 
+    function LinkCountChild({supplier}) {
+        const [linkCount, setLinkCount] = useState()
+        useEffect(() => {
+            const linkCountUrl = "/.rest/paidlinks/search/countBySupplierId?supplierId="+supplier.id
+            fetch(linkCountUrl).then(resp => resp.json()).then(data => setLinkCount(data));
+        });
+        return <span className='inline-block'>{linkCount} links</span>
+    }
+
     
     return (
         <Layout>
-            <PageTitle title="Suppliers" count={suppliers ? suppliers.length : ""}/> 
+            <PageTitle title="Suppliers" count={suppliers ? suppliers : null}/> 
             <span className='pb-4'>{supplierCount} &#47;&#47; total suppliers</span>
             <div className="content-center pt-2">
                 <Link href='/supplier/Add'>
@@ -79,7 +88,7 @@ export default function ListBloggers() {
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <SupplierCard supplier={s} editable={true} linkable={true}/>
+                            <SupplierCard supplier={s} editable={true}/>
                         </div>
                     )}
                 </div> 
