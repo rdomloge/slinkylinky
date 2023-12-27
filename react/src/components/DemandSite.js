@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CategoryLite } from "./category";
 import Image from "next/image";
-import ArrowIcon from '@/pages/demand/left-arrow.svg'
+import ArrowIcon from '@/pages/demand/left-chevron.svg'
 import SessionButton, { SessionBlock } from "./atoms/Button";
 
 export default function DemandSiteSearchResult({demandSite, selectedHandler}) {

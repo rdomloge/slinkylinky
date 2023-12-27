@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link';
 import { useRouter } from 'next/router'
 
@@ -25,7 +27,7 @@ export default function MonthsBack() {
     function lastNMonths(n) {
         const months = [ new Date().toLocaleString('default', { month: 'short' }) ]
         for(let i=0; i < n; i++) {
-            months.push(goBackMonths(i+1).toLocaleString('default', { month: 'short' }))
+            months.push(goBackMonths(i+1).toLocaleString('en-GB', { month: 'short' }))
     ***REMOVED***
         return months;
 ***REMOVED***

@@ -31,9 +31,9 @@ export function SessionBlock({children}) {
     const { data: session } = useSession();
     
     return (
-        <div className={session ? "visible" : "invisible"}>
+        <section className={session ? "visible" : "invisible"}>
             {children}
-        </div>
+        </section>
     );
 }
 
