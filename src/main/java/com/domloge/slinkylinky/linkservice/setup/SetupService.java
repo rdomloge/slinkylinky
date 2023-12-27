@@ -51,7 +51,24 @@ public class SetupService {
 
     int linked = 0;
     int ignored = 0;
-    int demandSitesCreated = 0;
+
+    public void persist(SetupDemandSite sds) {
+        DemandSite ds = new DemandSite();
+        ds.setUrl(sds.getWebsite());
+        ds.setName(sds.getName());
+        ds.setEmail("n/a");
+        ds.setCreatedBy("historical");
+        
+        List<Category> dbCategories = new LinkedList<>();
+        if(null != sds.getCategory1()) dbCategories.add((categoryRepo.findByName(sds.getCategory1())));
+        if(null != sds.getCategory2()) dbCategories.add((categoryRepo.findByName(sds.getCategory2())));
+        if(null != sds.getCategory3()) dbCategories.add((categoryRepo.findByName(sds.getCategory3())));
+        if(null != sds.getCategory4()) dbCategories.add((categoryRepo.findByName(sds.getCategory4())));
+
+        ds.setCategories(dbCategories);
+
+        demandSiteRepo.save(ds);
+    }
 
     @Transactional
     public void linkDemandsToTheirDemandSites() {
@@ -62,17 +79,8 @@ public class SetupService {
         demands.forEach(d -> {
             DemandSite demandSite = demandSiteRepo.findByDomainIgnoreCase(d.getDomain());
             if(null == demandSite) {
-                log.warn("No demandSite found for {}", d.getDomain());
-                DemandSite ds = new DemandSite();
-                ds.setDomain(d.getDomain());
-                ds.setUrl(d.getUrl());
-                ds.setName(d.getName());
-                ds.setEmail("n/a");
-                ds.setCreatedBy("historical");
-                ds.setDemands(Arrays.asList(d));
-                demandSiteRepo.save(ds);
-                demandSitesCreated++;
-                linked++;
+                log.warn("Could not find demandSite for domain {}", d.getDomain());
+                
             }
             else {
                 
@@ -94,21 +102,19 @@ public class SetupService {
                     });
             }
         });
-        log.info("Finished linking demandSites to demands. {} total demands, {} linked, {} ignored, {} demandSites created", 
-            demands.size(), linked, ignored, demandSitesCreated);
+        log.info("Finished linking demandSites to demands. {} total demands, {} linked, {} ignored.", 
+            demands.size(), linked, ignored);
     }
     
     @Transactional
     public void persist(SetupSupplier ss) {
         if(null == supplierRepo.findByDomainIgnoreCase(ss.getDomain())) {
 
-            List<Category> supplierCategories = ss.getCategories();
             List<Category> dbCategories = new LinkedList<>();
-
-            supplierCategories.stream()
-                .map(c -> c.getName().split(","))
-                .forEach(names -> Arrays.stream(names)
-                    .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+            if(null != ss.getCategory1()) dbCategories.add((categoryRepo.findByName(ss.getCategory1())));
+            if(null != ss.getCategory2()) dbCategories.add((categoryRepo.findByName(ss.getCategory2())));
+            if(null != ss.getCategory3()) dbCategories.add((categoryRepo.findByName(ss.getCategory3())));
+            if(null != ss.getCategory4()) dbCategories.add((categoryRepo.findByName(ss.getCategory4())));
 
             Supplier s = new Supplier();
             s.setCategories(dbCategories);
@@ -241,6 +247,12 @@ public class SetupService {
                 )) {
                 supplier = createThirdPartySupplier(h);
             }
+            if(null == supplier) {
+                log.warn("*********************************************************************");
+                log.warn("Could not locate supplier for "+bloggerWebsite+" - "+histories.size()+" ignored");
+                log.warn("*********************************************************************");
+                return;
+            }
 
             Demand demand = new Demand();
             demand.setAnchorText(h.getAnchorText());
@@ -249,7 +261,12 @@ public class SetupService {
             demand.setName(h.getCompanyName());
             demand.setRequestedFromString(h.getRequested());
             demand.setUrl(h.getClientWebsite());
-            demand.setCategories(Arrays.asList(categoryRepo.findByName(h.getCategory())));
+            // lookup demandsite to get categories
+            List<Category> dbCategories = new LinkedList<>();
+            demandSiteRepo.findByDomainIgnoreCase(demand.getDomain())
+                .getCategories()
+                .forEach(c -> dbCategories.add(c));
+            demand.setCategories(dbCategories);
             demand.setCreatedBy("historical");
             demandRepo.save(demand);
 
@@ -258,7 +275,14 @@ public class SetupService {
             paidLinkRepo.save(pl);
             paidLinks.add(pl);
         });
-          
+        
+        if(paidLinks.size() < 1) {
+            log.warn("***********************************************");
+            log.warn("There are no paid links for proposal {}", histories.get(0).getBloggerWebsite());
+            log.warn("***********************************************");
+
+            return;
+        }
         Proposal p = new Proposal();
         p.setPaidLinks(paidLinks);
         p.setDateCreated(findLatestDateCreated(histories));

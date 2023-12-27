@@ -28,12 +28,18 @@ public class SetupHandler {
     @PostConstruct
     private void setupData() {
         setupCategories();
+        setupDemandSites();
         setupSuppliers();
         setupHistory();
         setupDemand();
         setupService.linkDemandsToTheirDemandSites();
     }
     
+    private void setupDemandSites() {
+        List<SetupDemandSite> demandsites = loader.loadObjectList(SetupDemandSite.class, "demandsites.csv");
+        log.info("Found {} demand sites in CSV", demandsites.size());
+        demandsites.forEach(sds -> setupService.persist(sds));
+    }
 
     private void setupDemand() {
         List<SetupDemand> demands = loader.loadObjectList(SetupDemand.class, "demand.csv");

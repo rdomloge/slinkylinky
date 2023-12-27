@@ -55,6 +55,11 @@ public class Supplier {
 
     public void setWebsite(String website) {
         this.website = website;
-        this.domain = Util.stripDomain(website);
+        if(null != website && !website.isEmpty()) {
+            this.domain = Util.stripDomain(website);
+        }
+        else {
+            this.domain = null;
+        }
     }
 }

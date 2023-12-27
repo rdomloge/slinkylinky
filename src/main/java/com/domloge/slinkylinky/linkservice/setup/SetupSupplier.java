@@ -25,7 +25,7 @@ public class SetupSupplier {
 
     private boolean disabled;
 
-    private List<Category> categories;
+    private String category1, category2, category3, category4;
 
     public void setWebsite(String website) {
         this.website = website;

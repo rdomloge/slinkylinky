@@ -21,7 +21,7 @@ public class History {
     private String cost;
     private String delivered;
     private String bloggerWebsite;
-    private String category;
+    // private String category;
     private String clientWebsite;
     private String Copy_of_blogger_website;
     private String Client_and_blog_combined;
