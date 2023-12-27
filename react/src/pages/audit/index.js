@@ -9,7 +9,6 @@ import Modal from '@/components/atoms/Modal';
 export default function AuditIndexPage() {
 
     const [audits, setAudits] = useState()
-    const [showModal, setShowModal] = useState()
 
     useEffect( () => {
         const auditUrl = "/.rest/auditrecords"
@@ -22,21 +21,16 @@ export default function AuditIndexPage() {
     return (
         <Layout>
             <PageTitle title="Audit" />
-            <div className="grid grid-cols-4 gap-2">
+            
             {audits ? 
-                audits.map( (a,index) => {
+                <div className="grid grid-cols-4 gap-2">
+                {audits.map( (a,index) => {
                     return <AuditLine auditrecord={a} key={index}/>
-                })
+                })}
+                </div>
             :
                 <Loading />
             }
-            </div>
-            {showModal ?
-                <Modal width="w-full" title="Audit trail"  dismissHandler={()=>setShowModal(false)}>
-                    
-                </Modal>
-            : 
-            null}
         </Layout>
     );
 }
