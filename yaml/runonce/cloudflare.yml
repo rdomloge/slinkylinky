@@ -20,8 +20,24 @@ spec:
         - name: cloudflared
           image: cloudflare/cloudflared:latest
           imagePullPolicy: Always
+          command: 
+            - cloudflared
+            - tunnel
+            - --metrics
+            - 0.0.0.0:2000
+            - run
+          args:
+            - --token
+            - <token value>
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 2000
+            initialDelaySeconds: 10
+            failureThreshold: 3
+            periodSeconds: 10
           env:
-            - name: token
+            - name: --token
               value: CHANGEME
           resources:
             requests:
