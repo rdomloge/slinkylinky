@@ -2,7 +2,7 @@ export default function NiceDate(props) {
     if(null != props.isostring) {
         return (
             <>
-                <span>{new Date(props.isostring).toDateString()}</span>
+                <span className="align-middle">{new Date(props.isostring).toDateString()}</span>
             </>
         );
     }
@@ -17,6 +17,6 @@ export default function NiceDate(props) {
 
 export function NiceDateTime({isostring}) {
     return (
-        <span>{new Date(isostring).toLocaleString()}</span>
+        <span className="align-middle">{new Date(isostring).toLocaleString()}</span>
     );
 }
