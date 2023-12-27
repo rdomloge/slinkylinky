@@ -1,4 +1,5 @@
 import Layout from '@/components/Layout';
+import Loading from '@/components/Loading';
 import PageTitle from '@/components/pagetitle';
 import React, {useState, useEffect} from 'react'
 
@@ -37,38 +38,49 @@ export default function TabularProposalData() {
         }, []
     );
 
-    if(proposals) {
-        return (
-            <Layout>
-                <PageTitle title={"Proposals ("+proposals.length+")"}/>
-                <table className="table-auto border-separate border-spacing-2 border border-slate-400">
-                <thead>
-                    <tr>
-                    <th>Supplier</th>
-                    <th>Supplier Email</th>
-                    <th>Supplier fee</th>
-                    <th>Demand 1 name</th>
-                    <th>Demand 1 URL</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    { 
-                        proposals.map( (p,index) => { return (
-                            <tr key="index">
-                                <td className="border border-slate-300">{p.paidLinks[0].supplier.name}</td>
-                                <td className="border border-slate-300">{p.paidLinks[0].supplier.email}</td>
-                                <td className="border border-slate-300">{p.paidLinks[0].supplier.weWriteFeeCurrency}{p.paidLinks[0].supplier.weWriteFee}</td>
-                                <td className="border border-slate-300">{p.paidLinks[0].demand.name}</td>
-                                <td className="border border-slate-300">{p.paidLinks[0].demand.url}</td>
+    return (
+        <Layout>
+            <PageTitle title="Proposals" count={proposals}/>
+            { ! proposals ? <Loading/> : null}
+            <table className="table-auto border-separate border-spacing-0 border border-slate-400">
+            <thead>
+                <tr>
+                <th className="border border-slate-300 bg-blue-200 p-2">Company name</th>
+                <th className="border border-slate-300 bg-blue-200 p-2">DA needed</th>
+                <th className="border border-slate-300 bg-blue-200 p-2">Client website</th>
+                <th className="border border-slate-300 bg-blue-200 p-2">Anchor text</th>
+
+                <th className="border border-slate-300 bg-green-100 p-2">Supplier name</th>
+                <th className="border border-slate-300 bg-green-100 p-2">Supplier website</th>
+                <th className="border border-slate-300 bg-green-100 p-2">Cost</th>
+                <th className="border border-slate-300 bg-green-100 p-2">Supplier DA</th>
+                <th className="border border-slate-300 bg-green-100 p-2">Supplier email</th>
+                </tr>
+            </thead>
+            <tbody>
+                { 
+                proposals ?
+                    proposals.map( (p,index) => (
+                        p.paidLinks.map( (pl, index) => (
+                            <tr key={index}>
+                                <td className="border border-slate-300 bg-blue-200 p-2">{pl.demand.name}</td>
+                                <td className="border border-slate-300 bg-blue-200 p-2">{pl.demand.daNeeded}</td>
+                                <td className="border border-slate-300 bg-blue-200 p-2">{pl.demand.url}</td>
+                                <td className="border border-slate-300 bg-blue-200 p-2">{pl.demand.anchorText}</td>
+
+                                <td className="border border-slate-300 bg-green-100 p-2">{pl.supplier.name}</td>
+                                <td className="border border-slate-300 bg-green-100 p-2">{pl.supplier.website}</td>
+                                <td className="border border-slate-300 bg-green-100 p-2">{pl.supplier.weWriteFeeCurrency}{pl.supplier.weWriteFee}</td>
+                                <td className="border border-slate-300 bg-green-100 p-2">{pl.supplier.da}</td>
+                                <td className="border border-slate-300 bg-green-100 p-2">{pl.supplier.email}</td>
                             </tr>
-                        )})
-                    }
-                </tbody>
-                </table>
-            </Layout>
-        );
-    }
-    else {
-        return <div>Loading...</div>
-    }
+                        )
+                    )))
+                :
+                    null
+                }
+            </tbody>
+            </table>
+        </Layout>
+    );
 }

@@ -4,20 +4,10 @@ import PageTitle from "@/components/pagetitle";
 
 export default function PaidLinks() {
 
-    const paidLinksUrl = "/.rest/paidlinks"
-    const [paidLinks, setPaidlinks] = useState()
-
-    useEffect( () => {
-        fetch(paidLinksUrl).then(res => res.json()).then(pls => setPaidlinks(pls))
-    })
-
-    if(paidLinks) {
-        return(
-            <Layout>
-                <PageTitle title="Paid links"/>
-                
-            </Layout>
-        );
-    }
-    else return <>Loading...</>
+    return(
+        <Layout>
+            <PageTitle title="Paid links"/>
+            
+        </Layout>
+    );
 }
