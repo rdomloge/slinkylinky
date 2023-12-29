@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: linkservice
-          image: rdomloge/slinky-linky-linkservice:1.5
+          image: rdomloge/slinky-linky-linkservice:1.6
           imagePullPolicy: Always
           resources:
             requests:
@@ -43,6 +43,10 @@ spec:
           env:
             - name: spring_datasource_url
               value: jdbc:postgresql://postgres-service:5432/slinkylinky?user=slinkylinky&password=sl
+            - name: moz_accesskey
+              value: <SPECIFY>
+            - name: moz_secret
+              value: <SPECIFY>
           startupProbe:
             httpGet:
               path: /.rest/categories
