@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import DemandCard from '@/components/demandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/Layout'
+import Layout from '@/components/layout/Layout'
 import SelectableDemandCard from '@/components/SelectableDemandCard'
 import Loading from '@/components/Loading';
 import WarningMessage from '@/components/atoms/WarningMsg';

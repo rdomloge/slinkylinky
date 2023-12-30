@@ -3,7 +3,7 @@
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/Layout'
+import Layout from '@/components/layout/Layout'
 import SupplierCard from '@/components/suppliercard'
 import DemandCard from '@/components/demandcard'
 import TrafficLights from '@/components/ProposalTrafficLights'

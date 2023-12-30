@@ -4,7 +4,7 @@ import React, {useState, useEffect} from 'react'
 import { useSession } from "next-auth/react";
 import DemandCard from '@/components/demandcard';
 import PageTitle from '@/components/pagetitle'
-import Layout from '@/components/Layout';
+import Layout from '@/components/layout/Layout';
 import Link from 'next/link';
 import OwnerFilter from '@/components/OwnerFilter';
 import SessionButton from '@/components/atoms/Button';

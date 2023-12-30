@@ -1,4 +1,4 @@
-import Layout from '@/components/Layout';
+import Layout from '@/components/layout/Layout';
 import Loading from '@/components/Loading';
 import PageTitle from '@/components/pagetitle';
 import React, {useState, useEffect} from 'react'

@@ -5,12 +5,12 @@
 
 
 body {
-  background-color: rgb(214, 219, 220);
+  background-color: white;
   
 }
 
 .colourOfBackground {
-  background-color: rgb(214, 219, 220);
+  background-color: white;
 }
 
 .timelineDot {
@@ -19,7 +19,7 @@ body {
 
 @layer components {
     .card {
-      background-color: theme(colors.white);
+      background-color: #ececf4;
       border-radius: theme(borderRadius.lg);
       padding: theme(spacing.6);
       box-shadow: theme(boxShadow.xl);

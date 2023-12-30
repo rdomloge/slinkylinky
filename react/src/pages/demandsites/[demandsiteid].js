@@ -3,7 +3,7 @@
 import AddOrEditDemandSite from "@/components/AddOrEditDemandSite";
 import React, {useState, useEffect} from 'react';
 import { useRouter } from 'next/router'
-import Layout from "@/components/Layout";
+import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import Loading from "@/components/Loading";
 

@@ -1,5 +1,5 @@
 import AddOrEditSupplier from "@/components/AddOrEditSupplier";
-import Layout from "@/components/Layout";
+import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 
 export default function NewSupplier() {
