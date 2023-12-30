@@ -8,7 +8,7 @@ import Image from 'next/image'
 import Icon from '@/pages/proposals/grid.svg'
 
 import ProposalListItem from "@/components/ProposalListItem";
-import Layout from "@/components/Layout";
+import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import Link from "next/link";
 import MonthsBack from "@/components/monthsBack";

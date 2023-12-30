@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from 'next/image'
 import Icon from '@/pages/supplier/arrow-bend-up.svg'
 
-import Layout from "@/components/Layout";
+import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import SupplierCard from "@/components/suppliercard";
 import TextInput from "@/components/atoms/TextInput";

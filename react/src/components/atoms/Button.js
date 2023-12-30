@@ -15,7 +15,7 @@ export default function SessionButton({label, clickHandler}) {
 
 export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
 
-    const baseClass = "text-white font-bold py-2 p-4 border border-blue-700 rounded "
+    const baseClass = "text-gray font-bold py-2 p-4 border border-blue-700 rounded "
     const enabledClass = baseClass + "bg-blue-500 hover:bg-blue-700"
     const disabledClass = baseClass + "bg-grey-500 hover:bg-grey-700"
 
@@ -39,7 +39,7 @@ export function SessionBlock({children}) {
 
 export function ClickHandlerButton({label, clickHandler, disabled}) {
     return (
-        <button className={"text-white font-bold py-2 px-4 border border-blue-700 rounded "
+        <button className={"text-slate-200 font-bold py-2 px-4 border border-blue-700 rounded "
                             +(disabled ? "bg-grey-500 hover:bg-grey-700" : "bg-blue-500 hover:bg-blue-700")}
                 disabled={disabled} onClick={clickHandler ? clickHandler : ()=>{}}>
             {label}

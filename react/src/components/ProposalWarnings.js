@@ -60,7 +60,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
             Promise.all([primaryPromise, ...otherDemandPromises])
                 .then(([primaryRes, ...otherRes]) => {
                     if(null != primaryRes) {
-                        validationErrors.push("There is already a link to "+primaryRes.target.root_domain+" from " + primaryRes.source.root_domain)
+                        validationErrors.push("There is already a 3rd party link to "+primaryRes.target.root_domain+" from " + primaryRes.source.root_domain)
                         setValidationErrors(validationErrors)
                         console.log("Added primary error "+primaryDemand.domain)
                     }
@@ -68,7 +68,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
 
                     otherRes.forEach((res) => {
                         if(null != res) {
-                            validationErrors.push("There is already a link to "+res.target.root_domain+" from " + res.source.root_domain)
+                            validationErrors.push("There is already a 3rd party link to "+res.target.root_domain+" from " + res.source.root_domain)
                             setValidationErrors(validationErrors)
                             console.log("Added secondary error "+res.target.root_domain)
                         }
@@ -111,7 +111,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
     }
     
     return (
-        <>
+        <div className={validationErrors.length > 0 ? "border-l-8 border border-red-500 bg-red-100 mx-6 my-4":""}>
         {error ?
             <WarningMessage message={"There was an issue using the Moz service: "+error}/>
             :
@@ -124,6 +124,6 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
         :
             null
         }
-        </>
+        </div>
     );
 }
