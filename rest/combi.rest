@@ -1,0 +1,3 @@
+POST http://localhost:8080/.rest/combi/resolveProposal3rdParty?name=FatJoe&demandId=307
+content-type: application/json
+user: rdomloge@gmail.com
