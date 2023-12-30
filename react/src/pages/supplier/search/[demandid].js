@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 
 import React, {useState, useEffect} from 'react'
 import { useRouter } from 'next/router'
+
 import DemandCard from '@/components/demandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
@@ -11,7 +12,6 @@ import Layout from '@/components/Layout'
 import SessionButton, { ClickHandlerButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
-import { headers } from "../../../../next.config";
 
 export default function App() {
     const router = useRouter()
@@ -46,68 +46,15 @@ export default function App() {
     ***REMOVED***, [router.isReady, router.query.demandid]
     );
 
-    function build3rdPartySupplier() {   
-        const postData = {}
-        postData.thirdParty = true
-        postData.createdBy = session.user.email
-        postData.name = newSupplierName
-        return postData
-***REMOVED***
-
-    function buildPaidLink(newSupplierLocation) {
-        
-        const plData = {
-            "supplier": newSupplierLocation,
-            "demand": "/demands/"+demand.id
-    ***REMOVED***
-        return plData
-***REMOVED***
-
-    function buildProposal(plLocation) {
-        const plLocations = [plLocation]
-        const pData = {
-            "paidLinks": plLocations,
-            "dateCreated": new Date().toISOString(),
-            "createdBy": session.user.email
-    ***REMOVED***
-        return pData
-***REMOVED***
-
     function create3rdPartyProposal() {
         console.log("Creating 3rd party Supplier: "+newSupplierName);
         setShowModal(false);
-        
-        const supplierUrl = "/.rest/suppliers"
-        fetch(supplierUrl, {
+
+        const combiUrl = "/.rest/proposalsupport/resolveProposal3rdParty?name="+newSupplierName+"&demandId="+demand.id
+
+        fetch(combiUrl, {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify(build3rdPartySupplier())
-    ***REMOVED***)
-        .then( (resp) => {
-            if(resp.ok) {
-                const paidlinkUrl = "/.rest/paidlinks";
-                return fetch(paidlinkUrl, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify(buildPaidLink(resp.headers.get('Location')))
-             ***REMOVED***)
-        ***REMOVED***
-            else {
-                console.log("Created 3rd party supplier failed: "+JSON.stringify(resp));
-        ***REMOVED***
-    ***REMOVED***)
-        .then( (resp) => {  
-            if(resp.ok) {
-                const proposalUrl = "/.rest/proposals";
-                return fetch(proposalUrl, {
-                    method: 'POST',
-                    headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify(buildProposal(resp.headers.get('Location')))
-            ***REMOVED***)
-        ***REMOVED***
-            else {
-                console.log("Created paidlink failed: "+JSON.stringify(resp));
-        ***REMOVED***
+            headers: {'Content-Type':'application/json', 'user': session.user.email}
     ***REMOVED***)
         .then( (resp) => {
             if(resp.ok) {
@@ -121,13 +68,14 @@ export default function App() {
     ***REMOVED***)
 ***REMOVED***
 
-
     return (
         <Layout>
             <PageTitle title="Find a matching supplier"/>
             <div className='flex'>
                 <div className='flex-1'>
-                    <DemandCard demand={demand} />
+                    {demand ?
+                        <DemandCard demand={demand} />
+                    : null}
                 </div>
                 <div className='card flex-none text-lg font-bold m-4 text-zinc-600'>
                     There are 
@@ -149,15 +97,11 @@ export default function App() {
                 null
         ***REMOVED***
             <div>Matching suppliers</div>
-            <SupplierList suppliers={suppliers} demand={demand} demandid={router.query.demandid}/>
+            {suppliers ?
+                <SupplierList suppliers={suppliers} demand={demand} demandid={router.query.demandid}/>
+            : null}
         </Layout>
     );
-}
-
-function parseId(entity) {
-    const url = entity._links.self.href;
-    const id = url.substring(url.lastIndexOf('/')+1);
-    return id;
 }
 
 function SupplierList(props) {
