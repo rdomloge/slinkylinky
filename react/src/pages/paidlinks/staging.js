@@ -10,6 +10,9 @@ import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/Layout'
 import SelectableDemandCard from '@/components/SelectableDemandCard'
 import Loading from '@/components/Loading';
+import WarningMessage from '@/components/atoms/WarningMsg';
+import ProposalValidationPanel from '@/components/ProposalWarnings';
+import { ClickHandlerButton } from '@/components/atoms/Button';
 
 function parseId(entity) {
     const url = entity._links.self.href;
@@ -25,69 +28,22 @@ export default function App() {
     const [supplier, setSupplier] = useState(null);
     const [otherDemands, setOtherDemands] = useState(null);
     const [selectedOtherDemands, setSelectedOtherDemands] = useState([]);
+    const [error, setError] = useState(null);
+    const [ready, setReady] = useState(false);
 
-    useEffect( () => {
-        console.log("Change to selections: "+JSON.stringify(selectedOtherDemands));
-        const domains = [];
-        selectedOtherDemands.forEach((d) => {
-            if(selectedOtherDemands.length > 2) {
-                const button = document.getElementById("submitproposal");
-                button.disabled = true;
-                alert("Too many links");
-                return;
-            }
-            if(domains.includes(d.domain)) {
-                const button = document.getElementById("submitproposal");
-                button.disabled = true;
-                alert("Duplicate domain");
-            }
-            else {
-                domains.push(d.domain);
-                const button = document.getElementById("submitproposal");
-                button.disabled = false;
-            }
-        });           
-    }
-    ), [selectedOtherDemands];
-
+    
     const handleSubmit = (supplierId) => {
 
         const aggregateDemand = selectedOtherDemands.concat([demand]);
-        const plPromises = [];
+        const proposalUrl = "/.rest/proposalsupport/createProposal?supplierId=" + supplierId + "&demandIds=" + aggregateDemand.map((d) => d.id).join(',');
 
-        const paidlinkUrl = "/.rest/paidlinks";
-        aggregateDemand.forEach((ld) => {
-            const plData = {
-                "supplier": "/suppliers/"+supplierId,
-                "demand": "/demands/"+ld.id
-            }
-            plPromises.push(fetch(paidlinkUrl, {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify(plData)
-            }));
-        });
-        
-        const plLocations = []
-        Promise.all(plPromises).then( (responses) => {
-            responses.forEach( (resp) => {
-                plLocations.push(resp.headers.get('Location'))
-                }
-            )
-            const proposalUrl = "/.rest/proposals";
-            const pData = {
-                "paidLinks": plLocations,
-                "dateCreated": new Date().toISOString(),
-                "createdBy": session.user.email
-            }
-            fetch(proposalUrl, {
-                method: 'POST',
-                headers: {'Content-Type':'application/json'},
-                body: JSON.stringify(pData)
-            }).then( (resp) => {
-                const locationUrl = resp.headers.get('Location')
-                location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
-            });
+        fetch(proposalUrl, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json', 'user': session.user.email},
+        })
+        .then( (resp) => {
+            const locationUrl = resp.headers.get('Location')
+            location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
         });
     }
 
@@ -100,7 +56,7 @@ export default function App() {
                 const supplierUrl = "/.rest/suppliers/"+ supplierId+"?projection=fullSupplier";
                 const otherDemandsUrl = "/.rest/demands/search/findDemandForSupplierId?supplierId="
                                             + supplierId + "&demandIdToIgnore="+demandId+"&projection=fullDemand";
-
+                
                 Promise.all([fetch(demandUrl), fetch(supplierUrl), fetch(otherDemandsUrl)])
                     .then(([resDemand, resSupplier, resOtherDemands]) => 
                         Promise.all([resDemand.json(), resSupplier.json(), resOtherDemands.json()])
@@ -110,6 +66,9 @@ export default function App() {
                         setDemand(dataDemand);
                         setSupplier(dataSupplier);
                         setOtherDemands(dataOtherDemands);
+                    })
+                    .catch((error) => {
+                        setError(error);
                     });
                     
             }
@@ -119,11 +78,20 @@ export default function App() {
     return (
         <Layout>
             <PageTitle title="Proposal Staging"/>
-                <button id="submitproposal" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                    onClick={() => handleSubmit(searchParams.get('supplierId'))}>
-                    Submit
-                </button>
+            
+            <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready}/>
+
             {(supplier && demand && otherDemands) ?
+                <>
+                <ProposalValidationPanel primaryDemand={demand} 
+                    otherDemands={selectedOtherDemands} 
+                    supplier={supplier}
+                    readinessCallback={(ready) => { 
+                        // const button = document.getElementById("submitproposal");
+                        // button.disabled = !ready;
+                        setReady(ready);
+                     }}
+                    />
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <SupplierCard supplier={supplier}/>
@@ -151,8 +119,9 @@ export default function App() {
                             )}
                     </div>
                 </div>
+                </>
             : 
-                <Loading />
+                <Loading error={error} />
             }
         </Layout>
     );
