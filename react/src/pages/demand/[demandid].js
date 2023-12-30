@@ -5,10 +5,12 @@ import { useRouter } from 'next/router'
 import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/Layout'
 import AddOrEditDemand from '@/components/AddOrEditDemand'
+import Loading from '@/components/Loading'
 
 export default function Demand() {
     const router = useRouter()
-    const [demand, setDemand] = useState(null);
+    const [demand, setDemand] = useState(null)
+    const [error, setError] = useState(null)
 
     useEffect(
         () => {
@@ -19,7 +21,8 @@ export default function Demand() {
                         .then(json => {
                             json.id = router.query.demandid;
                             setDemand(json);
-                        });
+                        })
+                    .catch(err => setError(err));
             }
         }, [router.isReady, router.query.demandid]
     )
@@ -29,7 +32,9 @@ export default function Demand() {
             <PageTitle title="Edit Demand"/>
             {demand ? 
                 <AddOrEditDemand demand={demand}/>
-            : <>Loading...</>}
+            : 
+                <Loading error={error}/> 
+            }
         </Layout>
     );
 }

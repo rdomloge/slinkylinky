@@ -16,6 +16,7 @@ export default function Demand() {
     const [demands, setDemands] = useState()
     const { data: session } = useSession();
     const [sortCol, setSortCol] = useState();
+    const [error, setError] = useState();
 
     useEffect( () => {
         const storedSortOrder = window.localStorage.getItem("demandSortOrder");
@@ -32,7 +33,10 @@ export default function Demand() {
 
         fetch(url)
             .then(res => res.json())
-            .then((result) => setDemands(filterPersonalIfNeeded(result)));
+            .then((result) => setDemands(filterPersonalIfNeeded(result)))
+            .catch((error) => {
+                setError(error);
+            });
 
     }, [personal, sortCol]) 
 
@@ -85,7 +89,7 @@ export default function Demand() {
                 ))}
                 </div>
             : 
-                <Loading />
+                <Loading error={error}/>
             }
         </Layout>
     );

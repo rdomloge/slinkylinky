@@ -9,13 +9,14 @@ import Modal from '@/components/atoms/Modal';
 export default function AuditIndexPage() {
 
     const [audits, setAudits] = useState()
+    const [error, setError] = useState()
 
     useEffect( () => {
         const auditUrl = "/.rest/auditrecords"
         fetch(auditUrl)
             .then((resp)=>resp.json())
-            .then((data)=>
-                setAudits(data._embedded.auditrecords))
+            .then((data)=> setAudits(data._embedded.auditrecords))
+            .catch((error)=>setError(error))
     },[]);
 
     return (
@@ -29,7 +30,7 @@ export default function AuditIndexPage() {
                 })}
                 </div>
             :
-                <Loading />
+                <Loading error={error}/>
             }
         </Layout>
     );

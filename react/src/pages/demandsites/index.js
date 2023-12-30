@@ -10,6 +10,7 @@ export default function DemandSiteList() {
 
     const [demandsites, setDemandSites] = useState()
     const [missingCategories, setMissingCategories] = useState([])
+    const [error, setError] = useState()
 
     useEffect(() => {
         const demandSitesUrl = "/.rest/demandsites?projection=fullDemandSite&sort=name,asc&size=100"
@@ -19,6 +20,7 @@ export default function DemandSiteList() {
                 setDemandSites(data._embedded.demandsites.filter(ds => ds.categories && ds.categories.length > 0))
                 setMissingCategories(data._embedded.demandsites.filter(ds => ! ds.categories || ds.categories.length < 1))
             })
+            .catch((err) => setError(err))
     }, []);
 
     return (
@@ -43,7 +45,7 @@ export default function DemandSiteList() {
                     demandsites.map( (ds,index) => 
                         <DemandSiteListItemLite demandSite={ds} key={index}/>
                     )
-                : <Loading/> }
+                : <Loading error={error}/> }
             </div>
         </Layout>
     );

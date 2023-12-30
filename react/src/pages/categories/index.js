@@ -8,6 +8,8 @@ import Loading from "@/components/Loading";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()
+    const [error, setError] = useState()
+
     const catUrl = "/.rest/categories";
 
     function parseId(entity) {
@@ -20,7 +22,8 @@ export default function ListCategories() {
         () => {
             fetch(catUrl)
                 .then( (res) => res.json())
-                .then( (data) => setCategories(data._embedded.categories));
+                .then( (data) => setCategories(data._embedded.categories))
+                .catch( (error) => setError(error));
         }, []
     );
 
@@ -33,7 +36,7 @@ export default function ListCategories() {
                     {categories.map( (c) => <li key={parseId(c)}><CategoryListItem category={c}/></li>)}
                 </ol>
             : 
-                <Loading />
+                <Loading error={error}/>
             }
         </Layout>
     );
