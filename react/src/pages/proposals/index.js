@@ -16,10 +16,11 @@ import OwnerFilter from "@/components/OwnerFilter";
 import Loading from '@/components/Loading';
 
 export default function ListProposals() {
-    const [proposals, setProposals] = useState()
-    const [personal, setPersonal] = useState()
     const router = useRouter()
     const { data: session } = useSession();
+    const [proposals, setProposals] = useState()
+    const [personal, setPersonal] = useState()
+    const [error, setError] = useState()
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
@@ -97,7 +98,8 @@ export default function ListProposals() {
                 
                 fetch(buildUrl(minusMonths))
                     .then( (res) => res.json())
-                    .then( (data) => setProposals(filterForThisUser(data._embedded.proposals)));
+                    .then( (data) => setProposals(filterForThisUser(data._embedded.proposals)))
+                    .catch( (error) => setError(error));
         ***REMOVED***
             
     ***REMOVED***, [router.isReady, router.query.minusMonths, personal]
@@ -120,7 +122,7 @@ export default function ListProposals() {
                 )}
                 </ul>
             : 
-                <Loading />
+                <Loading error={error}/>
         ***REMOVED***
         </Layout>
     );

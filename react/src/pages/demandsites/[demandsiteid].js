@@ -10,13 +10,17 @@ import Loading from "@/components/Loading";
 export default function DemandSite() {
     const router = useRouter()
     const [demandSite, setDemandSite] = useState(null)
+    const [error, setError] = useState(null)
 
     useEffect( 
         () => {
             if(router.isReady) {
                 const demandSiteUrl = "/.rest/demandsites/"+router.query.demandsiteid + "?projection=fullDemandSite"
                 
-                fetch(demandSiteUrl).then(res => res.json()).then(data => setDemandSite(data))
+                fetch(demandSiteUrl)
+                    .then(res => res.json())
+                    .then(data => setDemandSite(data))
+                    .catch(err => setError(err));
         ***REMOVED***
     ***REMOVED***, [router.isReady, router.query.demandsiteid]);
 
@@ -25,7 +29,9 @@ export default function DemandSite() {
             <PageTitle title="Edit demand site"/>
             {demandSite ? 
                 <AddOrEditDemandSite demandSite={demandSite}/>
-            : <Loading/>}
+            : 
+                <Loading error={error}/> 
+        ***REMOVED***
         </Layout>
     );
 }

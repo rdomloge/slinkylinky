@@ -16,6 +16,7 @@ export default function Proposal() {
     const [proposal, setProposal] = useState()
     const [supplier, setSupplier] = useState()
     const [demands, setDemands] = useState()
+    const [error, setError] = useState(null)
 
     useEffect(
         () => {
@@ -27,7 +28,8 @@ export default function Proposal() {
                         setProposal(p);
                         setDemands(p.paidLinks.map(pl => pl.demand))
                         setSupplier(p.paidLinks[0].supplier);
-                ***REMOVED***);
+                ***REMOVED***)
+                    .catch( (err) => setError(err));
         ***REMOVED***
     ***REMOVED***, [router.isReady, router.query.proposalid]);
     
@@ -68,7 +70,7 @@ export default function Proposal() {
                     </div>
                     </>
                 :
-                    <Loading />
+                    <Loading error={error}/>
             ***REMOVED***
             </Layout>
     );
