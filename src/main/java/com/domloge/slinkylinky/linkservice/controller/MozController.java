@@ -31,10 +31,10 @@ public class MozController {
     public @ResponseBody MozPageLink check(@RequestParam String demandurl, String supplierDomain) throws JsonProcessingException {
         log.info("Checking " + demandurl);
 
-        if(System.currentTimeMillis() % 2 == 0) {
-            log.warn("[][][][] Returning fake result [][][][]");
-            return linkChecker.check("frontpageadvantage.com", "businessmention.co.uk", null);
-        }
+        // if(System.currentTimeMillis() % 2 == 0) {
+        //     log.warn("[][][][] Returning fake result [][][][]");
+        //     return linkChecker.check("frontpageadvantage.com", "businessmention.co.uk", null);
+        // }
 
         MozPageLink result = linkChecker.check(demandurl, supplierDomain, null);
         if(result == null) {
