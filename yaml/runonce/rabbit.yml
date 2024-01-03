@@ -33,7 +33,6 @@ spec:
         - name: rabbit
           image: rabbitmq:3-management
           imagePullPolicy: Always
-          
           env:
             - name: RABBITMQ_DEFAULT_USER
               value: CHANGEME
