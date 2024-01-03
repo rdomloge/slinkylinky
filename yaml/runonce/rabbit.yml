@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbit
+  namespace: slinkylinky
+spec:
+  serviceName: rabbit
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbit
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: rabbit
+        version: v1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - linkservice
+                      - adminwebsite
+                      - rabbit
+                      - postgres
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: rabbit
+          image: rabbitmq:3-management
+          imagePullPolicy: Always
+          
+          env:
+            - name: RABBITMQ_DEFAULT_USER=user
+              value: CHANGEME
+            - name: RABBITMQ_DEFAULT_PASS
+              value: CHANGEME
+            - name: RABBITMQ_DEFAULT_VHOST
+              value: slinkylinky
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "600Mi"
+            limits:
+              cpu: "1500m"
+              memory: "750Mi"
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
