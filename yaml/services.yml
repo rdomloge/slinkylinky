@@ -55,6 +55,7 @@ metadata:
   name: rabbit-service
   namespace: slinkylinky
 spec:
+  type: LoadBalancer
   selector:
     app: rabbit
   ports:
@@ -70,6 +71,7 @@ metadata:
   name: rabbit-mgmt-service
   namespace: slinkylinky
 spec:
+  type: LoadBalancer
   selector:
     app: rabbit
   ports:
