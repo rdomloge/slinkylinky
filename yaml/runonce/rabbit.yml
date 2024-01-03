@@ -35,7 +35,7 @@ spec:
           imagePullPolicy: Always
           
           env:
-            - name: RABBITMQ_DEFAULT_USER=user
+            - name: RABBITMQ_DEFAULT_USER
               value: CHANGEME
             - name: RABBITMQ_DEFAULT_PASS
               value: CHANGEME
