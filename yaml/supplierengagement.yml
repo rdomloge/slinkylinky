@@ -50,6 +50,8 @@ spec:
               value: <SPECIFY>
             - name: mail_password
               value: <SPECIFY>
+            - name: slinkylinky_domain
+              value: slinkylinky.uk
           startupProbe:
             httpGet:
               path: /.rest/engagements
