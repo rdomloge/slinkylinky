@@ -46,6 +46,10 @@ spec:
               value: <SPECIFY>
             - name: server_port
               value: "8080"
+            - name: mail_username
+              value: <SPECIFY>
+            - name: mail_password
+              value: <SPECIFY>
           startupProbe:
             httpGet:
               path: /.rest/engagements
