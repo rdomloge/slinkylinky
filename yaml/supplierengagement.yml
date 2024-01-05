@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkservice
+  name: supplierengagement
   namespace: slinkylinky
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: linkservice
+      app: supplierengagement
       version: v1
   template:
     metadata:
       labels:
-        app: linkservice
+        app: supplierengagement
         version: v1
     spec:
       affinity:
@@ -24,12 +24,13 @@ spec:
                     operator: In
                     values:
                       - linkservice
+                      - supplierengagement
                       - adminwebsite
                       - postgres
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: linkservice
-          image: rdomloge/slinky-linky-linkservice:1.8
+        - name: supplierengagement
+          image: rdomloge/slinky-linky-supplierengagement:1.8
           imagePullPolicy: Always
           resources:
             requests:
@@ -42,14 +43,14 @@ spec:
             - containerPort: 8080
           env:
             - name: spring_datasource_url
-              value: jdbc:postgresql://postgres-service:5432/slinkylinky?user=slinkylinky&password=sl
+              value: <SPECIFY>
             - name: moz_accesskey
               value: <SPECIFY>
             - name: moz_secret
               value: <SPECIFY>
           startupProbe:
             httpGet:
-              path: /.rest/categories
+              path: /.rest/engagements
               port: 8080
             initialDelaySeconds: 60
             failureThreshold: 30

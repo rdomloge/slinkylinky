@@ -45,6 +45,13 @@ spec:
                 name: adminwebsite-service
                 port: 
                   number: 3000
+          - path: /.rest/engagements
+            pathType: Prefix
+            backend:
+              service:
+                name: supplierengagement-service
+                port: 
+                  number: 8091
           - path: /.rest
             pathType: Prefix
             backend:
