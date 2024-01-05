@@ -44,10 +44,6 @@ spec:
           env:
             - name: spring_datasource_url
               value: <SPECIFY>
-            - name: moz_accesskey
-              value: <SPECIFY>
-            - name: moz_secret
-              value: <SPECIFY>
           startupProbe:
             httpGet:
               path: /.rest/engagements
