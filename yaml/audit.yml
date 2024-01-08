@@ -47,6 +47,8 @@ spec:
               value: <SPECIFY>
             - name: server_port
               value: "8080"
+            - name: slinkylinky_vhost
+              value: slinkylinky
           startupProbe:
             httpGet:
               path: /.rest/auditrecords
