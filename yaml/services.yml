@@ -52,6 +52,24 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: audit-service
+  namespace: slinkylinky
+spec:
+  type: LoadBalancer
+  selector:
+    app: audit
+  ports:
+    - protocol: TCP
+      port: 8092
+      targetPort: 8080
+  #type: ClusterIP
+
+---
+
+
+apiVersion: v1
+kind: Service
+metadata:
   name: adminwebsite-service
   namespace: slinkylinky
 spec:

@@ -52,6 +52,13 @@ spec:
                 name: supplierengagement-service
                 port: 
                   number: 8091
+          - path: /.rest/auditrecords
+            pathType: Prefix
+            backend:
+              service:
+                name: audit-service
+                port: 
+                  number: 8092
           - path: /.rest
             pathType: Prefix
             backend:
