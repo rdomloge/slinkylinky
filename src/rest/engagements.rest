@@ -1,0 +1,16 @@
+GET {{host}}/engagements
+###
+
+GET {{host}}/engagements/search/findByGuid?guid=0345594b-a59d-4be3-baed-292378b1579c
+
+###
+GET {{host}}/engagements/1
+
+###
+PATCH {{host}}/engagements/1
+Content-Type: application/json
+
+{
+  "status": "DECLINED",
+  "declinedReason": "I'm busy"
+}
