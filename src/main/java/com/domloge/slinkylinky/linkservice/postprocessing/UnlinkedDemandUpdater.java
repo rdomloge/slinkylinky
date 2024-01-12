@@ -1,14 +1,13 @@
 package com.domloge.slinkylinky.linkservice.postprocessing;
 
+import java.util.LinkedList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedList;
-
 import com.domloge.slinkylinky.linkservice.entity.Category;
-import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.repo.DemandRepo;
 

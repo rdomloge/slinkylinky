@@ -1,6 +1,5 @@
 package com.domloge.slinkylinky.linkservice.setup;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.List;

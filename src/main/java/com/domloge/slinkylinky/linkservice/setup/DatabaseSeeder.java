@@ -11,7 +11,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
@@ -270,7 +269,7 @@ public class DatabaseSeeder {
             Category category = new Category();
             category.setName(businessType);
             
-            Category dbCategory = categoryRepo.findByName(businessType);
+            Category dbCategory = categoryRepo.findByNameIgnoreCase(businessType);
             if(null == dbCategory) {
                 categories.add(categoryRepo.save(category));
             }

@@ -1,7 +1,6 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.springframework.data.rest.core.config.Projection;
 
