@@ -10,12 +10,35 @@ import LinkIcon from '@/components/link.svg'
 import DaIcon from '@/components/authority.svg'
 import NiceDate from './atoms/DateTime'
 import Link from 'next/link'
-import { SessionBlock } from './atoms/Button'
+import { SessionBlock, StyledButton } from './atoms/Button'
+import { useState } from 'react'
+import Modal from './atoms/Modal'
+import { useSession } from 'next-auth/react'
 
 export default function DemandCard({demand, fullfilable, editable}) {
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const { data: session } = useSession();
+
+    function deleteHandler() {
+        setShowDeleteModal(false)
+        fetch('/.rest/demandsupport/delete?demandId='+demand.id, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'user': session.user.email
+        ***REMOVED***,
+            body: JSON.stringify({id: demand.id})
+    ***REMOVED***)
+        .then(res => {
+            if (res.ok) {
+                window.location.reload()
+        ***REMOVED***
+    ***REMOVED***)
+***REMOVED***
     
     return (
-        <div className="card list-card grid grid-cols-10">
+        <div className={"card list-card grid grid-cols-10"}>
             <div className='col-span-9'>
                 <Image src={CartIcon} width={32} height={32} alt="Shopping cart icon"/>
                 <div className='text-xl my-2'>{demand.name}</div>
@@ -46,12 +69,30 @@ export default function DemandCard({demand, fullfilable, editable}) {
                     </Link>
                     :null}
                     {editable ?
+                    <>
                     <Link href={'/demand/'+demand.id}>
                         <span className='block text-right'>Edit</span>
                     </Link>
+                    <div className='flex justify-end'>
+                        <StyledButton label='Delete' type='risky' submitHandler={()=> setShowDeleteModal(true)} isText={true}/>
+                    </div>
+                    </>
                     :null}
                 </div>
             </SessionBlock>
+            {showDeleteModal ?
+                <Modal title='Delete demand' dismissHandler={()=> setShowDeleteModal(false)}>
+                    <p>Are you sure you want to delete this demand?</p>
+                    <p className='font-bold text-center py-2'>&apos;{demand.name}&apos;</p>
+                    <p>Created by {demand.createdBy}, requested on {new Date(demand.requested).toLocaleDateString()}</p>
+                    <p className='text-red-500 text-center py-2'>This action cannot be undone.</p>
+                    <div className='flex justify-end'>
+                        <StyledButton label='Delete' type='risky' submitHandler={deleteHandler}/>
+                    </div>
+                </Modal>
+            :
+                null
+        ***REMOVED***
         </div>
     );
 }
