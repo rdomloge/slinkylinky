@@ -3,8 +3,8 @@ import React, {useState, useEffect} from 'react'
 import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import Loading from '@/components/Loading';
-import AuditCard, { AuditLine } from '@/components/AuditCard';
-import Modal from '@/components/atoms/Modal';
+import { AuditLine } from '@/components/AuditCard';
+import Paging from '@/components/Paging';
 
 export default function AuditIndexPage() {
 
@@ -22,7 +22,7 @@ export default function AuditIndexPage() {
     return (
         <Layout>
             <PageTitle title="Audit" />
-            
+            <Paging />
             {audits ? 
                 <div className="grid grid-cols-4 gap-2">
                 {audits.map( (a,index) => {
