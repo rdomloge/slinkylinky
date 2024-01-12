@@ -1,0 +1,2 @@
+GET {{host}}/auditrecords?page=1&size=10&sort=createdDate,desc
+```

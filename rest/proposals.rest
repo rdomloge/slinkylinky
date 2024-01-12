@@ -43,3 +43,8 @@ GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGre
 ?startDate=2023-01-01T00:00&endDate=2023-11-26T00:00&projection=fullProposal
 ###
 GET {{host}}/proposals/73?projection=fullProposal
+###
+DELETE {{host}}/proposals/73
+###
+DELETE {{host}}/proposalsupport/abort?proposalId=1
+user: ernie@disney.com

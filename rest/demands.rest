@@ -72,3 +72,12 @@ GET {{host}}/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?project
 GET {{host}}/demands/108?projection=fullLinkDemand
 ###
 GET {{host}}/demands/search/findDemandForSupplierId?supplierId=99&linkdemandIdToIgnore=245
+###
+DELETE {{host}}/demands/321
+###
+DELETE {{host}}/demandsupport/delete?demandId=336
+Content-Type: application/json
+user: bert@disney.com
+
+{"updatedBy":"rdomloge@gmail.com"}
+###
