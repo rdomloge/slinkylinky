@@ -19,8 +19,11 @@ body {
 
 @layer components {
     .card {
-      background-color: #ececf4;
+      background-color: #f3f3f6;
       border-radius: theme(borderRadius.lg);
+      border-color: #dcdcdc;
+      border-width: 1px;
+      border-style: solid;
       padding: theme(spacing.6);
       box-shadow: theme(boxShadow.xl);
 ***REMOVED***
