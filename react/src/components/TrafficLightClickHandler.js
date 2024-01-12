@@ -6,6 +6,7 @@ import Modal from "./atoms/Modal";
 import TextInput from "./atoms/TextInput";
 import { ClickHandlerButton } from "./atoms/Button";
 import NumberInput from "./atoms/NumberInput";
+import ContentCreator from "./ContentCreator";
 
 export default function TrafficLightClickHandler({children, proposal, updateHandler, propertyName, propertyDate}) {
     const { data: session } = useSession();
@@ -15,6 +16,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
     const [supplierCost, setSupplierCost] = useState(0)
     const [supplierDa, setSupplierDa] = useState(0)
     const [supplierCurrency, setSupplierCurrency] = useState()
+    const [showContentCreator, setShowContentCreator] = useState(false)
 
     function parseId(entity) {
         const url = entity._links.self.href;
@@ -32,8 +34,35 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             else {
                 setShowModal(true)
         ***REMOVED***
+        else if(propertyName === "contentReady") {
+            if(proposal.contentReady) {
+                toggle()
+        ***REMOVED***
+            else {
+                setShowContentCreator(true);
+        ***REMOVED***
+    ***REMOVED***
         else
             toggle();
+***REMOVED***
+
+    function articleSubmitHandler(content) {
+        const url = "/.rest/proposalsupport/addarticle?proposalId="+parseId(proposal);
+        fetch(url, {
+            method: 'PATCH',
+            headers: {'user': session.user.email, 'Content-Type':'text/plain'},
+            body: content
+        ***REMOVED***)
+            .then( (res) => {
+                if(res.ok) {
+                    setShowContentCreator(false)
+                    toggle()
+            ***REMOVED***
+                else
+                    console.log("Error: "+res.status)
+        ***REMOVED***)
+            
+            ;
 ***REMOVED***
 
     function setCapturedValue(url, title, supplierCost, supplierDa) {
@@ -133,6 +162,11 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             <div onClick={() => clickHandler()}>
                 {children}
             </div>
+            {showContentCreator ?
+                <ContentCreator dismissHandler={()=>setShowContentCreator(false)} submitHandler={articleSubmitHandler} proposal={proposal} />
+            :
+                null
+        ***REMOVED***
             <div>
                 {showModal ?
                     <Modal dismissHandler={()=>setShowModal(false)} title="Post details" width="w-1/3">
