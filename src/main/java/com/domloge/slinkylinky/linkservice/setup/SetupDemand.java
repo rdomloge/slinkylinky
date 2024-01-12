@@ -1,8 +1,8 @@
 package com.domloge.slinkylinky.linkservice.setup;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
+import com.domloge.slinkylinky.linkservice.Util;
 import com.domloge.slinkylinky.linkservice.entity.Category;
 
 import lombok.Getter;
@@ -26,7 +26,13 @@ public class SetupDemand {
         if("DA10+BRONZE".equalsIgnoreCase(getDaNeeded())) return 10;
         if("DA20+SILVER".equalsIgnoreCase(getDaNeeded())) return 20;
         if("DA30+GOLD".equalsIgnoreCase(getDaNeeded())) return 30;
+        if("DA40+".equalsIgnoreCase(getDaNeeded())) return 40;
         throw new RuntimeException("Cannot understand "+getDaNeeded());    
+    }
+
+    public void setUrl(String url) {
+        this.domain = Util.stripDomain(url);
+        this.url = url;
     }
 
     private List<Category> categories;
