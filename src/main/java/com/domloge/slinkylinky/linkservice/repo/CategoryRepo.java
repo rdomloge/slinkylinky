@@ -10,7 +10,7 @@ import com.domloge.slinkylinky.linkservice.entity.Category;
 @CrossOrigin(originPatterns = {"*localhost*"})
 public interface CategoryRepo extends CrudRepository <Category, Long> {
     
-    Category findByName(String name);
+    Category findByNameIgnoreCase(String name);
 
     Category[] findByNameContainsIgnoreCase(String name);
 }
