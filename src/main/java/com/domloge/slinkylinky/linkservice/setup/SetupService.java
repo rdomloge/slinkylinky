@@ -60,10 +60,36 @@ public class SetupService {
         ds.setCreatedBy("historical");
         
         List<Category> dbCategories = new LinkedList<>();
-        if(null != sds.getCategory1()) dbCategories.add((categoryRepo.findByName(sds.getCategory1())));
-        if(null != sds.getCategory2()) dbCategories.add((categoryRepo.findByName(sds.getCategory2())));
-        if(null != sds.getCategory3()) dbCategories.add((categoryRepo.findByName(sds.getCategory3())));
-        if(null != sds.getCategory4()) dbCategories.add((categoryRepo.findByName(sds.getCategory4())));
+        if(null != sds.getCategory1()) {
+            Category cat1 = categoryRepo.findByNameIgnoreCase(sds.getCategory1());
+            if(null == cat1) {
+                log.warn("### Could not find category {} for demandSite {}", sds.getCategory1(), sds.getName());
+            }
+            else dbCategories.add((cat1));
+        }
+        if(null != sds.getCategory2()) {
+            Category cat2 = categoryRepo.findByNameIgnoreCase(sds.getCategory2());
+            if(null == cat2) {
+                log.warn("### Could not find category {} for demandSite {}", sds.getCategory2(), sds.getName());
+            }
+            else dbCategories.add(cat2);
+        }
+        if(null != sds.getCategory3()) {
+            Category cat3 = categoryRepo.findByNameIgnoreCase(sds.getCategory3());
+            if(null == cat3) {
+                log.warn("### Could not find category {} for demandSite {}", sds.getCategory3(), sds.getName());
+            }
+            else dbCategories.add(cat3);
+        }
+        if(null != sds.getCategory4()) {
+            Category cat4 = categoryRepo.findByNameIgnoreCase(sds.getCategory4());
+            if(null == cat4) {
+                log.warn("### Could not find category {} for demandSite {}", sds.getCategory4(), sds.getName());
+            }
+            else dbCategories.add(cat4);
+        }
+
+        if(dbCategories.size() == 0) log.warn("DemandSite {} has no categories", sds.getName());
 
         ds.setCategories(dbCategories);
 
@@ -79,8 +105,7 @@ public class SetupService {
         demands.forEach(d -> {
             DemandSite demandSite = demandSiteRepo.findByDomainIgnoreCase(d.getDomain());
             if(null == demandSite) {
-                log.warn("Could not find demandSite for domain {}", d.getDomain());
-                
+                log.warn("Could not find demandSite for domain {}, whilst linking demand to it's demandsite", d.getDomain());
             }
             else {
                 
@@ -92,7 +117,7 @@ public class SetupService {
                         log.debug("DemandSite {} already has demand {}", demandSite.getName(), demand.getName());
                         ignored++;
                     }, () -> {
-                        log.debug("Adding demand {} to demandSite {}", d.getName(), demandSite.getName());
+                        log.trace("Adding demand {} to demandSite {}", d.getName(), demandSite.getName());
                         LinkedList<Demand> newList = new LinkedList<>();
                         newList.addAll(demandSite.getDemands());
                         newList.add(d);
@@ -111,10 +136,36 @@ public class SetupService {
         if(null == supplierRepo.findByDomainIgnoreCase(ss.getDomain())) {
 
             List<Category> dbCategories = new LinkedList<>();
-            if(null != ss.getCategory1()) dbCategories.add((categoryRepo.findByName(ss.getCategory1())));
-            if(null != ss.getCategory2()) dbCategories.add((categoryRepo.findByName(ss.getCategory2())));
-            if(null != ss.getCategory3()) dbCategories.add((categoryRepo.findByName(ss.getCategory3())));
-            if(null != ss.getCategory4()) dbCategories.add((categoryRepo.findByName(ss.getCategory4())));
+            if(null != ss.getCategory1()) {
+                Category cat1 = categoryRepo.findByNameIgnoreCase(ss.getCategory1());
+                if(null == cat1) {
+                    log.warn("### Could not find category {} for demandSite {}", ss.getCategory1(), ss.getName());
+                }
+                else dbCategories.add((cat1));
+            }
+            if(null != ss.getCategory2()) {
+                Category cat2 = categoryRepo.findByNameIgnoreCase(ss.getCategory2());
+                if(null == cat2) {
+                    log.warn("### Could not find category {} for demandSite {}", ss.getCategory2(), ss.getName());
+                }
+                else dbCategories.add(cat2);
+            }
+            if(null != ss.getCategory3()) {
+                Category cat3 = categoryRepo.findByNameIgnoreCase(ss.getCategory3());
+                if(null == cat3) {
+                    log.warn("### Could not find category {} for demandSite {}", ss.getCategory3(), ss.getName());
+                }
+                else dbCategories.add(cat3);
+            }
+            if(null != ss.getCategory4()) {
+                Category cat4 = categoryRepo.findByNameIgnoreCase(ss.getCategory4());
+                if(null == cat4) {
+                    log.warn("### Could not find category {} for demandSite {}", ss.getCategory4(), ss.getName());
+                }
+                else dbCategories.add(cat4);
+            }
+
+            if(dbCategories.size() == 0) log.warn("Supplier {} has no categories", ss.getName());
 
             Supplier s = new Supplier();
             s.setCategories(dbCategories);
@@ -126,6 +177,9 @@ public class SetupService {
             setWeWriteFee(s, ss);
             s.setWebsite(ss.getWebsite());
             supplierRepo.save(s);
+        }
+        else {
+            log.warn("Duplicate supplier {} for domain {}", ss.getName(), ss.getDomain());
         }
     }
 
@@ -171,6 +225,8 @@ public class SetupService {
     public void persist(SetupDemand sd) {
 
         Demand[] searchResults = demandRepo.findByUrlAndAnchorText(sd.getUrl(), sd.getAnchorText());
+        if(sd.getDomain() == null) 
+            log.warn("URL is null for {}", sd.getName());
         if(null ==  searchResults || searchResults.length == 0) {
 
             if(sd.getPostTitle() != null && sd.getPostTitle().trim().length() > 0) {
@@ -178,17 +234,33 @@ public class SetupService {
                 return;
             }
 
-            List<Category> demandSiteCategories = sd.getCategories();
+            DemandSite demandSite = demandSiteRepo.findByDomainIgnoreCase(sd.getDomain());
             List<Category> dbCategories = new LinkedList<>();
 
-            if(demandSiteCategories == null || demandSiteCategories.size() == 0) {
-                log.warn("@@@ There are no categories for {}", sd.getName());
+            if(null == demandSite) {
+                log.error("##########################################################################################");
+                log.error("# Could not find demandSite for domain {} whilst importing demand - this demand will have to be entered manually (as planned with Chris)", sd.getDomain());
+                log.error("##########################################################################################");
+                return;
             }
             else {
-                demandSiteCategories.stream()
-                    .map(cc -> cc.getName().split(","))
-                    .forEach(names -> Arrays.stream(names)
-                        .forEach(name -> dbCategories.add(categoryRepo.findByName(name))));
+                List<Category> demandSiteCategories = demandSite.getCategories();
+                if(demandSiteCategories == null || demandSiteCategories.size() == 0) {
+                    log.warn("@@@ Demandsite {} has no categories", demandSite.getName());
+                }
+                else {
+                    demandSiteCategories.stream()
+                        .map(cc -> cc.getName().split(","))
+                        .forEach(names -> Arrays.stream(names)
+                            .forEach(name -> {
+                                Category cat = categoryRepo.findByNameIgnoreCase(name);
+                                if(null == cat) {
+                                    log.warn("### Could not find category {} for demandSite {}", name, demandSite.getName());
+                                }
+                                else dbCategories.add(cat);
+
+                        }));
+                }
             }
 
             Demand ld = new Demand();
@@ -208,7 +280,7 @@ public class SetupService {
     }
 
     public void persist(Category c) {
-        if(null == categoryRepo.findByName(c.getName())) {
+        if(null == categoryRepo.findByNameIgnoreCase(c.getName())) {
             categoryRepo.save(c);
         }
     }
@@ -244,6 +316,8 @@ public class SetupService {
                 h.getName().equalsIgnoreCase("micaela")
                 ||
                 h.getName().equalsIgnoreCase("fatjoe")
+                ||
+                h.getName().equalsIgnoreCase("click intelligence")
                 )) {
                 supplier = createThirdPartySupplier(h);
             }
