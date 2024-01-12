@@ -1,13 +1,16 @@
 import React, {useState, useEffect} from 'react'
 import WarningMessage from './atoms/WarningMsg';
+import { useSession } from "next-auth/react";
 
 const cache = {};
 
 export default function ProposalValidationPanel({primaryDemand, otherDemands, supplier, readinessCallback}) {
+    const { data: session } = useSession();
     const [error, setError] = useState(null);
     const [validationErrors, setValidationErrors] = useState([]);
 
     useEffect( () => {
+        if(session == null) return;
         checkAllDemands()
             .then(() => {
                 checkDuplicateDomains();
@@ -17,7 +20,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
                 readinessCallback(validationErrors.length === 0);
             })
 
-    }, [otherDemands]);
+    }, [otherDemands, session]);
 
     function checkDuplicateDomains() {
         const domains = [];
@@ -88,7 +91,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
             }
             else {
                 console.log("Cache miss for "+cacheKey);
-                lookupWithMoz(demand, supplier, cacheKey)
+                lookupWithMoz(demand, supplier)
                     .then((data) => {
                         cache[cacheKey] = data;
                         resolve(cache[cacheKey])
@@ -97,9 +100,12 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
         })
     }
 
-    function lookupWithMoz(demand, supplier, cacheKey) {
+    function lookupWithMoz(demand, supplier) {
         const mozUrl = "/.rest/mozsupport/checklink?demandurl="+demand.domain+"&supplierDomain="+supplier.domain
-        return fetch(mozUrl)
+        return fetch(mozUrl, {
+                    method: 'GET',
+                    headers: {'user': session.user.email, 'demandId': demand.id}
+                })
             .then((resp) => {
                 if(resp.ok) return resp.json();
                 else return null;
