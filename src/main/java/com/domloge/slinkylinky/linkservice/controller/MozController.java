@@ -1,14 +1,17 @@
 package com.domloge.slinkylinky.linkservice.controller;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.moz.LinkChecker;
 import com.domloge.slinkylinky.linkservice.moz.MozPageLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -23,12 +26,18 @@ public class MozController {
     @Autowired
     private LinkChecker linkChecker;
 
+    @Autowired
+    private AmqpTemplate auditRabbitTemplate;
+
+
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public class ResourceNotFoundException extends RuntimeException {
     }
     
     @GetMapping(path = "/checklink", produces = "application/json")
-    public @ResponseBody MozPageLink check(@RequestParam String demandurl, String supplierDomain) throws JsonProcessingException {
+    public @ResponseBody MozPageLink check(@RequestParam String demandurl, @RequestParam String supplierDomain, 
+            @RequestHeader long demandId, @RequestHeader String user)  throws JsonProcessingException {
+
         log.info("Checking " + demandurl);
 
         // if(System.currentTimeMillis() % 2 == 0) {
@@ -36,10 +45,22 @@ public class MozController {
         //     return linkChecker.check("frontpageadvantage.com", "businessmention.co.uk", null);
         // }
 
+        // audit the usage of the Moz API
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setEventTime(java.time.LocalDateTime.now());
+        auditRecord.setWho(user);
+        auditRecord.setWhat("Use Moz API");
+        auditRecord.setDetail(supplierDomain +" => "+ demandurl);
+        auditRecord.setEntityId(demandId);
+        auditRecord.setEntityType("Demand");
+        auditRabbitTemplate.convertAndSend(auditRecord);
+
         MozPageLink result = linkChecker.check(demandurl, supplierDomain, null);
         if(result == null) {
-            throw new ResourceNotFoundException();
+            log.debug("Moz found no previous link from {} to {}, so proposal is valid", supplierDomain, demandurl);
+            throw new ResourceNotFoundException(); // this is OK - it just means there's no previous link
         }
+        log.warn("Moz found a previous link from {} to {}, so proposal is invalid", supplierDomain, demandurl);
         return result;
     }
 }
