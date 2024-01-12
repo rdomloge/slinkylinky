@@ -1,5 +1,8 @@
 package com.domloge.slinkylinky.linkservice.ai;
 
+import lombok.Getter;
+
+@Getter
 public class ChatGptMessage {
 
     private String role;

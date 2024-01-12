@@ -31,16 +31,16 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ChatGpt {
 
-    @Value("${chatgpt_api_key}")
+    @Value("${chatgpt.api.key}")
     private String chatGptApiKey;
 
-    @Value("${chatgpt_url}")
+    @Value("${chatgpt.url}")
     private String chatGptUrl;
     
-    @Value("${chatgpt_temp}")
+    @Value("${chatgpt.temp}")
     private float chatGptTemp;
 
-    @Value("${chatgpt_model}")
+    @Value("${chatgpt.model}")
     private String chatGptModel;
 
     private RestTemplate restTemplate;

@@ -1,5 +1,8 @@
 package com.domloge.slinkylinky.linkservice.ai;
 
+import lombok.Getter;
+
+@Getter
 public class ChatGptPayload {
     private String model;
     private float temperature;
