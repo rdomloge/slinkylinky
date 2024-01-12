@@ -2,15 +2,15 @@ package com.domloge.slinkylinky.linkservice.entity.audit;
 
 import java.time.LocalDateTime;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
-import com.domloge.slinkylinky.linkservice.repo.AuditRecordRepo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProposalAuditor {
 
     @Autowired
-    private AuditRecordRepo auditRecordRepo;
+    private AmqpTemplate auditRabbitTemplate;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -33,6 +33,14 @@ public class ProposalAuditor {
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.setSerializationInclusion(Include.NON_NULL);
+    }
+
+    @HandleAfterDelete
+    public void handleAfterDelete(Proposal proposal) {
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setWho(proposal.getUpdatedBy());
+        auditRecord.setWhat("delete proposal");
+        common(auditRecord, proposal);
     }
     
     @HandleBeforeSave
@@ -60,6 +68,7 @@ public class ProposalAuditor {
             log.error("Failed to serialize proposal", e);
         }
         ar.setEventTime(LocalDateTime.now());
-        auditRecordRepo.save(ar);
+        auditRabbitTemplate.convertAndSend(ar);
+        log.info("Sent audit record {}", ar);
     }
 }

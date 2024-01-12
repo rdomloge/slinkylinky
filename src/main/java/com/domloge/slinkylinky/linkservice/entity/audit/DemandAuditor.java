@@ -2,15 +2,16 @@ package com.domloge.slinkylinky.linkservice.entity.audit;
 
 import java.time.LocalDateTime;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
-import com.domloge.slinkylinky.linkservice.repo.AuditRecordRepo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +28,7 @@ public class DemandAuditor {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
-    private AuditRecordRepo auditRecordRepo;
+    private AmqpTemplate auditRabbitTemplate;
 
     
     public DemandAuditor() {
@@ -52,6 +53,14 @@ public class DemandAuditor {
         common(auditRecord, demand);
     }
 
+    @HandleAfterDelete
+    public void handleAfterDelete(Demand demand) {
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setWho(demand.getUpdatedBy());
+        auditRecord.setWhat("delete demand");
+        common(auditRecord, demand);
+    }
+
     private void common(AuditRecord auditRecord, Demand demand) {
         auditRecord.setEventTime(LocalDateTime.now());
         auditRecord.setEntityId(demand.getId());
@@ -62,6 +71,7 @@ public class DemandAuditor {
             log.error("Could not write Demand to JSON", e);
             auditRecord.setDetail("Error writing to JSON..."+demand.toString());
         }
-        auditRecordRepo.save(auditRecord);
+        auditRabbitTemplate.convertAndSend(auditRecord);
+        log.info("Sent audit record {}", auditRecord);
     }
 }

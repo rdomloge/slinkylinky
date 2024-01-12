@@ -3,6 +3,7 @@ package com.domloge.slinkylinky.linkservice.postprocessing;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
-import com.domloge.slinkylinky.linkservice.repo.AuditRecordRepo;
 import com.domloge.slinkylinky.linkservice.repo.DemandSiteRepo;
 
 @Component
@@ -22,7 +22,7 @@ public class DemandLinker {
     private DemandSiteRepo demandSiteRepo;
 
     @Autowired
-    private AuditRecordRepo auditRecordRepo;
+    private AmqpTemplate auditRabbitTemplate;
 
     @HandleAfterCreate
     public void handleAfterCreate(Demand demand) {
@@ -36,7 +36,7 @@ public class DemandLinker {
             auditRecord.setWhat("bad user behaviour");
             auditRecord.setDetail("User "+demand.getCreatedBy()+" is creating a demand with domain "
                 + demand.getDomain() + " but there is no demand site with that domain which means that they selected a demand site and the changed the domain");
-            auditRecordRepo.save(auditRecord);
+            auditRabbitTemplate.convertAndSend(auditRecord);
             return;
         }
         LinkedList<Demand> newList = new LinkedList<>();

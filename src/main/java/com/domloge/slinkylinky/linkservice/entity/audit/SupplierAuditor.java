@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.entity.audit;
 
 import java.time.LocalDateTime;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
@@ -9,7 +10,6 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
-import com.domloge.slinkylinky.linkservice.repo.AuditRecordRepo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SupplierAuditor {
     
     @Autowired
-    private AuditRecordRepo auditRecordRepo;
+    private AmqpTemplate auditRabbitTemplate;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -59,6 +59,7 @@ public class SupplierAuditor {
             log.error("Failed to serialize supplier", e);
         }
         ar.setEventTime(LocalDateTime.now());
-        auditRecordRepo.save(ar);
+        auditRabbitTemplate.convertAndSend(ar);
+        log.info("Sent audit record {}", ar);
     }
 }
