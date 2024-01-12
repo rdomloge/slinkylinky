@@ -10,6 +10,9 @@ import TrafficLights from '@/components/ProposalTrafficLights'
 import NiceDate from '@/components/atoms/DateTime'
 import Link from 'next/link'
 import Loading from '@/components/Loading'
+import { StyledButton } from '@/components/atoms/Button'
+import Modal from '@/components/atoms/Modal'
+import { useSession } from 'next-auth/react'
 
 export default function Proposal() {
     const router = useRouter()
@@ -17,6 +20,8 @@ export default function Proposal() {
     const [supplier, setSupplier] = useState()
     const [demands, setDemands] = useState()
     const [error, setError] = useState(null)
+    const [showAbortModal, setShowAbortModal] = useState(false)
+    const { data: session } = useSession();
 
     useEffect(
         () => {
@@ -33,12 +38,28 @@ export default function Proposal() {
             }
         }, [router.isReady, router.query.proposalid]);
     
+    function abortProposal() {
+        const url = "/.rest/proposalsupport/abort?proposalId="+router.query.proposalid;
+        fetch(url, {
+                method: 'DELETE', 
+                headers: {'user': session.user.email}})
+            .then( (res) => {
+                if(res.ok) {
+                    router.push('/proposals');
+                }
+            })
+            .catch( (err) => setError(err));
+    }
+
     return (
             <Layout>
                 <PageTitle title="Proposal"/>
                 {proposal ?
                     <>
                     <div><NiceDate isostring={proposal.dateCreated}/></div>
+                    <div className="float-right p-2 m-2">
+                        <StyledButton type='risky' label='Abort' submitHandler={() => setShowAbortModal(true)}/>
+                    </div>
                     <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
                     {proposal.blogLive ?
                         <div className="card grid grid-cols-3 m-4">
@@ -68,6 +89,19 @@ export default function Proposal() {
                             {demands.map( (ld) => <DemandCard demand={ld} key={ld.name}/>)}
                         </div>
                     </div>
+                    {showAbortModal ?
+                        <Modal title={"Abort proposal"} dismissHandler={() => setShowAbortModal(false)}>
+                            <p className='text-2xl font-dark py-2'>Are you sure you want to abort this proposal?</p>
+                            <p>This will unlink the supplier from each demand and it will be like it never happened.</p>
+                            <p>The demand will reappear in the demand list and you&apos;ll need to find a supplier for them.</p>
+                            <p>This should only ever be necessary if the supplier declined or let us down.</p>
+                            <div className="flex justify-end pt-4">
+                                <StyledButton label='Abort' type='risky' submitHandler={() => abortProposal()} />
+                            </div>
+                        </Modal>
+                    : 
+                        null
+                    }
                     </>
                 :
                     <Loading error={error}/>
