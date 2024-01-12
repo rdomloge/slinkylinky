@@ -5,14 +5,26 @@ import java.util.List;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 
+import jakarta.transaction.Transactional;
+
 @RepositoryRestResource(collectionResourceRel = "proposals", path = "proposals")
 @CrossOrigin(exposedHeaders = "*")
 public interface ProposalRepo extends CrudRepository <Proposal, Long> {
+
+    @Override
+    @RestResource(exported = false)
+    void delete(Proposal entity);
+
+    @Override
+    @RestResource(exported = false)
+    void deleteById(Long id);
     
+    @Transactional
     List<Proposal> findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
         LocalDateTime endDate, LocalDateTime startDate);
 
