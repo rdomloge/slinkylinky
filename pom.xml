@@ -53,6 +53,12 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.github.rjeschke</groupId> <!-- Convert markdown to HTML -->
+			<artifactId>txtmark</artifactId>
+			<version>0.13</version>
+		</dependency>
+
 
 		<!-- TESTING -->
 		<dependency>
