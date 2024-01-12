@@ -25,6 +25,14 @@ const nextConfig = {
     async rewrites() {
       return [
         {
+          source: '/.rest/engagements/:path*',
+          destination: 'http://10.0.0.229:8081/.rest/engagements/:path*'
+    ***REMOVED***,
+        {
+          source: '/.rest/auditrecords/:path*',
+          destination: 'http://10.0.0.229:8082/.rest/auditrecords/:path*'
+    ***REMOVED***,
+        {
           source: '/.rest/:path*',
           destination: 'http://10.0.0.229:8080/.rest/:path*'
     ***REMOVED***
