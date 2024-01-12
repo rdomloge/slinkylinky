@@ -5,7 +5,7 @@ export default function Loading({error}) {
     return (
         <>
             <div id="default-modal" tabIndex="-1" aria-hidden="true" 
-                    className="bg-gray-500/10 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                    className={(error? "bg-slate-100/80 " : "") + " overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full"}>
                 <div className=
                         "justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
                     <div className={"relative my-6 mx-auto w-auto"}>
