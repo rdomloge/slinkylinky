@@ -6,7 +6,7 @@ export default function SessionButton({label, clickHandler}) {
 
     return (
         <button disabled={!session} onClick={clickHandler}
-            className={"text-white font-bold py-2 px-4 border border-blue-700 rounded "
+            className={"text-slate-200 font-bold py-2 px-4 border border-blue-700 rounded "
                 +(session ? "bg-blue-500 hover:bg-blue-700" : "bg-grey-500 hover:bg-grey-700")}>
             {label}
         </button>
@@ -15,7 +15,7 @@ export default function SessionButton({label, clickHandler}) {
 
 export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
 
-    const baseClass = "text-gray font-bold py-2 p-4 border border-blue-700 rounded "
+    const baseClass = "text-slate-200 font-bold py-2 p-4 border border-blue-700 rounded "
     const enabledClass = baseClass + "bg-blue-500 hover:bg-blue-700"
     const disabledClass = baseClass + "bg-grey-500 hover:bg-grey-700"
 
@@ -25,6 +25,39 @@ export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
             Submit
         </button>
     );
+}
+
+export function StyledButton({submitHandler, enabled = true, label = "Submit", type = "primary", isText = false}) {
+    const baseClass = "m-2 text-white font-bold py-2 px-4 border rounded disabled:opacity-50 "
+    const buttonTypes = {
+        primary: "bg-blue-700 hover:bg-blue-900 border-blue-900",
+        secondary: "bg-green-700 hover:bg-green-900 border-green-900",
+        tertiary: "bg-indigo-700 hover:bg-indigo-900 border-indigo-900",
+        risky: "bg-red-700 hover:bg-red-900 border-red-900"
+***REMOVED***
+    const textTypes = {
+        primary: "text-blue-700 hover:text-blue-900",
+        secondary: "text-green-700 hover:text-green-900",
+        tertiary: "text-indigo-700 hover:text-indigo-900",
+        risky: "text-red-700 hover:text-red-500",
+***REMOVED***
+
+    const buttonClass = `${baseClass} ${buttonTypes[type]} ${enabled ? '' : ' opacity-50 cursor-not-allowed'}`;
+    const textClass = `${textTypes[type]} ${enabled ? ' cursor-pointer' : ' opacity-50 cursor-not-allowed'}`;
+
+    if (isText) {
+        return (
+            <span onClick={submitHandler} className={textClass}>
+                {label}
+            </span>
+        );
+***REMOVED*** else {
+        return (
+            <button onClick={submitHandler} disabled={!enabled} className={buttonClass}>
+                {label}
+            </button>
+        );
+***REMOVED***
 }
 
 export function SessionBlock({children}) {
