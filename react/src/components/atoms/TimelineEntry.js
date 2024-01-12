@@ -1,5 +1,5 @@
 import React, {useState, PureComponent } from 'react';
-import ReactDiffViewer from 'react-diff-viewer-continued';
+import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued';
 import { NiceDateTime } from './DateTime';
 
 export default function TimelineEntry(props) {
@@ -24,7 +24,9 @@ export default function TimelineEntry(props) {
                 </svg>
             </a>
             {showDiff ?
-                <ReactDiffViewer oldValue={props.previousDetail} newValue={props.detail} splitView={false} />
+                <ReactDiffViewer oldValue={props.previousDetail} newValue={props.detail} splitView={true} 
+                    showDiffOnly={true} extraLinesSurroundingDiff={0} compareMethod={DiffMethod.WORDS}
+                    hideLineNumbers={true}/>
             :null}
         </li>
     );
