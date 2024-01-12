@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.config;
+package com.domloge.slinkylinky.linkservice.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
