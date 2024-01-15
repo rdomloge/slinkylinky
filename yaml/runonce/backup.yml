@@ -15,7 +15,7 @@ spec:
           - name: backup
             image: postgres
             command: ["/bin/sh"]
-            args: ["-c", "pg_dump -h postgres-service -U slinkylinky -d slinkylinky -f /backup/$(FILENAME)-backup.sql"]
+            args: ["-c", "pg_dumpall -h postgres-service -U slinkylinky --exclude-database=postgres slinkylinky -f /backup/$(FILENAME)-backup.sql"]
             volumeMounts:
               - name: backup-volume
                 mountPath: /backup
