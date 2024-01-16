@@ -50,6 +50,8 @@ spec:
               value: <SPECIFY>
             - name: mail_password
               value: <SPECIFY>
+            - name: mail_host
+              value: <SPECIFY>
             - name: slinkylinky_domain
               value: slinkylinky.uk
             - name: slinkylinky_vhost
