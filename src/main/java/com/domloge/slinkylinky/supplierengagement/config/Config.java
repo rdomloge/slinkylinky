@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.supplierengagement;
+package com.domloge.slinkylinky.supplierengagement.config;
 
 import java.util.Properties;
 
@@ -8,20 +8,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import jakarta.mail.Authenticator;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Session;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
 public class Config {
 
-    @Value("${spring.mail.username}")
+    @Value("${mail_username}")
     private String username;
 
-    @Value("${spring.mail.password}")
+    @Value("${mail_password}")
     private String password;
 
-    @Value("${spring.mail.host}")
+    @Value("${mail_host}")
     private String host;
 
     @Bean
@@ -42,6 +43,13 @@ public class Config {
         return mailSender;
     }
 
-
+    @Bean(name = "mapper")
+    public ObjectMapper getObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.setSerializationInclusion(Include.NON_NULL);
+        return objectMapper;
+    }
 }
 
