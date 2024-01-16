@@ -99,17 +99,17 @@ export default function AddOrEditDemand({demand, updateNudge}) {
                         ***REMOVED***
                         </div>
                         <div className="w-full md:w-1/2 px-3">
-                            <TextInput label="Anchor text" changeHandler={(e)=>demand.anchorText=e} initialValue={demand.anchorText}/>
+                            <TextInput label="Anchor text" changeHandler={(e)=>demand.anchorText=e} initialValue={demand.anchorText} disabled={!demandsite}/>
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-6">
                         <div className="w-full px-3">
-                            <TextInput label="URL" changeHandler={(e)=>demand.url=e} initialValue={demand.url}/>
+                            <TextInput label="URL" changeHandler={(e)=>demand.url=e} initialValue={demand.url} disabled={!demandsite}/>
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-2">
                         <div className="w-full md:w-1/4 px-3 mb-6 md:mb-0">
-                            <NumberInput label="DA needed" changeHandler={(e)=>demand.daNeeded=e} initialValue={demand.daNeeded} />
+                            <NumberInput label="DA needed" changeHandler={(e)=>demand.daNeeded=e} initialValue={demand.daNeeded}  disabled={!demandsite}/>
                         </div>
                         <div className="w-full md:w-3/4 px-3 mb-6 md:mb-0">
                             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
