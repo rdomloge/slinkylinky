@@ -28,13 +28,25 @@ public class Engagement {
 
     private String supplierWebsite;
 
-    private String supplierWeWriteFee;
+    private int supplierWeWriteFee;
 
     private String supplierWeWriteFeeCurrency;
 
     private long proposalId;
 
     private String guid;
+
+    private String invoiceFileName;
+
+    private String invoiceFileContentType;
+
+    @Lob
+    @Column(name = "invoiceFileContent")
+    private byte[] invoiceFileContent;
+
+    private String blogTitle;
+
+    private String blogUrl;
 
     private EngagementStatus status;
 
