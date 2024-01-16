@@ -1,5 +1,6 @@
 package com.domloge.slinkylinky.supplierengagement.config;
 
+import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -7,11 +8,13 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +34,9 @@ public class RabbitConfig {
     @Value("${rabbitmq.audit.queue}")
     private String auditQueueName;
 
+    @Value("${rabbitmq.supplierengagement.queue}")
+    private String supplierEngagementQueueName;
+
     @Value("${rabbitmq.exchange}")
     private String exchange;
 
@@ -39,6 +45,9 @@ public class RabbitConfig {
 
     @Value("${rabbitmq.audit.routingkey}")
     private String auditRoutingkey;
+
+    @Value("${rabbitmq.supplierengagement.routingkey}")
+    private String supplierEngagementRoutingkey;
 
     @Value("${rabbitmq.username}")
     private String username;
@@ -67,6 +76,11 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue supplierEngagementQueue() {
+        return new Queue(supplierEngagementQueueName, false);
+    }
+
+    @Bean
     public Binding proposalsBinding(Queue proposalsQueue, DirectExchange exchange) {
         return BindingBuilder.bind(proposalsQueue).to(exchange).with(proposalsRoutingkey);
     }
@@ -74,6 +88,10 @@ public class RabbitConfig {
     @Bean Binding auditBinding(Queue auditQueue, DirectExchange exchange) {
         return BindingBuilder.bind(auditQueue).to(exchange).with(auditRoutingkey);
     }
+
+    @Bean Binding supplierEngagementBinding(Queue supplierEngagementQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(supplierEngagementQueue).to(exchange).with(supplierEngagementRoutingkey);
+    } 
 
     @Bean
     public DirectExchange exchange() {
@@ -96,6 +114,24 @@ public class RabbitConfig {
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         rabbitTemplate.setReplyAddress(auditQueue().getName());
         rabbitTemplate.setRoutingKey(auditRoutingkey);
+        rabbitTemplate.setReplyTimeout(replyTimeout);
+        rabbitTemplate.setUseDirectReplyToContainer(false);
+        return rabbitTemplate;
+    }
+
+    @Bean()
+    public AmqpAdmin admin(ConnectionFactory connectionFactory) {
+        return new RabbitAdmin(connectionFactory);
+    }
+
+    @Bean
+    public AmqpTemplate supplierengagementRabbitTemplate(ConnectionFactory connectionFactory) {
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setDefaultReceiveQueue(supplierEngagementQueueName);
+        rabbitTemplate.setExchange(exchange);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        rabbitTemplate.setReplyAddress(supplierEngagementQueue().getName());
+        rabbitTemplate.setRoutingKey(supplierEngagementRoutingkey);
         rabbitTemplate.setReplyTimeout(replyTimeout);
         rabbitTemplate.setUseDirectReplyToContainer(false);
         return rabbitTemplate;
