@@ -13,6 +13,8 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.ConditionalRejectingErrorHandler;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ErrorHandler;
 
+import com.domloge.slinkylinky.linkservice.amqp.SupplierEngagementEventReceiver;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -36,6 +39,9 @@ public class RabbitConfig {
     @Value("${rabbitmq.audit.queue}")
     private String auditQueueName;
 
+    @Value("${rabbitmq.supplierengagement.queue}")
+    private String supplierEngagementQueueName;
+
     @Value("${rabbitmq.exchange}")
     private String exchange;
 
@@ -44,6 +50,9 @@ public class RabbitConfig {
 
     @Value("${rabbitmq.audit.routingkey}")
     private String auditRoutingkey;
+
+    @Value("${rabbitmq.supplierengagement.routingkey}")
+    private String supplierEngagementRoutingkey;
 
     @Value("${rabbitmq.username}")
     private String username;
@@ -77,6 +86,11 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue supplierEngagementQueue() {
+        return new Queue(supplierEngagementQueueName, false);
+    }
+
+    @Bean
     public DirectExchange exchange() {
         return new DirectExchange(exchange);
     }
@@ -88,6 +102,10 @@ public class RabbitConfig {
 
     @Bean Binding auditBinding(Queue auditQueue, DirectExchange exchange) {
         return BindingBuilder.bind(auditQueue).to(exchange).with(auditRoutingkey);
+    }
+
+    @Bean Binding supplierEngagementBinding(Queue supplierEngagementQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(supplierEngagementQueue).to(exchange).with(supplierEngagementRoutingkey);
     }
 
     @Bean
@@ -139,15 +157,29 @@ public class RabbitConfig {
         return new RabbitAdmin(connectionFactory());
     }
 
+    // @Bean
+    // public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
+    //     final SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+    //     factory.setConnectionFactory(connectionFactory());
+    //     factory.setMessageConverter(jsonMessageConverter());
+    //     factory.setConcurrentConsumers(concurrentConsumers);
+    //     factory.setMaxConcurrentConsumers(maxConcurrentConsumers);
+    //     factory.setErrorHandler(errorHandler());
+    //     return factory;
+    // }
     @Bean
-    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory() {
-        final SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory());
-        factory.setMessageConverter(jsonMessageConverter());
-        factory.setConcurrentConsumers(concurrentConsumers);
-        factory.setMaxConcurrentConsumers(maxConcurrentConsumers);
-        factory.setErrorHandler(errorHandler());
-        return factory;
+    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+            MessageListenerAdapter listenerAdapter) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueueNames(supplierEngagementQueueName);
+        container.setMessageListener(listenerAdapter);
+        return container;
+    }
+
+    @Bean
+    public MessageListenerAdapter listenerAdapter(SupplierEngagementEventReceiver receiver) {
+        return new MessageListenerAdapter(receiver, "receiveMessage");
     }
 
     @Bean
