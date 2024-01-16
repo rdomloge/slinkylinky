@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
@@ -55,6 +57,7 @@ public class ProposalSupportController {
     @Autowired
     private SupplierAuditor supplierAuditor;
 
+
     @DeleteMapping(path = "/abort", produces = "text/HTML")
     @Transactional
     public ResponseEntity<Object> delete(@RequestParam long proposalId, @RequestHeader String user) {
@@ -69,6 +72,12 @@ public class ProposalSupportController {
             paidLinkRepo.delete(pl);
         });
         proposalRepo.delete(proposal);
+
+        Supplier s = proposal.getPaidLinks().get(0).getSupplier();
+        if(s.isThirdParty()) {
+            log.info("Deleting 3rd party supplier {}, for proposal abort", s.getName());
+            supplierRepo.delete(s);
+        }
 
         proposalAuditor.handleAfterDelete(proposal);
         log.info(user + " deleted proposal " + proposalId);
