@@ -14,3 +14,11 @@ Content-Type: application/json
   "status": "DECLINED",
   "declinedReason": "I'm busy"
 }
+###
+PATCH {{host}}/engagements/updateblogdetails?guid=71107a6c-5041-425b-9912-b6471ee90ee1
+Content-Type: application/json
+
+{
+  "blogTitle": "This is the title",
+  "blogUrl": "disney.com"
+}
