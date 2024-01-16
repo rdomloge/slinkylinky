@@ -108,17 +108,19 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             ***REMOVED***
 
                 if("blogLive" === propertyName) {
-                    const supplierUrl = "/.rest/suppliers/"+proposal.paidLinks[0].supplier.id;
-                    fetch(supplierUrl, {
-                        method: 'PATCH',
-                        headers: {'Content-Type':'application/json'},
-                        body: JSON.stringify(create3rdPartySupplierPatchData())
-                ***REMOVED***).then( (resp) => {
-                        if(resp.ok) {
-                            updateHandler({...proposal***REMOVED*** // force a re-render
-                    ***REMOVED***
-                ***REMOVED***)
-                    .catch(error => console.error("Oh noes! An error: "+error));
+                    if(proposal.paidLinks[0].supplier.thirdParty) {
+                        const supplierUrl = "/.rest/suppliers/"+proposal.paidLinks[0].supplier.id;
+                        fetch(supplierUrl, {
+                            method: 'PATCH',
+                            headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify(create3rdPartySupplierPatchData())
+                    ***REMOVED***).then( (resp) => {
+                            if(resp.ok) {
+                                updateHandler({...proposal***REMOVED*** // force a re-render
+                        ***REMOVED***
+                    ***REMOVED***)
+                        .catch(error => console.error("Oh noes! An error: "+error));
+                ***REMOVED***
             ***REMOVED***
                 else {
                     updateHandler({...proposal***REMOVED*** // force a re-render, since we don't need to update the supplier
