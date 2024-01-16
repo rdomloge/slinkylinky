@@ -1,5 +1,21 @@
 package com.domloge.slinkylinky.supplierengagement.email;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessagingException;
+import org.springframework.stereotype.Component;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
+
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
 public class ContentBuilder {
     
     private String content;
@@ -8,13 +24,35 @@ public class ContentBuilder {
         return content;
     }
 
+    @Autowired
+    private FreeMarkerConfigurer freemarkerConfigurer;
+
+    private String buildUsingFreemarkerTemplate(Map<String, Object> templateModel)
+            throws IOException, TemplateException, MessagingException {
+            
+        Template freemarkerTemplate = freemarkerConfigurer.getConfiguration()
+            .getTemplate("request.ftl");
+
+        return FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerTemplate, templateModel);
+    }
+
     public void build(Context ctx) {
 
-        content = "<p>Hi <b style='color:red'>"+ctx.getSupplierDetails().getName()
-            + "</b>, please see attached for an aticle to engage with. We have you on file as charging "
-            + ctx.getSupplierDetails().getCombinedCurrencyFee() +". If you agree, please post the article, create an invoice for " 
-            + ctx.getSupplierDetails().getCombinedCurrencyFee() + " and then click <a href='"+ctx.getSlinkyLinkyDomain()
-            + "/public/supplierresponse?id=" + ctx.getDbEngagement().getGuid()
-            +"'>here</a> to upload the invoice, inform is of the URL to the article and enter the article title,</p><p>Regards, Slinkylinky</p>";
+        String responseUrl = ctx.getSlinkyLinkyDomain() + "/public/supplierresponse?id="+ctx.getDbEngagement().getGuid();
+        String fee = ctx.getEvent().getSupplierWeWriteFeeCurrency() + ctx.getEvent().getSupplierWeWriteFee();
+
+        Map<String, Object> templateModel = new HashMap<>();
+        templateModel.put("recipientName", ctx.getEvent().getSupplierName());
+        templateModel.put("fee", fee);
+        templateModel.put("responseUrl", responseUrl);
+        templateModel.put("senderName", "Chris");
+        templateModel.put("website", ctx.getEvent().getSupplierWebsite());
+        
+        try {
+            content = buildUsingFreemarkerTemplate(templateModel);
+        } catch (MessagingException | IOException | TemplateException e) {
+            log.error("Error building email content from FreeMarker", e);
+            content = "Error building email content from FreeMarker";
+        }
     }
 }
