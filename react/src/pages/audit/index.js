@@ -5,24 +5,37 @@ import PageTitle from "@/components/pagetitle";
 import Loading from '@/components/Loading';
 import { AuditLine } from '@/components/AuditCard';
 import Paging from '@/components/Paging';
+import { useRouter } from 'next/router';
 
 export default function AuditIndexPage() {
 
+    const router = useRouter()
     const [audits, setAudits] = useState()
     const [error, setError] = useState()
+    const [page, setPage] = useState(0)
+    const [total, setTotal] = useState(0)
+    const [pageCount, setPageCount] = useState(0)
 
     useEffect( () => {
-        const auditUrl = "/.rest/auditrecords"
-        fetch(auditUrl)
-            .then((resp)=>resp.json())
-            .then((data)=> setAudits(data._embedded.auditrecords))
-            .catch((error)=>setError(error))
-    },[]);
+        if(router.isReady) {
+            const page = router.query.page ? parseInt(router.query.page) : 1
+            setPage(page)
+            const auditUrl = "/.rest/auditrecords?size=20&page="+(page-1)
+            fetch(auditUrl)
+                .then((resp)=>resp.json())
+                .then((data)=> {
+                    setAudits(data._embedded.auditrecords)
+                    setTotal(data.page.totalElements)
+                    setPageCount(data.page.totalPages)
+                })
+                .catch((error)=>setError(error))
+        }
+    },[router.isReady, router.query.page]);
 
     return (
         <Layout>
-            <PageTitle title="Audit" />
-            <Paging />
+            <PageTitle title="Audit" count={audits}/>
+            <Paging page={page} pageCount={pageCount} total={total} baseUrl={"/audit"}/>
             {audits ? 
                 <div className="grid grid-cols-4 gap-2">
                 {audits.map( (a,index) => {
