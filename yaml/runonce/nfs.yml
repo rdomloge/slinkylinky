@@ -27,3 +27,19 @@ spec:
   nfs:
     server: 10.0.0.60
     path: "/volume1/sl-backup"
+    
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sl-mongo-data
+spec:
+  capacity:
+    storage: 20Gi
+  storageClassName: standard
+  accessModes:
+  - ReadWriteOnce
+  nfs:
+    server: 10.0.0.60
+    path: "/volume1/sl-mongo-data"
