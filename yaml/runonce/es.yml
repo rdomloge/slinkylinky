@@ -50,6 +50,23 @@ spec:
               memory: "4096Mi"
           ports:
             - containerPort: 9200
+          livenessProbe:
+            httpGet:
+              port: 9200
+              path: /_cluster/health
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              port: 9200
+              path: /_cluster/health
+          startupProbe:
+            tcpSocket:
+              port: 9300
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            failureThreshold: 10
+            periodSeconds: 10
       volumes:
         - name: sl-es-data
           persistentVolumeClaim:
