@@ -40,14 +40,14 @@ spec:
             - name: discovery.type 
               value: single-node
             - name: ES_JAVA_OPTS
-              value: -Xms1024m -Xmx1024m
+              value: -Xms2048m -Xmx2048m
           resources:
             requests:
               cpu: "1000m"
-              memory: "1024Mi"
+              memory: "2048Mi"
             limits:
               cpu: "1500m"
-              memory: "1024Mi"
+              memory: "2048Mi"
           ports:
             - containerPort: 9200
       volumes:
