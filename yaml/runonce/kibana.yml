@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: kibana
+        version: v1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - linkservice
+                      - supplierengagement
+                      - kibana
+                      - adminwebsite
+                      - postgres
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: kibana
+          image: rdomloge/slinky-linky-kibana:2.2
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "1024Mi"
+          ports:
+            - containerPort: 5601
+          env:
+            - name: elasticsearch.hosts
+              value: elasticsearch-service
+          
