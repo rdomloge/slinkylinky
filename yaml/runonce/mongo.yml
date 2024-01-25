@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: slinkylinky
+spec:
+  serviceName: mongo
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: mongo
+        version: v1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - linkservice
+                      - adminwebsite
+                      - postgres
+                      - mongo
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: mongo
+          image: mongo
+          imagePullPolicy: Always
+          volumeMounts: 
+            - name: sl-mongo-data
+              mountPath: /data/db
+          env:
+            - name: wiredTigerCacheSizeGB 
+              value: "0.5"
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: CHANGEME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: CHANGEME
+            - name: mongo_PASSWORD
+              value: CHANGEME
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "600Mi"
+            limits:
+              cpu: "1500m"
+              memory: "750Mi"
+          ports:
+            - containerPort: 5432
+      volumes:
+        - name: sl-mongo-data
+          persistentVolumeClaim:
+            claimName: sl-mongo-data
