@@ -31,7 +31,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: kibana
-          image: rdomloge/slinky-linky-kibana:2.2
+          image: kibana:7.17.17
           imagePullPolicy: Always
           resources:
             requests:
