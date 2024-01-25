@@ -44,5 +44,5 @@ spec:
             - containerPort: 5601
           env:
             - name: elasticsearch.hosts
-              value: elasticsearch-service
+              value: elasticsearch-service:9200
           
