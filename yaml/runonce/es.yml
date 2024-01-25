@@ -31,7 +31,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: es
-          image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+          image: elasticsearch:7.17.17
           imagePullPolicy: Always
           volumeMounts: 
             - name: sl-es-data
