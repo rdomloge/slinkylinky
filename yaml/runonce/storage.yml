@@ -31,7 +31,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: sl-mongo-data
+  name: sl-es-data
   namespace: slinkylinky
 spec:
   accessModes:

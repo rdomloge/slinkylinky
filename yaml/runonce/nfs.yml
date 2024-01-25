@@ -42,4 +42,4 @@ spec:
   - ReadWriteOnce
   nfs:
     server: 10.0.0.60
-    path: "/volume1/sl-mongo-data"
+    path: "/volume1/sl-es-data"

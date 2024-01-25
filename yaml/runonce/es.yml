@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongo
+  name: es
   namespace: slinkylinky
 spec:
-  serviceName: mongo
+  serviceName: es
   replicas: 1
   selector:
     matchLabels:
-      app: mongo
+      app: es
       version: v1
   template:
     metadata:
       labels:
-        app: mongo
+        app: es
         version: v1
     spec:
       affinity:
@@ -27,24 +27,20 @@ spec:
                       - linkservice
                       - adminwebsite
                       - postgres
-                      - mongo
+                      - es
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: mongo
-          image: mongo
+        - name: es
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
           imagePullPolicy: Always
           volumeMounts: 
-            - name: sl-mongo-data
-              mountPath: /data/db
+            - name: sl-es-data
+              mountPath: /usr/share/elasticsearch/data
           env:
-            - name: wiredTigerCacheSizeGB 
-              value: "0.5"
-            - name: MONGO_INITDB_ROOT_USERNAME
-              value: CHANGEME
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              value: CHANGEME
-            - name: mongo_PASSWORD
-              value: CHANGEME
+            - name: discovery.type 
+              value: single-node
+            - name: ES_JAVA_OPTS
+              value: -Xms512m -Xmx512m
           resources:
             requests:
               cpu: "1000m"
@@ -53,8 +49,8 @@ spec:
               cpu: "1500m"
               memory: "750Mi"
           ports:
-            - containerPort: 5432
+            - containerPort: 9200
       volumes:
-        - name: sl-mongo-data
+        - name: sl-es-data
           persistentVolumeClaim:
-            claimName: sl-mongo-data
+            claimName: sl-es-data
