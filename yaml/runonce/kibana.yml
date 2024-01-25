@@ -43,6 +43,6 @@ spec:
           ports:
             - containerPort: 5601
           env:
-            - name: elasticsearch.hosts
+            - name: ELASTICSEARCH_HOSTS
               value: http://elasticsearch-service:9200
           
