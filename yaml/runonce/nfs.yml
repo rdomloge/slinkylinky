@@ -33,7 +33,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: sl-mongo-data
+  name: sl-es-data
 spec:
   capacity:
     storage: 20Gi
