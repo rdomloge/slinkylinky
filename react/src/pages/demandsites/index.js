@@ -17,8 +17,8 @@ export default function DemandSiteList() {
         fetch(demandSitesUrl)
             .then((res) => res.json())
             .then((data) => {
-                setDemandSites(data._embedded.demandsites.filter(ds => ds.categories && ds.categories.length > 0))
-                setMissingCategories(data._embedded.demandsites.filter(ds => ! ds.categories || ds.categories.length < 1))
+                setDemandSites(data._embedded.demandsites.filter(ds => ds.categories && ds.categories.filter(c => c.disabled == false).length > 0))
+                setMissingCategories(data._embedded.demandsites.filter(ds => ! ds.categories || ds.categories.filter(c => c.disabled == false).length < 1))
             })
             .catch((err) => setError(err))
     }, []);
