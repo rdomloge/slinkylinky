@@ -4,7 +4,9 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +19,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.domloge.slinkylinky.linkservice.ProposalAbortHandler;
+import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
@@ -57,6 +59,9 @@ public class ProposalSupportController {
     @Autowired
     private SupplierAuditor supplierAuditor;
 
+    @Autowired
+    private ProposalAbortHandler proposalAbortHandler;
+
 
     @DeleteMapping(path = "/abort", produces = "text/HTML")
     @Transactional
@@ -65,22 +70,7 @@ public class ProposalSupportController {
         if( ! opt.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        Proposal proposal = proposalRepo.findById(proposalId).get();
-        proposal.setUpdatedBy(user);
-        
-        proposal.getPaidLinks().forEach(pl -> {
-            paidLinkRepo.delete(pl);
-        });
-        proposalRepo.delete(proposal);
-
-        Supplier s = proposal.getPaidLinks().get(0).getSupplier();
-        if(s.isThirdParty()) {
-            log.info("Deleting 3rd party supplier {}, for proposal abort", s.getName());
-            supplierRepo.delete(s);
-        }
-
-        proposalAuditor.handleAfterDelete(proposal);
-        log.info(user + " deleted proposal " + proposalId);
+        proposalAbortHandler.handle(proposalId, user);
         return ResponseEntity.ok().build();
     }
 
@@ -103,14 +93,47 @@ public class ProposalSupportController {
     public ResponseEntity<Object> createProposal(@RequestHeader String user, @RequestParam long supplierId, 
             @RequestParam long[] demandIds) {
         
-        log.info(user + " is creating a proposal for supplier {} for demands {} " + supplierId + " " + Arrays.toString(demandIds));
+        log.info(user + " is creating a proposal for supplier {} for demands {} ", supplierId, Arrays.toString(demandIds));
+        
+        
+
+        Optional<Supplier> supplierOpt = supplierRepo.findById(supplierId);
+        if( ! supplierOpt.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        Supplier supplier = supplierOpt.get();
+        
+        List<Demand> dbDemands = new LinkedList<>();
+        Arrays.stream(demandIds).forEach(i -> {
+            Optional<Demand> demand = demandRepo.findById(i);
+            if (demand.isEmpty()) {
+                log.error("Demand with id {} does not exist", i);
+                return;                
+            }
+            dbDemands.add(demand.get());
+        });
+        if(dbDemands.size() != demandIds.length) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // check that there's no paid link already between the supplier and these demands (what if someone already created a proposal?)
+        List<Demand> existingPaidLinks = dbDemands.stream()
+            .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(d.getDomain(), supplier.getDomain()))
+            .collect(Collectors.toList());
+        
+        if(existingPaidLinks.size() > 0) {
+            log.error("There's already a paid link between supplier {} and one of the demands {}", supplierId, Arrays.toString(demandIds));
+            return ResponseEntity.badRequest().build();
+        }
         
         LinkedList<PaidLink> paidLinks = new LinkedList<>();
+
         // create the paid links
-        Arrays.stream(demandIds).forEach(i -> {
+        dbDemands.forEach(d -> {
             PaidLink paidLink = new PaidLink();
-            paidLink.setDemand(demandRepo.findById(i).get());
-            paidLink.setSupplier(supplierRepo.findById(supplierId).get());
+            paidLink.setDemand(d);
+            paidLink.setSupplier(supplier);
             PaidLink dbPaidLink = paidLinkRepo.save(paidLink);
             paidLinks.add(dbPaidLink);
         });
