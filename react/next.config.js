@@ -26,15 +26,23 @@ const nextConfig = {
       return [
         {
           source: '/.rest/engagements/:path*',
-          destination: 'http://10.0.0.229:8081/.rest/engagements/:path*'
+          destination: 'http://host.docker.internal:8081/.rest/engagements/:path*'
         },
         {
           source: '/.rest/auditrecords/:path*',
-          destination: 'http://10.0.0.229:8082/.rest/auditrecords/:path*'
+          destination: 'http://host.docker.internal:8082/.rest/auditrecords/:path*'
+        },
+        {
+          source: '/.rest/stats/:path*',
+          destination: 'http://host.docker.internal:8083/.rest/stats/:path*'
+        },
+        {
+          source: '/.rest/semrush/:path*',
+          destination: 'http://host.docker.internal:8083/.rest/semrush/:path*'
         },
         {
           source: '/.rest/:path*',
-          destination: 'http://10.0.0.229:8080/.rest/:path*'
+          destination: 'http://host.docker.internal:8080/.rest/:path*'
         }
       ]
     },
