@@ -9,7 +9,7 @@ import DemandCard from '@/components/demandcard'
 import SupplierCard from '@/components/suppliercard'
 import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/layout/Layout'
-import SessionButton, { ClickHandlerButton } from '@/components/atoms/Button'
+import SessionButton, { ClickHandlerButton, StyledButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
 
@@ -22,6 +22,7 @@ export default function App() {
     const [existingLinkCount, setExistingLinkCount] = useState()
     const [showModal, setShowModal] = useState(false);
     const [newSupplierName, setNewSupplierName] = useState();
+    const [supplierUsageCount, setSupplierUsageCount] = useState();
 
     useEffect(
         () => {
@@ -30,6 +31,7 @@ export default function App() {
                 const suppliersUrl = "/.rest/suppliers/search/findSuppliersForDemandId?demandId="
                     + router.query.demandid+"&projection=fullSupplier";
                 const existingLinkCountUrl = "/.rest/paidlinks/search/countByDemand_domain?domain="
+                const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => 
@@ -41,6 +43,14 @@ export default function App() {
                         fetch(existingLinkCountUrl+dataDemand.domain)
                             .then(resCount => resCount.json())
                             .then(count => setExistingLinkCount(count));
+                        
+                        var usageUrl = supplierUsageCountUrl;
+                        dataSuppliers.forEach((s,index) => usageUrl += s.id + (index < dataSuppliers.length-1 ? "," : ""));
+                        fetch(usageUrl)
+                            .then(resCount => resCount.json())
+                            .then(counts => {
+                                setSupplierUsageCount(counts)
+                        ***REMOVED***)
                 ***REMOVED***);
         ***REMOVED***
     ***REMOVED***, [router.isReady, router.query.demandid]
@@ -98,10 +108,15 @@ export default function App() {
         ***REMOVED***
             <div>Matching suppliers</div>
             {suppliers ?
-                <SupplierList suppliers={suppliers} demand={demand} demandid={router.query.demandid}/>
+                <SupplierList suppliers={suppliers} demand={demand} 
+                    demandid={router.query.demandid} usages={supplierUsageCount}/>
             : null}
         </Layout>
     );
+}
+
+function selectSupplier(s, props) {
+    window.location.href="/paidlinks/staging?supplierId="+s.id+"&demandId="+props.demandid
 }
 
 function SupplierList(props) {
@@ -110,9 +125,17 @@ function SupplierList(props) {
     else return (
         <div className="grid grid-cols-3">
             {props.suppliers.map((s,index) => (
-                <a href={'/paidlinks/staging?supplierId='+s.id+'&demandId='+props.demandid} key={index}>
-                    <SupplierCard supplier={s} linkable={false}/>
-                </a>
+                <div key={index}>
+                    <div className="top-10 right-10 relative float-right z-50">
+                        <StyledButton label="Select" 
+                            submitHandler={()=>{selectSupplier(s,props)}} 
+                            isText={true} 
+                            key={index} 
+                            type="secondary" 
+                            extraClass="text-xl font-bold"/>
+                    </div>
+                    <SupplierCard supplier={s} linkable={true} usages={props.usages}/>
+                </div>
             ))}
         </div>
     );
