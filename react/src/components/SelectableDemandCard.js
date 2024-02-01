@@ -16,7 +16,7 @@ export default function SelectableDemandCard({children, onSelectedHandler, onDes
                 <div className="col-span-9">
                     {children}
                 </div>
-                <input type="checkbox" id="" defaultValue={false} className="mr-1" onChange={handleChange}/> 
+                <input type="checkbox" id="" defaultValue={false} className="mr-1 mt-4 rounded col-span-1 w-10 h-10 p-1" onChange={handleChange}/> 
             </div>
         </>
     );
