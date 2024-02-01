@@ -94,6 +94,14 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             postData.liveLinkUrl = proposal.liveLinkUrl
             postData.liveLinkTitle = proposal.liveLinkTitle
     ***REMOVED***
+        if("contentReady" === propertyName) {
+            if(postData.contentReady) {
+                postData.article = proposal.article
+        ***REMOVED***
+            else {
+                postData.article = null
+        ***REMOVED***
+    ***REMOVED***
         const bodyJson = JSON.stringify(postData)
 
         fetch(proposalUrl, {
@@ -114,17 +122,11 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                             method: 'PATCH',
                             headers: {'Content-Type':'application/json'},
                             body: JSON.stringify(create3rdPartySupplierPatchData())
-                    ***REMOVED***).then( (resp) => {
-                            if(resp.ok) {
-                                updateHandler({...proposal***REMOVED*** // force a re-render
-                        ***REMOVED***
                     ***REMOVED***)
                         .catch(error => console.error("Oh noes! An error: "+error));
                 ***REMOVED***
             ***REMOVED***
-                else {
-                    updateHandler({...proposal***REMOVED*** // force a re-render, since we don't need to update the supplier
-            ***REMOVED***
+                updateHandler({...proposal***REMOVED*** // force a re-render, since we don't need to update the supplier
         ***REMOVED***
     ***REMOVED***).catch(error => console.error("Oh noes! An error: "+error));
 ***REMOVED***
