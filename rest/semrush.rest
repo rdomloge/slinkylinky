@@ -1,0 +1,4 @@
+GET https://api.semrush.com/?type=domain_rank_history&display_limit=12&display_offset=11&key=b6258f385948ff6198e2a62a9fca251f&export_columns=Ot,Rk,Dt&database=uk&domain=uknewsgroup.co.uk
+###
+GET {{host}}/semrush/lookup?domain=frontpageadvantage.com
+user: chris.p@frontpageadvantage.com
