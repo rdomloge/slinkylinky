@@ -19,17 +19,17 @@ public interface FullSupplierProjection {
 
     Integer getWeWriteFee();
 
-    Integer getSemRushAuthorityScore();
-
-    Integer getSemRushUkMonthlyTraffic();
-
-    Integer getSemRushUkJan23Traffic();
-
     boolean isThirdParty();
 
     boolean isDisabled();
 
     String getWeWriteFeeCurrency();
+
+    String getSource();
+
+    String getCreatedBy();
+
+    String getUpdatedBy();
 
     FullCategoryProjection[] getCategories();
 
