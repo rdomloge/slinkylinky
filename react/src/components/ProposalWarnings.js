@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react'
-import WarningMessage from './atoms/WarningMsg';
+import ErrorMessage from './atoms/Messages';
 import { useSession } from "next-auth/react";
 
 const cache = {};
@@ -119,13 +119,13 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
     return (
         <div className={validationErrors.length > 0 ? "border-l-8 border border-red-500 bg-red-100 mx-6 my-4":""}>
         {error ?
-            <WarningMessage message={"There was an issue using the Moz service: "+error}/>
+            <ErrorMessage message={"There was an issue using the Moz service: "+error}/>
             :
         null}
 
         {validationErrors ? 
             validationErrors.map( (e,index) => {
-                return <WarningMessage key={index} message={e}/>
+                return <ErrorMessage key={index} message={e}/>
         ***REMOVED***)
         :
             null
