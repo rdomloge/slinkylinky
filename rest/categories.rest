@@ -1,1 +1,5 @@
 GET {{host}}/categories
+###
+GET {{host}}/categories/search/findByNameContainsIgnoreCaseAndDisabledFalseOrderByNameAsc?name=ar
+###
+GET {{host}}/categories/search/findAllByDisabledFalseOrderByNameAsc

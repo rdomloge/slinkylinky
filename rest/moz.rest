@@ -11,3 +11,13 @@ Authorization: Basic mozscape-a319a50eb7:6983ad49571ec937eab3522206234ae
 GET {{host}}/mozsupport/checklink?demandurl=swsweb.co.uk&supplierDomain=businessmention.co.uk
 ###
 GET {{host}}/mozsupport/checklink?demandurl=www.frontpageadvantage.com&supplierDomain=businessmention.co.uk
+###
+GET {{host}}/mozsupport/checkdomain?domain=frontpageadvantage.com
+user: santa@clause.com
+###
+POST https://lsapi.seomoz.com/v2/url_metrics
+Authorization: Basic mozscape-a319a50eb7:6983ad49571ec937eab3522206234ae
+
+{
+    "targets": ["frontpageadvantage.com"]
+}

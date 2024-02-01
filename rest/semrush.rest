@@ -1,0 +1,7 @@
+GET https://api.semrush.com/analytics/ta/api/v3/summary?targets=golang.org,blog.golang.org,tour.golang.org/welcome/&export_columns=target,visits,users&display_limit=1&key={{semrush-key}}
+###
+
+https://api.semrush.com/?type=domain_rank_history&display_limit=10&key={{semrush-key}}&export_columns=Ot,Rk,ascore,domain_ascore&domain=frontpageadvantage.com&database=uk
+###
+
+https://api.semrush.com/?type=domain_rank&key={{semrush-key}}&export_columns=Ot,Rk,ascore,domain_ascore&domain=frontpageadvantage.com&database=uk
