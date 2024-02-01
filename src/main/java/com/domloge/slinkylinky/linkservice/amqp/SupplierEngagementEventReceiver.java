@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
+import com.domloge.slinkylinky.linkservice.ProposalAbortHandler;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -23,6 +25,10 @@ public class SupplierEngagementEventReceiver {
 
     @Autowired
     private ProposalRepo proposalRepo;
+
+    @Autowired
+    private ProposalAbortHandler proposalAbortHandler;
+    
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -65,6 +71,7 @@ public class SupplierEngagementEventReceiver {
         proposalRepo.save(proposal);
     }
 
+    @Transactional
     private void handleSupplierResponse(SupplierEngagementEvent event, Proposal proposal) {
 
         if(event.getResponse() == SupplierEngagementEvent.Response.ACCEPTED) {
@@ -85,6 +92,12 @@ public class SupplierEngagementEventReceiver {
             proposal.setLiveLinkTitle(event.getBlogTitle());
             proposal.setLiveLinkUrl(event.getBlogUrl());
             proposalRepo.save(proposal);
+        }
+        else if(event.getResponse() == SupplierEngagementEvent.Response.DECLINED) {
+            proposalAbortHandler.handle(event.getProposalId(), "supplier");        
+        }
+        else {
+            log.error("Unknown response type {}", event.getResponse());
         }
     }
 
