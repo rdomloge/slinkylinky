@@ -21,25 +21,28 @@ public interface DemandRepo extends CrudRepository <Demand, Long> {
         void deleteById(Long id);
 
         @Query(nativeQuery = true,
-                value = "SELECT ld.* FROM demand ld, supplier s "+
+                value = "SELECT d.* FROM demand d, supplier s "+
                         "WHERE s.id=?1 "+
-                        "AND s.domain NOT IN "+
-                        "   (SELECT s.domain FROM supplier s, paid_link pl, demand ld "+
-                                "WHERE pl.supplier_id=s.id AND pl.demand_id=ld.id AND ld.id=?1) "+
-                        "AND s.DA >= ld.da_needed "+
-                        "AND ld.id in (select ldc.demand_id from demand_categories ldc where ldc.categories_id in "+
-                                "(select c.id from category c inner join supplier_categories sc on sc.categories_id=c.id where sc.supplier_id=?1)) "+
-                        "AND ld.domain != (SELECT ld.domain FROM demand ld  where ld.id = ?2) "+
-                        "AND ld.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
+                        "AND d.domain NOT IN "+
+                        "(SELECT d.domain FROM demand d "+
+                                "JOIN paid_link pl on pl.demand_id=d.id "+
+                                "JOIN supplier s on pl.supplier_id=s.id "+
+                                        "WHERE s.domain = "+       
+                                        "       (select s.domain from supplier s where s.id=?1)) "+              // get the domain of the supplier
+                        "AND s.DA >= d.da_needed "+
+                        "AND d.id in (select ldc.demand_id from demand_categories ldc where ldc.categories_id in "+
+                                        "(select c.id from category c inner join supplier_categories sc on sc.categories_id=c.id where sc.supplier_id=?1 and c.disabled=false)) "+
+                        "AND d.domain != (SELECT d.domain FROM demand d  where d.id = ?2) "+
+                        "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
                         "ORDER BY s.we_write_fee ASC, "+
-                        "   s.sem_rush_uk_jan23traffic DESC, "+
-                        "   s.sem_rush_authority_score DESC ")
-    Demand[] findDemandForSupplierId(int supplierId, int demandIdToIgnore);
+                        "s.sem_rush_uk_jan23traffic DESC, "+ 
+                        "s.sem_rush_authority_score DESC")
+    Demand[] findDemandForSupplierId(long supplierId, long demandIdToIgnore);
 
     @Query(nativeQuery = true,
-        value = "SELECT ld.* FROM demand ld "+
-                "WHERE ld.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
-                "ORDER BY ld.requested ASC, ld.name ASC")
+        value = "SELECT d.* FROM demand d "+
+                "WHERE d.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
+                "ORDER BY d.requested ASC, d.name ASC")
     Demand[] findUnsatisfiedDemandOrderedByRequested();
 
     @Query(nativeQuery = true,
@@ -49,9 +52,9 @@ public interface DemandRepo extends CrudRepository <Demand, Long> {
     Demand[] findUnsatisfiedDemandByDomain(String domain);
 
     @Query(nativeQuery = true,
-        value = "SELECT ld.* FROM demand ld "+
-                "WHERE ld.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
-                "ORDER BY ld.da_needed DESC, ld.name ASC")
+        value = "SELECT d.* FROM demand d "+
+                "WHERE d.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
+                "ORDER BY d.da_needed DESC, d.name ASC")
     Demand[] findUnsatisfiedDemandOrderedByDaNeeded();
 
     

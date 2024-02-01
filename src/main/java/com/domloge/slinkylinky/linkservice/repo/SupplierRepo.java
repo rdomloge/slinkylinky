@@ -27,13 +27,13 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
         "                (select demand.domain from demand demand where demand.id=?1))) "+      // exclude suppliers that already have a paid link for this domain
         "AND s.DA >= (select demand.da_needed from demand demand where demand.id=?1) "+         // match DA
         "AND s.id in (select sc.supplier_id from supplier_categories sc where sc.categories_id in "+ // match categories
-        "                (select ldc.categories_id from demand_categories ldc where ldc.demand_id=?1)) "+
+        "                (select ldc.categories_id from demand_categories ldc join category c on c.id=ldc.categories_id where ldc.demand_id=?1 and c.disabled=false)) "+
         "AND s.third_party = false "+                                                                // exclude third party suppliers
         "AND s.disabled = false "+                                                                   // exclude disabled suppliers                        
         "ORDER BY s.we_write_fee ASC, "+                                    
         "   s.sem_rush_uk_jan23traffic DESC, "+
         "   s.sem_rush_authority_score DESC")
-    Supplier[] findSuppliersForDemandId(int demandId);
+    Supplier[] findSuppliersForDemandId(long demandId);
 
     Supplier findByDomainIgnoreCase(String domain);
 
