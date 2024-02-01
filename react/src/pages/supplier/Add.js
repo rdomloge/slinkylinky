@@ -6,7 +6,7 @@ export default function NewSupplier() {
     return (
         <Layout>
             <PageTitle title="New supplier"/>
-            <AddOrEditSupplier supplier={({})}/> 
+            <AddOrEditSupplier supplier={({da: 0})}/> 
         </Layout>
     )
 }
