@@ -94,6 +94,14 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             postData.liveLinkUrl = proposal.liveLinkUrl
             postData.liveLinkTitle = proposal.liveLinkTitle
         }
+        if("contentReady" === propertyName) {
+            if(postData.contentReady) {
+                postData.article = proposal.article
+            }
+            else {
+                postData.article = null
+            }
+        }
         const bodyJson = JSON.stringify(postData)
 
         fetch(proposalUrl, {
@@ -114,17 +122,11 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                             method: 'PATCH',
                             headers: {'Content-Type':'application/json'},
                             body: JSON.stringify(create3rdPartySupplierPatchData())
-                        }).then( (resp) => {
-                            if(resp.ok) {
-                                updateHandler({...proposal}); // force a re-render
-                            }
                         })
                         .catch(error => console.error("Oh noes! An error: "+error));
                     }
                 }
-                else {
-                    updateHandler({...proposal}); // force a re-render, since we don't need to update the supplier
-                }
+                updateHandler({...proposal}); // force a re-render, since we don't need to update the supplier
             }
         }).catch(error => console.error("Oh noes! An error: "+error));
     }
