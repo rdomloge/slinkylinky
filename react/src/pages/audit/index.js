@@ -20,7 +20,7 @@ export default function AuditIndexPage() {
         if(router.isReady) {
             const page = router.query.page ? parseInt(router.query.page) : 1
             setPage(page)
-            const auditUrl = "/.rest/auditrecords?size=20&page="+(page-1)
+            const auditUrl = "/.rest/auditrecords?size=10&page="+(page-1)
             fetch(auditUrl)
                 .then((resp)=>resp.json())
                 .then((data)=> {
