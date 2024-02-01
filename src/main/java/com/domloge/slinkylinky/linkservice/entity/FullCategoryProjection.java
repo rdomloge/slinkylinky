@@ -6,4 +6,6 @@ import org.springframework.data.rest.core.config.Projection;
 public interface FullCategoryProjection {
     
     String getName();
+
+    boolean isDisabled();
 }
