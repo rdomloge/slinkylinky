@@ -8,17 +8,35 @@ import LinkIcon from '@/components/link.svg'
 import EmailIcon from '@/components/email.svg'
 import MoneyIcon from '@/components/tag.svg'
 import ThirdPartyIcon from '@/components/third-party.svg'
+import EnterIcon from '@/components/enter.svg'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import Counter from './Counter'
+import Modal from './atoms/Modal'
+import { StyledButton } from './atoms/Button'
+import SupplierSemRushTraffic from './SupplierSemRushTraffic'
 
-export default function SupplierCard({supplier, editable, linkable}) {
+function addProtocol(url) {
+    if (!/^(?:f|ht)tps?\:\/\//i.test(url)) {
+        url = "https://" + url;
+    }
+    return url;
+}
+
+export default function SupplierCard({supplier, editable, linkable, usages}) {
+
     return (
         <div className="list-card card relative">
             {supplier.thirdParty ? 
                 <Image className='third-party' src={ThirdPartyIcon} width={42} height={42} alt="Third party icon" tooltip="Third party"/>
             : null}
             
-            <Image src={Icon} width={32} height={32} alt="Shipping icon"/> 
-            
+            <Image src={Icon} width={32} height={32} alt="Shipping icon" className='inline-block'/> 
+            {usages ?
+                <Counter count={usages[supplier.id]} low={2} medium={5} high={25}/>
+            : 
+                null
+            }
             {editable ?
             <Link href={"/supplier/"+supplier.id}>
                 <p className='text-right float-right'>Edit</p>
@@ -30,7 +48,7 @@ export default function SupplierCard({supplier, editable, linkable}) {
                 {linkable ?
                     <>
                         <Image className='col-span-1 inline-block ' src={LinkIcon} alt="link" width={20} height={20}/>
-                        <Link href={supplier.website} className='col-span-11'>
+                        <Link href={addProtocol(supplier.website)} className='col-span-11' target='_blank'>
                             <span className='align-middle truncate'>{supplier.website}</span>
                         </Link>
                         <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
@@ -51,24 +69,14 @@ export default function SupplierCard({supplier, editable, linkable}) {
                 
                 <Image className='col-span-1' src={MoneyIcon} alt="money" width={25} height="auto"/> 
                 <span className='col-span-11 align-middle'>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
+
+                <Image className='col-span-1' src={EnterIcon} alt="money" width={30} height="auto"/> 
+                <span className='col-span-11 align-middle'>{supplier.source}</span>
+
             </div>
-            <table className='table-auto gap-2'>
-                <tbody>
-                <tr>
-                    <td className='pr-4'>SEM rush authority</td>
-                    <td className='text-right'>{supplier.semRushAuthorityScore}</td>
-                </tr>
-                <tr>
-                    <td className='pr-4'>SEM rush UK monthly</td>
-                    <td className='text-right'>{supplier.semRushUkMonthlyTraffic}</td>
-                </tr>
-                <tr>
-                    <td className='pr-4'>SEM rush UK Jan &apos;23</td>
-                    <td className='text-right'>{supplier.semRushUkJan23Traffic}</td>
-                </tr>
-                </tbody>
-            </table>
+            
             <CategoriesCard categories={supplier.categories}/>
+            <SupplierSemRushTraffic supplier={supplier}/>
         </div>
     )
 }
