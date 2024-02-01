@@ -11,7 +11,7 @@ export default function CategoriesCard({categories}) {
         <>
         {categories ?
             <div className="child-card flex flex-wrap">
-                {categories.map( (c,index) => <CategoryLite category={c} key={index}/> )}
+                {categories.filter(c => c.disabled == false).map( (c,index) => <CategoryLite category={c} key={index}/> )}
             </div>
         : null}
         </>
