@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.moz.LinkChecker;
+import com.domloge.slinkylinky.linkservice.moz.DaChecker;
+import com.domloge.slinkylinky.linkservice.moz.MozDomain;
 import com.domloge.slinkylinky.linkservice.moz.MozPageLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -27,11 +29,32 @@ public class MozController {
     private LinkChecker linkChecker;
 
     @Autowired
+    private DaChecker domainChecker;
+
+    @Autowired
     private AmqpTemplate auditRabbitTemplate;
 
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public class ResourceNotFoundException extends RuntimeException {
+    }
+
+    @GetMapping(path = "/checkdomain", produces = "application/json")
+    public @ResponseBody MozDomain check(@RequestParam String domain, @RequestHeader String user)  throws JsonProcessingException {
+
+        log.info("Checking DA for " + domain);
+
+        // audit the usage of the Moz API
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setEventTime(java.time.LocalDateTime.now());
+        auditRecord.setWho(user);
+        auditRecord.setWhat("Use Moz API");
+        auditRecord.setDetail("New Supplier DA check for " + domain);
+        auditRecord.setEntityType("Supplier");
+        auditRabbitTemplate.convertAndSend(auditRecord);
+
+        MozDomain domainResults = domainChecker.checkDomain(domain);
+        return domainResults;
     }
     
     @GetMapping(path = "/checklink", produces = "application/json")
