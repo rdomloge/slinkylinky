@@ -23,7 +23,7 @@ public class SupplierRepoTest {
     private SupplierRepo supplierRepo;
 
     @Autowired
-    private DemandRepo linkDemandRepo; 
+    private DemandRepo demandRepo; 
 
     @Autowired
     private CategoryRepo categoryRepo;
@@ -32,6 +32,52 @@ public class SupplierRepoTest {
     private PaidLinkRepo paidLinkRepo;
 
     
+    @Test
+    public void testFindSuppliersForDemandId_disabledCategoryIgnored() {
+        // Given
+        List<Category> testCategories = createTestCategories();
+        testCategories.get(0).setDisabled(true);
+        categoryRepo.saveAll(testCategories);
+
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setCategories(testCategories);
+        });
+        supplierRepo.saveAll(testSuppliers);
+
+        Demand matchingByDisabledCategory = new Demand();
+        matchingByDisabledCategory.setCategories(Arrays.asList(testCategories.get(0)));
+        demandRepo.save(matchingByDisabledCategory);
+
+        // When
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(matchingByDisabledCategory.getId());
+
+        // Then
+        assertThat(result.length).isEqualTo(0);
+    }
+
+    @Test
+    public void testFindSuppliersForDemandId_enabledCategoryIgnored() {
+        // Given
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setCategories(testCategories);
+        });
+        supplierRepo.saveAll(testSuppliers);
+
+        Demand matchingByEnabledCategory = new Demand();
+        matchingByEnabledCategory.setCategories(Arrays.asList(testCategories.get(0)));
+        demandRepo.save(matchingByEnabledCategory);
+
+        // When
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(matchingByEnabledCategory.getId());
+
+        // Then
+        assertThat(result.length).isEqualTo(testSuppliers.size());
+    }
 
     @Test
     public void testFindSuppliersForLinkDemandId_disabledAndThirdPartyIgnored() {
@@ -59,7 +105,7 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(testCategories);
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -98,7 +144,7 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(testCategories);
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -135,7 +181,7 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -172,7 +218,7 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -208,7 +254,7 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Arrays.asList(testCategories.get(0)));
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
@@ -241,14 +287,14 @@ public class SupplierRepoTest {
         ld.setDaNeeded(20);
         ld.setCategories(testCategories);
         ld.setUrl("https://www.disney.com");
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // link one of the suppliers to a /previous/ link demand with the same domain
         Demand previousD = new Demand();
         previousD.setUrl("https://www.disney.com");
         previousD.setCategories(testCategories);
         previousD.setDaNeeded(20);
-        linkDemandRepo.save(previousD);
+        demandRepo.save(previousD);
         PaidLink pl = new PaidLink();
         pl.setSupplier(testSuppliers.get(0));
         pl.setDemand(previousD);
@@ -282,7 +328,7 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(100);
         ld.setCategories(testCategories);
-        Demand dbLd = linkDemandRepo.save(ld);
+        Demand dbLd = demandRepo.save(ld);
 
         // when
         // Call the method under test
@@ -303,9 +349,6 @@ public class SupplierRepoTest {
             supplier.setWebsite("www.supplier" + i + ".com");
             supplier.setWeWriteFee(i * 100);
             supplier.setWeWriteFeeCurrency("USD");
-            supplier.setSemRushAuthorityScore(i * 20);
-            supplier.setSemRushUkMonthlyTraffic(i * 300);
-            supplier.setSemRushUkJan23Traffic(i * 400);
             
 
             suppliers.add(supplier);
