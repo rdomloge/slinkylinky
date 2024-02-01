@@ -1,17 +1,16 @@
 package com.domloge.slinkylinky.supplierengagement.controller;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
 import com.domloge.slinkylinky.supplierengagement.AuditRecord;
-import com.domloge.slinkylinky.supplierengagement.SupplierengagementApplication;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
 import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
@@ -44,6 +42,40 @@ public class UploadController {
     @Autowired
     private AmqpTemplate supplierengagementRabbitTemplate;
 
+
+    @PatchMapping(path = "/decline", produces = "application/json")
+    public ResponseEntity<Object> decline(@RequestParam("guid") String guid, @RequestBody Engagement engagement) {
+        Engagement dbEngagement = engagementRepo.findByGuid(guid);
+        if(null == dbEngagement) {
+            log.warn("Attempted decline for unknown engagement: " + guid);
+            return ResponseEntity.notFound().build();
+        }
+
+        dbEngagement.setStatus(EngagementStatus.DECLINED);
+        dbEngagement.setDeclinedReason(engagement.getDeclinedReason());
+        dbEngagement.setDoNotContact(engagement.isDoNotContact());
+        engagementRepo.save(dbEngagement);
+
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setEntityId(dbEngagement.getProposalId());
+        auditRecord.setEntityType("Proposal");
+        auditRecord.setEventTime(LocalDateTime.now());
+        auditRecord.setWho("Supplier through public API");
+        auditRecord.setWhat("Proposal declined by supplier");
+        auditRecord.setDetail("DNC: "+engagement.isDoNotContact()+" // Reason: " + engagement.getDeclinedReason());
+        auditRabbitTemplate.convertAndSend(auditRecord);
+
+        log.info("Engagement {} declined. DNC: {} Reason: {}", dbEngagement.getId(), engagement.isDoNotContact(), engagement.getDeclinedReason());
+
+        // publish event to cause linkservice to abort proposal
+        SupplierEngagementEvent event = new SupplierEngagementEvent();
+        event.buildForDecline(dbEngagement.getProposalId(), engagement.getDeclinedReason(), engagement.isDoNotContact());
+        supplierengagementRabbitTemplate.convertAndSend(event);
+        // email chris (should this service do it or linkservice?)
+        // audit
+
+        return ResponseEntity.ok().build();
+    }
 
     @PatchMapping(path = "/updateblogdetails", produces = "application/json")
     public ResponseEntity<Object> update(@RequestParam("guid") String guid, @RequestBody Engagement engagement) {
@@ -79,6 +111,23 @@ public class UploadController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(path = "/downloadInvoice", produces = "application/octet-stream")
+    public ResponseEntity<Object> downloadInvoice(@RequestParam long proposalId) {
+        Engagement engagement = engagementRepo.findByProposalIdAndStatusACCEPTED(proposalId);
+        if(null == engagement) {
+            log.warn("Attempted invoice download for unknown proposal: " + proposalId);
+            return ResponseEntity.notFound().build();
+        }
+
+        if(null == engagement.getInvoiceFileContent()) {
+            log.warn("Attempted invoice download for proposal with no invoice: " + proposalId);
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=" + engagement.getInvoiceFileName())
+            .body(engagement.getInvoiceFileContent());
+    }
 
 
     @PostMapping(path = "/uploadInvoice", produces = "text/HTML")
