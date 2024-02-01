@@ -4,10 +4,16 @@ import java.util.List;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.envers.Audited;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.domloge.slinkylinky.linkservice.Util;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +22,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,10 +34,20 @@ import lombok.Setter;
                     @Index(columnList = "email")})
 @Getter 
 @Setter
+@Audited
+@EntityListeners(AuditingEntityListener.class)
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
+    @Column(name = "created_date", nullable = false, updatable = false, columnDefinition = "bigint default 0")
+    @CreatedDate
+    private long createdDate;
+
+    @Column(name = "modified_date", columnDefinition = "bigint default 0")
+    @LastModifiedDate
+    private long modifiedDate = 0;
 
     private String name;
     private String email;
@@ -39,10 +56,8 @@ public class Supplier {
     private String domain;
     private int weWriteFee;
     private String weWriteFeeCurrency;
-    private int semRushAuthorityScore;
-    private int semRushUkMonthlyTraffic;
-    private int semRushUkJan23Traffic;
     private boolean thirdParty;
+    private String source;
 
     private boolean disabled;
 
@@ -62,4 +77,9 @@ public class Supplier {
             this.domain = null;
         }
     }
+
+    
+    @Version
+    @Column(name = "version", columnDefinition = "bigint default 0")
+    private Long version;
 }

@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.envers.Audited;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +18,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,6 +26,7 @@ import lombok.Setter;
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = "liveLinkUrl")}, indexes = {@Index(columnList = "dateCreated")})
 @Getter 
 @Setter
+@Audited
 public class Proposal {
     
     @Id
@@ -62,5 +65,11 @@ public class Proposal {
 
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
+    @Audited
     private List<PaidLink> paidLinks;
+
+
+    @Version
+    @Column(name = "version", columnDefinition = "bigint default 0")
+    private Long version;
 }
