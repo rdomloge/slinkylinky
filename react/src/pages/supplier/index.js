@@ -18,6 +18,7 @@ export default function ListBloggers() {
     const [filter, setFilter] = useState()
     const [categoriesFilter, setCategoriesFilter] = useState()
     const [supplierCount, setSupplierCount] = useState()
+    const [supplierUsageCount, setSupplierUsageCount] = useState();
 
     useEffect(() => {
         const countUrl = "/.rest/suppliers/search/findCount"
@@ -28,22 +29,36 @@ export default function ListBloggers() {
 
     useEffect(
         () => {
-            const suppliersUrl = "/.rest/suppliers/search"+
-                                    "/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn"+
-                                    "?projection=fullSupplier"+
-                                    filterOrBlank("email")+
-                                    filterOrBlank("name")+
-                                    categoriesToCsvArray();
-              
-            fetch(suppliersUrl)
-                .then( (res) => res.json())
-                .then( (data) => setSuppliers(data));
-            
+            if((filter && filter.length > 2) || categoriesFilter && categoriesFilter.length > 0) {
+                const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
+                const suppliersUrl = "/.rest/suppliers/search"+
+                                        "/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn"+
+                                        "?projection=fullSupplier"+
+                                        filterOrBlank("email")+
+                                        filterOrBlank("name")+
+                                        categoriesToCsvArray();
+                
+                fetch(suppliersUrl)
+                    .then( (res) => res.json())
+                    .then( (data) => {
+                        setSuppliers(data)
+                        var usageUrl = supplierUsageCountUrl;
+                        data.forEach((s,index) => usageUrl += s.id + (index < data.length-1 ? "," : ""));
+                        fetch(usageUrl)
+                            .then(resCount => resCount.json())
+                            .then(counts => {
+                                setSupplierUsageCount(counts)
+                        ***REMOVED***)
+                ***REMOVED***);
+        ***REMOVED***
+            else {
+                setSuppliers(null)
+        ***REMOVED***
     ***REMOVED***, [filter, categoriesFilter]
     );
 
     function filterOrBlank(key) {
-        if(filter) return "&"+key+"="+filter;
+        if(filter && filter.length > 2) return "&"+key+"="+filter;
         return ""
 ***REMOVED***
 
@@ -88,7 +103,7 @@ export default function ListBloggers() {
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <SupplierCard supplier={s} editable={true}/>
+                            <SupplierCard supplier={s} editable={true} usages={supplierUsageCount} linkable={true}/>
                         </div>
                     )}
                 </div> 
