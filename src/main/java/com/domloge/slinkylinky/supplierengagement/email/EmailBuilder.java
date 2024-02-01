@@ -40,10 +40,9 @@ public class EmailBuilder {
     @Autowired
     private ContentBuilder contentBuilder;
 
-    @Autowired
-    private EngagementRepo engagementRepo;
+    
 
-    public Context build(String article, ProposalUpdateEvent event) throws AddressException, MessagingException {
+    public Context build(ProposalUpdateEvent event, Engagement engagement) throws AddressException, MessagingException {
         MimeMessage message = emailSender.createMimeMessage(); 
         // message.setFrom(new InternetAddress("rdomloge@gmail.com")); 
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("rdomloge@gmail.com")); 
@@ -53,21 +52,9 @@ public class EmailBuilder {
         ctx.setSlinkyLinkyDomain(slinkyLinkyDomain);
         ctx.setEvent(event);
 
-        Engagement engagement = new Engagement();
-        engagement.setSupplierName(event.getSupplierName());
-        engagement.setSupplierEmail(event.getSupplierEmail());
-        engagement.setSupplierWebsite(event.getSupplierWebsite());
-        engagement.setSupplierWeWriteFee(event.getSupplierWeWriteFee());
-        engagement.setSupplierWeWriteFeeCurrency(event.getSupplierWeWriteFeeCurrency());
-        engagement.setProposalId(event.getProposalId());
-        engagement.setGuid(UUID.randomUUID().toString());
-        engagement.setSupplierEmailSent(java.time.LocalDateTime.now());
-        engagement.setArticle(article);
-        engagement.setStatus(EngagementStatus.NEW);
-        log.info("Saving engagement {}", engagement);
-        Engagement dbEngagement = engagementRepo.save(engagement);
+        
 
-        ctx.setDbEngagement(dbEngagement);
+        ctx.setDbEngagement(engagement);
 
         BodyPart messageBodyPart = new MimeBodyPart(); 
         contentBuilder.build(ctx);
@@ -76,12 +63,12 @@ public class EmailBuilder {
 
         MimeBodyPart attachmentPart = new MimeBodyPart();
         attachmentPart.setFileName("article.md");
-        attachmentPart.setText(article, Charset.defaultCharset().name());
+        attachmentPart.setText(event.getArticle(), Charset.defaultCharset().name());
 
 
         MimeBodyPart html = new MimeBodyPart();
         html.setFileName("article.html");
-        html.setContent(Processor.process(article), "text/html; charset=utf-8");
+        html.setContent(Processor.process(event.getArticle()), "text/html; charset=utf-8");
 
         MimeBodyPart logo = new MimeBodyPart();
         logo.setFileName("logo.png");

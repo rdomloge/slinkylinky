@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -48,7 +50,12 @@ public class Engagement {
 
     private String blogUrl;
 
+    @Enumerated(EnumType.STRING)
     private EngagementStatus status;
+
+    private String declinedReason;
+
+    private boolean doNotContact;
 
     @Lob
     @Column(columnDefinition="TEXT")
