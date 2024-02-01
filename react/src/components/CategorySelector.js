@@ -7,7 +7,6 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
 
     const useableInitialValue = initialValue ? initialValue.map(c=>({value:extractUrl(c), label: c.name})) : []
 
-    console.log("Initial value for cat selector: "+JSON.stringify(useableInitialValue))
 
     function extractUrl(category) {
 
@@ -23,44 +22,19 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
     ***REMOVED***
 ***REMOVED***
 
-    function parseId(entity) {
-        const url = entity._links.self.href;
-        const id = url.substring(url.lastIndexOf('/')+1);
-        return id;
-***REMOVED***
-
     const findCategories = (inputValue, callback) => {
         console.log("Fetching categories like "+inputValue)
         fetch(buildUrlForInputValue(inputValue))
             .then(res => res.json())
             .then(
-                json => callback(convertToLinkedCategoriesIfNecessary(json)))
-***REMOVED***
-
-    function convertToLinkedCategoriesIfNecessary(json) {
-        if(json._embedded) {
-            mapCategoriesArray(json._embedded.categories)
-            return json._embedded.categories.map(c => ({ value: c._links.self.href, label: c.name }))
-    ***REMOVED***
-        else {
-            return json.map( c => 
-                (
-                    {value: allCategories[c.id].value, label: allCategories[c.id].name }))
-    ***REMOVED***
-***REMOVED***
-
-    function mapCategoriesArray(catArr) {
-        const map = {}
-        catArr.forEach( c => 
-            map[parseId(c)] = {value: c._links.self.href, name: c.name})
-        setAllCategories(map)
+                json => callback(json.map(c => ({value: "/categories/"+c.id, label: c.name}))))
 ***REMOVED***
 
     function buildUrlForInputValue(inputValue) {
         if(inputValue) {
-            return "/.rest/categories/search/findByNameContainsIgnoreCase?name="+inputValue
+            return "/.rest/categories/search/findByNameContainsIgnoreCaseAndDisabledFalseOrderByNameAsc?name="+inputValue
     ***REMOVED***
-        else return "/.rest/categories";
+        else return "/.rest/categories/search/findAllByDisabledFalseOrderByNameAsc";
 ***REMOVED***
 
     return (
