@@ -28,10 +28,12 @@ public class SupplierEngagementEvent extends BaseEvent {
     //
 
     @Getter private String reason;
+    @Getter private boolean doNotContact;
 
-    public void buildForDecline(String reason, long proposalId) {
+    public void buildForDecline(long proposalId, String reason, boolean doNotContact) {
         this.response = Response.DECLINED;
         this.reason = reason;
+        this.doNotContact = doNotContact;
         this.proposalId = proposalId;
         this.type = EventType.RECEIVED_RESPONSE;
     }
