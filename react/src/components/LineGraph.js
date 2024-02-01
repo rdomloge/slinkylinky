@@ -1,0 +1,53 @@
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+  } from 'chart.js';
+import { Line } from "react-chartjs-2";
+
+export default function LineGraph({datapoints}) {
+    ChartJS.register(
+        CategoryScale,
+        LinearScale,
+        PointElement,
+        LineElement,
+        Title,
+        Tooltip,
+        Legend
+      );
+
+    const labels = datapoints.map((datapoint) => {
+        return datapoint.uniqueYearMonth;
+***REMOVED***);
+
+    const data = {
+        labels, 
+        datasets: [
+            {
+                label: "Traffic",
+                yAxisID: 'Traffic',
+                data: datapoints.map((datapoint) => datapoint.traffic),
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        ***REMOVED***,
+            {
+                label: "SEMrush ranking",
+                yAxisID: 'SEM rush ranking',
+                data: datapoints.map((datapoint) => datapoint.srrank),
+                borderColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        ***REMOVED***,
+        ]
+***REMOVED***
+
+    return (
+        <Line data={data} />
+    )
+}
+
+
