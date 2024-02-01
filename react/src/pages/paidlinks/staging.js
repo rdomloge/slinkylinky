@@ -10,7 +10,7 @@ import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/layout/Layout'
 import SelectableDemandCard from '@/components/SelectableDemandCard'
 import Loading from '@/components/Loading';
-import WarningMessage from '@/components/atoms/WarningMsg';
+import ErrorMessage from '@/components/atoms/Messages';
 import ProposalValidationPanel from '@/components/ProposalWarnings';
 import { ClickHandlerButton } from '@/components/atoms/Button';
 
