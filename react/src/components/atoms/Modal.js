@@ -13,7 +13,7 @@ export default function Modal({children, dismissHandler, title, width}) {
                             </div>
                             : null}
                             <button onClick={dismissHandler} className="contents absolute">
-                                <p className="absolute text-red-500 text font-bold text-3xl text-right ml-3 pr-3 inherit top-0 right-0">X</p>
+                                <p className="absolute text-red-500 text font-bold text-3xl text-right pr-3 inherit top-0 right-0">X</p>
                             </button>
                         </div>
                         {children}
