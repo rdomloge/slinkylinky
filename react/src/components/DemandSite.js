@@ -19,7 +19,7 @@ export default function DemandSiteSearchResult({demandSite, selectedHandler}) {
                 </span>
                 <p className="text-lg">{demandSite.name}</p>
                 <p className="mb-6">{demandSite.domain}</p>
-                {demandSite.categories.map( (c,index) => <CategoryLite category={c} key={index}/> )}
+                {demandSite.categories.filter(c => c.disabled == false).map( (c,index) => <CategoryLite category={c} key={index}/> )}
             </div>
         </div>
     );
@@ -35,7 +35,7 @@ export function DemandSiteListItemLite({demandSite}) {
             </SessionBlock>
             <p className="text-lg">{demandSite.name}</p>
             <p>{demandSite.domain}</p>
-            {demandSite.categories.map( (c,index) =>
+            {demandSite.categories.filter(c => c.disabled == false).map( (c,index) =>
                 <CategoryLite category={c} key={index}/>
             )}
         </div>
