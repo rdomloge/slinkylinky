@@ -27,7 +27,7 @@ export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
     );
 }
 
-export function StyledButton({submitHandler, enabled = true, label = "Submit", type = "primary", isText = false}) {
+export function StyledButton({submitHandler, enabled = true, label = "Submit", type = "primary", isText = false, extraClass = ""}) {
     const baseClass = "m-2 text-white font-bold py-2 px-4 border rounded disabled:opacity-50 "
     const buttonTypes = {
         primary: "bg-blue-700 hover:bg-blue-900 border-blue-900",
@@ -47,13 +47,13 @@ export function StyledButton({submitHandler, enabled = true, label = "Submit", t
 
     if (isText) {
         return (
-            <span onClick={submitHandler} className={textClass}>
+            <span onClick={submitHandler} className={textClass+" "+extraClass}>
                 {label}
             </span>
         );
 ***REMOVED*** else {
         return (
-            <button onClick={submitHandler} disabled={!enabled} className={buttonClass}>
+            <button onClick={submitHandler} disabled={!enabled} className={buttonClass+" "+extraClass}>
                 {label}
             </button>
         );
@@ -63,11 +63,7 @@ export function StyledButton({submitHandler, enabled = true, label = "Submit", t
 export function SessionBlock({children}) {
     const { data: session } = useSession();
     
-    return (
-        <section className={session ? "visible" : "invisible"}>
-            {children}
-        </section>
-    );
+    return (<section className={session ? "visible" : "invisible"}>{children}</section>);
 }
 
 export function ClickHandlerButton({label, clickHandler, disabled}) {
