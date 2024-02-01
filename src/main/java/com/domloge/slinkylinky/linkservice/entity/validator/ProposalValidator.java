@@ -1,12 +1,10 @@
 package com.domloge.slinkylinky.linkservice.entity.validator;
 
-import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 
-@Component("beforeCreateProposalValidator")
 public class ProposalValidator implements Validator {
     
     @Override
