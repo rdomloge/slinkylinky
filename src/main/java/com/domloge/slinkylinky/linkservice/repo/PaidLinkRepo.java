@@ -13,5 +13,6 @@ public interface PaidLinkRepo extends CrudRepository <PaidLink, Long> {
     long countByDemand_domain(String domain);
 
     long countBySupplierId(long supplierId);
-    
+
+    PaidLink findByDemandDomainAndSupplierDomain(String demandDomain, String supplierDomain);
 }
