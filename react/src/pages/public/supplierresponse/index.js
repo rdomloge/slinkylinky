@@ -9,6 +9,7 @@ import PageTitle from "@/components/pagetitle";
 import Loading from "@/components/Loading";
 import Jumbotron from "@/components/Jumbotron";
 import StyledCheckbox from "@/components/atoms/Checkbox";
+import { InfoMessage } from "@/components/atoms/Messages";
 
 export default function SupplierResponse() {
 
@@ -23,6 +24,8 @@ export default function SupplierResponse() {
     const [blogTitle, setBlogTitle] = useState("")
     const [blogUrl, setBlogUrl] = useState("")
     const [noInvoice, setNoInvoice] = useState(false)
+    const [declineReason, setDeclineReason] = useState("")
+    const [doNotContact, setDoNotContact] = useState(false)
 
     const [filename, setFilename] = useState(null);
 
@@ -77,9 +80,26 @@ export default function SupplierResponse() {
             .catch((err) => console.error(err))
     }
 
-    function noInvoiceCheckboxChanged(value) {
-        console.log("no invoice checkbox changed: "+value.target.checked);
+    function handleDecline() {
+        const id = router.query.id;
+        fetch("/.rest/engagements/decline?guid="+id, {
+            method: "PATCH", 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                declinedReason: declineReason,
+                doNotContact: doNotContact
+            })
+        })
+        .then((res) => {
+            if(res.ok) {
+                window.location.reload();
+            }
+        })
+        .catch((err) => console.error(err))
     }
+
 
     function submit() {
         if(noInvoice) {
@@ -104,8 +124,8 @@ export default function SupplierResponse() {
         <>
             {engagement ?
                 <LayoutPublic>
-                    {engagement.status === 'ACCEPTED' ?
-                        <Jumbotron header={"Many thanks for submitting your response."} message={"We'll be in touch soon!"}/>
+                    {engagement.status === 'ACCEPTED' || engagement.status === 'DECLINED' ?
+                        <Jumbotron header={"Many thanks for submitting your response."} message={engagement.status === 'DECLINED' ? "Sorry to see you go" : "We'll be in touch soon!"}/>
                     :
                     <div className="flex justify-center items-center">
                         <div className="card p-8 m-8 w-2/3">
@@ -160,8 +180,16 @@ export default function SupplierResponse() {
                             {showDeclineModal ?
                                 <Modal title="Decline offer" dismissHandler={() => { setShowDeclineModal(false) }} width="w-1/2">
                                     <p>By declining this offer, you will not be able to accept it later.</p>
-                                    <TextInput label="(optional )Reason for declining" changeHandler={() => { }} />
-                                    <StyledButton type="risky" label="Decline" submitHandler={() => { }} />
+                                    <TextInput label="(optional) Reason for declining" initialValue={declineReason} changeHandler={(e) => { setDeclineReason(e) }} />
+                                    <div className="inline-block flex justify-end">
+                                        <StyledCheckbox label="Do not contact me again" checked={doNotContact} onChangeHandler={(e) => { setDoNotContact(e.target.checked) }} />
+                                        <StyledButton type="risky" label="Decline" submitHandler={() => { handleDecline() }} />
+                                    </div>
+                                    {doNotContact && doNotContact === true ? 
+                                        <InfoMessage message="You can will receive one more email confirming that you are being removed from our system and we will not send you any future engagements" />
+                                    : 
+                                        null 
+                                    }
                                 </Modal>
                                 :
                                 null
