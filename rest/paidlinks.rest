@@ -7,3 +7,5 @@ Content-Type: application/json
 }
 ###
 GET {{host}}/paidlinks
+###
+GET http://localhost:3000/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=422

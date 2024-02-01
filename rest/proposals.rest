@@ -1,4 +1,4 @@
-GET {{host}}/proposals
+GET {{host}}/proposals/502
 ###
 
 POST {{host}}/proposals
