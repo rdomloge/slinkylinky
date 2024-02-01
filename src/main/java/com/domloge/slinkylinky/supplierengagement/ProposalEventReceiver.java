@@ -1,21 +1,23 @@
 package com.domloge.slinkylinky.supplierengagement;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.UUID;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.ProposalUpdateEvent;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
+import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
+import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
+import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
@@ -38,6 +40,9 @@ public class ProposalEventReceiver {
     @Autowired
     private ObjectMapper mapper;
 
+    @Autowired
+    private EngagementRepo engagementRepo;
+
     
     public void receiveMessage(String message) throws AddressException, MessagingException, JsonMappingException, JsonProcessingException {
         log.info("Received <" + message + ">");
@@ -47,33 +52,79 @@ public class ProposalEventReceiver {
             log.info("Supplier is 3rd party, not sending email");
             return;
         }
-        
-        if(event.getArticle() != null) {
-            String article = event.getArticle();
-            log.info("Article: " + article);
-            // let's assume that this is the first time we see this article
-            // and that we want to send an email to the supplier
-            Context ctx = emailBuilder.build(article, event);
-            MimeMessage mimeMessage = ctx.getMessage();
-            try {
-                emailSender.send(mimeMessage, event.getProposalId());
 
-                AuditRecord auditRecord = new AuditRecord();
-                auditRecord.setEntityId(event.getProposalId());
-                auditRecord.setEntityType("Proposal");
-                auditRecord.setEventTime(java.time.LocalDateTime.now());
-                auditRecord.setWho("haven't worked this out yet");
-                auditRecord.setWhat("Email sent to supplier");
-                auditRecord.setDetail(ctx.getContentBuilder().getContent());
-                auditRabbitTemplate.convertAndSend(auditRecord);
-            }
-            catch(MailException e) {
-                log.error("Failed to send email", e);
-            }
+        switch (event.getType()) {
+            case CREATED:
+                log.info("Proposal created, not sending email");
+                break;
+            case UPDATED:
+                String article = event.getArticle();
+                if(article != null) {
+                    log.debug("Proposal updated, article present");
+                    // if there's an existing engagement, we do nothing, if there isn't, we create one
+                    Engagement engagement = engagementRepo.findByProposalIdAndStatusNew(event.getProposalId());
+                    if(engagement == null) {
+                        log.info("No existing engagement found for proposal {}, creating new one" + event.getProposalId());
+                        engagement = createNewEngagement(event);
+                        sendEmail(engagement, event);
+                    }
+                    else {
+                        log.info("Found existing, 'NEW' engagement, no need to do anything");
+                    }
+                }
+                else {
+                    log.debug("Proposal updated, article not present");
+                    // if there's an existing engagement, we need to cancel it, since the article has been removed
+                    Arrays.stream(engagementRepo.findByProposalId(event.getProposalId())).forEach(e -> {
+                        log.info("Cancelling engagement {}", e.getGuid());
+                        e.setStatus(EngagementStatus.CANCELLED);
+                        engagementRepo.save(e);
+                    });
+                }
+                break;
+            case DELETED:
+                log.info("Proposal deleted, clearing up existing engagements");
+                // find matching engagements and (soft) delete
+                break;
+            default:
+                break;
         }
-        else {
-            log.info("No article in event");
+    }
+
+    private void sendEmail(Engagement engagement, ProposalUpdateEvent event) {
+        try {
+            Context ctx = emailBuilder.build(event, engagement);
+            MimeMessage mimeMessage = ctx.getMessage();
+            emailSender.send(mimeMessage, event.getProposalId());
+
+            AuditRecord auditRecord = new AuditRecord();
+            auditRecord.setEntityId(event.getProposalId());
+            auditRecord.setEntityType("Proposal");
+            auditRecord.setEventTime(java.time.LocalDateTime.now());
+            auditRecord.setWho("system");
+            auditRecord.setWhat("Email sent to supplier");
+            auditRecord.setDetail(ctx.getContentBuilder().getContent());
+            auditRabbitTemplate.convertAndSend(auditRecord);
         }
+        catch(MessagingException e) {
+            log.error("Failed to send email", e);
+        }
+    }
+
+    private Engagement createNewEngagement(ProposalUpdateEvent event) {
+        Engagement engagement = new Engagement();
+        engagement.setSupplierName(event.getSupplierName());
+        engagement.setSupplierEmail(event.getSupplierEmail());
+        engagement.setSupplierWebsite(event.getSupplierWebsite());
+        engagement.setSupplierWeWriteFee(event.getSupplierWeWriteFee());
+        engagement.setSupplierWeWriteFeeCurrency(event.getSupplierWeWriteFeeCurrency());
+        engagement.setProposalId(event.getProposalId());
+        engagement.setGuid(UUID.randomUUID().toString());
+        engagement.setSupplierEmailSent(java.time.LocalDateTime.now());
+        engagement.setArticle(event.getArticle());
+        engagement.setStatus(EngagementStatus.NEW);
+        log.info("Saving engagement {}", engagement);
+        return engagementRepo.save(engagement);
     }
 
     public void receiveMessage(byte[] message) throws AddressException, MessagingException, JsonMappingException, JsonProcessingException {
