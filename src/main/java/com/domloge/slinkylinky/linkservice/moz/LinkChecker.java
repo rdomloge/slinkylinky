@@ -1,7 +1,5 @@
 package com.domloge.slinkylinky.linkservice.moz;
 
-import java.nio.charset.Charset;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class LinkChecker {
+public class LinkChecker extends AbstractMoz {
 
     @Value("${moz.baseUrl}")
     private String base;
@@ -76,12 +74,5 @@ public class LinkChecker {
         }
     }
 
-    private HttpHeaders createHeaders(String username, String password){
-        return new HttpHeaders() {{
-              String auth = username + ":" + password;
-              byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(Charset.forName("US-ASCII")) );
-              String authHeader = "Basic " + new String( encodedAuth );
-              set( "Authorization", authHeader );
-           }};
-     }
+    
 }
