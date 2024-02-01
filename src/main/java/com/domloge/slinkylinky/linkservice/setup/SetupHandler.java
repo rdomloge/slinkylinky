@@ -28,11 +28,16 @@ public class SetupHandler {
         setupCategories();
         setupDemandSites();
         setupSuppliers();
+        setupSupplierSources();
         setupHistory();
         setupDemand();
         setupService.linkDemandsToTheirDemandSites();
     }
     
+    private void setupSupplierSources() {
+        loader.loadObjectList(SetupSourcedSupplier.class, "supplier-sources.csv").stream().forEach(sss -> setupService.update(sss));
+    }
+
     private void setupDemandSites() {
         List<SetupDemandSite> demandsites = loader.loadObjectList(SetupDemandSite.class, "demandsites.csv");
         log.info("Found {} demand sites in CSV", demandsites.size());

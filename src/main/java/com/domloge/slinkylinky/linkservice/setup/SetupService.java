@@ -114,7 +114,7 @@ public class SetupService {
                     .filter(demand -> demand.getId() == d.getId())
                     .findFirst()
                     .ifPresentOrElse((demand) -> {
-                        log.debug("DemandSite {} already has demand {}", demandSite.getName(), demand.getName());
+                        log.trace("DemandSite {} already has demand {}", demandSite.getName(), demand.getName());
                         ignored++;
                     }, () -> {
                         log.trace("Adding demand {} to demandSite {}", d.getName(), demandSite.getName());
@@ -173,7 +173,6 @@ public class SetupService {
             s.setDomain(ss.getDomain());
             s.setEmail(ss.getEmail());
             s.setName(ss.getName());
-            setSemRush(s, ss);
             setWeWriteFee(s, ss);
             s.setWebsite(ss.getWebsite());
             supplierRepo.save(s);
@@ -183,29 +182,7 @@ public class SetupService {
         }
     }
 
-    private void setSemRush(Supplier s, SetupSupplier ss) {
-        
-        try {
-            s.setSemRushAuthorityScore(Integer.parseInt(ss.getSemRushAuthorityScore()));
-        } 
-        catch(NumberFormatException n) {
-            s.setSemRushAuthorityScore(0);
-        }
-
-        try {
-            s.setSemRushUkJan23Traffic(Integer.parseInt(ss.getSemRushUkJan23Traffic()));
-        }
-        catch(NumberFormatException n) {
-            s.setSemRushUkJan23Traffic(0);
-        }
-        
-        try {
-            s.setSemRushUkMonthlyTraffic(Integer.parseInt(ss.getSemRushUkMonthlyTraffic()));
-        }
-        catch(NumberFormatException n) {
-            s.setSemRushUkMonthlyTraffic(0);
-        }
-    }
+    
 
     private void setWeWriteFee(Supplier s, SetupSupplier ss) {
         String fee = ss.getWeWriteFee();
@@ -415,5 +392,18 @@ public class SetupService {
             .map( h -> Util.parse(h.getRequested()))
             .sorted((ldt1,ldt2) -> ldt1.isAfter(ldt2) ? -1 : 1)
             .findFirst().get();
+    }
+
+    public void update(SetupSourcedSupplier sss) {
+        Supplier supplier = supplierRepo.findByDomainIgnoreCase(Util.stripDomain(sss.getWebsite()));
+        if(null == supplier) {
+            log.warn("Could not find supplier for domain {}", sss.getWebsite());
+            return;
+        }
+        if(supplier.getSource() != null) {
+            log.trace("Supplier {} already has source {}", supplier.getName(), supplier.getSource());
+        }
+        supplier.setSource(sss.getSource());
+        supplierRepo.save(supplier);
     }
 }
