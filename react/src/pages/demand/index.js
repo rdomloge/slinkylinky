@@ -15,21 +15,15 @@ export default function Demand() {
     const [personal, setPersonal] = useState()
     const [demands, setDemands] = useState()
     const { data: session } = useSession();
-    const [sortCol, setSortCol] = useState();
     const [error, setError] = useState();
 
     useEffect( () => {
-        const storedSortOrder = window.localStorage.getItem("demandSortOrder");
-        if(storedSortOrder) {
-            setSortCol(storedSortOrder);
-    ***REMOVED***
-***REMOVED***, [] )
 
-    useEffect( () => {
+        const storedSortOrder = window.localStorage.getItem("demandSortOrder");
         
         const requestedOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand"
         const daNeededOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullDemand"
-        const url = (sortCol) === "daNeeded" ? daNeededOrderUrl : requestedOrderUrl;
+        const url = (storedSortOrder) === "daNeeded" ? daNeededOrderUrl : requestedOrderUrl;
 
         fetch(url)
             .then(res => res.json())
@@ -38,7 +32,7 @@ export default function Demand() {
                 setError(error);
         ***REMOVED***);
 
-***REMOVED***, [personal, sortCol]) 
+***REMOVED***, [personal]) 
 
     function filterPersonalIfNeeded(data) {
         if( ! session) return data;
@@ -51,14 +45,7 @@ export default function Demand() {
 ***REMOVED***
 
     function setSortOrder(e) {
-        setSortCol(e);
         window.localStorage.setItem("demandSortOrder", e);
-***REMOVED***
-
-    function parseId(demand) {
-        const url = demand._links.self.href;
-        const id = url.substring(url.lastIndexOf('/')+1);
-        return id;
 ***REMOVED***
 
     function buildSortOptions() {
@@ -77,7 +64,7 @@ export default function Demand() {
                 </Link>
             </div>
             <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
-            <Select label="Sort" changeHandler={ (e) => setSortOrder(e)} value={sortCol}
+            <Select label="Sort" changeHandler={ (e) => setSortOrder(e)}
                 options={buildSortOptions()}/>
 
             {demands ? 
