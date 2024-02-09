@@ -1,6 +1,9 @@
-update supplier delete column sem_rush_authority_score;
-update supplier delete column sem_rush_uk_jan23traffic;
-update supplier delete column sem_rush_uk_monthly_traffic;
+set role slinkylinky;
+
+alter table proposal add column supplier_snapshot_version bigint not null default 1;
+alter table supplier drop column sem_rush_authority_score;
+alter table supplier drop column sem_rush_uk_jan23traffic;
+alter table supplier drop column sem_rush_uk_monthly_traffic;
 
 alter table if exists category add column version bigint default 0;
 create table category_aud (id bigint not null, rev integer not null, revtype smallint, created_by varchar(255), disabled boolean default false, name varchar(255), updated_by varchar(255), primary 
@@ -10,9 +13,9 @@ create table paid_link_aud (id bigint not null, rev integer not null, revtype sm
 alter table if exists paid_link add column version bigint default 0;
 alter table if exists proposal add column version bigint default 0;
 
-create table proposal_aud (id bigint not null, rev integer not null, revtype smallint, article TEXT, blog_live boolean, content_ready boolean, created_by varchar(255), date_accepted_by_supplier timestamp(6), date_blog_live timestamp(6), date_created timestamp(6), date_invoice_paid timestamp(6), date_invoice_received timestamp(6), date_sent_to_supplier timestamp(6), invoice_paid boolean, invoice_received boolean, live_link_title varchar(255), live_link_url varchar(255), proposal_accepted boolean, proposal_sent boolean, updated_by varchar(255), primary key (rev, id));
+create table proposal_aud (id bigint not null, supplier_snapshot_version bigint, rev integer not null, revtype smallint, article TEXT, blog_live boolean, content_ready boolean, created_by varchar(255), date_accepted_by_supplier timestamp(6), date_blog_live timestamp(6), date_created timestamp(6), date_invoice_paid timestamp(6), date_invoice_received timestamp(6), date_sent_to_supplier timestamp(6), invoice_paid boolean, invoice_received boolean, live_link_title varchar(255), live_link_url varchar(255), proposal_accepted boolean, proposal_sent boolean, updated_by varchar(255), primary key (rev, id));
 
-create table proposal_paid_links_aud (rev integer not null, proposal_id bigint not null, paid_links_id bigint not null, revtype smallint, primary key (proposal_id, rev, paid_links_id))
+create table proposal_paid_links_aud (rev integer not null, proposal_id bigint not null, paid_links_id bigint not null, revtype smallint, primary key (proposal_id, rev, paid_links_id));
 create table revinfo (rev integer not null, revtstmp bigint, primary key (rev));
 alter table if exists supplier add column created_date bigint default 0 not null;
 alter table if exists supplier add column modified_date bigint default 0;
