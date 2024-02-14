@@ -59,6 +59,27 @@ spec:
                 name: audit-service
                 port: 
                   number: 8092
+          - path: /.rest/stats
+            pathType: Prefix
+            backend:
+              service:
+                name: stats-service
+                port: 
+                  number: 8093
+          - path: /.rest/mozsupport
+            pathType: Prefix
+            backend:
+              service:
+                name: stats-service
+                port: 
+                  number: 8093
+          - path: /.rest/semrush
+            pathType: Prefix
+            backend:
+              service:
+                name: stats-service
+                port: 
+                  number: 8093
           - path: /.rest
             pathType: Prefix
             backend:
