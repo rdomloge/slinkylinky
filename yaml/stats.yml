@@ -59,7 +59,7 @@ spec:
               value: <SPECIFY>
           startupProbe:
             httpGet:
-              path: /.rest/statsrecords
+              path: /.rest/stats/fordomain?domain=uknewsgroup.co.uk&startDate=2024-01-01&endDate=2024-02-28
               port: 8080
             initialDelaySeconds: 60
             failureThreshold: 30
