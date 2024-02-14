@@ -125,7 +125,7 @@ function SupplierList(props) {
     else return (
         <div className="grid grid-cols-3">
             {props.suppliers.map((s,index) => (
-                <div key={index}>
+                <div key={index} id={"selectableSupplierCard-"+index}>
                     <div className="top-10 right-10 relative float-right z-50">
                         <StyledButton label="Select" 
                             submitHandler={()=>{selectSupplier(s,props)}} 

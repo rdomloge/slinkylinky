@@ -12,19 +12,23 @@ export default function EditSupplier() {
         () => {
             if(router.isReady) {
                 const supplierUrl = "/.rest/suppliers/"+router.query.supplierid+"?projection=fullSupplier";
-                fetch(supplierUrl)
-                    .then( (res) => res.json())
-                    .then( (s) => {
-                        s.id = router.query.supplierid
-                        setSupplier(s);
-                ***REMOVED***);
+                fetch(supplierUrl, {
+                    headers: {'Cache-Control': 'no-cache'}
+            ***REMOVED***)
+                .then( (res) => res.json())
+                .then( (s) => {
+                    s.id = router.query.supplierid
+                    setSupplier(s);
+            ***REMOVED***);
         ***REMOVED***
     ***REMOVED***, [router.isReady, router.query.supplierid]);
 
     return (
         <Layout>
             <PageTitle title="Edit supplier"/>
-            <AddOrEditSupplier supplier={supplier}/>
+            {supplier ?
+                <AddOrEditSupplier supplier={supplier}/>
+            : null}
         </Layout>
     )
 }

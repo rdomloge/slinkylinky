@@ -7,20 +7,18 @@ import Link from 'next/link';
 import DemandHeadline from './DemandHeadline';
 
 
-export default function ProposalListItem({proposal}) {
-
-    function parseId(entity) {
-        const url = entity._links.self.href;
-        const id = url.substring(url.lastIndexOf('/')+1);
-        return id;
-***REMOVED***
+export default function ProposalListItem({proposal, originalSupplier = null}) {
 
     return (
         <>
             <div className="card grid grid-cols-11">
                 <div className='col-span-8'>
                     <NiceDate isostring={proposal.dateCreated}/>
-                    {<SupplierSummary supplier={proposal.paidLinks[0].supplier}/>}
+                    {originalSupplier ?
+                        <SupplierSummary supplier={originalSupplier}/>
+                    :
+                        <SupplierSummary supplier={proposal.paidLinks[0].supplier}/>
+                ***REMOVED***
                     {proposal.blogLive ?
                         <div>
                             <Link href={proposal.liveLinkUrl}>
@@ -36,7 +34,7 @@ export default function ProposalListItem({proposal}) {
                     </div>
                 </div>
                 <div className='col-span-3 m-3'>
-                    <Link href={"/proposals/"+parseId(proposal)} className='font-semibold text-right text-2xl'>
+                    <Link href={"/proposals/"+proposal.id} className='font-semibold text-right text-2xl'>
                         <p className='font-semibold text-right text-2xl mb-4'>View</p>
                     </Link>
                     <p className='font-semibold text-right'>Demand</p>

@@ -5,16 +5,10 @@ import AddOrEditDemand from '@/components/AddOrEditDemand';
 
 export default function NewDemand() {
 
-    const [demand, setDemand] = useState({})
-
-    function updateNudge(newDemand) {
-        setDemand({...newDemand})
-***REMOVED***
-
     return( 
         <Layout>
             <PageTitle title="New demand"/>
-            <AddOrEditDemand demand={demand} updateNudge={updateNudge}/> 
+            <AddOrEditDemand demand={ {name: "", anchorText: "", url: "", daNeeded: 0, requested: null} } /> 
         </Layout>
     );
 }

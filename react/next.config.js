@@ -37,6 +37,10 @@ const nextConfig = {
           destination: 'http://host.docker.internal:8083/.rest/stats/:path*'
     ***REMOVED***,
         {
+          source: '/.rest/mozsupport/:path*',
+          destination: 'http://host.docker.internal:8083/.rest/mozsupport/:path*'
+    ***REMOVED***,
+        {
           source: '/.rest/semrush/:path*',
           destination: 'http://host.docker.internal:8083/.rest/semrush/:path*'
     ***REMOVED***,
@@ -54,6 +58,13 @@ const nextConfig = {
             port: '',
             pathname: '/a/**',
       ***REMOVED***,
+          {
+            protocol: 'https',
+            hostname: 'avatars.githubusercontent.com',
+            port: '',
+            pathname: '/u/**',
+      ***REMOVED***,
+          
         ],
   ***REMOVED***,
 }

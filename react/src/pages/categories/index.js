@@ -117,7 +117,7 @@ export default function ListCategories() {
         ***REMOVED***
             {showEditModal ?
                 <Modal dismissHandler={()=>setShowEditModal(false)} title="Edit category" >
-                    <TextInput label="Category name" initialValue={editingCategoryName} disabled={true} />
+                    <TextInput label="Category name" binding={editingCategoryName} disabled={true} />
                     
                     <WarningMessage message="Disabling a category means that demandsites will no longer populate demand with this category." 
                         messageClass="text-yellow-700 text-sm inline-block" 

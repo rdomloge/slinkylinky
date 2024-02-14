@@ -29,17 +29,29 @@ export default function Proposal() {
     const [engagement, setEngagement] = useState();
     const [invoiceError, setInvoiceError] = useState(null);
     const [showPreviewModal, setShowPreviewModal] = useState(false)
+    const [currentSupplier, setCurrentSupplier] = useState()
 
     useEffect(
         () => {
             if(router.isReady) {
                 const proposalsUrl = "/.rest/proposals/"+router.query.proposalid+"?projection=fullProposal";
-                fetch(proposalsUrl)
+                fetch(proposalsUrl, {headers: {'Cache-Control': 'no-cache'}})
                     .then( (res) => res.json())
                     .then( (p) => {
                         setProposal(p);
                         setDemands(p.paidLinks.map(pl => pl.demand))
-                        setSupplier(p.paidLinks[0].supplier);
+                        if(p.supplierSnapshotVersion != p.paidLinks[0].supplier.version) {
+                            setCurrentSupplier(p.paidLinks[0].supplier); 
+                            // load the version of the supplier that was current at the time of the proposal
+                            const url = "/.rest/supplierSupport/getVersion?supplierId="+p.paidLinks[0].supplier.id+"&projection=fullSupplier"
+                                        +"&version="+p.supplierSnapshotVersion
+                            fetch(url, {headers: {'Cache-Control': 'no-cache'}})
+                                .then( (res) => res.json())
+                                .then( (s) => setSupplier(s)) 
+                    ***REMOVED***
+                        else {
+                            setSupplier(p.paidLinks[0].supplier);
+                    ***REMOVED***
                 ***REMOVED***)
                     .catch( (err) => setError(err));
         ***REMOVED***
@@ -109,22 +121,27 @@ export default function Proposal() {
                             </span>
                         </div>
                     : null}
-                    <div className="grid grid-cols-3 w-max">
-                        <div>
-                            <SupplierCard supplier={supplier}/>
-                            <div className="card list-card">
-                                <div className="grid grid-cols-2">
-                                    <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
-                                    <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
-                                    <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
-                                    <span>Date invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
-                                    <span>Date invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
-                                    <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
+                    <div className="flex">
+                            {supplier ?
+                                <div className="flex-initial w-1/2" id="supplierPanel">
+                                <SupplierCard supplier={supplier} latest={null == currentSupplier} />
                                 </div>
+                            : 
+                                null
+                        ***REMOVED***
+                            <div className="flex-1">
+                                {demands.map( (ld,index) => <DemandCard demand={ld} key={ld.name} id={"demandcard-"+index}/>)}
                             </div>
-                        </div>
-                        <div className="col-span-2">
-                            {demands.map( (ld) => <DemandCard demand={ld} key={ld.name}/>)}
+                            
+                    </div>
+                    <div className="card list-card w-1/3">
+                        <div className="grid grid-cols-2" id="metadata">
+                            <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
+                            <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
+                            <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
+                            <span>Date invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
+                            <span>Date invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
+                            <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
                         </div>
                     </div>
                     {showAbortModal ?

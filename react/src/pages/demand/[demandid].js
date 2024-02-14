@@ -22,7 +22,7 @@ export default function Demand() {
                             json.id = router.query.demandid;
                             setDemand(json);
                     ***REMOVED***)
-                    .catch(err => setError(err));
+                    .catch(err => setError("Could not load Demand: "+err.statusMessage));
         ***REMOVED***
     ***REMOVED***, [router.isReady, router.query.demandid]
     )

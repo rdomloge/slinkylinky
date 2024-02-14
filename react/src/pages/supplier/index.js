@@ -32,10 +32,11 @@ export default function ListBloggers() {
             if((filter && filter.length > 2) || categoriesFilter && categoriesFilter.length > 0) {
                 const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
                 const suppliersUrl = "/.rest/suppliers/search"+
-                                        "/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn"+
+                                        "/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameIn"+
                                         "?projection=fullSupplier"+
                                         filterOrBlank("email")+
                                         filterOrBlank("name")+
+                                        filterOrBlank("domain")+
                                         categoriesToCsvArray();
                 
                 fetch(suppliersUrl)
@@ -94,7 +95,7 @@ export default function ListBloggers() {
                 </Link>
             </div>
             <div className="w-1/4 pr-8 inline-block">
-                <TextInput changeHandler={(value) =>setFilter(value)} label="Name or email filter"/>
+                <TextInput changeHandler={(value) =>setFilter(value)} label="Name / email / domain filter"/>
             </div>
             <div className="w-1/3 pr-8 inline-block">
                 <CategoryFilter changeHandler={categoriesFilterChangeHandler} label="Category filter"/>

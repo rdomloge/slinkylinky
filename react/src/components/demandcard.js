@@ -14,8 +14,9 @@ import { SessionBlock, StyledButton } from './atoms/Button'
 import { useState } from 'react'
 import Modal from './atoms/Modal'
 import { useSession } from 'next-auth/react'
+import { addProtocol } from './Util'
 
-export default function DemandCard({demand, fullfilable, editable}) {
+export default function DemandCard({demand, fullfilable, editable, id}) {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const { data: session } = useSession();
@@ -38,11 +39,11 @@ export default function DemandCard({demand, fullfilable, editable}) {
 ***REMOVED***
     
     return (
-        <div className={"card list-card grid grid-cols-10"}>
+        <div className={"card list-card grid grid-cols-10"} id={id}>
             <div className='col-span-9'>
                 <Image src={CartIcon} width={32} height={32} alt="Shopping cart icon"/>
                 <div className='text-xl my-2'>{demand.name}</div>
-                <Link href={demand.url} target='_blank' className='truncate'>
+                <Link href={addProtocol(demand.url)} target='_blank' className='truncate'>
                     <Image className='inline-block mr-2' src={LinkIcon} alt="link" width={20} height={20}/>
                     <p className='inline-block align-middle truncate w-5/6'>{demand.url}</p>
                 </Link>

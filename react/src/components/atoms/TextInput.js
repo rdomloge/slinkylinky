@@ -3,7 +3,7 @@ import Image from "next/image";
 import LockedImage from '@/components/locked.svg';
 
 
-export default function TextInput({changeHandler, label, initialValue, stateValue, disabled, maxLen}) {
+export default function TextInput({changeHandler, label, binding, disabled, maxLen, id}) {
 
     const className = "appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
 
@@ -17,22 +17,13 @@ export default function TextInput({changeHandler, label, initialValue, stateValu
                     null
             ***REMOVED***
             </label>
-            {stateValue ?
-                <input onChange={(e)=>changeHandler?changeHandler(e.target.value):{}} 
-                    defaultValue={initialValue} 
-                    value={stateValue} 
+            <input onChange={(e)=>changeHandler(e.target.value)} 
+                    value={binding} 
                     type="text" 
                     disabled={disabled}
                     className={className}
-                    maxlength={maxLen ? maxLen : ""}/>
-            :   
-                <input onChange={(e)=>changeHandler?changeHandler(e.target.value):{}} 
-                    defaultValue={initialValue} 
-                    type="text" 
-                    disabled={disabled}
-                    className={className}
-                    maxLength={maxLen ? maxLen : ""}/>
-        ***REMOVED***
+                    maxLength={maxLen ? maxLen : ""}
+                    id={id}/>
             
         </div>
     );

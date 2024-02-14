@@ -33,6 +33,7 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
         demandsite.name = name
         demandsite.url = website
         demandsite.createdBy = session.user.email
+        demandsite.categories = []
 
         fetch(demandsiteUrl, {
             method: 'POST',
@@ -53,20 +54,20 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
         <>
         <div>
             <div className="grid place-content-end">
-                <ClickHandlerButton label="Create new site" clickHandler={()=>setShowModal(true)} />
+                <ClickHandlerButton label="Create new site" clickHandler={()=>setShowModal(true)} id="newDemandSite"/>
                 {showModal ?
                     <Modal dismissHandler={()=>setShowModal(false)} title="Create new demand site" width="w-1/3">
-                        <TextInput changeHandler={setNewDemandsiteName} label="Name"/>
-                        <TextInput changeHandler={setNewDemandsiteWebsite} label="Website"/>
+                        <TextInput changeHandler={setNewDemandsiteName} label="Name" id={"newDemandSiteName"}/>
+                        <TextInput changeHandler={setNewDemandsiteWebsite} label="Website" id={"newDemandSiteWebsite"}/>
                         <div className="pt-4">
-                            <ClickHandlerButton label="Submit" clickHandler={()=>createNewDemandSite(newDemandsiteName, newDemandsiteWebsite)}/>
+                            <ClickHandlerButton label="Submit" clickHandler={()=>createNewDemandSite(newDemandsiteName, newDemandsiteWebsite)} id={"createDemandSiteButton"}/>
                         </div>
                     </Modal>
                 : null}
             </div>
             {searchResults && searchResults.length > 0 ?
                 searchResults.map( (sr,index) => 
-                    <DemandSiteSearchResult demandSite={sr} key={index} selectedHandler={demandsiteSelectedHandler}/>
+                    <DemandSiteSearchResult demandSite={sr} key={index} selectedHandler={demandsiteSelectedHandler} id={"demandSiteSearchResult-"+index}/>
                 )
             :
             <div className="">

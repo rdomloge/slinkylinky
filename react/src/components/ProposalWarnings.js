@@ -125,7 +125,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
 
         {validationErrors ? 
             validationErrors.map( (e,index) => {
-                return <ErrorMessage key={index} message={e}/>
+                return <ErrorMessage key={index} message={e} id={"error-"+index}/>
         ***REMOVED***)
         :
             null

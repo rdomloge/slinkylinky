@@ -28,7 +28,7 @@ export default function AuditIndexPage() {
                     setTotal(data.page.totalElements)
                     setPageCount(data.page.totalPages)
             ***REMOVED***)
-                .catch((error)=>setError(error))
+                .catch((error)=>setError("Can't fetch audit records. Is the Audit service running? "+error.statusMessage))
     ***REMOVED***
 ***REMOVED***,[router.isReady, router.query.page]);
 
@@ -36,7 +36,7 @@ export default function AuditIndexPage() {
         <Layout>
             <PageTitle title="Audit" count={audits}/>
             <Paging page={page} pageCount={pageCount} total={total} baseUrl={"/audit"}/>
-            {audits ? 
+            { !error && audits ? 
                 <div className="grid grid-cols-4 gap-2">
                 {audits.map( (a,index) => {
                     return <AuditLine auditrecord={a} key={index}/>

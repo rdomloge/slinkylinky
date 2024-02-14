@@ -43,6 +43,7 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
                 {label}
             </label>
             <AsyncSelect
+                instanceId={"this-should-be-unique-on-the-page"}
                 onChange={changeHandler}
                 defaultOptions
                 defaultValue={useableInitialValue}

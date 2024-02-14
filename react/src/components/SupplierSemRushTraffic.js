@@ -19,26 +19,40 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
             url = "/.rest/semrush/lookup?domain="+supplier.domain;
     ***REMOVED***
         else {
-            const startDate = new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().substring(0,10);
-            const endDate = new Date().toISOString().substring(0,10);
-            url = "/.rest/stats/search/findByDomainInTimeRange?"
+            const lastDayOfLastMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 0);
+            const year = lastDayOfLastMonth.getFullYear() -1
+            const month = lastDayOfLastMonth.getMonth()
+            const day = lastDayOfLastMonth.getDate()
+            const startDate = new Date(year, month, day).toISOString().substring(0,10);
+            const endDate = lastDayOfLastMonth.toISOString().substring(0,10);
+            url = "/.rest/stats/fordomain?"
                         +"domain="+supplier.domain
                         +"&startDate="+startDate
                         +"&endDate="+endDate
     ***REMOVED***
 
-        const fetchData = async () => {
-            const response = await fetch(url, {headers: {'user': session.user.email}***REMOVED***
-            var data = await response.json();
-            if(adhoc) {
-                data = data.map(d => ({date: d.date, traffic: d.organicTraffic, srrank: d.rank, uniqueYearMonth: new Date(d.date).toISOString().substring(0,7)}))
+        fetch(url, {headers: {
+            'user': session.user.email}
+    ***REMOVED***)
+        .then( (resp) => {
+            if(resp.ok) {
+                resp.json().then( (data) => {
+                    if(adhoc) {
+                        data = data.map(d => ({   
+                            date: d.date, 
+                            traffic: d.organicTraffic, 
+                            srrank: d.rank, 
+                            yearMonth: new Date(d.date).toISOString().substring(0,7)}))
+                ***REMOVED***
+                    setTrafficDataPoints(data);
+            ***REMOVED***)
         ***REMOVED***
-            setTrafficDataPoints(data);
-    ***REMOVED***;
-        
-        fetchData();
+            else {
+                console.log("Unknown error: "+resp.status)
+        ***REMOVED***
+    ***REMOVED***)
 
-***REMOVED***, [session]);
+***REMOVED***, [session, supplier]);
     
     return (
         <div>
