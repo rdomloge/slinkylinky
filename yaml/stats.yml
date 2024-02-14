@@ -54,7 +54,7 @@ spec:
             - name: moz_secret
               value: <SPECIFY>
             - name: linkservice_url
-              value: http://linkservice-service:8080
+              value: http://linkservice-service:8090
             - name: semrush_key
               value: <SPECIFY>
           startupProbe:
