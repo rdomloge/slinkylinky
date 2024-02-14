@@ -4,11 +4,11 @@ import InfoIcon from '@/components/info.svg'
 import SuccessIcon from '@/components/success.svg'
 import ErrorIcon from '@/components/stop-sign.svg'
 
-export default function ErrorMessage({message, iconWidth=32, iconHeight=32, iconClass='flex-initial inline-block align-middle mr-2', messageClass='inline-block text-red-700 align-middle'}) {
+export default function ErrorMessage({message, iconWidth=32, iconHeight=32, id, iconClass='flex-initial inline-block align-middle mr-2', messageClass='inline-block text-red-700 align-middle'}) {
     return (
         <div className="align-middle p-2 m-2 bg-red-200 border border-red-700 rounded p-1 flex">
             <Image src={ErrorIcon} width={iconWidth} height={iconHeight} alt="Warning icon" className={iconClass}/>
-            <p className={messageClass}>{message}</p>
+            <p className={messageClass} id={id}>{message}</p>
         </div>
     );
 }

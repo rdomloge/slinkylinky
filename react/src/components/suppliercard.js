@@ -7,23 +7,17 @@ import DaIcon from '@/components/authority.svg'
 import LinkIcon from '@/components/link.svg'
 import EmailIcon from '@/components/email.svg'
 import MoneyIcon from '@/components/tag.svg'
+import UpdateIcon from '@/components/update.svg'
 import ThirdPartyIcon from '@/components/third-party.svg'
 import EnterIcon from '@/components/enter.svg'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
 import Counter from './Counter'
-import Modal from './atoms/Modal'
-import { StyledButton } from './atoms/Button'
 import SupplierSemRushTraffic from './SupplierSemRushTraffic'
+import { addProtocol } from './Util'
 
-function addProtocol(url) {
-    if (!/^(?:f|ht)tps?\:\/\//i.test(url)) {
-        url = "https://" + url;
-    }
-    return url;
-}
 
-export default function SupplierCard({supplier, editable, linkable, usages}) {
+
+export default function SupplierCard({supplier, editable, linkable, usages, latest = true}) {
 
     return (
         <div className="list-card card relative">
@@ -31,7 +25,12 @@ export default function SupplierCard({supplier, editable, linkable, usages}) {
                 <Image className='third-party' src={ThirdPartyIcon} width={42} height={42} alt="Third party icon" tooltip="Third party"/>
             : null}
             
-            <Image src={Icon} width={32} height={32} alt="Shipping icon" className='inline-block'/> 
+            <Image src={Icon} width={32} height={32} alt="Shipping icon" className='inline-block'/>
+            { ! latest ?
+                <Image src={UpdateIcon} width={32} height={32} alt="Update icon" className='inline-block'/>
+            : 
+                null
+            }
             {usages ?
                 <Counter count={usages[supplier.id]} low={2} medium={5} high={25}/>
             : 

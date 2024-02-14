@@ -15,9 +15,21 @@ import Modal from "./atoms/Modal";
 import SupplierSemRushTraffic from "./SupplierSemRushTraffic";
 
 export default function AddOrEditSupplier({supplier}) {
+
+    if( ! supplier) throw new Error("Supplier cannot be null. If you are loading it, wrap this component in a null check before using it")
+
     const { data: session } = useSession();
     const [errorMsg, setErrorMsg] = useState()
     const [showModal, setShowModal] = useState(false)
+
+    const [supplierName, setSupplierName] = useState(supplier.name)
+    const [supplierDa, setSupplierDa] = useState(supplier.da)	
+    const [supplierWebsite, setSupplierWebsite] = useState(supplier.website)
+    const [supplierSource, setSupplierSource] = useState(supplier.source)
+    const [supplierEmail, setSupplierEmail] = useState(supplier.email)
+    const [supplierCurrency, setSupplierCurrency] = useState(supplier.weWriteFeeCurrency)
+    const [supplierFee, setSupplierFee] = useState(supplier.weWriteFee)
+
 
     function handleError(message) {
         setErrorMsg("Create failed: "+message)
@@ -43,6 +55,7 @@ export default function AddOrEditSupplier({supplier}) {
             if(resp.ok) {
                 resp.json().then( (data) => {
                     supplier.da = data.domain_authority
+                    setSupplierDa(data.domain_authority)
                 })
             }
             else {
@@ -53,15 +66,34 @@ export default function AddOrEditSupplier({supplier}) {
     }
 
     function displaySemData() {
-        supplier.domain = url_domain(supplier.website)
+        supplier.domain = url_domain(supplierWebsite)
         lookupDa(supplier.domain)
         setShowModal(true)
     }
-    
+
+    function domainValidation(url) {
+         const urlRegex = /^(((http|https):\/\/|)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}(:[0-9]{1,5})?(\/.*)?)$/;
+         if (urlRegex.test(url)) {
+              return true;
+          } else {
+              return false;
+          }
+    };
+
     function submitHandler() {
         console.log("Updating supplier: "+JSON.stringify(supplier))
         const supplierUrl = "/.rest/suppliers"
-        const patchData = {...supplier}
+        const patchData = {
+            name: supplierName,
+            da: supplierDa,
+            website: supplierWebsite,
+            source: supplierSource,
+            email: supplierEmail,
+            weWriteFee: supplierFee,
+            weWriteFeeCurrency: supplierCurrency,
+            disabled: supplier.disabled,
+            categories: supplier.categories
+        }
         delete patchData._links
         
         fixForPosting(patchData)
@@ -80,7 +112,7 @@ export default function AddOrEditSupplier({supplier}) {
                     location.href = "/supplier/"+supplier.id;
                 }
                 else {
-                    handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.status)
+                    handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
                 }
             })
             .catch(err => { handleError("Oops") });
@@ -101,7 +133,7 @@ export default function AddOrEditSupplier({supplier}) {
                     location.href = "/supplier/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
                 }
                 else {
-                    handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.status)
+                    handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
                 }
             })
             .catch(err => { 
@@ -111,71 +143,73 @@ export default function AddOrEditSupplier({supplier}) {
 
     return (
         <>
-            {supplier ?
-            <div className="list-card card">
-                <p className='text-red-600'>{errorMsg}</p>
-                <div className='float-right p-1 '>
-                    <button id="createnew" onClick={submitHandler} 
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded block mb-4">
-                        Submit
-                    </button>
-                    <DisableToggle changeHandler={(e) => supplier.disabled = e} initialValue={supplier.disabled}/>
-                </div>
-                <Image src={Icon} width={32} height={32} alt="Shipping icon"/>
-
-
-                <div className='w-1/4 inline-block pr-8'> 
-                    <TextInput initialValue={supplier.name} label={"Name"} changeHandler={(e)=>supplier.name = e} /> 
-                </div>
-                <div className='w-28 inline-block pr-8'>
-                    <NumberInput label={"DA"} changeHandler={(e)=>supplier.da = e} stateValue={supplier.da}/>
-                </div>
-                <div className='w-1/4 inline-block pr-8'>
-                    <TextInput initialValue={supplier.website} label={"Website"} changeHandler={(e)=>supplier.website = e}/> 
-                </div>
-                <div className='w-1/4 inline-block pr-8'>
-                    <TextInput initialValue={supplier.source} label={"Source"} changeHandler={(e)=>supplier.source = e}/> 
-                </div>
-
-
-                <div className='w-1/3 inline-block pr-8'>
-                    <TextInput initialValue={supplier.email} label={"Email"} changeHandler={(e)=>supplier.email = e}/> 
-                </div>
-                
-                
-                <div className='w-20 inline-block pr-8 mt-8'>
-                    <TextInput initialValue="£" label="Currency" changeHandler={(e)=>supplier.weWriteFeeCurrency = e} maxLen={1}/>
-                </div>
-                <div className='w-28 inline-block pr-8'>
-                    <NumberInput initialValue={supplier.weWriteFee} label={"Fee"} changeHandler={(e)=>supplier.weWriteFee = e}/>
-                </div>
-
-                {supplier.id == null ?
-                    <div className="inline-block">
-                        <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="srButton">
-                            Fetch DA and load SEM rush traffic (cost attached)
-                        </label>
-                        <StyledButton id="srButton" label="$ LOAD $" type="tertiary"
-                            submitHandler={()=>displaySemData()}  />
+            {supplier != null ?
+                <div className="list-card card">
+                    <p className='text-red-600'>{errorMsg}</p>
+                    <div className='float-right p-1 '>
+                        <button id="createnew" onClick={submitHandler} 
+                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded block mb-4">
+                            Submit
+                        </button>
+                        <DisableToggle changeHandler={(e) => supplier.disabled = e} initialValue={supplier.disabled}/>
                     </div>
-                :
-                    null
-                }
+                    <Image src={Icon} width={32} height={32} alt="Shipping icon"/>
 
-                <div className='w-1/2 mt-8'>
-                    <CategorySelector label="Categories"
-                        changeHandler={(e)=> supplier.categories = e}
-                        initialValue={supplier.categories}/>
+
+                    <div className='w-1/4 inline-block pr-8'> 
+                        <TextInput binding={supplierName} label={"Name"} changeHandler={(e)=>setSupplierName(e)}/> 
+                    </div>
+                    <div className='w-28 inline-block pr-8'>
+                        <NumberInput label={"DA"} changeHandler={(e) => setSupplierDa(e)} binding={supplierDa}/>
+                    </div>
+                    <div className='w-1/4 inline-block pr-8'>
+                        <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>setSupplierWebsite(e)}/> 
+                    </div>
+                    <div className='w-1/4 inline-block pr-8'>
+                        <TextInput binding={supplierSource} label={"Source"} changeHandler={(e)=>setSupplierSource(e)}/> 
+                    </div>
+
+
+                    <div className='w-1/3 inline-block pr-8'>
+                        <TextInput binding={supplierEmail} label={"Email"} changeHandler={(e)=>setSupplierEmail(e)}/> 
+                    </div>
+                    
+                    
+                    <div className='w-20 inline-block pr-8 mt-8'>
+                        <TextInput binding={supplierCurrency} label="Currency" changeHandler={(e)=>setSupplierCurrency(e)} maxLen={1}/>
+                    </div>
+                    <div className='w-28 inline-block pr-8'>
+                        <NumberInput binding={supplierFee} label={"Fee"} changeHandler={(e)=>setSupplierFee(e)}/>
+                    </div>
+
+                    {supplier.id == null && supplierWebsite && domainValidation(supplierWebsite) ?
+                        <div className="inline-block">
+                            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="srButton">
+                                Fetch DA and load SEM rush traffic (cost attached)
+                            </label>
+                            <StyledButton id="srButton" label="Load" type="risky"
+                                submitHandler={()=>displaySemData()}  />
+                        </div>
+                    :
+                        null
+                    }
+
+                    <div className='w-1/2 mt-8'>
+                        <CategorySelector label="Categories"
+                            changeHandler={(e)=> supplier.categories = e}
+                            initialValue={supplier.categories}/>
+                    </div>
+                    {showModal ?
+                        <Modal title={"SEM rush traffic // "+supplier.domain} dismissHandler={()=>setShowModal(false)} width={"w-2/3"}>
+                            <SupplierSemRushTraffic supplier={supplier} adhoc={true}/>
+                        </Modal>
+                    : 
+                        null
+                    }
                 </div>
-                {showModal ?
-                    <Modal title={"SEM rush traffic // "+supplier.domain} dismissHandler={()=>setShowModal(false)} width={"w-2/3"}>
-                        <SupplierSemRushTraffic supplier={supplier} adhoc={true}/>
-                    </Modal>
-                : 
-                    null
-                }
-            </div>
-            : <p>Loading supplier</p>}
+            : 
+                <p>Loading supplier</p>
+            }
         </>
         
     )

@@ -1,0 +1,42 @@
+[
+    {
+        "name": "car",
+        "demandSiteExcpectName": "Acticare",
+        "url": "www.shop.acticareuk.com/testPromo",
+        "requested": "2024-02-12",
+        "daNeeded": "30",
+        "anchorText": "Anchor text created by TestCafe"
+    },
+    {
+        "name": "gerr",
+        "demandSiteExcpectName": "Gerry O'Leary",
+        "url": "www.gerryoleary.com/testPromo",
+        "requested": "2024-02-13",
+        "daNeeded": "35",
+        "anchorText": "Anchor text created by TestCafe"
+    },
+    {
+        "name": "bcl tim",
+        "demandSiteExcpectName": "BCL timber",
+        "url": "www.bcltimberprojects.co.uk/testPromo1",
+        "requested": "2024-02-14",
+        "daNeeded": "30",
+        "anchorText": "First link anchor text"
+    },
+    {
+        "name": "bcl tim",
+        "demandSiteExcpectName": "BCL timber",
+        "url": "www.bcltimberprojects.co.uk/testPromo2",
+        "requested": "2024-02-14",
+        "daNeeded": "30",
+        "anchorText": "Second link anchor text"
+    },
+    {
+        "name": "dc wh",
+        "demandSiteExcpectName": "DC White",
+        "url": "www.dcwhite.co.uk/testPromo",
+        "requested": "2024-02-13",
+        "daNeeded": "20",
+        "anchorText": "Link anchor text"
+    }
+]

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import LockedImage from '@/components/locked.svg';
+import { useState } from "react";
 
-export default function NumberInput({changeHandler, label, initialValue, disabled, stateValue}) {
+export default function NumberInput({label, disabled, binding, changeHandler, id}) {
 
     return (
         <div className="w-full px-3 mb-6 md:mb-0 border-b border-teal-500">
@@ -13,13 +14,12 @@ export default function NumberInput({changeHandler, label, initialValue, disable
                     null
                 }
             </label>
-            <input onChange={(e)=>changeHandler(e.target.value)} 
-                defaultValue={initialValue} 
-                id="grid-name" 
+            <input onChange={(e) => changeHandler(e.target.value)}
                 type="number" 
                 disabled={disabled}
-                value={stateValue}
-                className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"/>
+                value={binding}
+                className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
+                id={id}/>
         </div>
     );
 }

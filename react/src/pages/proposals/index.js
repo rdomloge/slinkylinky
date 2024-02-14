@@ -57,7 +57,7 @@ export default function ListProposals() {
 
 
         const proposalsUrl = 
-            "/.rest/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc"+
+            "/.rest/proposalsupport/getProposalsWithOriginalSuppliers"+
             "?startDate="+firstDateString+"T00:00"+
             "&endDate="+lastDateString+"T23:59"+
             "&projection=fullProposal";
@@ -65,12 +65,6 @@ export default function ListProposals() {
     }
     
     
-    function parseId(entity) {
-        const url = entity._links.self.href;
-        const id = url.substring(url.lastIndexOf('/')+1);
-        return id;
-    }
-
     function filterForThisUser(data) {
         if(personal) {
             const filteredProposals = data.filter( (p) => {
@@ -98,7 +92,10 @@ export default function ListProposals() {
                 
                 fetch(buildUrl(minusMonths))
                     .then( (res) => res.json())
-                    .then( (data) => setProposals(filterForThisUser(data._embedded.proposals)))
+                    .then( (data) => {
+
+                        setProposals(filterForThisUser(data))}
+                    )
                     .catch( (error) => setError(error));
             }
             
@@ -116,7 +113,7 @@ export default function ListProposals() {
             {proposals ?
                 <ul>
                 {proposals.map( (p) => 
-                    <li className="m-2" key={parseId(p)}>
+                    <li className="m-2" key={p.id}>
                         <ProposalListItem proposal={p}/>
                     </li>
                 )}

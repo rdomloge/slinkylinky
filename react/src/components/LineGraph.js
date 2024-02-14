@@ -22,7 +22,7 @@ export default function LineGraph({datapoints}) {
       );
 
     const labels = datapoints.map((datapoint) => {
-        return datapoint.uniqueYearMonth;
+        return datapoint.yearMonth;
     });
 
     const data = {

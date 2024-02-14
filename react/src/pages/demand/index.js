@@ -71,7 +71,7 @@ export default function Demand() {
                 <div className="grid grid-cols-2">
                 {demands.map( (ld,index) => (
                     <div key={index}>
-                        <DemandCard demand={ld} key={index} fullfilable={true} editable={true}/>
+                        <DemandCard demand={ld} key={index} fullfilable={true} editable={true} id={"demandCard-"+index}/>
                     </div>
                 ))}
                 </div>

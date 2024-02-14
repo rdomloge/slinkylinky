@@ -4,9 +4,9 @@ import Image from "next/image";
 import ArrowIcon from '@/pages/demand/left-chevron.svg'
 import SessionButton, { SessionBlock } from "./atoms/Button";
 
-export default function DemandSiteSearchResult({demandSite, selectedHandler}) {
+export default function DemandSiteSearchResult({demandSite, selectedHandler, id}) {
     return (
-        <div className="card list-card flex">
+        <div className="card list-card flex" id={id}>
             <div className="flex-0 pr-4 m-auto">
                 <button onClick={(e) => 
                         selectedHandler(demandSite)}>
@@ -25,9 +25,9 @@ export default function DemandSiteSearchResult({demandSite, selectedHandler}) {
     );
 }
 
-export function DemandSiteListItemLite({demandSite}) {
+export function DemandSiteListItemLite({demandSite, id}) {
     return (
-        <div className="card list-card">
+        <div className="card list-card" id={id}>
             <SessionBlock>
                 <Link href={"/demandsites/"+demandSite.id}>
                     <p className='text-right float-right'>Edit</p>

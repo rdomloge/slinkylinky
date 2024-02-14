@@ -42,8 +42,13 @@ export default function App() {
             headers: {'Content-Type':'application/json', 'user': session.user.email},
         })
         .then( (resp) => {
-            const locationUrl = resp.headers.get('Location')
-            location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
+            if(resp.ok) {
+                const locationUrl = resp.headers.get('Location')
+                location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
+            }
+            else {
+                setError("Could not create proposal: "+resp.statusText)
+            }
         });
     }
 
@@ -79,9 +84,9 @@ export default function App() {
         <Layout>
             <PageTitle title="Proposal Staging"/>
             
-            <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready}/>
+            <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id={"submitProposal"}/>
 
-            {(supplier && demand && otherDemands) ?
+            {( !error && supplier && demand && otherDemands) ?
                 <>
                 <ProposalValidationPanel primaryDemand={demand} 
                     otherDemands={selectedOtherDemands} 
@@ -123,6 +128,7 @@ export default function App() {
             : 
                 <Loading error={error} />
             }
+
         </Layout>
     );
 }

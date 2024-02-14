@@ -5,24 +5,29 @@ import CategorySelector from "@/components/CategorySelector";
 import TextInput from '@/components/atoms/TextInput';
 import SessionButton from "./atoms/Button";
 import { fixForPosting } from "./CategoryUtil";
+import { useState } from "react";
 
 
 export default function AddOrEditDemandSite({demandSite}) {
 
     const { data: session } = useSession();
+    const [demandSiteName, setDemandSiteName] = useState(demandSite.name)
+    const [demandSiteUrl, setDemandSiteUrl] = useState(demandSite.url)
 
     function submitHandler() {
         
         console.log("Demand: "+JSON.stringify(demandSite))
-        const demandSiteUrl = "/.rest/demandsites"
+        const restUrl = "/.rest/demandsites"
         delete demandSite.domain
+        demandSite.name = demandSiteName
+        demandSite.url = demandSiteUrl
                 
         fixForPosting(demandSite)
 
         if(demandSite.id) {
             demandSite.updatedBy = session.user.email
 
-            fetch(demandSiteUrl+"/"+demandSite.id, {
+            fetch(restUrl+"/"+demandSite.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demandSite)
@@ -52,14 +57,14 @@ export default function AddOrEditDemandSite({demandSite}) {
                 <form className="w-full max-w-lg card">
                     <div className="flex flex-wrap -mx-3 mb-6">
                         <div className="w-full px-3 mb-6 md:mb-0">
-                            <TextInput label="name" initialValue={demandSite.name} changeHandler={(e)=>{
-                                demandSite.name=e
+                            <TextInput label="name" binding={demandSiteName} changeHandler={(e)=>{
+                                setDemandSiteName(e)
                             }} />
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-6">
                         <div className="w-full px-3">
-                            <TextInput label="URL" changeHandler={(e)=>demandSite.url=e} initialValue={demandSite.url}/>
+                            <TextInput label="URL" changeHandler={(e)=>setDemandSiteUrl(e)} binding={demandSiteUrl}/>
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-2">

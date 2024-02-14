@@ -30,7 +30,7 @@ export default function DemandSiteList() {
             <div className="grid grid-cols-3">
                 {missingCategories ?
                     missingCategories.map( (ds,index) => 
-                        <DemandSiteListItemLite demandSite={ds} key={index}/>
+                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index}/>
                     )
                 : <Loading/> }
             </div>
@@ -43,7 +43,7 @@ export default function DemandSiteList() {
             <div className="grid grid-cols-3">
                 {demandsites ?
                     demandsites.map( (ds,index) => 
-                        <DemandSiteListItemLite demandSite={ds} key={index}/>
+                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index}/>
                     )
                 : <Loading error={error}/> }
             </div>
