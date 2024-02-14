@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: supplierengagement
+  name: stats
   namespace: slinkylinky
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: supplierengagement
+      app: stats
       version: v1
   template:
     metadata:
       labels:
-        app: supplierengagement
+        app: stats
         version: v1
     spec:
       affinity:
@@ -25,12 +25,13 @@ spec:
                     values:
                       - linkservice
                       - supplierengagement
+                      - stats
                       - adminwebsite
                       - postgres
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - name: supplierengagement
-          image: rdomloge/slinky-linky-supplierengagement:3.0
+        - name: stats
+          image: rdomloge/slinky-linky-stats:3.0
           imagePullPolicy: Always
           resources:
             requests:
@@ -46,21 +47,19 @@ spec:
               value: <SPECIFY>
             - name: server_port
               value: "8080"
-            - name: mail_username
-              value: <SPECIFY>
-            - name: mail_password
-              value: <SPECIFY>
-            - name: mail_host
-              value: <SPECIFY>
-            - name: mail_from
-              value: <SPECIFY>
-            - name: slinkylinky_domain
-              value: slinkylinky.uk
             - name: slinkylinky_vhost
               value: slinkylinky
+            - name: moz_accesskey
+              value: <SPECIFY>
+            - name: moz_secret
+              value: <SPECIFY>
+            - name: linkservice_url
+              value: http://linkservice-service:8080
+            - name: semrush_key
+              value: <SPECIFY>
           startupProbe:
             httpGet:
-              path: /.rest/engagements
+              path: /.rest/statsrecords
               port: 8080
             initialDelaySeconds: 60
             failureThreshold: 30
