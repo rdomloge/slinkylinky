@@ -40,3 +40,11 @@ Content-Type: application/json
 }
 ###
 GET {{host}}/suppliers/search/findSuppliersForLinkDemandId?linkDemandId=108&demandDomain=hysons.co.uk&projection=fullSupplier
+###
+GET {{host}}/suppliers/306?projection=fullSupplier
+###
+GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameIn?projection=fullSupplier&email=test&name=test&domain=test
+###
+GET {{host}}/supplierVersionSupport/getVersion?supplierId=306&version=24
+###
+GET {{host}}/suppliers/306?projection=fullSupplier

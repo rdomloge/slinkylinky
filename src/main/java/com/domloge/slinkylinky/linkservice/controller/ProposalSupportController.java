@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.hibernate.envers.AuditReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -62,6 +63,10 @@ public class ProposalSupportController {
     @Autowired
     private ProposalAbortHandler proposalAbortHandler;
 
+    @Autowired
+    private AuditReader auditReader;
+
+
 
     @DeleteMapping(path = "/abort", produces = "text/HTML")
     @Transactional
@@ -72,6 +77,27 @@ public class ProposalSupportController {
         }
         proposalAbortHandler.handle(proposalId, user);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/getProposalsWithOriginalSuppliers", produces = "application/json")
+    public ResponseEntity<Proposal[]> getProposal(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
+        
+        List<Proposal> proposals = proposalRepo.findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
+            endDate, startDate);
+        // for each proposal, check if the supplier has been updated since the proposal was created
+        proposals.stream().forEach(p -> {
+            Supplier currentSupplier = p.getPaidLinks().get(0).getSupplier();
+            if(p.getSupplierSnapshotVersion() != currentSupplier.getVersion()) {
+                List<Number> revisions = auditReader.getRevisions(Supplier.class, currentSupplier.getId());
+                Supplier originalSupplier = auditReader.find(Supplier.class, currentSupplier.getId(), revisions.get((int) p.getSupplierSnapshotVersion()));
+                p.setPaidLinks(p.getPaidLinks().stream().map(pl -> {
+                    pl.setSupplier(originalSupplier);
+                    return pl;
+                }).collect(Collectors.toList()));
+            }
+        });
+
+        return ResponseEntity.ok().body(proposals.stream().toArray(Proposal[]::new));
     }
 
     @GetMapping(path = "/getArticleFormatted", produces = "text/HTML")
@@ -143,6 +169,7 @@ public class ProposalSupportController {
         proposal.setCreatedBy(user);
         proposal.setDateCreated(LocalDateTime.now());
         proposal.setPaidLinks(paidLinks);
+        proposal.setSupplierSnapshotVersion(supplier.getVersion());
         Proposal dbProposal = proposalRepo.save(proposal);
         proposalAuditor.handleAfterCreate(dbProposal);
         

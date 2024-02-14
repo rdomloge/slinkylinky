@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RepositoryEventHandler(Proposal.class)
-public class EventDispatcher {
+public class ProposalEventDispatcher {
 
     @Autowired
     private AmqpTemplate proposalsRabbitTemplate;

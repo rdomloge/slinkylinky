@@ -35,6 +35,8 @@ public interface FullProposalProjection {
 
     String getLiveLinkTitle();
 
+    long getSupplierSnapshotVersion();
+
     FullPaidLinkProjection[] getPaidLinks();
     
 }

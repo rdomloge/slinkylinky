@@ -44,7 +44,9 @@ GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGre
 ###
 GET {{host}}/proposals/73?projection=fullProposal
 ###
-DELETE {{host}}/proposals/73
+GET {{host}}/proposals/653?projection=fullProposal
+###
+GET {{host}}/proposalsupport/getProposalsWithOriginalSuppliers?startDate=2024-02-01&endDate=2024-02-03
 ###
 DELETE {{host}}/proposalsupport/abort?proposalId=1
 user: ernie@disney.com

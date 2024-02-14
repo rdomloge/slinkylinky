@@ -59,6 +59,9 @@ public class Proposal {
 
     private String updatedBy;
 
+    @Column(columnDefinition = "bigint default 0")
+    private long supplierSnapshotVersion;
+
     @Lob
     @Column(columnDefinition="TEXT")
     private String article;
@@ -70,6 +73,6 @@ public class Proposal {
 
 
     @Version
-    @Column(name = "version", columnDefinition = "bigint default 0")
+    @Column(name = "version", columnDefinition = "bigint not null default 1")
     private Long version;
 }

@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -45,7 +46,7 @@ public class DemandSite {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
-    private List<Category> categories;
+    private Set<Category> categories;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = Demand.class)
     @JoinColumn(name = "demandSiteId")

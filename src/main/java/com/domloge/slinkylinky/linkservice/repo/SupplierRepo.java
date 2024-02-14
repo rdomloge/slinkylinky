@@ -31,13 +31,12 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
         "AND s.third_party = false "+                                                                // exclude third party suppliers
         "AND s.disabled = false "+                                                                   // exclude disabled suppliers                        
         "ORDER BY s.we_write_fee ASC, "+                                    
-        "   s.sem_rush_uk_jan23traffic DESC, "+
-        "   s.sem_rush_authority_score DESC")
+        "   s.da DESC")
     Supplier[] findSuppliersForDemandId(long demandId);
 
     Supplier findByDomainIgnoreCase(String domain);
 
-    Supplier[] findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrCategories_NameIn(String email, String name, String... categories);
+    Supplier[] findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameIn(String email, String name, String domain, String... categories);
 
     @Query("select count(s) from Supplier s")
     long findCount();

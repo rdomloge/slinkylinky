@@ -3,9 +3,10 @@ package com.domloge.slinkylinky.linkservice.repo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +42,12 @@ public class SupplierRepoTest {
 
         List<Supplier> testSuppliers = createTestSuppliers();
         testSuppliers.forEach(s -> {
-            s.setCategories(testCategories);
+            s.setCategories(new HashSet<>(testCategories));
         });
         supplierRepo.saveAll(testSuppliers);
 
         Demand matchingByDisabledCategory = new Demand();
-        matchingByDisabledCategory.setCategories(Arrays.asList(testCategories.get(0)));
+        matchingByDisabledCategory.setCategories(Set.of(testCategories.get(0)));
         demandRepo.save(matchingByDisabledCategory);
 
         // When
@@ -64,12 +65,12 @@ public class SupplierRepoTest {
 
         List<Supplier> testSuppliers = createTestSuppliers();
         testSuppliers.forEach(s -> {
-            s.setCategories(testCategories);
+            s.setCategories(new HashSet<>(testCategories));
         });
         supplierRepo.saveAll(testSuppliers);
 
         Demand matchingByEnabledCategory = new Demand();
-        matchingByEnabledCategory.setCategories(Arrays.asList(testCategories.get(0)));
+        matchingByEnabledCategory.setCategories(Set.of(testCategories.get(0)));
         demandRepo.save(matchingByEnabledCategory);
 
         // When
@@ -90,7 +91,7 @@ public class SupplierRepoTest {
         List<Supplier> testSuppliers = createTestSuppliers();
         testSuppliers.forEach(s -> {
             s.setDa(35);
-            s.setCategories(testCategories);
+            s.setCategories(new HashSet<>(testCategories));
         });
         testSuppliers.get(0).setDisabled(true);        // no match
         testSuppliers.get(1).setThirdParty(true);   // no match
@@ -104,7 +105,7 @@ public class SupplierRepoTest {
         // create the link demand
         Demand ld = new Demand();
         ld.setDaNeeded(20);
-        ld.setCategories(testCategories);
+        ld.setCategories(new HashSet<>(testCategories));
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
@@ -128,7 +129,7 @@ public class SupplierRepoTest {
         // create the suppliers
         List<Supplier> testSuppliers = createTestSuppliers();
         testSuppliers.forEach(s -> {
-            s.setCategories(testCategories);
+            s.setCategories(new HashSet<>(testCategories));
             s.setThirdParty(false);
             s.setDisabled(false);
         });
@@ -143,7 +144,7 @@ public class SupplierRepoTest {
         // create the link demand
         Demand ld = new Demand();
         ld.setDaNeeded(20);
-        ld.setCategories(testCategories);
+        ld.setCategories(new HashSet<>(testCategories));
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
@@ -170,17 +171,17 @@ public class SupplierRepoTest {
             s.setThirdParty(false);
             s.setDisabled(false);
         });
-        testSuppliers.get(0).setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // match
-        testSuppliers.get(1).setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // match
-        testSuppliers.get(2).setCategories(Arrays.asList(testCategories.get(2), testCategories.get(3))); // no match
-        testSuppliers.get(3).setCategories(Arrays.asList(testCategories.get(2), testCategories.get(3))); // no match
-        testSuppliers.get(4).setCategories(Arrays.asList(testCategories.get(2), testCategories.get(3))); // no match
+        testSuppliers.get(0).setCategories(Set.of(testCategories.get(0), testCategories.get(1))); // match
+        testSuppliers.get(1).setCategories(Set.of(testCategories.get(0), testCategories.get(1))); // match
+        testSuppliers.get(2).setCategories(Set.of(testCategories.get(2), testCategories.get(3))); // no match
+        testSuppliers.get(3).setCategories(Set.of(testCategories.get(2), testCategories.get(3))); // no match
+        testSuppliers.get(4).setCategories(Set.of(testCategories.get(2), testCategories.get(3))); // no match
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
         Demand ld = new Demand();
         ld.setDaNeeded(20);
-        ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
+        ld.setCategories(Set.of(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
@@ -207,17 +208,17 @@ public class SupplierRepoTest {
             s.setThirdParty(false);
             s.setDisabled(false);
         });
-        testSuppliers.get(0).setCategories(Arrays.asList(testCategories.get(0))); // match
-        testSuppliers.get(1).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
-        testSuppliers.get(2).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
-        testSuppliers.get(3).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
-        testSuppliers.get(4).setCategories(Arrays.asList(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(0).setCategories(Set.of(testCategories.get(0))); // match
+        testSuppliers.get(1).setCategories(Set.of(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(2).setCategories(Set.of(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(3).setCategories(Set.of(testCategories.get(2))); // only cat 2 so no match
+        testSuppliers.get(4).setCategories(Set.of(testCategories.get(2))); // only cat 2 so no match
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
         Demand ld = new Demand();
         ld.setDaNeeded(20);
-        ld.setCategories(Arrays.asList(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
+        ld.setCategories(Set.of(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
@@ -243,17 +244,17 @@ public class SupplierRepoTest {
             s.setThirdParty(false);
             s.setDisabled(false);
         });
-        testSuppliers.get(0).setCategories(Arrays.asList(testCategories.get(0)));
-        testSuppliers.get(1).setCategories(Arrays.asList(testCategories.get(1)));
-        testSuppliers.get(2).setCategories(Arrays.asList(testCategories.get(1)));
-        testSuppliers.get(3).setCategories(Arrays.asList(testCategories.get(1)));
-        testSuppliers.get(4).setCategories(Arrays.asList(testCategories.get(1)));
+        testSuppliers.get(0).setCategories(Set.of(testCategories.get(0)));
+        testSuppliers.get(1).setCategories(Set.of(testCategories.get(1)));
+        testSuppliers.get(2).setCategories(Set.of(testCategories.get(1)));
+        testSuppliers.get(3).setCategories(Set.of(testCategories.get(1)));
+        testSuppliers.get(4).setCategories(Set.of(testCategories.get(1)));
         supplierRepo.saveAll(testSuppliers);
 
         // create the link demand
         Demand ld = new Demand();
         ld.setDaNeeded(20);
-        ld.setCategories(Arrays.asList(testCategories.get(0)));
+        ld.setCategories(Set.of(testCategories.get(0)));
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
@@ -276,7 +277,7 @@ public class SupplierRepoTest {
         List<Supplier> testSuppliers = createTestSuppliers();
         testSuppliers.forEach(s -> {
             s.setDa(35);
-            s.setCategories(testCategories);
+            s.setCategories(new HashSet<>(testCategories));
             s.setThirdParty(false);
             s.setDisabled(false);
         });
@@ -285,14 +286,14 @@ public class SupplierRepoTest {
         // create the link demand
         Demand ld = new Demand();
         ld.setDaNeeded(20);
-        ld.setCategories(testCategories);
+        ld.setCategories(new HashSet<>(testCategories));
         ld.setUrl("https://www.disney.com");
         Demand dbLd = demandRepo.save(ld);
 
         // link one of the suppliers to a /previous/ link demand with the same domain
         Demand previousD = new Demand();
         previousD.setUrl("https://www.disney.com");
-        previousD.setCategories(testCategories);
+        previousD.setCategories(new HashSet<>(testCategories));
         previousD.setDaNeeded(20);
         demandRepo.save(previousD);
         PaidLink pl = new PaidLink();
@@ -319,7 +320,7 @@ public class SupplierRepoTest {
         List<Supplier> testSuppliers = createTestSuppliers();
         testSuppliers.forEach(s -> {
             s.setDa(new Random().nextInt(5));
-            s.setCategories(testCategories);
+            s.setCategories(new HashSet<>(testCategories));
             s.setThirdParty(false);
             s.setDisabled(false);
         });
@@ -327,7 +328,7 @@ public class SupplierRepoTest {
 
         Demand ld = new Demand();
         ld.setDaNeeded(100);
-        ld.setCategories(testCategories);
+        ld.setCategories(new HashSet<>(testCategories));
         Demand dbLd = demandRepo.save(ld);
 
         // when

@@ -41,6 +41,9 @@ public class RabbitConfig {
     @Value("${rabbitmq.supplierengagement.queue}")
     private String supplierEngagementQueueName;
 
+    @Value("${rabbitmq.supplier.queue}")
+    private String supplierQueueName;
+
     @Value("${rabbitmq.exchange}")
     private String exchange;
 
@@ -52,6 +55,9 @@ public class RabbitConfig {
 
     @Value("${rabbitmq.supplierengagement.routingkey}")
     private String supplierEngagementRoutingkey;
+
+    @Value("${rabbitmq.supplier.routingkey}")
+    private String supplierRoutingkey;
 
     @Value("${rabbitmq.username}")
     private String username;
@@ -90,6 +96,11 @@ public class RabbitConfig {
     }
 
     @Bean
+    public Queue supplierQueue() {
+        return new Queue(supplierQueueName, false);
+    }
+
+    @Bean
     public DirectExchange exchange() {
         return new DirectExchange(exchange);
     }
@@ -105,6 +116,10 @@ public class RabbitConfig {
 
     @Bean Binding supplierEngagementBinding(Queue supplierEngagementQueue, DirectExchange exchange) {
         return BindingBuilder.bind(supplierEngagementQueue).to(exchange).with(supplierEngagementRoutingkey);
+    }
+
+    @Bean Binding supplierBinding(Queue supplierQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(supplierQueue).to(exchange).with(supplierRoutingkey);
     }
 
     @Bean
@@ -146,6 +161,18 @@ public class RabbitConfig {
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         rabbitTemplate.setReplyAddress(auditQueue().getName());
         rabbitTemplate.setRoutingKey(auditRoutingkey);
+        rabbitTemplate.setReplyTimeout(replyTimeout);
+        rabbitTemplate.setUseDirectReplyToContainer(false);
+        return rabbitTemplate;
+    }
+
+    @Bean AmqpTemplate supplierRabbitTemplate(ConnectionFactory connectionFactory) {
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setDefaultReceiveQueue(supplierQueueName);
+        rabbitTemplate.setExchange(exchange);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        rabbitTemplate.setReplyAddress(supplierQueue().getName());
+        rabbitTemplate.setRoutingKey(supplierRoutingkey);
         rabbitTemplate.setReplyTimeout(replyTimeout);
         rabbitTemplate.setUseDirectReplyToContainer(false);
         return rabbitTemplate;

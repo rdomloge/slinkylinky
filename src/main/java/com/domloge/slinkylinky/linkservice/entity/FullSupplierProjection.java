@@ -33,4 +33,6 @@ public interface FullSupplierProjection {
 
     FullCategoryProjection[] getCategories();
 
+    long getVersion();
+
 }

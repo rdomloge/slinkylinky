@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -40,11 +42,11 @@ public class DemandRepoTest {
 
         // When
         Supplier testSupplier = createTestSupplier();
-        testSupplier.setCategories(testCategories);
+        testSupplier.setCategories(new HashSet<>(testCategories));
         supplierRepo.save(testSupplier);
 
         Demand testDemand = createTestDemand();
-        testDemand.setCategories(Arrays.asList(testCategories.get(0)));
+        testDemand.setCategories(Set.of(testCategories.get(0)));
         demandRepo.save(testDemand);
 
         // Then
@@ -60,7 +62,7 @@ public class DemandRepoTest {
 
         // When
         Supplier testSupplier = createTestSupplier();
-        testSupplier.setCategories(testCategories);
+        testSupplier.setCategories(new HashSet<>(testCategories));
         supplierRepo.save(testSupplier);
 
         
@@ -69,19 +71,19 @@ public class DemandRepoTest {
         
         Demand ignoreDemand = createTestDemand();
         ignoreDemand.setName("ignore");
-        ignoreDemand.setCategories(Arrays.asList(testCategories.get(1)));
+        ignoreDemand.setCategories(Set.of(testCategories.get(1)));
         ignoreDemand.setUrl("www.testignore.com");
         
         Demand nonMatchingDemand = createTestDemand();
         nonMatchingDemand.setName(demand1Name);
         nonMatchingDemand.setUrl("www.test.com");
-        nonMatchingDemand.setCategories(Arrays.asList(testCategories.get(0)));
+        nonMatchingDemand.setCategories(Set.of(testCategories.get(0)));
 
         Demand matchingDemand = createTestDemand();
         matchingDemand.setName(demand2Name);
         matchingDemand.setDaNeeded(10);
         matchingDemand.setUrl("www.test2.com");
-        matchingDemand.setCategories(Arrays.asList(testCategories.get(1)));
+        matchingDemand.setCategories(Set.of(testCategories.get(1)));
         demandRepo.saveAll(Arrays.asList(nonMatchingDemand, matchingDemand, ignoreDemand));
 
         // Then
@@ -97,15 +99,15 @@ public class DemandRepoTest {
         categoryRepo.saveAll(testCategories);
         
         Supplier testSupplier = createTestSupplier();
-        testSupplier.setCategories(testCategories);
+        testSupplier.setCategories(new HashSet<>(testCategories));
         testSupplier = supplierRepo.save(testSupplier);
 
         Demand selectedDemand = createTestDemand();
-        selectedDemand.setCategories(testCategories);
+        selectedDemand.setCategories(new HashSet<>(testCategories));
         selectedDemand = demandRepo.save(selectedDemand);
 
         Demand otherMatchingDemandFromSameClient = createTestDemand();
-        otherMatchingDemandFromSameClient.setCategories(testCategories);
+        otherMatchingDemandFromSameClient.setCategories(new HashSet<>(testCategories));
         demandRepo.save(otherMatchingDemandFromSameClient);
 
         
@@ -124,35 +126,35 @@ public class DemandRepoTest {
         categoryRepo.saveAll(testCategories);
         
         Supplier testSupplier = createTestSupplier();
-        testSupplier.setCategories(testCategories);
+        testSupplier.setCategories(new HashSet<>(testCategories));
         testSupplier = supplierRepo.save(testSupplier);
 
         Demand testLinkDemand = createTestDemand();
-        testLinkDemand.setCategories(testCategories);
+        testLinkDemand.setCategories(new HashSet<>(testCategories));
         testLinkDemand.setDaNeeded(5);
         testLinkDemand.setUrl("www.a2d.com");
         testLinkDemand = demandRepo.save(testLinkDemand);
 
         Demand otherMatchingDemand = createTestDemand();
-        otherMatchingDemand.setCategories(testCategories);
+        otherMatchingDemand.setCategories(new HashSet<>(testCategories));
         otherMatchingDemand.setDaNeeded(5);
         otherMatchingDemand.setUrl("www.toysrus.com");
         demandRepo.save(otherMatchingDemand);
 
         Demand nonMatchingDemand = createTestDemand();
-        nonMatchingDemand.setCategories(testCategories);
+        nonMatchingDemand.setCategories(new HashSet<>(testCategories));
         nonMatchingDemand.setDaNeeded(testSupplier.getDa() + 1);
         nonMatchingDemand.setUrl("www.abc.co.uk");
         demandRepo.save(nonMatchingDemand);
 
         Demand secondNonMatchingDemand = createTestDemand();
-        secondNonMatchingDemand.setCategories(Arrays.asList(categoryRepo.save(new Category("Non matching category"))));
+        secondNonMatchingDemand.setCategories(Set.of(categoryRepo.save(new Category("Non matching category"))));
         secondNonMatchingDemand.setDaNeeded(testSupplier.getDa());
         secondNonMatchingDemand.setUrl("www.rty.co.uk");
         demandRepo.save(secondNonMatchingDemand);
 
         Demand historicalDemandForSupplier = createTestDemand();
-        historicalDemandForSupplier.setCategories(testCategories);
+        historicalDemandForSupplier.setCategories(new HashSet<>(testCategories));
         historicalDemandForSupplier.setUrl("www.bca.co.uk");
         historicalDemandForSupplier.setDaNeeded(testSupplier.getDa());
         demandRepo.save(historicalDemandForSupplier);
@@ -162,7 +164,7 @@ public class DemandRepoTest {
         paidLinkRepo.save(paidLink);
 
         Demand newDemandFromHistorical = createTestDemand();
-        newDemandFromHistorical.setCategories(testCategories);
+        newDemandFromHistorical.setCategories(new HashSet<>(testCategories));
         newDemandFromHistorical.setUrl("www.bca.co.uk");
         newDemandFromHistorical.setDaNeeded(testSupplier.getDa());
         demandRepo.save(newDemandFromHistorical);
@@ -184,18 +186,18 @@ public class DemandRepoTest {
         categoryRepo.saveAll(testCategories);
         
         Supplier testSupplier = createTestSupplier();
-        testSupplier.setCategories(testCategories.subList(3, 4));
+        testSupplier.setCategories(new HashSet<>(testCategories.subList(3, 4)));
         testSupplier = supplierRepo.save(testSupplier);
 
         Demand testLinkDemand = createTestDemand();
         testLinkDemand = demandRepo.save(testLinkDemand);
 
         Demand catNotMatchingLd = createTestDemand();
-        catNotMatchingLd.setCategories(testCategories.subList(0, 2));
+        catNotMatchingLd.setCategories(new HashSet<>(testCategories.subList(0, 2)));
         catNotMatchingLd.setDaNeeded(testSupplier.getDa());
         catNotMatchingLd.setUrl("www.bca.co.uk");
         Demand catMatchingLd = createTestDemand();
-        catMatchingLd.setCategories(testCategories.subList(3, 4));
+        catMatchingLd.setCategories(new HashSet<>(testCategories.subList(3, 4)));
         catMatchingLd.setUrl("www.disney.com");
         catMatchingLd.setDaNeeded(testSupplier.getDa());
 
@@ -218,18 +220,18 @@ public class DemandRepoTest {
         categoryRepo.saveAll(testCategories);
         
         Supplier testSupplier = createTestSupplier();
-        testSupplier.setCategories(testCategories);
+        testSupplier.setCategories(new HashSet<>(testCategories));
         testSupplier = supplierRepo.save(testSupplier);
 
         Demand testLinkDemand = createTestDemand();
         testLinkDemand = demandRepo.save(testLinkDemand);
 
         Demand daNotMatchingLd = createTestDemand();
-        daNotMatchingLd.setCategories(testCategories);
+        daNotMatchingLd.setCategories(new HashSet<>(testCategories));
         daNotMatchingLd.setDaNeeded(testSupplier.getDa() + 1);
         daNotMatchingLd.setUrl("www.bca.co.uk");
         Demand daMatchingLd = createTestDemand();
-        daMatchingLd.setCategories(testCategories);
+        daMatchingLd.setCategories(new HashSet<>(testCategories));
         daMatchingLd.setUrl("www.disney.com");
         daMatchingLd.setDaNeeded(testSupplier.getDa());
 

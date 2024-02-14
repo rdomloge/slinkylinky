@@ -1,10 +1,11 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
-import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -66,7 +67,8 @@ public class Supplier {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)
-    private List<Category> categories;
+    @Audited(targetAuditMode = RelationTargetAuditMode.AUDITED)
+    private Set<Category> categories;
 
     public void setWebsite(String website) {
         this.website = website;

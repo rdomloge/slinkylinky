@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -252,15 +254,15 @@ public class DatabaseSeeder {
         return supplier;
     }
 
-    private List<Category> pickRandomCategories(List<Category> categories) {
-        List<Category> shuffled = new ArrayList<>(categories);
+    private Set<Category> pickRandomCategories(Set<Category> categories) {
+        List<Category> shuffled = new LinkedList<>(categories);
         Collections.shuffle(shuffled);
         int count = random.nextInt(3) + 1;  // Pick a random number between 1 and 3
-        return shuffled.subList(0, count);
+        return new HashSet<>(shuffled.subList(0, count));
     }   
 
-    private List<Category> createTestCategories() {
-        List<Category> categories = new ArrayList<>();
+    private Set<Category> createTestCategories() {
+        Set<Category> categories = new HashSet<>();
 
         String[] businessTypes = {"Retail", "Healthcare", "Technology", "Finance", "Manufacturing", "Agriculture", 
             "Construction", "Education", "Transportation", "Utilities", "Wholesale", "Information", "Real Estate"};

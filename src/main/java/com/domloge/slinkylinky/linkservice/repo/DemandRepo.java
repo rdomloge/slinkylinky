@@ -35,8 +35,7 @@ public interface DemandRepo extends CrudRepository <Demand, Long> {
                         "AND d.domain != (SELECT d.domain FROM demand d  where d.id = ?2) "+
                         "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl) "+
                         "ORDER BY s.we_write_fee ASC, "+
-                        "s.sem_rush_uk_jan23traffic DESC, "+ 
-                        "s.sem_rush_authority_score DESC")
+                        "       s.da DESC")
     Demand[] findDemandForSupplierId(long supplierId, long demandIdToIgnore);
 
     @Query(nativeQuery = true,

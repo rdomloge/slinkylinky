@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.util.Set;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -49,7 +49,7 @@ public class Demand {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
-    private List<Category> categories;
+    private Set<Category> categories;
 
 
     public void setRequestedFromString(String s) {

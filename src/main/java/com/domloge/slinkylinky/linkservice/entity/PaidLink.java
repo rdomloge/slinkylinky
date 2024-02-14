@@ -30,6 +30,7 @@ public class  PaidLink {
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(nullable = false, referencedColumnName="id")
+    @Audited
     private Supplier supplier;
 
     @ManyToOne(fetch = FetchType.EAGER)

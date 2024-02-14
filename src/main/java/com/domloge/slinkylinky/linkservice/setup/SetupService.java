@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.setup;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -91,7 +92,7 @@ public class SetupService {
 
         if(dbCategories.size() == 0) log.warn("DemandSite {} has no categories", sds.getName());
 
-        ds.setCategories(dbCategories);
+        ds.setCategories(new HashSet<Category>(dbCategories));
 
         demandSiteRepo.save(ds);
     }
@@ -168,7 +169,7 @@ public class SetupService {
             if(dbCategories.size() == 0) log.warn("Supplier {} has no categories", ss.getName());
 
             Supplier s = new Supplier();
-            s.setCategories(dbCategories);
+            s.setCategories(new HashSet<Category>(dbCategories));
             s.setDa(ss.getDa());
             s.setDomain(ss.getDomain());
             s.setEmail(ss.getEmail());
@@ -221,7 +222,7 @@ public class SetupService {
                 return;
             }
             else {
-                List<Category> demandSiteCategories = demandSite.getCategories();
+                Set<Category> demandSiteCategories = demandSite.getCategories();
                 if(demandSiteCategories == null || demandSiteCategories.size() == 0) {
                     log.warn("@@@ Demandsite {} has no categories", demandSite.getName());
                 }
@@ -247,7 +248,7 @@ public class SetupService {
             ld.setName(sd.getName());
             ld.setRequestedFromString(sd.getRequested());
             ld.setUrl(sd.getUrl());
-            ld.setCategories(dbCategories);
+            ld.setCategories(new HashSet<Category>(dbCategories));
             ld.setCreatedBy("historical");
             demandRepo.save(ld);
         }
@@ -317,7 +318,7 @@ public class SetupService {
             demandSiteRepo.findByDomainIgnoreCase(demand.getDomain())
                 .getCategories()
                 .forEach(c -> dbCategories.add(c));
-            demand.setCategories(dbCategories);
+            demand.setCategories(new HashSet<Category>(dbCategories));
             demand.setCreatedBy("historical");
             demandRepo.save(demand);
 

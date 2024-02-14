@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.linkservice.postprocessing;
 
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
@@ -28,7 +29,7 @@ public class UnlinkedDemandUpdater {
         }
 
         demandSite.getDemands().forEach(demand -> {
-            LinkedList<Category> newCats = new LinkedList<>();
+            Set<Category> newCats = new HashSet<>();
             demandSite.getCategories().forEach(newCats::add);
             demand.setCategories(newCats);
             // what do we do if the demand site domain no longer matches the demand domain?
