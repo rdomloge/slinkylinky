@@ -1,0 +1,11 @@
+GET {{host}}/stats/fordomain?domain=microsoft.com&startDate=2023-01-01&endDate=2024-02-28
+###
+GET http://localhost:3000/.rest/stats/fordomain?domain=earthlytaste.com&startDate=2023-01-31&endDate=2024-01-31
+###
+PATCH http://localhost:8080/.rest/suppliers/482
+Content-Type: application/json
+
+{
+    "updatedBy": "rudolf",
+    "da": 23
+}
