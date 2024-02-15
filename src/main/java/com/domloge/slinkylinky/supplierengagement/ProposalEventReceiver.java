@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.ProposalUpdateEvent;
+import com.domloge.slinkylinky.events.ProposalUpdateEvent.ProposalEventType;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.MimeMessage;
@@ -89,6 +91,28 @@ public class ProposalEventReceiver {
             default:
                 break;
         }
+    }
+
+    @PostConstruct
+    public void sendTestEmail() {
+        log.info("Sending test email");
+        ProposalUpdateEvent event = new ProposalUpdateEvent();
+        event.setProposalDetails("This is the articel", 123);
+        event.setSupplierDetails("Test supplier name", "rdomloge@gmail.com", "http://test.com", 100, "$", false);
+
+        Engagement engagement = new Engagement();
+        engagement.setSupplierName("Test supplier");
+        engagement.setSupplierEmail("rdomloge@gmail.com");
+        engagement.setSupplierWebsite("http://test.com");
+        engagement.setSupplierWeWriteFee(100);
+        engagement.setSupplierWeWriteFeeCurrency("$");
+        engagement.setGuid("abc-123");
+        engagement.setProposalId(123);
+        engagement.setSupplierEmailSent(java.time.LocalDateTime.now());
+        engagement.setArticle("Test article");
+        engagement.setStatus(EngagementStatus.NEW);
+
+        sendEmail(engagement, event);
     }
 
     private void sendEmail(Engagement engagement, ProposalUpdateEvent event) {

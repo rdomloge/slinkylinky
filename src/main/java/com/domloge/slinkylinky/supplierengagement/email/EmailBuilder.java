@@ -1,8 +1,8 @@
 package com.domloge.slinkylinky.supplierengagement.email;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +11,9 @@ import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.ProposalUpdateEvent;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
-import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
-import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
 import com.github.rjeschke.txtmark.Processor;
-import com.google.gson.JsonObject;
 
+import jakarta.activation.DataHandler;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -25,6 +23,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -40,6 +39,7 @@ public class EmailBuilder {
     @Autowired
     private ContentBuilder contentBuilder;
 
+    
     
 
     public Context build(ProposalUpdateEvent event, Engagement engagement) throws AddressException, MessagingException {
@@ -76,6 +76,12 @@ public class EmailBuilder {
         logo.setDisposition(MimeBodyPart.INLINE);
         try {
             logo.attachFile(this.getClass().getClassLoader().getResource("logo.png").getFile());
+            InputStream imageStream = this.getClass().getClassLoader().getResource("logo.png").openStream();
+            log.debug("Stream available: {}" + imageStream);;
+            logo.setDataHandler(
+                new DataHandler(
+                    new ByteArrayDataSource(imageStream, 
+                        "image/png")));
         } catch (IOException | MessagingException e) {
             log.error("Could not load logo to email", e);
         }
