@@ -24,6 +24,7 @@ export default function AddOrEditSupplier({supplier}) {
 
     const [supplierName, setSupplierName] = useState(supplier.name)
     const [supplierDa, setSupplierDa] = useState(supplier.da)	
+    const [supplierSpamScore, setSupplierSpamScore] = useState()
     const [supplierWebsite, setSupplierWebsite] = useState(supplier.website)
     const [supplierSource, setSupplierSource] = useState(supplier.source)
     const [supplierEmail, setSupplierEmail] = useState(supplier.email)
@@ -56,6 +57,7 @@ export default function AddOrEditSupplier({supplier}) {
                 resp.json().then( (data) => {
                     supplier.da = data.domain_authority
                     setSupplierDa(data.domain_authority)
+                    setSupplierSpamScore(data.spam_score)
                 })
             }
             else {
@@ -201,6 +203,12 @@ export default function AddOrEditSupplier({supplier}) {
                     </div>
                     {showModal ?
                         <Modal title={"SEM rush traffic // "+supplier.domain} dismissHandler={()=>setShowModal(false)} width={"w-2/3"}>
+                            <span className="inline-block mr-6">Domain authority: 
+                                <span className="text-2xl" > {supplierDa}</span>
+                            </span>
+                            <span>Spam score: 
+                                <span className="text-2xl" > {supplierSpamScore}</span>
+                            </span>
                             <SupplierSemRushTraffic supplier={supplier} adhoc={true}/>
                         </Modal>
                     : 
