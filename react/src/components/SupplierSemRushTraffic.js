@@ -42,7 +42,7 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                             date: d.date, 
                             traffic: d.organicTraffic, 
                             srrank: d.rank, 
-                            yearMonth: new Date(d.date).toISOString().substring(0,7)}))
+                            yearMonth: new Date(d.date).toISOString().substring(0,7)})).reverse()
                 ***REMOVED***
                     setTrafficDataPoints(data);
             ***REMOVED***)

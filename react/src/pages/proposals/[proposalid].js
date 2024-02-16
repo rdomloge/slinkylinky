@@ -124,7 +124,7 @@ export default function Proposal() {
                     <div className="flex">
                             {supplier ?
                                 <div className="flex-initial w-1/2" id="supplierPanel">
-                                <SupplierCard supplier={supplier} latest={null == currentSupplier} />
+                                <SupplierCard supplier={supplier} latest={null == currentSupplier} editable={false} linkable={true} />
                                 </div>
                             : 
                                 null

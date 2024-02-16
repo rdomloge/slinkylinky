@@ -30,18 +30,10 @@ export default function LineGraph({datapoints}) {
         datasets: [
             {
                 label: "Traffic",
-                yAxisID: 'Traffic',
                 data: datapoints.map((datapoint) => datapoint.traffic),
                 borderColor: 'rgb(255, 99, 132)',
                 backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        ***REMOVED***,
-            {
-                label: "SEMrush ranking",
-                yAxisID: 'SEM rush ranking',
-                data: datapoints.map((datapoint) => datapoint.srrank),
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        ***REMOVED***,
+        ***REMOVED***
         ]
 ***REMOVED***
 
