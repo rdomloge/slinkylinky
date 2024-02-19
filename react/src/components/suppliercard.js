@@ -12,7 +12,7 @@ import ThirdPartyIcon from '@/components/third-party.svg'
 import EnterIcon from '@/components/enter.svg'
 import Link from 'next/link'
 import Counter from './Counter'
-import SupplierSemRushTraffic from './SupplierSemRushTraffic'
+import SupplierSemRushTraffic from './SupplierStats'
 import { addProtocol } from './Util'
 
 
