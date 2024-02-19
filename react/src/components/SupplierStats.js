@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
     
     const [trafficDataPoints, setTrafficDataPoints] = useState([]);
+    const [spamScore, setSpamScore] = useState();
     const { data: session } = useSession();
 
 
@@ -24,7 +25,8 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
             const month = lastDayOfLastMonth.getMonth()
             const day = lastDayOfLastMonth.getDate()
             const startDate = new Date(year, month, day).toISOString().substring(0,10);
-            const endDate = lastDayOfLastMonth.toISOString().substring(0,10);
+            // const endDate = lastDayOfLastMonth.toISOString().substring(0,10);
+            const endDate = new Date().toISOString().substring(0,10); // temporarily use today as end date so that we get some spam data
             url = "/.rest/stats/fordomain?"
                         +"domain="+supplier.domain
                         +"&startDate="+startDate
@@ -44,7 +46,9 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                             srrank: d.rank, 
                             yearMonth: new Date(d.date).toISOString().substring(0,7)})).reverse()
                     }
-                    setTrafficDataPoints(data);
+                    if(! adhoc) setSpamScore(data[data.length-1].spamScore)
+                    // need to trim off the last data point as we have 13 months of data, because of the hack above
+                    setTrafficDataPoints(data.slice(0, data.length-1))
                 })
             }
             else {
@@ -60,6 +64,12 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
             <>
             <LineGraph datapoints={trafficDataPoints}/>
             <TrafficAnalyser datapoints={trafficDataPoints}/>
+            {adhoc ? 
+                null
+            : 
+                <p>Spam: {spamScore}</p>
+            }
+            
             </>
         :
             null

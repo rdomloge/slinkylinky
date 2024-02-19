@@ -12,7 +12,7 @@ import DisableToggle from './atoms/DisableToggle'
 import { fixForPosting } from "./CategoryUtil";
 import { StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
-import SupplierSemRushTraffic from "./SupplierSemRushTraffic";
+import SupplierSemRushTraffic from "./SupplierStats";
 
 export default function AddOrEditSupplier({supplier}) {
 
