@@ -1,0 +1,5 @@
+GET http://localhost:8084/.rest/orders
+###
+GET http://localhost:8084/.rest/orders?projection=lightOrder
+###
+GET http://localhost:8084/.rest/orders/252?projection=lightOrder
