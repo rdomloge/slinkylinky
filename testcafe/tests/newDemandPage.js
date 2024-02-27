@@ -55,7 +55,7 @@ test("New demand demandSite selection ", async t=> {
     await t.expect(addEditDemand.nameLabel.innerText).eql('Acticare');
 
     // fill in the missing values
-    await t.typeText(addEditDemand.urlInput, "/testPromo") 
+    await t.typeText(addEditDemand.urlInput, "shop.acticareuk.com/testPromo") 
     await t.typeText(addEditDemand.requestedInput, "2024-02-12")
     await t.typeText(addEditDemand.daNeededInput, "30")
     await t.typeText(addEditDemand.anchorTextInput, "Anchor text created by TestCafe")
@@ -72,9 +72,12 @@ test("New demand create new demandSite ", async t=> {
     await t.click(addEditDemand.newDemandSiteButton)
         .expect(addEditDemand.newDemandSiteNameInput.exists).ok()
         .expect(addEditDemand.newDemandSiteUrlInput.exists).ok();
+    const date = new Date()
+    const uniqueDomain = "testcafe"+date.getTime()+".com"
+    const uniqueName = "TestCafe demandsite-"+date.getTime()
 
-    await t.typeText(addEditDemand.newDemandSiteNameInput, "TestCafe demandsite")
-    await t.typeText(addEditDemand.newDemandSiteUrlInput, "testcafe.com")
+    await t.typeText(addEditDemand.newDemandSiteNameInput, uniqueName)
+    await t.typeText(addEditDemand.newDemandSiteUrlInput, uniqueDomain)
     await t.click(addEditDemand.newDemandSiteCreateButton)
         .expect(addEditDemand.newDemandSiteNameInput.exists).notOk()
         .expect(addEditDemand.newDemandSiteUrlInput.exists).notOk();
@@ -82,17 +85,18 @@ test("New demand create new demandSite ", async t=> {
     // verify that the search results now match the new demand site
     const firstSearchResult = addEditDemand.demandSiteSearchResults.nth(0)
     await t.expect(firstSearchResult.exists).ok()
-    await t.expect(firstSearchResult.find('div.flex-1 > p.text-lg').innerText).contains("TestCafe demandsite")
-    await t.expect(firstSearchResult.find('div.flex-1 > p.mb-6').innerText).contains("testcafe.com")
+    
+    await t.expect(firstSearchResult.find('div.flex-1 > p.text-lg').innerText).contains(uniqueName)
+    await t.expect(firstSearchResult.find('div.flex-1 > p.mb-6').innerText).contains(uniqueDomain)
     await t.expect(firstSearchResult.find('div.flex-1 > span').innerText).eql("0")
 
-    await t.expect(addEditDemand.nameLabel.innerText).eql('TestCafe demandsite');
+    await t.expect(addEditDemand.nameLabel.innerText).eql(uniqueName);
     // await t.expect(addEditDemand.urlInput.value).eql('testcafe.com'); // don't do this any more - want to force user to copy and paste
     await t.expect(addEditDemand.nameInput.exists).notOk();
 
 
     // fill in the missing values
-    await t.typeText(addEditDemand.urlInput, "/testPromo")
+    await t.typeText(addEditDemand.urlInput, "shop.acticareuk.com/testPromo")
     await t.typeText(addEditDemand.anchorTextInput, "Anchor text created by TestCafe")
     await t.typeText(addEditDemand.requestedInput, "2024-02-12")
     await t.typeText(addEditDemand.daNeededInput, "30")

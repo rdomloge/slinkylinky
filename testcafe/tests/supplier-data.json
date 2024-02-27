@@ -7,6 +7,14 @@
         "email": "rdomloge@gmail.com",
         "fee": "45",
         "categories": ["Architecture"]
-    }
-    
+    },
+    {
+        "name": "Supplier that we will make a proposal from",
+        "da": "46",
+        "website": "bca.co.uk",
+        "source": "TestCafe testing",
+        "email": "rdomloge@gmail.com",
+        "fee": "145",
+        "categories": ["Weddings"]
+    }   
 ]

@@ -31,7 +31,7 @@ export async function gotoNewSupplierPage() {
 
 export async function createSupplier(dataIndex) {
     
-    if(null == dataIndex || dataIndex < 0 || dataIndex >= demandData.length) {
+    if(null == dataIndex || dataIndex < 0 || dataIndex >= supplierData.length) {
         throw new Error("Invalid dataIndex");
     }
 
