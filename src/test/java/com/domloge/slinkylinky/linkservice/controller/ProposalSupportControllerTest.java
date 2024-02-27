@@ -26,6 +26,7 @@ import com.domloge.slinkylinky.linkservice.repo.DemandRepo;
 import com.domloge.slinkylinky.linkservice.repo.PaidLinkRepo;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -61,7 +62,7 @@ public class ProposalSupportControllerTest {
     // @Transactional() -- can't be transactional because envers does not write until transaction is committed
     // this means that the audit records are not written until the transaction is committed and the controller
     // finds no audit records when it tries to read them and fix the Proposal
-    void createProposal_supplierUpdated_originalSupplierReturned() {
+    void createProposal_supplierUpdated_originalSupplierReturned() throws JsonProcessingException {
         // Given
         Supplier supplier = new Supplier();
         supplier.setDa(10);
@@ -213,7 +214,7 @@ public class ProposalSupportControllerTest {
 
     @Test
     @Transactional
-    void testCreateProposal_supplierDoesNotExist() {
+    void testCreateProposal_supplierDoesNotExist() throws JsonProcessingException {
         // Given
         // nothing to do here
 
@@ -226,7 +227,7 @@ public class ProposalSupportControllerTest {
 
     @Test
     @Transactional
-    void testCreateProposal_supplierExistsDemandNotFound() {
+    void testCreateProposal_supplierExistsDemandNotFound() throws JsonProcessingException {
         // Given
         Supplier supplier = new Supplier();
         supplier.setName("somebody");
@@ -241,7 +242,7 @@ public class ProposalSupportControllerTest {
 
     @Test
     @Transactional
-    void testCreateProposal_supplierAlreadyLinkedToDemand() {
+    void testCreateProposal_supplierAlreadyLinkedToDemand() throws JsonProcessingException {
         // Given
         Supplier supplier = new Supplier();
         supplier.setName("somebody");
