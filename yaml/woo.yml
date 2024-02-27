@@ -59,7 +59,7 @@ spec:
               value: http://linkservice-service:8090
           startupProbe:   
             httpGet:
-              path: /.rest/woorecords
+              path: /.rest/profile
               port: 8080
             initialDelaySeconds: 60
             failureThreshold: 30
