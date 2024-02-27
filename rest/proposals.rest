@@ -42,7 +42,11 @@ GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGre
 GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
 ?startDate=2023-01-01T00:00&endDate=2023-11-26T00:00&projection=fullProposal
 ###
-GET {{host}}/proposals/73?projection=fullProposal
+GET {{host}}/proposals/611/paidLinks?projection=fullProposal
+###
+GET {{host}}/paidlinks/826/demand
+###
+GET {{host}}/proposals/653?projection=fullProposal
 ###
 GET {{host}}/proposals/653?projection=fullProposal
 ###

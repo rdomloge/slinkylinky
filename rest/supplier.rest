@@ -43,8 +43,16 @@ GET {{host}}/suppliers/search/findSuppliersForLinkDemandId?linkDemandId=108&dema
 ###
 GET {{host}}/suppliers/306?projection=fullSupplier
 ###
-GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameIn?projection=fullSupplier&email=test&name=test&domain=test
+GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameInOrDaGreaterThan?projection=fullSupplier&email=car&name=car&domain=car&da=100
+###
+GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameInOrDaGreaterThan?projection=fullSupplier&da=80
+###
+GET {{host}}/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameInOrDaGreaterThan?projection=fullSupplier&categories=Automotive&da=80
 ###
 GET {{host}}/supplierVersionSupport/getVersion?supplierId=306&version=24
 ###
 GET {{host}}/suppliers/306?projection=fullSupplier
+###
+GET {{host}}/suppliers/search/countByDisabledFalse
+###
+GET {{host}}/suppliers/search/countByName
