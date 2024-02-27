@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,14 +39,15 @@ public class Demand {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private String name;//
-    private String url;//
-    private int daNeeded;//
-    private String anchorText;//
+    private String name;
+    private String url;
+    private int daNeeded;
+    private String anchorText;
     private String domain;
     private LocalDateTime requested;
     private String createdBy;
     private String updatedBy;
+    private String source;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
