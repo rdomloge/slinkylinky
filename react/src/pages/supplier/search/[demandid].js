@@ -12,6 +12,7 @@ import Layout from '@/components/layout/Layout'
 import SessionButton, { ClickHandlerButton, StyledButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
+import Loading from "@/components/Loading";
 
 export default function App() {
     const router = useRouter()
@@ -23,6 +24,7 @@ export default function App() {
     const [showModal, setShowModal] = useState(false);
     const [newSupplierName, setNewSupplierName] = useState();
     const [supplierUsageCount, setSupplierUsageCount] = useState();
+    const [error, setError] = useState();
 
     useEffect(
         () => {
@@ -34,9 +36,13 @@ export default function App() {
                 const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
 
                 Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
-                    .then(([resDemand, resSuppliers]) => 
-                        Promise.all([resDemand.json(), resSuppliers.json()])
-                    )
+                    .then(([resDemand, resSuppliers]) => {
+                        if(!resDemand.ok || !resSuppliers.ok) {
+                            if(!resDemand.ok) throw new Error("Could not load demand")
+                            if(!resSuppliers.ok) throw new Error("Could not load supplier")
+                        }
+                        return Promise.all([resDemand.json(), resSuppliers.json()])
+                    })
                     .then(([dataDemand, dataSuppliers]) => {
                         setDemand(dataDemand);
                         setSuppliers(dataSuppliers);
@@ -51,7 +57,15 @@ export default function App() {
                             .then(counts => {
                                 setSupplierUsageCount(counts)
                             })
-                    });
+                    })
+                    // .catch((error) => {
+                    //     if (typeof error === 'string' || error instanceof String) { 
+                    //         setError(error);
+                    //     }
+                    //     else {
+                    //         setError(error.message);
+                    //     }
+                    // })
             }
         }, [router.isReady, router.query.demandid]
     );
@@ -81,36 +95,44 @@ export default function App() {
     return (
         <Layout>
             <PageTitle title="Find a matching supplier"/>
-            <div className='flex'>
-                <div className='flex-1'>
-                    {demand ?
-                        <DemandCard demand={demand} />
-                    : null}
-                </div>
-                <div className='card flex-none text-lg font-bold m-4 text-zinc-600'>
-                    There are 
-                    <span className='text-5xl'> {existingLinkCount} </span> 
-                    historical links tracked for this domain
-                    <div className='mt-4'>
-                        <SessionButton label="Use 3rd party" clickHandler={(e) => setShowModal(true)}/>
-                    </div>
-                </div>
-            </div>
-            {showModal ?
-                <Modal dismissHandler={()=>setShowModal(false)} title="3rd Party options" >
-                    <TextInput label="Supplier name" changeHandler={(e)=>setNewSupplierName(e)}/>
-                    <div className='mt-4'>
-                        <ClickHandlerButton label="Create" clickHandler={()=>create3rdPartyProposal()}/>
-                    </div>
-                </Modal>
+            {error || !demand ? 
+                <Loading error={error}/> 
             : 
-                null
+                <>
+                <div className='flex'>
+                    <div className='flex-1'>
+                        {demand ?
+                            <DemandCard demand={demand} />
+                        : null}
+                    </div>
+                    <div className='card flex-none text-lg font-bold m-4 text-zinc-600'>
+                        There are 
+                        <span className='text-5xl'> {existingLinkCount} </span> 
+                        historical links tracked for this domain
+                        <div className='mt-4'>
+                            <SessionButton label="Use 3rd party" clickHandler={(e) => setShowModal(true)}/>
+                        </div>
+                    </div>
+                </div>
+                {showModal ?
+                    <Modal dismissHandler={()=>setShowModal(false)} title="3rd Party options" >
+                        <TextInput label="Supplier name" changeHandler={(e)=>setNewSupplierName(e)}/>
+                        <div className='mt-4'>
+                            <ClickHandlerButton label="Create" clickHandler={()=>create3rdPartyProposal()}/>
+                        </div>
+                    </Modal>
+                : 
+                    null
+                }
+                <div>Matching suppliers</div>
+                {suppliers ?
+                    <SupplierList suppliers={suppliers} demand={demand} 
+                        demandid={router.query.demandid} usages={supplierUsageCount}/>
+                : 
+                    null
+                }
+                </>
             }
-            <div>Matching suppliers</div>
-            {suppliers ?
-                <SupplierList suppliers={suppliers} demand={demand} 
-                    demandid={router.query.demandid} usages={supplierUsageCount}/>
-            : null}
         </Layout>
     );
 }

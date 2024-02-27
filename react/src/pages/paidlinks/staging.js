@@ -63,9 +63,12 @@ export default function App() {
                                             + supplierId + "&demandIdToIgnore="+demandId+"&projection=fullDemand";
                 
                 Promise.all([fetch(demandUrl), fetch(supplierUrl), fetch(otherDemandsUrl)])
-                    .then(([resDemand, resSupplier, resOtherDemands]) => 
-                        Promise.all([resDemand.json(), resSupplier.json(), resOtherDemands.json()])
-                    )
+                    .then(([resDemand, resSupplier, resOtherDemands]) => {
+                        if(!resDemand.ok || !resSupplier.ok || !resOtherDemands.ok) {
+                            throw new Error("Could not fetch data");
+                        }
+                        return Promise.all([resDemand.json(), resSupplier.json(), resOtherDemands.json()])
+                    })
                     .then(([dataDemand, dataSupplier, dataOtherDemands]) => {
                         dataDemand.id = demandId; // eurgh... have to find a way to get spring data rest to include the IDs
                         setDemand(dataDemand);
@@ -73,7 +76,7 @@ export default function App() {
                         setOtherDemands(dataOtherDemands);
                     })
                     .catch((error) => {
-                        setError(error);
+                        setError(error.message);
                     });
                     
             }
