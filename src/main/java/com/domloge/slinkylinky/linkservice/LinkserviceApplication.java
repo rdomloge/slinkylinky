@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {"com.domloge.slinkylinky"})
 @EnableAutoConfiguration(exclude={org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration.class})
-public class LinkserviceApplication {
+public class LinkserviceApplication {	
 
 	public static void main(String[] args) {
 		SpringApplication.run(LinkserviceApplication.class, args);
