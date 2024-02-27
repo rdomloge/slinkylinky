@@ -1,20 +1,31 @@
 package com.domloge.slinkylinky.linkservice;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import com.google.common.net.InternetDomainName;
+
 public class Util {
     
-    public static String stripDomain(String url) {
-        url = url.toLowerCase();
-        int httpPos = url.indexOf("http://");
-        int httpsPos = url.indexOf("https://");
-        if(httpPos > -1) url = url.substring(7);
-        if(httpsPos > -1) url = url.substring(8);
-        if(url.indexOf("/") > -1) url = url.substring(0, url.indexOf("/"));
-        if(url.indexOf("www.") > -1) url = url.substring(url.indexOf("www.")+4);
-        return url;
+    public static String stripDomain(String urlString) {
+
+        URI uri;
+        try {
+            uri = new URI(urlString);
+            if(uri.getScheme() == null) {
+                uri = new URI("https://" + urlString);
+            }   
+        } 
+        catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        String host = uri.getHost();
+        InternetDomainName internetDomainName = InternetDomainName.from(host).topPrivateDomain(); 
+        return internetDomainName.toString(); 
     }
 
     public static LocalDateTime parse(String d) {
