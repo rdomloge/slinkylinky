@@ -7,6 +7,7 @@ import Loading from './Loading';
 import CategoriesCard from './categoriescard';
 import { EditDemandSubmitButton } from './atoms/Button';
 import { fixForPosting } from './CategoryUtil'; 
+import ErrorMessage from './atoms/Messages';
 
 export default function AddOrEditDemand({demand}) {
 
@@ -20,6 +21,8 @@ export default function AddOrEditDemand({demand}) {
     const [demandUrl, setDemandUrl] = useState(demand.url)
     const [demandDaNeeded, setDemandDaNeeded] = useState(demand.daNeeded)
     const [demandRequested, setDemandRequested] = useState(demand.requested)
+
+    const [errorMEssage, setErrorMessage] = useState()
         
 
     function submitHandler() {
@@ -50,12 +53,13 @@ export default function AddOrEditDemand({demand}) {
                     location.href = "/demand";
             ***REMOVED***
                 else {
-                    console.log("Patch failed: "+JSON.stringify(resp))
+                    setErrorMessage("Create failed: "+resp.statusText)
             ***REMOVED***
         ***REMOVED***)
     ***REMOVED***
         else {
             demand.createdBy = session.user.email
+            demand.source = 'SlinkyLinky'
             fetch(restUrl, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
@@ -68,7 +72,7 @@ export default function AddOrEditDemand({demand}) {
                     location.href = "/demand";
             ***REMOVED***
                 else {
-                    console.log("Created failed: "+JSON.stringify(resp));
+                    setErrorMessage("Create failed: "+resp.statusText)
             ***REMOVED***
         ***REMOVED***);
     ***REMOVED***
@@ -98,6 +102,9 @@ export default function AddOrEditDemand({demand}) {
                     <EditDemandSubmitButton submitHandler={submitHandler} demand={demand} demandsite={demandsite}/>
                 </div>
                 <div>
+                
+                <ErrorMessage message={errorMEssage}/>
+                
                 <form className="w-full max-w-lg card">
                     <div className="flex flex-wrap -mx-3 mb-6">
                         <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">

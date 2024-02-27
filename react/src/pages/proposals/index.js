@@ -91,12 +91,17 @@ export default function ListProposals() {
                 const minusMonths = router.query.minusMonths
                 
                 fetch(buildUrl(minusMonths))
-                    .then( (res) => res.json())
+                    .then( (res) => {
+                        if(!res.ok) {
+                            throw new Error("Can't fetch proposals.")
+                    ***REMOVED***
+                        return res.json()
+                ***REMOVED***)
                     .then( (data) => {
 
                         setProposals(filterForThisUser(data))}
                     )
-                    .catch( (error) => setError(error));
+                    .catch( (error) => setError(error.message));
         ***REMOVED***
             
     ***REMOVED***, [router.isReady, router.query.minusMonths, personal]

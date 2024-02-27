@@ -16,7 +16,12 @@ export default function NiceDate(props) {
 }
 
 export function NiceDateTime({isostring}) {
+    if(null == isostring) {
+        throw new Error("isostring is required");
+***REMOVED***
     return (
+        <>
         <span className="align-middle">{new Date(isostring).toLocaleString()}</span>
+        </>
     );
 }
