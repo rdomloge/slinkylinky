@@ -10,8 +10,16 @@ import java.util.stream.Collectors;
 
 import org.hibernate.envers.AuditReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.rest.core.event.AfterCreateEvent;
+import org.springframework.data.rest.core.event.AfterDeleteEvent;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,19 +36,22 @@ import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.audit.ProposalAuditor;
 import com.domloge.slinkylinky.linkservice.entity.audit.SupplierAuditor;
+import com.domloge.slinkylinky.linkservice.postprocessing.ProposalEventDispatcher;
 import com.domloge.slinkylinky.linkservice.repo.DemandRepo;
 import com.domloge.slinkylinky.linkservice.repo.PaidLinkRepo;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.rjeschke.txtmark.Processor;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
 @RequestMapping(".rest/proposalsupport")
 @Slf4j
-public class ProposalSupportController {
+public class ProposalSupportController implements ApplicationEventPublisherAware {
     
     @Autowired
     private SupplierRepo supplierRepo;
@@ -58,6 +69,9 @@ public class ProposalSupportController {
     private ProposalAuditor proposalAuditor;
 
     @Autowired
+    private ProposalEventDispatcher proposalEventDispatcher;
+
+    @Autowired
     private SupplierAuditor supplierAuditor;
 
     @Autowired
@@ -65,6 +79,19 @@ public class ProposalSupportController {
 
     @Autowired
     private AuditReader auditReader;
+
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
+
+    private TransactionTemplate transactionTemplate;
+
+
+    @PostConstruct
+    public void wireTransactionTemplate() {
+        transactionTemplate = new TransactionTemplate(transactionManager);
+    }
 
 
 
@@ -76,6 +103,7 @@ public class ProposalSupportController {
             return ResponseEntity.notFound().build();
         }
         proposalAbortHandler.handle(proposalId, user);
+        applicationEventPublisher.publishEvent(new AfterDeleteEvent(opt.get()));
         return ResponseEntity.ok().build();
     }
 
@@ -115,63 +143,70 @@ public class ProposalSupportController {
 
 
     @PostMapping(path = "/createProposal", produces = "application/json")
-    @Transactional
     public ResponseEntity<Object> createProposal(@RequestHeader String user, @RequestParam long supplierId, 
-            @RequestParam long[] demandIds) {
+            @RequestParam long[] demandIds) throws JsonProcessingException {
         
         log.info(user + " is creating a proposal for supplier {} for demands {} ", supplierId, Arrays.toString(demandIds));
         
-        
+        Proposal dbProposal = transactionTemplate.execute(status ->  {
+            Optional<Supplier> supplierOpt = supplierRepo.findById(supplierId);
+                if( ! supplierOpt.isPresent()) {
+                    return null;
+                }
+                
+                Supplier supplier = supplierOpt.get();
+                
+                List<Demand> dbDemands = new LinkedList<>();
+                Arrays.stream(demandIds).forEach(i -> {
+                    Optional<Demand> demand = demandRepo.findById(i);
+                    if (demand.isEmpty()) {
+                        log.error("Demand with id {} does not exist", i);
+                        return;                
+                    }
+                    dbDemands.add(demand.get());
+                });
+                if(dbDemands.size() != demandIds.length) {
+                    return null;
+                }
 
-        Optional<Supplier> supplierOpt = supplierRepo.findById(supplierId);
-        if( ! supplierOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        Supplier supplier = supplierOpt.get();
-        
-        List<Demand> dbDemands = new LinkedList<>();
-        Arrays.stream(demandIds).forEach(i -> {
-            Optional<Demand> demand = demandRepo.findById(i);
-            if (demand.isEmpty()) {
-                log.error("Demand with id {} does not exist", i);
-                return;                
-            }
-            dbDemands.add(demand.get());
+                // check that there's no paid link already between the supplier and these demands (what if someone already created a proposal?)
+                List<Demand> existingPaidLinks = dbDemands.stream()
+                    .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(d.getDomain(), supplier.getDomain()))
+                    .collect(Collectors.toList());
+                
+                if(existingPaidLinks.size() > 0) {
+                    log.error("There's already a paid link between supplier {} and one of the demands {}", supplierId, Arrays.toString(demandIds));
+                    return null;
+                }
+                
+                LinkedList<PaidLink> paidLinks = new LinkedList<>();
+
+                // create the paid links
+                dbDemands.forEach(d -> {
+                    PaidLink paidLink = new PaidLink();
+                    paidLink.setDemand(d);
+                    paidLink.setSupplier(supplier);
+                    PaidLink dbPaidLink = paidLinkRepo.save(paidLink);
+                    paidLinks.add(dbPaidLink);
+                });
+
+                // create the proposal
+                Proposal proposal = new Proposal();
+                proposal.setCreatedBy(user);
+                proposal.setDateCreated(LocalDateTime.now());
+                proposal.setPaidLinks(paidLinks);
+                proposal.setSupplierSnapshotVersion(supplier.getVersion());
+                return proposalRepo.save(proposal);
         });
-        if(dbDemands.size() != demandIds.length) {
-            return ResponseEntity.notFound().build();
-        }
 
-        // check that there's no paid link already between the supplier and these demands (what if someone already created a proposal?)
-        List<Demand> existingPaidLinks = dbDemands.stream()
-            .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(d.getDomain(), supplier.getDomain()))
-            .collect(Collectors.toList());
-        
-        if(existingPaidLinks.size() > 0) {
-            log.error("There's already a paid link between supplier {} and one of the demands {}", supplierId, Arrays.toString(demandIds));
+        if(dbProposal == null) {
             return ResponseEntity.badRequest().build();
         }
+
         
-        LinkedList<PaidLink> paidLinks = new LinkedList<>();
-
-        // create the paid links
-        dbDemands.forEach(d -> {
-            PaidLink paidLink = new PaidLink();
-            paidLink.setDemand(d);
-            paidLink.setSupplier(supplier);
-            PaidLink dbPaidLink = paidLinkRepo.save(paidLink);
-            paidLinks.add(dbPaidLink);
-        });
-
-        // create the proposal
-        Proposal proposal = new Proposal();
-        proposal.setCreatedBy(user);
-        proposal.setDateCreated(LocalDateTime.now());
-        proposal.setPaidLinks(paidLinks);
-        proposal.setSupplierSnapshotVersion(supplier.getVersion());
-        Proposal dbProposal = proposalRepo.save(proposal);
         proposalAuditor.handleAfterCreate(dbProposal);
+        // proposalEventDispatcher.handleAfterCreate(dbProposal);
+        applicationEventPublisher.publishEvent(new AfterCreateEvent(dbProposal));
         
         // make sure the new proposal HREF is in the Location header of the response.
         return ResponseEntity.created(URI.create("/proposals/" + dbProposal.getId())).build();
@@ -225,9 +260,15 @@ public class ProposalSupportController {
         proposal.setPaidLinks(Arrays.asList(dbPaidLink));
         Proposal dbProposal = proposalRepo.save(proposal);
         proposalAuditor.handleAfterCreate(dbProposal);
+        applicationEventPublisher.publishEvent(new AfterCreateEvent(dbProposal));
         
         // make sure the new proposal HREF is in the Location header of the response.
         return ResponseEntity.created(URI.create("/proposals/" + dbProposal.getId())).build();
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
 }
