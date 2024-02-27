@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import LineGraph from "./LineGraph";
 import TrafficAnalyser from "./TrafficAnalyser";
 import { useSession } from "next-auth/react";
+import Image from 'next/image'
+import PigIcon from '@/components/pig.svg'
 
 export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
     
@@ -46,7 +48,9 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                             srrank: d.rank, 
                             yearMonth: new Date(d.date).toISOString().substring(0,7)})).reverse()
                 ***REMOVED***
-                    if(! adhoc) setSpamScore(data[data.length-1].spamScore)
+                    if(! adhoc & data.length > 0) {
+                        setSpamScore(data[data.length-1].spamScore)
+                ***REMOVED***
                     // need to trim off the last data point as we have 13 months of data, because of the hack above
                     setTrafficDataPoints(data.slice(0, data.length-1))
             ***REMOVED***)
@@ -64,10 +68,13 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
             <>
             <LineGraph datapoints={trafficDataPoints}/>
             <TrafficAnalyser datapoints={trafficDataPoints}/>
-            {adhoc ? 
+            {adhoc || spamScore < 1 ? 
                 null
             : 
-                <p>Spam: {spamScore}</p>
+                <div>
+                <Image src={PigIcon} width={40} className="float-left" alt="spam score"/>
+                <p className={spamScore > 9 ? "in-pig-dd": "in-pig-sd"}>{spamScore}</p>
+                </div>
         ***REMOVED***
             
             </>
