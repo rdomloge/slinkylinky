@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.stats.sync;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,18 +57,20 @@ public class Sync {
     @Autowired
     private LinkServiceUpdater linkServiceUpdater;
 
-    
+    @Autowired
+    private SupplierUpChecker supplierUpChecker;
+
+    private LinkedList<String> downDomains = new LinkedList<>();
 
     
     public Sync(RestTemplate rest) {
         this.rest = rest;
     }
 
-    
-    @PostConstruct
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 */60 * * * *")
     public void syncAllSuppliers() {
         log.info("Syncing");
+        downDomains.clear();
 
         int page = 0;
 
@@ -78,6 +81,11 @@ public class Sync {
         }
         catch(TransientSyncException e) {
             log.error("Too many requests to Moz - backing off");
+        }
+
+        log.info("List of down domains");
+        for(String domain : downDomains) {
+            log.info("{}", domain);
         }
 
         log.info("Syncing complete");
@@ -103,6 +111,16 @@ public class Sync {
             .collect(Collectors.toList());
 
         for (Supplier supplier : activeSuppliers) {
+            log.info("=================================================================");
+            boolean supplierUp = supplierUpChecker.isSupplierUp(supplier);
+            if(!supplierUp) {
+                log.error("Supplier {} is down", supplier.getDomain());
+                downDomains.add(supplier.getDomain());
+            }
+            else {
+                log.debug("Supplier {} is up", supplier.getDomain());
+            }
+
             log.debug("Synching traffic for {}", supplier.getDomain());
             syncSupplier(supplier, trafficRepo, semrush::forMonth, 12);
 
@@ -118,6 +136,7 @@ public class Sync {
     }
 
     public int syncSupplier(Supplier supplier, TemporalRepo repo, TemporalDataLoader<?> loader, int monthsBack) throws TransientSyncException {
+        
         String domain = supplier.getDomain();
         LocalDate startDate = LocalDate.now().minusMonths(monthsBack);
         // make it the start of the month
