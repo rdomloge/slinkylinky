@@ -86,6 +86,23 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: woo-service
+  namespace: slinkylinky
+spec:
+  type: LoadBalancer
+  selector:
+    app: woo
+  ports:
+    - protocol: TCP
+      port: 8094
+      targetPort: 8080
+  #type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
   name: adminwebsite-service
   namespace: slinkylinky
 spec:
