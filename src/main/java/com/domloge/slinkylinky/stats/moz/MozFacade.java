@@ -76,6 +76,7 @@ public class MozFacade {
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("targets", new String[]{domain});
+        // payload.put("monthly_history_values", new String[]{"domain_authority", "SpamScore"}); this breaks it and causes a 500 error
         
         
         String body;
