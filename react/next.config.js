@@ -45,6 +45,10 @@ const nextConfig = {
           destination: 'http://host.docker.internal:8083/.rest/semrush/:path*'
         },
         {
+          source: '/.rest/orders/:path*',
+          destination: 'http://host.docker.internal:8084/.rest/orders/:path*'
+        },
+        {
           source: '/.rest/:path*',
           destination: 'http://host.docker.internal:8080/.rest/:path*'
         }
