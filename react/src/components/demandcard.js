@@ -8,6 +8,8 @@ import AnchorIcon from '@/components/anchor.svg'
 import CalendarIcon from '@/components/calendar.svg'
 import LinkIcon from '@/components/link.svg'
 import DaIcon from '@/components/authority.svg'
+import LSLogo from '@/components/linksync-logo.png'
+import SLLogo from '@/components/logo.png'
 import NiceDate from './atoms/DateTime'
 import Link from 'next/link'
 import { SessionBlock, StyledButton } from './atoms/Button'
@@ -62,6 +64,7 @@ export default function DemandCard({demand, fullfilable, editable, id}) {
                 <p>Created by {demand.createdBy}</p>
                 <CategoriesCard categories={demand.categories}/>
             </div>
+                
             <SessionBlock>
                 <div className=''>
                     {fullfilable ?
@@ -81,6 +84,10 @@ export default function DemandCard({demand, fullfilable, editable, id}) {
                     :null}
                 </div>
             </SessionBlock>
+            
+            {'LinkSync' === demand.source ? <Image src={LSLogo} height={25} alt="LinkSync logo" className='float-right '/> : null}
+            {'SlinkyLinky' === demand.source ? <Image src={SLLogo} height={20} alt="LinkSync logo" className='float-right'/> : null}
+            
             {showDeleteModal ?
                 <Modal title='Delete demand' dismissHandler={()=> setShowDeleteModal(false)}>
                     <p>Are you sure you want to delete this demand?</p>

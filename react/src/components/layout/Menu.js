@@ -12,6 +12,7 @@ export default function Menu() {
             <div><Link href="/supplier">Suppliers</Link></div>
             <div><Link href="/proposals">Proposals</Link></div>
             <div><Link href="/demandsites">Demand Sites</Link></div>
+            <div><Link href="/orders">Orders</Link></div>
             <div><Link href="/audit">Audit</Link></div>
         </div>
     );
