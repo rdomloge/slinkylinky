@@ -5,6 +5,7 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -32,8 +33,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @Configuration
 public class RabbitConfig {
 
-    @Value("${rabbitmq.proposals.queue}")
-    private String proposalsQueueName;
+    // @Value("${rabbitmq.proposals.queue}")
+    // private String proposalsQueueName;
 
     @Value("${rabbitmq.audit.queue}")
     private String auditQueueName;
@@ -47,8 +48,8 @@ public class RabbitConfig {
     @Value("${rabbitmq.exchange}")
     private String exchange;
 
-    @Value("${rabbitmq.proposals.routingkey}")
-    private String proposalsRoutingkey;
+    @Value("${rabbitmq.proposals.exchange}")
+    private String proposalsExchange;
 
     @Value("${rabbitmq.audit.routingkey}")
     private String auditRoutingkey;
@@ -80,10 +81,10 @@ public class RabbitConfig {
     @Value("${rabbitmq.max.concurrent.consumers}")
     private Integer maxConcurrentConsumers;
 
-    @Bean
-    public Queue proposalsQueue() {
-        return new Queue(proposalsQueueName, false);
-    }
+    // @Bean
+    // public Queue proposalsQueue() {
+    //     return new Queue(proposalsQueueName, false);
+    // }
 
     @Bean
     public Queue auditQueue() {
@@ -106,9 +107,14 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Binding proposalsBinding(Queue proposalsQueue, DirectExchange exchange) {
-        return BindingBuilder.bind(proposalsQueue).to(exchange).with(proposalsRoutingkey);
+    public FanoutExchange proposalsExchange() {
+        return new FanoutExchange(proposalsExchange);
     }
+
+    // @Bean
+    // public Binding proposalsBinding(Queue proposalsQueue, FanoutExchange exchange) {
+    //     return BindingBuilder.bind(proposalsQueue).to(exchange);
+    // }
 
     @Bean Binding auditBinding(Queue auditQueue, DirectExchange exchange) {
         return BindingBuilder.bind(auditQueue).to(exchange).with(auditRoutingkey);
@@ -144,11 +150,10 @@ public class RabbitConfig {
     @Bean
     public AmqpTemplate proposalsRabbitTemplate(ConnectionFactory connectionFactory) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setDefaultReceiveQueue(proposalsQueueName);
-        rabbitTemplate.setExchange(exchange);
+        // rabbitTemplate.setDefaultReceiveQueue(proposalsQueueName);
+        rabbitTemplate.setExchange(proposalsExchange);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
-        rabbitTemplate.setReplyAddress(proposalsQueue().getName());
-        rabbitTemplate.setRoutingKey(proposalsRoutingkey);
+        // rabbitTemplate.setReplyAddress(proposalsQueue().getName());
         rabbitTemplate.setReplyTimeout(replyTimeout);
         rabbitTemplate.setUseDirectReplyToContainer(false);
         return rabbitTemplate;
