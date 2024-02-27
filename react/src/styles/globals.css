@@ -61,3 +61,17 @@ body {
   padding: 0.5em;
   margin: 0.2em;
 }
+
+.in-pig-sd {
+  position: relative;
+  left: -23px;
+  top: 13px;
+  font-size: 83%;
+}
+
+.in-pig-dd {
+  position: relative;
+  left: -27px;
+  top: 13px;
+  font-size: 83%;
+}
