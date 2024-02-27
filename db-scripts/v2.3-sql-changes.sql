@@ -11,7 +11,7 @@ create table paid_link_aud (id bigint not null, rev integer not null, revtype sm
 alter table if exists paid_link add column version bigint default 0;
 alter table if exists proposal add column version bigint not null default 1;
 
-create table proposal_aud (id bigint not null, rev integer not null, revtype smallint, article TEXT, blog_live boolean, content_ready boolean, created_by varchar(255), date_accepted_by_supplier timestamp(6), date_blog_live timestamp(6), date_created timestamp(6), date_invoice_paid timestamp(6), date_invoice_received timestamp(6), date_sent_to_supplier timestamp(6), invoice_paid boolean, invoice_received boolean, live_link_title varchar(255), live_link_url varchar(255), proposal_accepted boolean, proposal_sent boolean, supplier_snapshot_version bigint not null default 0, updated_by varchar(255), primary key (rev, id));
+create table proposal_aud (id bigint not null, rev integer not null, revtype smallint, article TEXT, blog_live boolean, content_ready boolean, created_by varchar(255), date_accepted_by_supplier timestamp(6), date_blog_live timestamp(6), date_created timestamp(6), date_invoice_paid timestamp(6), date_invoice_received timestamp(6), date_sent_to_supplier timestamp(6), invoice_paid boolean, invoice_received boolean, live_link_title varchar(255), live_link_url varchar(255), proposal_accepted boolean, proposal_sent boolean, supplier_snapshot_version bigint default 0, updated_by varchar(255), primary key (rev, id));
 
 create table proposal_paid_links_aud (rev integer not null, proposal_id bigint not null, paid_links_id bigint not null, revtype smallint, primary key (proposal_id, rev, paid_links_id));
 create table revinfo (rev integer not null, revtstmp bigint, primary key (rev));
