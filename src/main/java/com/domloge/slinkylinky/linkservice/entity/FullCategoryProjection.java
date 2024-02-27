@@ -8,4 +8,6 @@ public interface FullCategoryProjection {
     String getName();
 
     boolean isDisabled();
+
+    long getId();
 }
