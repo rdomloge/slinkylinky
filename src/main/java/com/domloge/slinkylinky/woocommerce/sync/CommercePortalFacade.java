@@ -14,8 +14,12 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.domloge.slinkylinky.woocommerce.dto.OrderDto;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,9 +40,19 @@ public class CommercePortalFacade { // we might change the name from LinkSync
     @Value("${wc.user_agent:Mozilla/5.0}")
     private String userAgent;
 
+    private ObjectMapper mapper = new ObjectMapper();
 
 
-    public String getOrders(int page) throws IOException {
+    public CommercePortalFacade() {
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
+
+
+
+    public OrderJsonWrapper getOrders(int page) throws IOException {
         HttpGet request = new HttpGet(wc_base_url+"/orders?status=processing");
         request.setHeader("Authorization",
             "Basic " + Base64.getEncoder().encodeToString((wc_key + ":" + wc_secret).getBytes())
@@ -49,7 +63,8 @@ public class CommercePortalFacade { // we might change the name from LinkSync
                     HttpEntity entity = resp.getEntity();
                     return EntityUtils.toString(entity);
                 });
-            return json;
+            OrderDto[] orders = mapper.readValue(json, OrderDto[].class);
+            return new OrderJsonWrapper(orders, json);
         }
     }
 
