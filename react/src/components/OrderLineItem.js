@@ -1,11 +1,13 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
-
+import Image from 'next/image'
+import WarningIcon from '@/components/warning.svg'
 
 export default function OrderLineItem({lineItem}) {
 
     const [demandDescription, setDemandDescription] = useState()
     const [demandError, setDemandError] = useState()
+    const [proposalError, setProposalError] = useState()
     const [supplierDescription, setSupplierDescription] = useState()
     const [proposalTitle, setProposalTitle] = useState()
 
@@ -14,8 +16,7 @@ export default function OrderLineItem({lineItem}) {
             .then((res) => res.json())
             .then((result)=> setDemandDescription(result.name))
             .catch((error)=>{
-                console.log("Can't fetch demand. Is the Demand service running?")
-                setDemandError("Can't fetch demand. Is the Demand service running?")
+                setDemandError("Can't fetch demand")
             })
 
         if(lineItem.linkedProposalId) {
@@ -26,26 +27,28 @@ export default function OrderLineItem({lineItem}) {
                     setProposalTitle(result.liveLinkTitle)
                 })
                 .catch((error)=>{
-                    console.log("Can't fetch proposals. Is the Proposal service running?")
+                    setProposalError("Can't fetch proposal")
                 })
         }
     },[lineItem]);
 
-    
-
 
     return (
         <ol className="items-center grid grid-cols-3">
-            <LineItemStep title={"Demand created"} date={lineItem.dateCreated} description={""}
+            <LineItemStep title={"Demand created"} date={lineItem.dateCreated} description={""} showError={demandError}
                 linkText={demandDescription} linkUrl={ lineItem.linkedProposalId ? "/proposals/"+lineItem.linkedProposalId : "/supplier/search/" + lineItem.demandId}/> 
+
+
             {lineItem.linkedProposalId ? 
-                <LineItemStep title={"Matched"} date={lineItem.dateProposalCreated} description={""} 
+                <LineItemStep title={"Matched"} date={lineItem.dateProposalCreated} description={""} showError={proposalError}
                     linkText={supplierDescription} linkUrl={"/proposals/"+lineItem.linkedProposalId}/>
             :
                 null
             }
+
+
             {lineItem.proposalComplete ? 
-                <LineItemStep title={"Delivered"} date={""} description={""}
+                <LineItemStep title={"Delivered"} date={""} description={""} showError={proposalError}
                     linkText={proposalTitle} linkUrl={"/proposals/"+lineItem.linkedProposalId}/>
             :
                 null
@@ -54,9 +57,10 @@ export default function OrderLineItem({lineItem}) {
     )
 }
 
-function LineItemStep({title, date, description, linkText, linkUrl}) {
+function LineItemStep({title, date, description, linkText, linkUrl, showError = false}) {
     return (
         <li className="relative mb-6 sm:mb-0 mt-2 ">
+            
             <div className="flex items-center">
                 <div className="z-10 flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full ring-0 ring-white dark:bg-blue-900 sm:ring-8 dark:ring-gray-900 shrink-0">
                     <svg className="w-2.5 h-2.5 text-blue-800 dark:text-blue-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -65,13 +69,17 @@ function LineItemStep({title, date, description, linkText, linkUrl}) {
                 </div>
                 <div className="hidden sm:flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"></div>
             </div>
+
             <div className="mt-3 sm:pe-8">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+                {showError ? <Image src={WarningIcon} width={20} height={20} alt="Warning icon" className={"inline-block mx-2 mb-1"}/> : null }
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white inline-block">
+                    {title}
+                </h3>
                 <time className="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{date}</time>
                 {linkText && linkUrl ?
-                    <p className="text-base font-normal text-gray-500 dark:text-gray-400 truncate">{description} <Link href={linkUrl}>{linkText}</Link></p>
+                    <p className="text-gray-500 dark:text-gray-400 truncate">{description} <Link href={linkUrl}>{linkText}</Link></p>
                 :
-                    <p className="text-base font-normal text-gray-500 dark:text-gray-400">{description}</p>
+                    <p className="text-gray-500 dark:text-gray-400 truncate">{description}</p>
                 }
             </div>
         </li>        
