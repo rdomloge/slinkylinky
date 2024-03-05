@@ -23,5 +23,7 @@ public interface FullDemandProjection {
 
     String getCreatedBy();
 
+    String getSource();
+
     FullCategoryProjection[] getCategories();
 }
