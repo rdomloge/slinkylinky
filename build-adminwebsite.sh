@@ -4,4 +4,4 @@
 # -t rdomloge/slinky-linky-adminwebsite:3.1 .
 
 docker buildx build --push --platform linux/amd64,linux/arm64\
- -t rdomloge/slinky-linky-adminwebsite:3.6.1 .
+ -t rdomloge/slinky-linky-adminwebsite:3.6.2 .
