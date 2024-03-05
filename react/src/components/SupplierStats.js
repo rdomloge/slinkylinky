@@ -27,8 +27,8 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
             const month = lastDayOfLastMonth.getMonth()
             const day = lastDayOfLastMonth.getDate()
             const startDate = new Date(year, month, day).toISOString().substring(0,10);
-            // const endDate = lastDayOfLastMonth.toISOString().substring(0,10);
-            const endDate = new Date().toISOString().substring(0,10); // temporarily use today as end date so that we get some spam data
+            const endDate = lastDayOfLastMonth.toISOString().substring(0,10);
+            // const endDate = new Date().toISOString().substring(0,10); // temporarily use today as end date so that we get some spam data
             url = "/.rest/stats/fordomain?"
                         +"domain="+supplier.domain
                         +"&startDate="+startDate
@@ -51,8 +51,7 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                     if(! adhoc & data.length > 0) {
                         setSpamScore(data[data.length-1].spamScore)
                     }
-                    // need to trim off the last data point as we have 13 months of data, because of the hack above
-                    setTrafficDataPoints(data.slice(0, data.length-1))
+                    setTrafficDataPoints(data)
                 })
             }
             else {
