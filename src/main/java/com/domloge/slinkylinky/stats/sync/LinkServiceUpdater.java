@@ -42,6 +42,8 @@ public class LinkServiceUpdater {
         long id = supplier.getId();
         String domain = supplier.getDomain();
         LocalDate now = LocalDate.now();
+        // rollback to the first of last month
+        now = now.minusMonths(1);
         String uniqueYearMonth = now.getYear()+"-"+Util.dd(now.getMonthValue());
         DaMonthlyData latest = daRepo.findByDomainAndUniqueYearMonth(domain, uniqueYearMonth);
 

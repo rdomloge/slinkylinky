@@ -4,6 +4,7 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -70,17 +71,17 @@ public class RabbitConfig {
     }
 
     @Bean
-    TopicExchange exchange() {
-        return new TopicExchange(exchange);
+    DirectExchange exchange() {
+        return new DirectExchange(exchange);
     }
 
     @Bean
-    Binding supplierBinding(Queue supplierQueue, TopicExchange exchange) {
+    Binding supplierBinding(Queue supplierQueue, DirectExchange exchange) {
         return BindingBuilder.bind(supplierQueue).to(exchange).with(supplierRoutingkey);
     }
 
     @Bean
-    Binding auditBinding(Queue auditQueue, TopicExchange exchange) {
+    Binding auditBinding(Queue auditQueue, DirectExchange exchange) {
         return BindingBuilder.bind(auditQueue).to(exchange).with(auditRoutingkey);
     }
 
