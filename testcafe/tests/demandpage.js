@@ -1,5 +1,6 @@
-import { Selector } from 'testcafe';
+import { Role, Selector } from 'testcafe';
 import { gitHubUser } from './roles';
+import { createNewDemand, createSupplier } from './helper';
 
 
 fixture("Demand List Page")
@@ -12,6 +13,10 @@ test("Functionality enabled on login", async t => {
     const newButton = Selector('button')
         .with({visibilityCheck: true})
         .withExactText('New');
+
+    // have to make sure there is some demand
+    await createNewDemand(0);
+    await t.useRole(Role.anonymous());
 
     const firstDemandCard = Selector('#demandCard-0');
     const firstDemandSelectLink = firstDemandCard.find('section > div > a:nth-child(1) > span');
