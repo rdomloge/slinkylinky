@@ -36,7 +36,12 @@ export default function Proposal() {
             if(router.isReady) {
                 const proposalsUrl = "/.rest/proposals/"+router.query.proposalid+"?projection=fullProposal";
                 fetch(proposalsUrl, {headers: {'Cache-Control': 'no-cache'}})
-                    .then( (res) => res.json())
+                    .then( (res) => {
+                        if(res.status == 404) {
+                            throw new Error("Proposal not found")
+                        }
+                        return res.json()
+                    })
                     .then( (p) => {
                         setProposal(p);
                         setDemands(p.paidLinks.map(pl => pl.demand))
@@ -53,7 +58,7 @@ export default function Proposal() {
                             setSupplier(p.paidLinks[0].supplier);
                         }
                     })
-                    .catch( (err) => setError(err));
+                    .catch( (err) => setError(err.message));
             }
         }, [router.isReady, router.query.proposalid]);
     
@@ -67,7 +72,7 @@ export default function Proposal() {
                     router.push('/proposals');
                 }
             })
-            .catch( (err) => setError(err));
+            .catch( (err) => setError(err.message));
     }
 
     function loadEngagement() {
