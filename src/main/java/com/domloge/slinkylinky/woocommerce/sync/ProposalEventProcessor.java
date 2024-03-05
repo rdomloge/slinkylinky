@@ -48,6 +48,10 @@ public class ProposalEventProcessor {
     @Autowired
     private CommercePortalFacade commercePortalFacade;
 
+    @Autowired
+    private LinkDetailsSender linkDetailsSender;
+    
+
 
     public ProposalEventProcessor() {
         mapper.registerModule(new JavaTimeModule());
@@ -97,8 +101,11 @@ public class ProposalEventProcessor {
         }
         else log.debug("Proposal {} is linked to {} line item(s) of a LinkSync order", event.getProposalId(), orderLineItemsInProposal.length);
 
+        ProposalFlagsResponse pfr = getProposal(event);
+        if(null == pfr) return;
+
         for(OrderLineItemEntity olie : orderLineItemsInProposal) {
-            ProposalFlagsResponse pfr = getProposal(event);
+            
             if(pfr.isBlogLive()) {
                 log.info("Proposal {} is now live, setting line item {} to complete", event.getProposalId(), olie.getId());
                 olie.setProposalComplete(true);
@@ -116,10 +123,11 @@ public class ProposalEventProcessor {
                     // set the order to complete in LinkSync
                     String responseJson = commercePortalFacade.completeOrder(linkedOrder.getExternalId());
                     log.info("Order {} (order {} in LinkSync) marked as complete: {}", linkedOrder.getId(), linkedOrder.getExternalId(), responseJson);
+                    // send the link details email
+                    linkDetailsSender.send(linkedOrder);
                 }
                 else {
                     log.debug("Order {} still has {} incomplete line items", linkedOrder.getId(), incompleteLineItems.size());
-                
                 }
             }
             else {
@@ -141,7 +149,7 @@ public class ProposalEventProcessor {
         String response = httpUtils.get(url);
         if(null == response) {
             log.error("Error fetching proposal {}", event.getProposalId());
-            throw new IOException("Could not find proposal " + event.getProposalId());
+            return null;
         }
         ProposalFlagsResponse pfr = mapper.readValue(response, ProposalFlagsResponse.class);
         return pfr;

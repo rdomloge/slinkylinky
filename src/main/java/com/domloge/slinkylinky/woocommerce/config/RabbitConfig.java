@@ -1,14 +1,15 @@
 package com.domloge.slinkylinky.woocommerce.config;
 
 import org.springframework.amqp.core.AmqpAdmin;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -51,6 +52,12 @@ public class RabbitConfig {
 
     @Value("${rabbitmq.reply.timeout}")
     private Integer replyTimeout;
+
+    @Value("${rabbitmq.audit.queue}")
+    private String auditQueueName;
+
+    @Value("${rabbitmq.exchange}")
+    private String exchange;
 
 
     @Bean
@@ -108,4 +115,20 @@ public class RabbitConfig {
         return new MessageListenerAdapter(receiver, "receiveMessage");
     }
 
+    @Bean
+    public Queue auditQueue() {
+        return new Queue(auditQueueName, false);
+    }
+
+    @Bean AmqpTemplate auditTemplate(ConnectionFactory connectionFactory) {
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setDefaultReceiveQueue(auditQueueName);
+        rabbitTemplate.setExchange(exchange);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        rabbitTemplate.setReplyAddress(auditQueue().getName());
+        // rabbitTemplate.setRoutingKey(auditRoutingkey);
+        rabbitTemplate.setReplyTimeout(replyTimeout);
+        rabbitTemplate.setUseDirectReplyToContainer(false);
+        return rabbitTemplate;
+    }
 }

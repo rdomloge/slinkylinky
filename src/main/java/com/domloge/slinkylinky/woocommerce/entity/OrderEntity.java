@@ -3,7 +3,6 @@ package com.domloge.slinkylinky.woocommerce.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.checkerframework.checker.units.qual.C;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -40,6 +39,12 @@ public class OrderEntity {
     @Lob
     @Column(columnDefinition="TEXT")
     private String wooOrderJson;
+
+    private String billingEmailAddress;
+
+    private String shippingEmailAddress;
+
+    private String customerName;
 
     @OneToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)

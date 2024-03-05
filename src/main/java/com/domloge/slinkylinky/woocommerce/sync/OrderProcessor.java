@@ -80,6 +80,9 @@ public class OrderProcessor {
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setExternalId(order.getId());
         orderEntity.setWooOrderJson(json);
+        orderEntity.setBillingEmailAddress(order.getBilling().getEmail());
+        orderEntity.setShippingEmailAddress(order.getShipping().getEmail());
+        orderEntity.setCustomerName(order.getShipping().getFirst_name() + " " + order.getShipping().getLast_name());
         orderRepo.save(orderEntity);
 
         List<OrderLineItemEntity> lineItems = new LinkedList<>();
