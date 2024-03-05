@@ -13,6 +13,8 @@ import { fixForPosting } from "./CategoryUtil";
 import { StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import SupplierSemRushTraffic from "./SupplierStats";
+import { extractHostname, validDomain } from "./Util";
+import { WarningMessage } from "./atoms/Messages";
 
 export default function AddOrEditSupplier({supplier}) {
 
@@ -31,22 +33,20 @@ export default function AddOrEditSupplier({supplier}) {
     const [supplierCurrency, setSupplierCurrency] = useState(supplier.weWriteFeeCurrency)
     const [supplierFee, setSupplierFee] = useState(supplier.weWriteFee)
 
+    const [supplierAlreadyExists, setSupplierAlreadyExists] = useState(false)
+    const [showStatsButton, setShowStatsButton] = useState(false)
+
 
     function handleError(message) {
         setErrorMsg("Create failed: "+message)
     }
 
-    function addProtocol(url) {
-        if (!/^(?:f|ht)tps?\:\/\//i.test(url)) {
-            url = "https://" + url;
+    function supplierWebsiteChangeHandler(e) {
+        setSupplierWebsite(e)
+        if(validDomain(e)) {
+            checkIfSupplierExists(e)
         }
-        return url;
-    }
-
-    function url_domain(data) {
-        let domain =  new URL(addProtocol(data))
-        let hostname = domain.hostname
-        return hostname.replace('www.','');
+        // the decision for showing the stats button is made in checkIfSupplierExists
     }
 
     function lookupDa(domain) {
@@ -67,20 +67,29 @@ export default function AddOrEditSupplier({supplier}) {
         .catch(err => { handleError("Oops") });
     }
 
+    async function checkIfSupplierExists(website) {
+        const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
+        fetch(url, {method: 'GET', headers: {'user': session.user.email}})
+        .then( (resp) => {
+            if(resp.ok) {
+                resp.json().then( (data) => {
+                    setSupplierAlreadyExists(data)
+                    setShowStatsButton(validDomain(website) && ! data)
+                })
+            }
+            else {
+                handleError("Unknown error: "+resp.status)
+            }
+        })
+    }
+
     function displaySemData() {
         supplier.domain = url_domain(supplierWebsite)
         lookupDa(supplier.domain)
         setShowModal(true)
     }
 
-    function domainValidation(url) {
-         const urlRegex = /^(((http|https):\/\/|)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}(:[0-9]{1,5})?(\/.*)?)$/;
-         if (urlRegex.test(url)) {
-              return true;
-          } else {
-              return false;
-          }
-    };
+    
 
     function submitHandler() {
         console.log("Updating supplier: "+JSON.stringify(supplier))
@@ -165,7 +174,13 @@ export default function AddOrEditSupplier({supplier}) {
                         <NumberInput label={"DA"} changeHandler={(e) => setSupplierDa(e)} binding={supplierDa}/>
                     </div>
                     <div className='w-1/4 inline-block pr-8'>
-                        <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>setSupplierWebsite(e)}/> 
+                        <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>supplierWebsiteChangeHandler(e)} />
+                        {supplierAlreadyExists ? 
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
+                                <span class="font-medium">Error! </span> 
+                                Supplier exists.
+                            </p> 
+                        : <p class="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
                     </div>
                     <div className='w-1/4 inline-block pr-8'>
                         <TextInput binding={supplierSource} label={"Source"} changeHandler={(e)=>setSupplierSource(e)}/> 
@@ -184,8 +199,8 @@ export default function AddOrEditSupplier({supplier}) {
                         <NumberInput binding={supplierFee} label={"Fee"} changeHandler={(e)=>setSupplierFee(e)}/>
                     </div>
 
-                    {supplier.id == null && supplierWebsite && domainValidation(supplierWebsite) ?
-                        <div className="inline-block">
+                    {supplier.id == null && showStatsButton ?
+                        <div className="inline-block float-right">
                             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="srButton">
                                 Fetch DA and load SEM rush traffic (cost attached)
                             </label>
