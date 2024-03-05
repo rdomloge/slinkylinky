@@ -63,9 +63,11 @@ public class LinkDetailsSender {
             auditRecord.setEventTime(LocalDateTime.now());
             auditRecord.setEntityId(orderEntity.getId());
             auditRecord.setWhat("Link details email");
-            auditRecord.setDetail("Sent to "+orderEntity.getShippingEmailAddress());
+            String sendTo = orderEntity.getShippingEmailAddress() != null ? orderEntity.getShippingEmailAddress() : orderEntity.getBillingEmailAddress();
+            auditRecord.setDetail("Sent to "+sendTo);
             auditRecord.setWho("System");
             auditTemplate.convertAndSend(auditRecord);
+            log.info("Audit record sent");
         } 
         catch (MessagingException | IOException | TemplateException e) {
             throw new RuntimeException(e);

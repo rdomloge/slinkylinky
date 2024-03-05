@@ -82,7 +82,12 @@ public class OrderProcessor {
         orderEntity.setWooOrderJson(json);
         orderEntity.setBillingEmailAddress(order.getBilling().getEmail());
         orderEntity.setShippingEmailAddress(order.getShipping().getEmail());
-        orderEntity.setCustomerName(order.getShipping().getFirst_name() + " " + order.getShipping().getLast_name());
+        if(order.getShipping().getFirst_name() != null) {
+            orderEntity.setCustomerName(order.getShipping().getFirst_name() + " " + order.getShipping().getLast_name());
+        }
+        else {
+            orderEntity.setCustomerName(order.getBilling().getFirst_name() + " " + order.getBilling().getLast_name());
+        }
         orderRepo.save(orderEntity);
 
         List<OrderLineItemEntity> lineItems = new LinkedList<>();

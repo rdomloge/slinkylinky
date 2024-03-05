@@ -13,6 +13,10 @@ public interface LightOrderProjection {
 
     LocalDateTime getDateCreated();
 
+    String getCustomerName();
+
+    String getShippingEmailAddress();
+
     OrderLineItemProjection[] getLineItems(); 
     
 }

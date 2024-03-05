@@ -59,6 +59,9 @@ public class RabbitConfig {
     @Value("${rabbitmq.exchange}")
     private String exchange;
 
+    @Value("${rabbitmq.audit.routingkey}")
+    private String auditRoutingkey;
+
 
     @Bean
     public Queue proposalsQueue() {
@@ -126,7 +129,7 @@ public class RabbitConfig {
         rabbitTemplate.setExchange(exchange);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         rabbitTemplate.setReplyAddress(auditQueue().getName());
-        // rabbitTemplate.setRoutingKey(auditRoutingkey);
+        rabbitTemplate.setRoutingKey(auditRoutingkey);
         rabbitTemplate.setReplyTimeout(replyTimeout);
         rabbitTemplate.setUseDirectReplyToContainer(false);
         return rabbitTemplate;
