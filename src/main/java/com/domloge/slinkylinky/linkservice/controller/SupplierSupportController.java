@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.domloge.slinkylinky.linkservice.Util;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.audit.SupplierAuditor;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
@@ -68,5 +69,13 @@ public class SupplierSupportController {
         Supplier versionedSupplier = auditReader.find(Supplier.class, supplierId, revisions.get((int) version));
         
         return ResponseEntity.ok(versionedSupplier);
+    }
+
+    @GetMapping(path = "/exists", produces = "application/json")
+    public ResponseEntity<Boolean> supplierExists(@RequestParam String supplierWebsite) {
+        String domain  = Util.stripDomain(supplierWebsite);
+        Supplier s = supplierRepo.findByDomainIgnoreCase(domain);
+        log.info("Supplier {} for supplierWebsite {} {}", domain, supplierWebsite, s != null ? "exists" : "does not exist");
+        return ResponseEntity.ok(s != null);
     }
 }
