@@ -14,7 +14,7 @@ export function validDomain(url) {
  ***REMOVED***
 }
 
-function url_domain(data) {
+export function url_domain(data) {
     let domain =  new URL(addProtocol(data))
     let hostname = domain.hostname
     return hostname.replace('www.','');

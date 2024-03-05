@@ -13,7 +13,7 @@ import { fixForPosting } from "./CategoryUtil";
 import { StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import SupplierSemRushTraffic from "./SupplierStats";
-import { extractHostname, validDomain } from "./Util";
+import { url_domain, validDomain } from "./Util";
 import { WarningMessage } from "./atoms/Messages";
 
 export default function AddOrEditSupplier({supplier}) {
