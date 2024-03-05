@@ -9,6 +9,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,12 +60,23 @@ public class CommercePortalFacade { // we might change the name from LinkSync
         );
 
         try (CloseableHttpClient httpclient = HttpClients.custom().setUserAgent(userAgent).build()) {
-            String json = httpclient.execute(request, resp -> {
+            OrderJsonWrapper wrapper = httpclient.execute(request, resp -> {
                     HttpEntity entity = resp.getEntity();
-                    return EntityUtils.toString(entity);
+                    Header totalPages = resp.getHeader("x-wp-totalpages");
+                    
+                    OrderDto[] orders = null;
+                    String json = null;
+                    if(Integer.parseInt(totalPages.getValue()) < page) {
+                        orders = new OrderDto[0];
+                        json = "[]";
+                    }
+                    else {
+                        json = EntityUtils.toString(entity);
+                        orders = mapper.readValue(json, OrderDto[].class);
+                    }
+                    return new OrderJsonWrapper(orders, json);
                 });
-            OrderDto[] orders = mapper.readValue(json, OrderDto[].class);
-            return new OrderJsonWrapper(orders, json);
+            return wrapper;
         }
     }
 
