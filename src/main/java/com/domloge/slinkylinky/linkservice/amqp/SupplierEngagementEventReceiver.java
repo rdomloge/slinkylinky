@@ -4,6 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.rest.core.event.AfterCreateEvent;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
@@ -21,16 +24,19 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class SupplierEngagementEventReceiver {
+public class SupplierEngagementEventReceiver implements ApplicationEventPublisherAware {
 
     @Autowired
     private ProposalRepo proposalRepo;
 
     @Autowired
     private ProposalAbortHandler proposalAbortHandler;
-    
+
+    private ApplicationEventPublisher applicationEventPublisher;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+
 
     public SupplierEngagementEventReceiver() {
         mapper.registerModule(new JavaTimeModule());
@@ -91,7 +97,8 @@ public class SupplierEngagementEventReceiver {
             proposal.setDateBlogLive(LocalDateTime.now());
             proposal.setLiveLinkTitle(event.getBlogTitle());
             proposal.setLiveLinkUrl(event.getBlogUrl());
-            proposalRepo.save(proposal);
+            Proposal dbProposal = proposalRepo.save(proposal);
+            applicationEventPublisher.publishEvent(new AfterCreateEvent(dbProposal));
         }
         else if(event.getResponse() == SupplierEngagementEvent.Response.DECLINED) {
             proposalAbortHandler.handle(event.getProposalId(), "supplier");        
@@ -108,5 +115,10 @@ public class SupplierEngagementEventReceiver {
         catch (UnsupportedEncodingException e) {
             receiveMessage(new String(message));
         }
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }

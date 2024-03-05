@@ -17,8 +17,6 @@ import org.springframework.data.rest.core.event.AfterDeleteEvent;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +34,6 @@ import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.audit.ProposalAuditor;
 import com.domloge.slinkylinky.linkservice.entity.audit.SupplierAuditor;
-import com.domloge.slinkylinky.linkservice.postprocessing.ProposalEventDispatcher;
 import com.domloge.slinkylinky.linkservice.repo.DemandRepo;
 import com.domloge.slinkylinky.linkservice.repo.PaidLinkRepo;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
@@ -67,9 +64,6 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
 
     @Autowired
     private ProposalAuditor proposalAuditor;
-
-    @Autowired
-    private ProposalEventDispatcher proposalEventDispatcher;
 
     @Autowired
     private SupplierAuditor supplierAuditor;
