@@ -57,6 +57,8 @@ spec:
               value: <SPECIFY>
             - name: linkservice_url
               value: http://linkservice-service:8090
+            - name: wc_uploads_base
+              value: https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart
           startupProbe:   
             httpGet:
               path: /.rest/profile
