@@ -31,7 +31,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: audit
-          image: rdomloge/slinky-linky-audit:3.6
+          image: rdomloge/slinky-linky-audit:3.8
           imagePullPolicy: Always
           resources:
             requests:
