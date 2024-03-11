@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: linkservice
-          image: rdomloge/slinky-linky-linkservice:3.8
+          image: rdomloge/slinky-linky-linkservice:3.8.1
           imagePullPolicy: Always
           resources:
             requests:
