@@ -17,7 +17,7 @@ export const gitHubUser = Role('http://localhost:3000/api/auth/signin', async t 
     const reAuthButton = Selector('button.js-oauth-authorize');
 
     if(await reAuthButton.exists) {
-        await t.wait(1000)
+        await t.wait(1000) // takes a moment for the button to become clickable
         await t.click(reAuthButton);
     }
 
