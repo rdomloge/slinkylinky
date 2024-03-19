@@ -18,7 +18,7 @@ test("New demand initial state", async t=> {
     await t.expect(addEditDemand.requestedInput.hasAttribute('disabled')).notOk();
     await t.expect(addEditDemand.daNeededInput.hasAttribute('disabled')).ok();
     await t.expect(addEditDemand.newDemandSiteButton.hasAttribute('disabled')).notOk();
-***REMOVED***
+});
 
 test("New demand demand site search ", async t=> {
 

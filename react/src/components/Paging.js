@@ -5,7 +5,7 @@ export default function Paging({ total, page, pageCount, baseUrl }) {
     const getPageNumbers = () => {
         if (pageCount <= 5) {
             return pages;
-    ***REMOVED***
+        }
 
         const pageNumbers = buildPageNumbers();
 
@@ -14,15 +14,15 @@ export default function Paging({ total, page, pageCount, baseUrl }) {
         if (uniquePageNumbers[0] !== 1) {
             uniquePageNumbers.unshift("...");
             uniquePageNumbers.unshift(1);
-    ***REMOVED***
+        }
 
         if (uniquePageNumbers[uniquePageNumbers.length - 1] !== pageCount) {
             uniquePageNumbers.push("...");
             uniquePageNumbers.push(pageCount);
-    ***REMOVED***
+        }
 
         return uniquePageNumbers;
-***REMOVED***;
+    };
 
     function buildPageNumbers() {
         const pageNumbers = [];
@@ -32,11 +32,11 @@ export default function Paging({ total, page, pageCount, baseUrl }) {
 
         for (let i = rangeStart; i <= rangeEnd; i++) {
             pageNumbers.push(i);
-    ***REMOVED***
+        }
 
 
         return pageNumbers;
-***REMOVED***
+    }
 
     return (
         <nav className="flex justify-center my-4">

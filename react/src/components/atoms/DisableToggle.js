@@ -7,7 +7,7 @@ export default function DisableToggle({changeHandler, initialValue}) {
     const toggleHandler = () => {
         setIsChecked(!isChecked)
         changeHandler(!isChecked) // needs to be inverse since the state is not changed until method exited
-***REMOVED***
+    }
 
     return (
         <label className="relative inline-flex items-center cursor-pointer">

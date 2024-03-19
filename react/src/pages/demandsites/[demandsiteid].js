@@ -21,8 +21,8 @@ export default function DemandSite() {
                     .then(res => res.json())
                     .then(data => setDemandSite(data))
                     .catch(err => setError(err));
-        ***REMOVED***
-    ***REMOVED***, [router.isReady, router.query.demandsiteid]);
+            }
+        }, [router.isReady, router.query.demandsiteid]);
 
     return (
         <Layout>
@@ -31,7 +31,7 @@ export default function DemandSite() {
                 <AddOrEditDemandSite demandSite={demandSite}/>
             : 
                 <Loading error={error}/> 
-        ***REMOVED***
+            }
         </Layout>
     );
 }

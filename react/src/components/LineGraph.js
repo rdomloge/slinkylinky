@@ -23,7 +23,7 @@ export default function LineGraph({datapoints}) {
 
     const labels = datapoints.map((datapoint) => {
         return datapoint.yearMonth;
-***REMOVED***);
+    });
 
     const data = {
         labels, 
@@ -33,9 +33,9 @@ export default function LineGraph({datapoints}) {
                 data: datapoints.map((datapoint) => datapoint.traffic),
                 borderColor: 'rgb(255, 99, 132)',
                 backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        ***REMOVED***
+            }
         ]
-***REMOVED***
+    }
 
     return (
         <Line data={data} />

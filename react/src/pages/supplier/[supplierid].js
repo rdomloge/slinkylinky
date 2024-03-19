@@ -14,14 +14,14 @@ export default function EditSupplier() {
                 const supplierUrl = "/.rest/suppliers/"+router.query.supplierid+"?projection=fullSupplier";
                 fetch(supplierUrl, {
                     headers: {'Cache-Control': 'no-cache'}
-            ***REMOVED***)
+                })
                 .then( (res) => res.json())
                 .then( (s) => {
                     s.id = router.query.supplierid
                     setSupplier(s);
-            ***REMOVED***);
-        ***REMOVED***
-    ***REMOVED***, [router.isReady, router.query.supplierid]);
+                });
+            }
+        }, [router.isReady, router.query.supplierid]);
 
     return (
         <Layout>

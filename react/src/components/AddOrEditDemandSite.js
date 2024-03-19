@@ -31,21 +31,21 @@ export default function AddOrEditDemandSite({demandSite}) {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demandSite)
-        ***REMOVED***).then(resp => {
+            }).then(resp => {
                 if(resp.ok) {
                     location.href = "/demandsites";
-            ***REMOVED***
+                }
                 else {
                     console.log("Patch failed: "+JSON.stringify(resp))
-            ***REMOVED***
-        ***REMOVED***)
-    ***REMOVED***
-***REMOVED***
+                }
+            })
+        }
+    }
 
     function categoryChangeHandler(categories) {
         const categoryHrefs = categories.map(c => c.value)
         demandSite.categories = categoryHrefs
-***REMOVED***
+    }
 
     return (
         <div className="flex">
@@ -59,7 +59,7 @@ export default function AddOrEditDemandSite({demandSite}) {
                         <div className="w-full px-3 mb-6 md:mb-0">
                             <TextInput label="name" binding={demandSiteName} changeHandler={(e)=>{
                                 setDemandSiteName(e)
-                        ***REMOVED***} />
+                            }} />
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-6">

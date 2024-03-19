@@ -17,7 +17,7 @@ export default function ContentCreator({dismissHandler, submitHandler, proposal}
         const url = entity._links.self.href;
         const id = url.substring(url.lastIndexOf('/')+1);
         return id;
-***REMOVED***
+    }
 
     function generate() {
         setLoading(true)
@@ -28,25 +28,25 @@ export default function ContentCreator({dismissHandler, submitHandler, proposal}
                         'Content-Type':'text/plain',
                         'proposalId': parseId(proposal)},
             body: prompt
-        ***REMOVED***)
+            })
             .then( (res) => res.text())
             .then( (text) => {
                 setLoading(false)
                 setContent(text)
-        ***REMOVED***)
+            })
             .catch( (err) => {
                 setLoading(false)
                 setError(err)
-        ***REMOVED***);
-***REMOVED***
+            });
+    }
 
     function buildPrompt() {
         var prompt = "Using markdown, write a ~600 word article, in UK English, titled '[TITLE]' for a UK audience without mentioning the UK."
         proposal.paidLinks.forEach( (pl,index) => {
             prompt += " Include a link to ["+pl.demand.url+"] with the anchor text '"+pl.demand.anchorText+"' in a section on [SECTION]."
-    ***REMOVED***)
+        })
         return prompt
-***REMOVED***
+    }
 
 
     return (
@@ -73,7 +73,7 @@ export default function ContentCreator({dismissHandler, submitHandler, proposal}
             {error ? <Loading error={error}/> 
             : 
                 loading ? <Loading/> : null
-        ***REMOVED***
+            }
         </Modal>
     );
 }

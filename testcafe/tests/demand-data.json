@@ -6,7 +6,7 @@
         "requested": "2024-02-12",
         "daNeeded": "30",
         "anchorText": "Anchor text created by TestCafe"
-***REMOVED***,
+    },
     {
         "name": "gerr",
         "demandSiteExcpectName": "Gerry O'Leary",
@@ -14,7 +14,7 @@
         "requested": "2024-02-13",
         "daNeeded": "35",
         "anchorText": "Anchor text created by TestCafe"
-***REMOVED***,
+    },
     {
         "name": "bcl tim",
         "demandSiteExcpectName": "BCL timber",
@@ -22,7 +22,7 @@
         "requested": "2024-02-14",
         "daNeeded": "30",
         "anchorText": "First link anchor text"
-***REMOVED***,
+    },
     {
         "name": "bcl tim",
         "demandSiteExcpectName": "BCL timber",
@@ -30,7 +30,7 @@
         "requested": "2024-02-14",
         "daNeeded": "30",
         "anchorText": "Second link anchor text"
-***REMOVED***,
+    },
     {
         "name": "dc wh",
         "demandSiteExcpectName": "DC White",
@@ -38,7 +38,7 @@
         "requested": "2024-02-13",
         "daNeeded": "20",
         "anchorText": "Link anchor text"
-***REMOVED***,
+    },
     {
         "name": "berk",
         "demandSiteExcpectName": "Berkeley Castle",
@@ -46,5 +46,5 @@
         "requested": "2024-02-20",
         "daNeeded": "25",
         "anchorText": "Demand to create a proposal"
-***REMOVED***
+    }
 ]

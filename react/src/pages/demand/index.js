@@ -30,30 +30,30 @@ export default function Demand() {
             .then((result) => setDemands(filterPersonalIfNeeded(result)))
             .catch((error) => {
                 setError(error);
-        ***REMOVED***);
+            });
 
-***REMOVED***, [personal]) 
+    }, [personal]) 
 
     function filterPersonalIfNeeded(data) {
         if( ! session) return data;
         if(personal) {
             return data.filter( d => d.createdBy === session.user.email);
-    ***REMOVED***
+        }
         else {
             return data;
-    ***REMOVED***
-***REMOVED***
+        }
+    }
 
     function setSortOrder(e) {
         window.localStorage.setItem("demandSortOrder", e);
-***REMOVED***
+    }
 
     function buildSortOptions() {
         return [
             {value: "requested", name: "Requested (ASC)"}, 
             {value: "daNeeded", name: "DA (DESC)"}
         ]
-***REMOVED***
+    }
 
     return (
         <Layout>
@@ -77,7 +77,7 @@ export default function Demand() {
                 </div>
             : 
                 <Loading error={error}/>
-        ***REMOVED***
+            }
         </Layout>
     );
     

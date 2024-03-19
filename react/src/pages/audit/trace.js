@@ -20,8 +20,8 @@ export default function EntityAuditTrail() {
                     + "&entityId="+entityId
 
                 fetch(trailUrl).then(resp=>resp.json()).then(data=>setTrail(data))
-        ***REMOVED***
-    ***REMOVED***, [router.isReady]
+            }
+        }, [router.isReady]
     );
 
     return (
@@ -33,7 +33,7 @@ export default function EntityAuditTrail() {
                     trail.map( (ar,index) => {return <TimelineEntry date={ar.eventTime} what={ar.what} detail={ar.detail} previousDetail={index>0?trail[index-1].detail:""} who={ar.who} key={index}/>} )
                 :
                     <Loading/>
-            ***REMOVED***
+                }
             </ol>
         </Layout>
     );

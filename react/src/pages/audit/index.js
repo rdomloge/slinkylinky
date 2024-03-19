@@ -27,10 +27,10 @@ export default function AuditIndexPage() {
                     setAudits(data._embedded.auditrecords)
                     setTotal(data.page.totalElements)
                     setPageCount(data.page.totalPages)
-            ***REMOVED***)
+                })
                 .catch((error)=>setError("Can't fetch audit records. Is the Audit service running? "+error.statusMessage))
-    ***REMOVED***
-***REMOVED***,[router.isReady, router.query.page]);
+        }
+    },[router.isReady, router.query.page]);
 
     return (
         <Layout>
@@ -40,11 +40,11 @@ export default function AuditIndexPage() {
                 <div className="grid grid-cols-4 gap-2">
                 {audits.map( (a,index) => {
                     return <AuditLine auditrecord={a} key={index}/>
-            ***REMOVED***)}
+                })}
                 </div>
             :
                 <Loading error={error}/>
-        ***REMOVED***
+            }
         </Layout>
     );
 }

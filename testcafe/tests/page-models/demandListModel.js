@@ -10,7 +10,7 @@ class demandListModel {
 
         this.demandCards = Selector("div[id^='demandCard-']")
         this.demandListMenuItem = Selector('#__next > div > div:nth-child(1) > div > div:nth-child(1) > a')
-***REMOVED***
+    }
 
     findCardByName(demandName) {
         return this.demandCards
@@ -18,7 +18,7 @@ class demandListModel {
             .withText(demandName)
             .parent()
             .parent();
-***REMOVED***
+    }
 
     async clickFulFill(demandName) {
         
@@ -26,7 +26,7 @@ class demandListModel {
             .find('section > div > a:nth-child(1) > span');
 
         await t.click(this.fullFillLink)
-***REMOVED***
+    }
 }
 
 

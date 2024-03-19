@@ -48,15 +48,15 @@ export default function AddOrEditDemand({demand}) {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demand)
-        ***REMOVED***).then(resp => {
+            }).then(resp => {
                 if(resp.ok) {
                     location.href = "/demand";
-            ***REMOVED***
+                }
                 else {
                     setErrorMessage("Create failed: "+resp.statusText)
-            ***REMOVED***
-        ***REMOVED***)
-    ***REMOVED***
+                }
+            })
+        }
         else {
             demand.createdBy = session.user.email
             demand.source = 'SlinkyLinky'
@@ -64,19 +64,19 @@ export default function AddOrEditDemand({demand}) {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demand)
-        ***REMOVED***)
+            })
             .then( (resp) => {
                 if(resp.ok) {
                     const locationUrl = resp.headers.get('Location')
                     console.log("New demand created at "+locationUrl)
                     location.href = "/demand";
-            ***REMOVED***
+                }
                 else {
                     setErrorMessage("Create failed: "+resp.statusText)
-            ***REMOVED***
-        ***REMOVED***);
-    ***REMOVED***
-***REMOVED***
+                }
+            });
+        }
+    }
 
     function demandsiteSelectedHandler(demandsite) {
         setDemandsite(demandsite)
@@ -85,13 +85,13 @@ export default function AddOrEditDemand({demand}) {
         demand.categories = demandsite.categories.filter(c => c.disabled == false)
         // setDemandUrl(demandsite.url) // we don't do this because the URL should always be copy-pasted from another document
                                         // if we fill the domain in to be helpful, they forget to paste in the full URL
-***REMOVED***
+    }
 
     function categoryChangeHandler(categories) {
         console.log("New selected categories: "+JSON.stringify(categories))
         const categoryHrefs = categories.map(c => c.value)
         demand.categories = categoryHrefs
-***REMOVED***
+    }
 
     return (
         <>
@@ -114,8 +114,8 @@ export default function AddOrEditDemand({demand}) {
                                 <TextInput id="name" label="name" disabled={editMode || demandsite} changeHandler={(e)=>{
                                     setDemandName(e)
                                     setSearchTerm(e)
-                            ***REMOVED***} binding={demandName}/>
-                        ***REMOVED***
+                                }} binding={demandName}/>
+                            }
                         </div>
                         <div className="w-full md:w-1/2 px-3">
                             <TextInput id="anchorText" label="Anchor text" changeHandler={(e)=>setDemandAnchorText(e)} binding={demandAnchorText} disabled={!demand.id && !demandsite}/>

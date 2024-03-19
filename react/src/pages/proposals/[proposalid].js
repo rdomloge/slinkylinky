@@ -39,9 +39,9 @@ export default function Proposal() {
                     .then( (res) => {
                         if(res.status == 404) {
                             throw new Error("Proposal not found")
-                    ***REMOVED***
+                        }
                         return res.json()
-                ***REMOVED***)
+                    })
                     .then( (p) => {
                         setProposal(p);
                         setDemands(p.paidLinks.map(pl => pl.demand))
@@ -53,14 +53,14 @@ export default function Proposal() {
                             fetch(url, {headers: {'Cache-Control': 'no-cache'}})
                                 .then( (res) => res.json())
                                 .then( (s) => setSupplier(s)) 
-                    ***REMOVED***
+                        }
                         else {
                             setSupplier(p.paidLinks[0].supplier);
-                    ***REMOVED***
-                ***REMOVED***)
+                        }
+                    })
                     .catch( (err) => setError(err.message));
-        ***REMOVED***
-    ***REMOVED***, [router.isReady, router.query.proposalid]);
+            }
+        }, [router.isReady, router.query.proposalid]);
     
     function abortProposal() {
         const url = "/.rest/proposalsupport/abort?proposalId="+router.query.proposalid;
@@ -70,10 +70,10 @@ export default function Proposal() {
             .then( (res) => {
                 if(res.ok) {
                     router.push('/proposals');
-            ***REMOVED***
-        ***REMOVED***)
+                }
+            })
             .catch( (err) => setError(err.message));
-***REMOVED***
+    }
 
     function loadEngagement() {
         const url = "/.rest/engagements/search/findByProposalIdAndStatusACCEPTED?proposalId="+router.query.proposalid;
@@ -82,8 +82,8 @@ export default function Proposal() {
             .then( (e) => setEngagement(e))
             .catch( (err) => {
                 setInvoiceError(err.message)
-        ***REMOVED***);
-***REMOVED***
+            });
+    }
 
     function createMenuItems() {
         const items = [];
@@ -92,17 +92,17 @@ export default function Proposal() {
                 items.push({label: 'Download invoice', onClick: () => {
                     setShowInvoiceDownloadModal(true)
                     loadEngagement();
-            ***REMOVED******REMOVED***
-        ***REMOVED***
+                }});
+            }
             if(proposal.contentReady) {
                 items.push({label: 'View article', onClick: () => { 
                     setShowPreviewModal(true);
-            ***REMOVED******REMOVED***
-        ***REMOVED***
-            items.push({label: 'Abort', onClick: () => setShowAbortModal(true)***REMOVED***
-    ***REMOVED***
+                }});
+            }
+            items.push({label: 'Abort', onClick: () => setShowAbortModal(true)});
+        }
         return items;
-***REMOVED***
+    }
 
     return (
             <Layout>
@@ -133,7 +133,7 @@ export default function Proposal() {
                                 </div>
                             : 
                                 null
-                        ***REMOVED***
+                            }
                             <div className="flex-1">
                                 {demands.map( (ld,index) => <DemandCard demand={ld} key={ld.name} id={"demandcard-"+index}/>)}
                             </div>
@@ -161,7 +161,7 @@ export default function Proposal() {
                         </Modal>
                     : 
                         null
-                ***REMOVED***
+                    }
                     {showInvoiceDownloadModal ?
                         <Modal title={"Download invoice"} dismissHandler={() => setShowInvoiceDownloadModal(false)} width={"w-1/3"}>
                             {engagement ?
@@ -176,7 +176,7 @@ export default function Proposal() {
                                 </>
                             : 
                                 null
-                        ***REMOVED***
+                            }
                             
                             {invoiceError ?
                                 <>
@@ -185,23 +185,23 @@ export default function Proposal() {
                                 </>
                             : 
                                 null
-                        ***REMOVED***
+                            }
                             
                         </Modal>
                     : 
                         null
-                ***REMOVED***
+                    }
                     {showPreviewModal ?
                         <Modal title="Article" dismissHandler={() => { setShowPreviewModal(false) }} width="w-2/3">
                             <iframe src={"/.rest/proposalsupport/getArticleFormatted?proposalId=" + router.query.proposalid} width="100%" height={480} />
                         </Modal>
                         :
                         null
-                ***REMOVED***
+                    }
                     </>
                 :
                     <Loading error={error}/>
-            ***REMOVED***
+                }
             </Layout>
     );
 }

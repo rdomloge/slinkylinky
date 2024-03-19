@@ -40,17 +40,17 @@ export default function App() {
         fetch(proposalUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': session.user.email},
-    ***REMOVED***)
+        })
         .then( (resp) => {
             if(resp.ok) {
                 const locationUrl = resp.headers.get('Location')
                 location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
-        ***REMOVED***
+            }
             else {
                 setError("Could not create proposal: "+resp.statusText)
-        ***REMOVED***
-    ***REMOVED***);
-***REMOVED***
+            }
+        });
+    }
 
     useEffect(
         () => {
@@ -66,21 +66,21 @@ export default function App() {
                     .then(([resDemand, resSupplier, resOtherDemands]) => {
                         if(!resDemand.ok || !resSupplier.ok || !resOtherDemands.ok) {
                             throw new Error("Could not fetch data");
-                    ***REMOVED***
+                        }
                         return Promise.all([resDemand.json(), resSupplier.json(), resOtherDemands.json()])
-                ***REMOVED***)
+                    })
                     .then(([dataDemand, dataSupplier, dataOtherDemands]) => {
                         dataDemand.id = demandId; // eurgh... have to find a way to get spring data rest to include the IDs
                         setDemand(dataDemand);
                         setSupplier(dataSupplier);
                         setOtherDemands(dataOtherDemands);
-                ***REMOVED***)
+                    })
                     .catch((error) => {
                         setError(error.message);
-                ***REMOVED***);
+                    });
                     
-        ***REMOVED***
-    ***REMOVED***, [searchParams]
+            }
+        }, [searchParams]
     );   
 
     return (
@@ -98,7 +98,7 @@ export default function App() {
                         // const button = document.getElementById("submitproposal");
                         // button.disabled = !ready;
                         setReady(ready);
-                 ***REMOVED***}
+                     }}
                     />
                 <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -114,13 +114,13 @@ export default function App() {
                                         console.log("Selected");
                                         selectedOtherDemands.push(d);
                                         setSelectedOtherDemands([...selectedOtherDemands]);
-                                ***REMOVED***} 
+                                    }} 
                                     onDeselectedHandler={() => {
                                         console.log("Deselected");
                                         const pos = selectedOtherDemands.indexOf(d);
                                         if(pos != -1)  selectedOtherDemands.splice(pos, 1);
                                         setSelectedOtherDemands([...selectedOtherDemands]);
-                                ***REMOVED***} 
+                                    }} 
                                     key={index}>
                                 <DemandCard demand={d} />
                             </SelectableDemandCard>
@@ -130,7 +130,7 @@ export default function App() {
                 </>
             : 
                 <Loading error={error} />
-        ***REMOVED***
+            }
 
         </Layout>
     );

@@ -6,7 +6,7 @@ export default function OwnerFilter({changeHandler}) {
     const checkHandler = () => {
         setIsChecked(!isChecked)
         changeHandler(!isChecked) // needs to be inverse since the state is not changed until method exited
-***REMOVED***
+    }
 
 
     return (

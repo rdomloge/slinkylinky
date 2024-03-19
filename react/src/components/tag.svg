@@ -3,18 +3,18 @@
     <style>
       .vi-primary {
         fill: #FF6E6E;
-  ***REMOVED***
+      }
 
       .vi-primary, .vi-accent {
         stroke: #fff;
         stroke-linecap: round;
         stroke-width: 0;
         fill-rule: evenodd;
-  ***REMOVED***
+      }
 
       .vi-accent {
         fill: #0C0058;
-  ***REMOVED***
+      }
     </style>
   </defs>
   <path class="vi-primary" d="M6.008,27.205L25.215,8,41,8V23L22,43Z"/>

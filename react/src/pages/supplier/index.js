@@ -35,7 +35,7 @@ export default function ListBloggers() {
         fetch(activeCountUrl)
             .then( (res) => res.json())
             .then( (data) => setActiveSupplierCount(data));
-***REMOVED***, []);
+    }, []);
 
     useEffect(
         () => {
@@ -63,40 +63,40 @@ export default function ListBloggers() {
                             .then(resCount => resCount.json())
                             .then(counts => {
                                 setSupplierUsageCount(counts)
-                        ***REMOVED***)
-                ***REMOVED***)
+                            })
+                    })
                     .catch( (err) => {
                         console.error(err)
                         setIsLoading(false)
-                ***REMOVED***);
-        ***REMOVED***
+                    });
+            }
             else {
                 setSuppliers(null)
-        ***REMOVED***
-    ***REMOVED***, [filter, categoriesFilter, daFilter]
+            }
+        }, [filter, categoriesFilter, daFilter]
     );
 
     function filterOrBlankString(key, value, min) {
         if(value && value.length >= min) return "&"+key+"="+value;
         return ""
-***REMOVED***
+    }
 
     function filterOrMaxNum(key, value, min, max) {
         if(value && value >= min) return "&"+key+"="+value;
         return "&"+key+"="+max;
-***REMOVED***
+    }
 
     function categoriesToCsvArray() {
         if(categoriesFilter) {
             const cats = "&categories="+ categoriesFilter.map(c => c.label)
             return cats
-    ***REMOVED***
+        }
         else return ""
-***REMOVED***
+    }
 
     function categoriesFilterChangeHandler(categories) {
         setCategoriesFilter(categories)
-***REMOVED***
+    }
 
     
     return (
@@ -136,7 +136,7 @@ export default function ListBloggers() {
                             <p className="text-slate-500 text-8xl">Set a filter</p>
                         </div>
                     </div>
-        ***REMOVED***
+            }
             
         </Layout>
     );

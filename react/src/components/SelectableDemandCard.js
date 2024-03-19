@@ -8,7 +8,7 @@ export default function SelectableDemandCard({children, onSelectedHandler, onDes
         
         if(!checked) onSelectedHandler();
         else onDeselectedHandler();
-***REMOVED***; 
+    }; 
 
     return (
         <>

@@ -12,7 +12,7 @@ export default function NumberInput({label, disabled, binding, changeHandler, id
                     <Image src={LockedImage} width={15} alt="Text input locked" className={"float-left"}/>
                 : 
                     null
-            ***REMOVED***
+                }
             </label>
             <input onChange={(e) => changeHandler(e.target.value)}
                 type="number" 

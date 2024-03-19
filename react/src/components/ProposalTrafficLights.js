@@ -10,7 +10,7 @@ export default function TrafficLights({proposal, updateHandler, interactive}) {
                     <TrafficLight text="Content" value={proposal.contentReady} />
                 :
                     null
-            ***REMOVED***
+                }
                 <TrafficLight text="Sent" value={proposal.proposalSent} />
                 { ! proposal.paidLinks[0].supplier.thirdParty ?
                     <>
@@ -20,11 +20,11 @@ export default function TrafficLights({proposal, updateHandler, interactive}) {
                     </>
                 :
                 null
-            ***REMOVED***
+                }
                 <TrafficLight text="Live" value={proposal.blogLive} />
             </div>
         );
-***REMOVED***
+    }
     else {
         return (
             <div className="p-2 m-2 h-13">
@@ -34,7 +34,7 @@ export default function TrafficLights({proposal, updateHandler, interactive}) {
                     </TrafficLightClickHandler>
                 : 
                     null
-            ***REMOVED***
+                }
                 <TrafficLightClickHandler proposal={proposal} updateHandler={updateHandler} propertyName="proposalSent" propertyDate="dateSentToSupplier">
                     <TrafficLight text="Sent" value={proposal.proposalSent} />
                 </TrafficLightClickHandler>
@@ -53,11 +53,11 @@ export default function TrafficLights({proposal, updateHandler, interactive}) {
                     </>
                 :
                     null
-            ***REMOVED***
+                }
                 <TrafficLightClickHandler proposal={proposal} updateHandler={updateHandler} propertyName="blogLive" propertyDate="dateBlogLive">
                     <TrafficLight text="Live" value={proposal.blogLive} />
                 </TrafficLightClickHandler>
             </div>
         );
-***REMOVED***
+    }
 }

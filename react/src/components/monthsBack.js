@@ -9,11 +9,11 @@ export default function MonthsBack() {
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
-***REMOVED***
+    }
     
     function getDaysInMonth(year, month) {
         return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
-***REMOVED***
+    }
     
     function goBackMonths(value) {
         var d = new Date(),
@@ -22,22 +22,22 @@ export default function MonthsBack() {
         d.setMonth(d.getMonth() - value);
         d.setDate(Math.min(n, getDaysInMonth(d.getFullYear(), d.getMonth())));
         return d;
-***REMOVED***
+    }
 
     function lastNMonths(n) {
         const months = [ new Date().toLocaleString('default', { month: 'short' }) ]
         for(let i=0; i < n; i++) {
             months.push(goBackMonths(i+1).toLocaleString('en-GB', { month: 'short' }))
-    ***REMOVED***
+        }
         return months;
-***REMOVED***
+    }
 
     function classFor(pos) {
         var mm = router.query.minusMonths;
         if(undefined === mm) mm = 0;
         
         return "inline-block p-1 " + (pos === Number(mm) ? "font-black" : "")
-***REMOVED***
+    }
 
     const months = lastNMonths(5);
     return (

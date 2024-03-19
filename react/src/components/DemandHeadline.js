@@ -13,7 +13,7 @@ export default function DemandHeadline({demand}) {
                 <p className="text-right">
                     {demand.name} (DA {demand.daNeeded})
                 </p>
-        ***REMOVED***
+            }
         </>
     );
 }

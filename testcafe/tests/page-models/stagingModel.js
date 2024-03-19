@@ -13,11 +13,11 @@ class stagingModel {
         this.otherSelectableDemands = this.otherMatchingDemandPanel.find('div.bg-stone-300')
 
         this.errors = Selector('[id^="error-"]');
-***REMOVED***
+    }
 
     demandName(demand) {
         return demand.find('div.text-xl.my-2')
-***REMOVED***
+    }
 
     async selectAll() {
         var checkBoxes = Selector('input[type=checkbox]')
@@ -28,49 +28,49 @@ class stagingModel {
         for (let index = 0; index < await this.otherSelectableDemands.count; index++) {
             const selectableDemand = this.otherSelectableDemands.nth(index);
             this.selectASelectableDemand(selectableDemand)
-    ***REMOVED***
-***REMOVED***
+        }
+    }
 
     getTooManyLinksError() {
         return this.errors.withText('Too many links')
-***REMOVED***
+    }
 
     getDuplicateDomainError() {
         return this.errors.withText('Duplicate domain')
-***REMOVED***
+    }
 
     getMozLinkError() {
         return this.errors.withText('3rd party link')
-***REMOVED***
+    }
 
     async selectASelectableDemand(selectableDemand) {
         var checkBox = selectableDemand.find('input[type=checkbox]')
         await t.click(checkBox)
-***REMOVED***
+    }
 
     supplierName() {
         return this.supplier.find('div.text-xl.my-2') 
-***REMOVED***
+    }
 
     supplierUrl() {
         return this.supplier.find('div.grid.grid-cols-12 > span:nth-child(2)')
-***REMOVED***
+    }
 
     supplierEmail() {
         return this.supplier.find('div.grid.grid-cols-12 > span:nth-child(4)')
-***REMOVED***
+    }
 
     supplierDa() {
         return this.supplier.find('div.grid.grid-cols-12 > span:nth-child(6)')
-***REMOVED***
+    }
 
     supplierFee() {
         return this.supplier.find('div.grid.grid-cols-12 > span:nth-child(8)')
-***REMOVED***
+    }
 
     supplierSource() {
         return this.supplier.find('div.grid.grid-cols-12 > span:nth-child(10)')
-***REMOVED***
+    }
 }
 
 export default new stagingModel();

@@ -39,15 +39,15 @@ export default function AddOrEditSupplier({supplier}) {
 
     function handleError(message) {
         setErrorMsg("Create failed: "+message)
-***REMOVED***
+    }
 
     function supplierWebsiteChangeHandler(e) {
         setSupplierWebsite(e)
         if(validDomain(e)) {
             checkIfSupplierExists(e)
-    ***REMOVED***
+        }
         // the decision for showing the stats button is made in checkIfSupplierExists
-***REMOVED***
+    }
 
     function lookupDa(domain) {
         const url = "/.rest/mozsupport/checkdomain?domain="+domain
@@ -58,14 +58,14 @@ export default function AddOrEditSupplier({supplier}) {
                     supplier.da = data.domain_authority
                     setSupplierDa(data.domain_authority)
                     setSupplierSpamScore(data.spam_score)
-            ***REMOVED***)
-        ***REMOVED***
+                })
+            }
             else {
                 handleError("Unknown error: "+resp.status)
-        ***REMOVED***
-    ***REMOVED***)
-        .catch(err => { handleError("Oops") ***REMOVED***
-***REMOVED***
+            }
+        })
+        .catch(err => { handleError("Oops") });
+    }
 
     async function checkIfSupplierExists(website) {
         const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
@@ -75,19 +75,19 @@ export default function AddOrEditSupplier({supplier}) {
                 resp.json().then( (data) => {
                     setSupplierAlreadyExists(data)
                     setShowStatsButton(validDomain(website) && ! data)
-            ***REMOVED***)
-        ***REMOVED***
+                })
+            }
             else {
                 handleError("Unknown error: "+resp.status)
-        ***REMOVED***
-    ***REMOVED***)
-***REMOVED***
+            }
+        })
+    }
 
     function displaySemData() {
         supplier.domain = url_domain(supplierWebsite)
         lookupDa(supplier.domain)
         setShowModal(true)
-***REMOVED***
+    }
 
     
 
@@ -104,7 +104,7 @@ export default function AddOrEditSupplier({supplier}) {
             weWriteFeeCurrency: supplierCurrency,
             disabled: supplier.disabled,
             categories: supplier.categories
-    ***REMOVED***
+        }
         delete patchData._links
         
         fixForPosting(patchData)
@@ -117,17 +117,17 @@ export default function AddOrEditSupplier({supplier}) {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(patchData)
-        ***REMOVED***)
+            })
             .then( (resp) => {
                 if(resp.ok) {
                     location.href = "/supplier/"+supplier.id;
-            ***REMOVED***
+                }
                 else {
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
-            ***REMOVED***
-        ***REMOVED***)
-            .catch(err => { handleError("Oops") ***REMOVED***
-    ***REMOVED***
+                }
+            })
+            .catch(err => { handleError("Oops") });
+        }
         else {
 
             patchData.createdBy = session.user.email
@@ -137,20 +137,20 @@ export default function AddOrEditSupplier({supplier}) {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(patchData)
-        ***REMOVED***)
+            })
             .then( (resp) => {
                 if(resp.ok) {
                     const locationUrl = resp.headers.get('Location')
                     location.href = "/supplier/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
-            ***REMOVED***
+                }
                 else {
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
-            ***REMOVED***
-        ***REMOVED***)
+                }
+            })
             .catch(err => { 
-                handleError("Oops") ***REMOVED***
-    ***REMOVED***
-***REMOVED***
+                handleError("Oops") });
+        }
+    }
 
     return (
         <>
@@ -209,7 +209,7 @@ export default function AddOrEditSupplier({supplier}) {
                         </div>
                     :
                         null
-                ***REMOVED***
+                    }
 
                     <div className='w-1/2 mt-8'>
                         <CategorySelector label="Categories"
@@ -228,11 +228,11 @@ export default function AddOrEditSupplier({supplier}) {
                         </Modal>
                     : 
                         null
-                ***REMOVED***
+                    }
                 </div>
             : 
                 <p>Loading supplier</p>
-        ***REMOVED***
+            }
         </>
         
     )

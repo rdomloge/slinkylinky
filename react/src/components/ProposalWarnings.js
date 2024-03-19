@@ -18,9 +18,9 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
                 setValidationErrors([...validationErrors]);
                 console.log("There are now "+validationErrors.length+" errors");
                 readinessCallback(validationErrors.length === 0);
-        ***REMOVED***)
+            })
 
-***REMOVED***, [otherDemands, session]);
+    }, [otherDemands, session]);
 
     function checkDuplicateDomains() {
         const domains = [];
@@ -32,20 +32,20 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
                 console.log("Duplicate domain "+d.domain);
                 validationErrors.push("Duplicate domain "+d.domain+" in proposal");
                 setValidationErrors(validationErrors);
-        ***REMOVED***
+            }
             else {
                 domains.push(d.domain);
-        ***REMOVED***
-    ***REMOVED***); 
-***REMOVED***
+            }
+        }); 
+    }
 
     function checkTooManyLinks() {
         var disabled = false;
         if(otherDemands.length > 2) {
             validationErrors.push("Too many links in proposal");
             setValidationErrors(validationErrors);
-    ***REMOVED***
-***REMOVED***
+        }
+    }
 
     function checkAllDemands() {
         //start fresh
@@ -58,7 +58,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
             const otherDemandPromises = []
             otherDemands.forEach((d) => {
                 otherDemandPromises.push(checkDemand(d, supplier))
-        ***REMOVED***)
+            })
 
             Promise.all([primaryPromise, ...otherDemandPromises])
                 .then(([primaryRes, ...otherRes]) => {
@@ -66,7 +66,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
                         validationErrors.push("There is already a 3rd party link to "+primaryRes.target.root_domain+" from " + primaryRes.source.root_domain)
                         setValidationErrors(validationErrors)
                         console.log("Added primary error "+primaryDemand.domain)
-                ***REMOVED***
+                    }
                     else console.log("Primary is valid")
 
                     otherRes.forEach((res) => {
@@ -74,13 +74,13 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
                             validationErrors.push("There is already a 3rd party link to "+res.target.root_domain+" from " + res.source.root_domain)
                             setValidationErrors(validationErrors)
                             console.log("Added secondary error "+res.target.root_domain)
-                    ***REMOVED***
+                        }
                         else console.log("Secondary is valid")
-                ***REMOVED***)
+                    })
                     resolve();
-            ***REMOVED***)
-    ***REMOVED***);
-***REMOVED***
+                })
+        });
+    }
 
     function checkDemand(demand, supplier) {
         return new Promise(async (resolve, reject) => {
@@ -88,33 +88,33 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
             if(Object.hasOwn(cache, cacheKey)) {
                 console.log("Cache hit for "+cacheKey);
                 resolve(cache[cacheKey])
-        ***REMOVED***
+            }
             else {
                 console.log("Cache miss for "+cacheKey);
                 lookupWithMoz(demand, supplier)
                     .then((data) => {
                         cache[cacheKey] = data;
                         resolve(cache[cacheKey])
-                ***REMOVED***);
-        ***REMOVED***
-    ***REMOVED***)
-***REMOVED***
+                    });
+            }
+        })
+    }
 
     function lookupWithMoz(demand, supplier) {
         const mozUrl = "/.rest/mozsupport/checklink?demandurl="+demand.domain+"&supplierDomain="+supplier.domain
         return fetch(mozUrl, {
                     method: 'GET',
                     headers: {'user': session.user.email, 'demandId': demand.id}
-            ***REMOVED***)
+                })
             .then((resp) => {
                 if(resp.ok) return resp.json();
                 else return null;
-        ***REMOVED***)
+            })
             .catch((err) => {
                 console.log("Error: "+err);
                 setError(err);
-        ***REMOVED***);
-***REMOVED***
+            });
+    }
     
     return (
         <div className={validationErrors.length > 0 ? "border-l-8 border border-red-500 bg-red-100 mx-6 my-4":""}>
@@ -126,10 +126,10 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
         {validationErrors ? 
             validationErrors.map( (e,index) => {
                 return <ErrorMessage key={index} message={e} id={"error-"+index}/>
-        ***REMOVED***)
+            })
         :
             null
-    ***REMOVED***
+        }
         </div>
     );
 }

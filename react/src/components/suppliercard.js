@@ -30,12 +30,12 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 <Image src={UpdateIcon} width={32} height={32} alt="Update icon" className='inline-block'/>
             : 
                 null
-        ***REMOVED***
+            }
             {usages ?
                 <Counter count={usages[supplier.id]} low={2} medium={5} high={25}/>
             : 
                 null
-        ***REMOVED***
+            }
             {editable ?
             <Link href={"/supplier/"+supplier.id}>
                 <p className='text-right float-right'>Edit</p>
@@ -62,7 +62,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
                         <span className='col-span-11 align-middle truncate'>{supplier.email}</span>
                     </>
-            ***REMOVED***
+                }
                 <Image className='col-span-1 ' src={DaIcon} alt="da" width={20} height="auto"/>
                 <span className='col-span-11 align-middle text-lg font-bold'>{supplier.da}</span>
                 

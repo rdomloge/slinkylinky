@@ -24,7 +24,7 @@ export default function Profile() {
                             </div>
                             <Image className="rounded-full p-1 flex-none border-2 border-blue-600" src={Icon} alt="Profile image" width={60} height={60}/>
                         </div>
-                ***REMOVED***
+                    }
                 </>
             );
 }

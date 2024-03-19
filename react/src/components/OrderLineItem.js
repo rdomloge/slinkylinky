@@ -17,7 +17,7 @@ export default function OrderLineItem({lineItem}) {
             .then((result)=> setDemandDescription(result.name))
             .catch((error)=>{
                 setDemandError("Can't fetch demand")
-        ***REMOVED***)
+            })
 
         if(lineItem.linkedProposalId) {
             fetch("/.rest/proposals/"+lineItem.linkedProposalId+"?projection=fullProposal")
@@ -25,12 +25,12 @@ export default function OrderLineItem({lineItem}) {
                 .then((result)=> {
                     setSupplierDescription(result.paidLinks[0].supplier.domain)
                     setProposalTitle(result.liveLinkTitle)
-            ***REMOVED***)
+                })
                 .catch((error)=>{
                     setProposalError("Can't fetch proposal")
-            ***REMOVED***)
-    ***REMOVED***
-***REMOVED***,[lineItem]);
+                })
+        }
+    },[lineItem]);
 
 
     return (
@@ -44,7 +44,7 @@ export default function OrderLineItem({lineItem}) {
                     linkText={supplierDescription} linkUrl={"/proposals/"+lineItem.linkedProposalId}/>
             :
                 null
-        ***REMOVED***
+            }
 
 
             {lineItem.proposalComplete ? 
@@ -52,7 +52,7 @@ export default function OrderLineItem({lineItem}) {
                     linkText={proposalTitle} linkUrl={"/proposals/"+lineItem.linkedProposalId}/>
             :
                 null
-        ***REMOVED***
+            }
         </ol>
     )
 }
@@ -80,7 +80,7 @@ function LineItemStep({title, date, description, linkText, linkUrl, showError = 
                     <p className="text-gray-500 dark:text-gray-400 truncate">{description} <Link href={linkUrl}>{linkText}</Link></p>
                 :
                     <p className="text-gray-500 dark:text-gray-400 truncate">{description}</p>
-            ***REMOVED***
+                }
             </div>
         </li>        
     )

@@ -24,11 +24,11 @@ export default function ListProposals() {
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
-***REMOVED***
+    }
     
     function getDaysInMonth(year, month) {
         return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
-***REMOVED***
+    }
     
     function goBackMonths(date, value) {
         var d = new Date(date),
@@ -37,18 +37,18 @@ export default function ListProposals() {
         d.setMonth(d.getMonth() - value);
         d.setDate(Math.min(n, getDaysInMonth(d.getFullYear(), d.getMonth())));
         return d;
-***REMOVED***
+    }
 
     function dd(i) {
         if(i > 9) return i;
         else  return "0"+i;
-***REMOVED***
+    }
     
     function buildUrl(minusMonths) {
         var date = new Date();
         if(minusMonths) {
             date = goBackMonths(date, minusMonths);
-    ***REMOVED***
+        }
         const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
         const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
@@ -62,27 +62,27 @@ export default function ListProposals() {
             "&endDate="+lastDateString+"T23:59"+
             "&projection=fullProposal";
         return proposalsUrl;
-***REMOVED***
+    }
     
     
     function filterForThisUser(data) {
         if(personal) {
             const filteredProposals = data.filter( (p) => {
                 return paidLinksContainsDemandForMe(p.paidLinks)
-        ***REMOVED***)
+            })
             return filteredProposals
-    ***REMOVED***
+        }
         else {
             return data
-    ***REMOVED***
-***REMOVED***
+        }
+    }
 
     function paidLinksContainsDemandForMe(paidLinks) {
         if( ! session) return true;
         var forMe = false;
-        paidLinks.forEach( pl => {if(pl.demand.createdBy === session.user.email) forMe = true***REMOVED***
+        paidLinks.forEach( pl => {if(pl.demand.createdBy === session.user.email) forMe = true});
         return forMe;
-***REMOVED***
+    }
 
     useEffect(
         () => {
@@ -94,17 +94,17 @@ export default function ListProposals() {
                     .then( (res) => {
                         if(!res.ok) {
                             throw new Error("Can't fetch proposals.")
-                    ***REMOVED***
+                        }
                         return res.json()
-                ***REMOVED***)
+                    })
                     .then( (data) => {
 
                         setProposals(filterForThisUser(data))}
                     )
                     .catch( (error) => setError(error.message));
-        ***REMOVED***
+            }
             
-    ***REMOVED***, [router.isReady, router.query.minusMonths, personal]
+        }, [router.isReady, router.query.minusMonths, personal]
     );
 
     return (
@@ -125,7 +125,7 @@ export default function ListProposals() {
                 </ul>
             : 
                 <Loading error={error}/>
-        ***REMOVED***
+            }
         </Layout>
     );
 }

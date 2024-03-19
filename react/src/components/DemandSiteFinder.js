@@ -20,11 +20,11 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
             fetch(searchUrl)
                 .then(resp => resp.json())
                 .then(data => setSearchResults(data))
-    ***REMOVED***
+        }
         else {
             setSearchResults([])
-    ***REMOVED***
-***REMOVED***, [searchTerm]);
+        }
+    }, [searchTerm]);
 
     function createNewDemandSite(name, website) {
         setShowModal(false)
@@ -39,16 +39,16 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
             method: 'POST',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(demandsite)
-    ***REMOVED***)
+        })
         .then( (resp) => {
             if(resp.ok) {
                 demandsiteSelectedHandler(demandsite)
-        ***REMOVED***
+            }
             else {
                 console.log("Created failed: "+JSON.stringify(resp));
-        ***REMOVED***
-    ***REMOVED***);
-***REMOVED***
+            }
+        });
+    }
 
     return (
         <>
@@ -75,7 +75,7 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
                 <p className="text-slate-500 text-7xl">Specify a name</p>
                 <p className="text-slate-500 text-4xl pt-4">3 characters min.</p>
             </div>
-        ***REMOVED***
+            }
         </div>
         </>
     );    

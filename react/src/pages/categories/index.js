@@ -31,7 +31,7 @@ export default function ListCategories() {
                 .then( (res) => res.json())
                 .then( (data) => setCategories(data))
                 .catch( (error) => setError(error));
-    ***REMOVED***, []
+        }, []
     );
 
     function createCategory() {
@@ -44,7 +44,7 @@ export default function ListCategories() {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': session.user.email},
             body: JSON.stringify(newCategory)
-    ***REMOVED***)
+        })
         .then( (resp) => {
             if(resp.ok) {
                 const locationUrl = resp.headers.get('Location')
@@ -56,21 +56,21 @@ export default function ListCategories() {
                     else
                         console.log("No name for "+JSON.stringify(a))
                     return -1
-            ***REMOVED***)
+                })
                 setCategories(newCategories);
-        ***REMOVED***
+            }
             else {
                 console.log("Created failed: "+JSON.stringify(resp));
-        ***REMOVED***
-    ***REMOVED***)
+            }
+        })
         setShowNewModal(false);
-***REMOVED***
+    }
 
     function editCategory(category) {
         setShowEditModal(true);
         setEditingCategory(category);
         setEditingCategoryName(category.name);
-***REMOVED***
+    }
 
     function saveUpdatedCategory() {
         console.log("Saving updated category: "+editingCategoryName);
@@ -80,8 +80,8 @@ export default function ListCategories() {
             method: 'PATCH',
             headers: {'Content-Type':'application/json', 'user': session.user.email},
             body: JSON.stringify({name: editingCategoryName, disabled: editingCategory.disabled, updatedBy: session.user.email})
-    ***REMOVED***)
-***REMOVED***
+        })
+    }
 
     
     return (
@@ -100,13 +100,13 @@ export default function ListCategories() {
                                             submitHandler={()=>editCategory(c)}/>
                                         </>
                                         : null
-                                ***REMOVED***
+                                    }
                                 </div>
                         )})}
                 </div>
             : 
                 <Loading error={error}/>
-        ***REMOVED***
+            }
             {showNewModal ?
                 <Modal dismissHandler={()=>setShowNewModal(false)} title="New category" >
                     <TextInput label="Category name" changeHandler={(e)=>setNewCategoryName(e)}/>
@@ -114,7 +114,7 @@ export default function ListCategories() {
                 </Modal>
             : 
                 null
-        ***REMOVED***
+            }
             {showEditModal ?
                 <Modal dismissHandler={()=>setShowEditModal(false)} title="Edit category" >
                     <TextInput label="Category name" binding={editingCategoryName} disabled={true} />
@@ -138,7 +138,7 @@ export default function ListCategories() {
                 </Modal>
             :
                 null
-        ***REMOVED***
+            }
         </Layout>
     );
     

@@ -7,7 +7,7 @@
         "email": "rdomloge@gmail.com",
         "fee": "45",
         "categories": ["Architecture"]
-***REMOVED***,
+    },
     {
         "name": "Supplier that we will make a proposal from",
         "da": "46",
@@ -16,5 +16,5 @@
         "email": "rdomloge@gmail.com",
         "fee": "145",
         "categories": ["Weddings"]
-***REMOVED***   
+    }   
 ]

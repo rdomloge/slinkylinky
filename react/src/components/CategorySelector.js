@@ -14,13 +14,13 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
             const url = category._links.self.href
             if(url.indexOf('{') > -1) return url.substring(0, url.indexOf('{'))
             else return url
-    ***REMOVED***
+        }
         else {
             const url = location.protocol + "//" + location.hostname + ":" + location.port + "/.rest/categories/" + category.id
             console.log("Build URL: "+url)
             return url
-    ***REMOVED***
-***REMOVED***
+        }
+    }
 
     const findCategories = (inputValue, callback) => {
         console.log("Fetching categories like "+inputValue)
@@ -28,14 +28,14 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
             .then(res => res.json())
             .then(
                 json => callback(json.map(c => ({value: "/categories/"+c.id, label: c.name}))))
-***REMOVED***
+    }
 
     function buildUrlForInputValue(inputValue) {
         if(inputValue) {
             return "/.rest/categories/search/findByNameContainsIgnoreCaseAndDisabledFalseOrderByNameAsc?name="+inputValue
-    ***REMOVED***
+        }
         else return "/.rest/categories/search/findAllByDisabledFalseOrderByNameAsc";
-***REMOVED***
+    }
 
     return (
         <div className="w-full px-3 ">

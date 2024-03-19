@@ -36,5 +36,5 @@ test("Functionality enabled on login", async t => {
     await t.expect(firstDemandSelectLink.visible).ok();
     await t.expect(firstDemandEditLink.visible).ok();
     await t.expect(firstDemandDeleteLink.visible).ok();
-***REMOVED***
+});
 

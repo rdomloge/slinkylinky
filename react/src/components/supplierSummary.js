@@ -11,10 +11,10 @@ export default function SupplierSummary({supplier}) {
                     <span className="mr-2 text-2xl">DA-{supplier.da}</span>
                     <span className="mr-2 text-2xl">{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
                     </>
-            ***REMOVED***
+                }
                 
             </div>
         );
-***REMOVED***
+    }
     else return <>Loading...</>
 }

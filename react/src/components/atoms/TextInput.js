@@ -15,7 +15,7 @@ export default function TextInput({changeHandler, label, binding, disabled, maxL
                     <Image src={LockedImage} width={15} alt="Text input locked" className={"float-left"}/>
                 : 
                     null
-            ***REMOVED***
+                }
             </label>
             <input onChange={(e)=>changeHandler(e.target.value)} 
                     value={binding} 

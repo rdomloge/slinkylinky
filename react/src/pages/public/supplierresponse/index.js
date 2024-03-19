@@ -39,17 +39,17 @@ export default function SupplierResponse() {
                 .then((res) => res.json())
                 .then((e) => {
                     setEngagement(e);
-            ***REMOVED***)
+                })
                 .catch((err) => setError(err));
-    ***REMOVED***
-***REMOVED***, [router.isReady, router.query.id])
+        }
+    }, [router.isReady, router.query.id])
 
     const uploadToClient = (event) => {
         if (event.target.files && event.target.files[0]) {
             const i = event.target.files[0];
             setFilename(i);
-    ***REMOVED***
-***REMOVED***;
+        }
+    };
 
     const uploadToServer = (event) => {
         const body = new FormData();
@@ -58,8 +58,8 @@ export default function SupplierResponse() {
         return fetch("/.rest/engagements/uploadInvoice?guid="+id, {
             method: "POST", 
             body: body
-    ***REMOVED***)
-***REMOVED***;
+        })
+    };
 
     const sendBlogDetails = (event) => {
         const id = router.query.id;
@@ -67,18 +67,18 @@ export default function SupplierResponse() {
             method: "PATCH", 
             headers: {
                 'Content-Type': 'application/json'
-        ***REMOVED***,
+            },
             body: JSON.stringify({
                 blogTitle: blogTitle,
                 blogUrl: blogUrl
-        ***REMOVED***)})
+            })})
             .then((res) => {
                 if(res.ok) {
                     window.location.reload();
-            ***REMOVED***
-        ***REMOVED***)
+                }
+            })
             .catch((err) => console.error(err))
-***REMOVED***
+    }
 
     function handleDecline() {
         const id = router.query.id;
@@ -86,39 +86,39 @@ export default function SupplierResponse() {
             method: "PATCH", 
             headers: {
                 'Content-Type': 'application/json'
-        ***REMOVED***,
+            },
             body: JSON.stringify({
                 declinedReason: declineReason,
                 doNotContact: doNotContact
-        ***REMOVED***)
-    ***REMOVED***)
+            })
+        })
         .then((res) => {
             if(res.ok) {
                 window.location.reload();
-        ***REMOVED***
-    ***REMOVED***)
+            }
+        })
         .catch((err) => console.error(err))
-***REMOVED***
+    }
 
 
     function submit() {
         if(noInvoice) {
             sendBlogDetails();
             setShowAcceptModal(false);
-    ***REMOVED*** 
+        } 
         else {
             uploadToServer()
             .then((res) => {
                 if(res.ok) {
                     sendBlogDetails();
                     setShowAcceptModal(false);
-            ***REMOVED***
-        ***REMOVED***)
+                }
+            })
             .catch((err) => {
                 console.error(err);
-        ***REMOVED***)
-    ***REMOVED***
-***REMOVED***
+            })
+        }
+    }
 
     return (
         <>
@@ -165,7 +165,7 @@ export default function SupplierResponse() {
                                         <p className="pb-4 text-red-500 font-bold">This may slow down payment</p>
                                     :
                                         <p className="pb-4">Invoice will be paid within 30 days</p>
-                                ***REMOVED***
+                                    }
                                     <StyledCheckbox label="No invoice" onChangeHandler={(value)=>setNoInvoice(value.target.checked)}/>
                                     <div className="inline-block flex">
                                         <div className="flex-1 flex justify-end">
@@ -176,7 +176,7 @@ export default function SupplierResponse() {
                                 </Modal>
                                 :
                                 null
-                        ***REMOVED***
+                            }
                             {showDeclineModal ?
                                 <Modal title="Decline offer" dismissHandler={() => { setShowDeclineModal(false) }} width="w-1/2">
                                     <p>By declining this offer, you will not be able to accept it later.</p>
@@ -189,28 +189,28 @@ export default function SupplierResponse() {
                                         <InfoMessage message="You can will receive one more email confirming that you are being removed from our system and we will not send you any future engagements" />
                                     : 
                                         null 
-                                ***REMOVED***
+                                    }
                                 </Modal>
                                 :
                                 null
-                        ***REMOVED***
+                            }
                             {showPreviewModal ?
                                 <Modal title="Article" dismissHandler={() => { setShowPreviewModal(false) }} width="w-2/3">
                                     <iframe src={"/.rest/proposalsupport/getArticleFormatted?proposalId=" + engagement.proposalId} width="100%" height={480} />
                                 </Modal>
                                 :
                                 null
-                        ***REMOVED***
+                            }
                             {uploadError ?
                                 <Modal title="Upload error" dismissHandler={() => { setUploadError(null) }} width="w-1/2">
                                     <p className="text-red-500">Invoice upload failed. Perhaps try a smaller file size?</p>
                                 </Modal>
                                 :
                                 null
-                        ***REMOVED***
+                            }
                         </div>
                     </div>
-            ***REMOVED***
+                }
                 </LayoutPublic>
                 :
                 <>
@@ -218,9 +218,9 @@ export default function SupplierResponse() {
                         <p className="text-8xl font-black p-8">404 - page not found</p>
                         :
                         <Loading />
-                ***REMOVED***
+                    }
                 </>
-        ***REMOVED***
+            }
         </>
     );
 }

@@ -21,10 +21,10 @@ export default function Demand() {
                         .then(json => {
                             json.id = router.query.demandid;
                             setDemand(json);
-                    ***REMOVED***)
+                        })
                     .catch(err => setError("Could not load Demand: "+err.statusMessage));
-        ***REMOVED***
-    ***REMOVED***, [router.isReady, router.query.demandid]
+            }
+        }, [router.isReady, router.query.demandid]
     )
 
     return (
@@ -34,7 +34,7 @@ export default function Demand() {
                 <AddOrEditDemand demand={demand}/>
             : 
                 <Loading error={error}/> 
-        ***REMOVED***
+            }
         </Layout>
     );
 }

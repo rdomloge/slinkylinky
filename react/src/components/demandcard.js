@@ -30,15 +30,15 @@ export default function DemandCard({demand, fullfilable, editable, id}) {
             headers: {
                 'Content-Type': 'application/json',
                 'user': session.user.email
-        ***REMOVED***,
+            },
             body: JSON.stringify({id: demand.id})
-    ***REMOVED***)
+        })
         .then(res => {
             if (res.ok) {
                 window.location.reload()
-        ***REMOVED***
-    ***REMOVED***)
-***REMOVED***
+            }
+        })
+    }
     
     return (
         <div className={"card list-card grid grid-cols-10"} id={id}>
@@ -100,7 +100,7 @@ export default function DemandCard({demand, fullfilable, editable, id}) {
                 </Modal>
             :
                 null
-        ***REMOVED***
+            }
         </div>
     );
 }

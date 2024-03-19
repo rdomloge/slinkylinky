@@ -8,10 +8,10 @@ export default function OrderCard({order}) {
         for(let lineItem of order.lineItems) {
             if ( ! lineItem.proposalComplete) {
                 return false
-        ***REMOVED***
-    ***REMOVED***
+            }
+        }
         return true
-***REMOVED***
+    }
 
 
     return (
@@ -25,7 +25,7 @@ export default function OrderCard({order}) {
                         <OrderLineItem lineItem={lineItem}/>
                     </div>
                 )
-        ***REMOVED***)}
+            })}
         </div>
     )
 }

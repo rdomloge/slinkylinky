@@ -1,4 +1,4 @@
-***REMOVED***
+import { Selector } from 'testcafe';
 import { gitHubUser } from './roles';
 
 

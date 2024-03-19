@@ -18,15 +18,15 @@ export default function DemandSiteList() {
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Can't fetch demand sites.")
-            ***REMOVED***
+                }
                 return res.json()
-        ***REMOVED***)
+            })
             .then((data) => {
                 setDemandSites(data._embedded.demandsites.filter(ds => ds.categories && ds.categories.filter(c => c.disabled == false).length > 0))
                 setMissingCategories(data._embedded.demandsites.filter(ds => ! ds.categories || ds.categories.filter(c => c.disabled == false).length < 1))
-        ***REMOVED***)
+            })
             .catch((err) => setError(err.message))
-***REMOVED***, []);
+    }, []);
 
     return (
         <Layout>

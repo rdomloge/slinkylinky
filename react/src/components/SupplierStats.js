@@ -20,7 +20,7 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
 
         if(adhoc) {
             url = "/.rest/semrush/lookup?domain="+supplier.domain;
-    ***REMOVED***
+        }
         else {
             const lastDayOfLastMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 0);
             const year = lastDayOfLastMonth.getFullYear() -1
@@ -33,11 +33,11 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                         +"domain="+supplier.domain
                         +"&startDate="+startDate
                         +"&endDate="+endDate
-    ***REMOVED***
+        }
 
         fetch(url, {headers: {
             'user': session.user.email}
-    ***REMOVED***)
+        })
         .then( (resp) => {
             if(resp.ok) {
                 resp.json().then( (data) => {
@@ -47,19 +47,19 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                             traffic: d.organicTraffic, 
                             srrank: d.rank, 
                             yearMonth: new Date(d.date).toISOString().substring(0,7)})).reverse()
-                ***REMOVED***
+                    }
                     if(! adhoc & data.length > 0) {
                         setSpamScore(data[data.length-1].spamScore)
-                ***REMOVED***
+                    }
                     setTrafficDataPoints(data)
-            ***REMOVED***)
-        ***REMOVED***
+                })
+            }
             else {
                 console.log("Unknown error: "+resp.status)
-        ***REMOVED***
-    ***REMOVED***)
+            }
+        })
 
-***REMOVED***, [session, supplier]);
+    }, [session, supplier]);
     
     return (
         <div>
@@ -74,12 +74,12 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                 <Image src={PigIcon} width={40} className="float-left" alt="spam score"/>
                 <p className={spamScore > 9 ? "in-pig-dd": "in-pig-sd"}>{spamScore}</p>
                 </div>
-        ***REMOVED***
+            }
             
             </>
         :
             null
-    ***REMOVED***
+        }
         </div>
     )
 }

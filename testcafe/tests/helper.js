@@ -13,7 +13,7 @@ export async function gotoNewDemandPage() {
     if ( ! (await demandList.pageTitle.innerText).startsWith("Demand ")) {
         await t.click(demandList.demandListMenuItem)
             .expect(demandList.pageTitle.innerText).contains("Demand ");
-***REMOVED***
+    }
     
     await t.useRole(gitHubUser)
         .click(demandList.newButton)
@@ -33,7 +33,7 @@ export async function createSupplier(dataIndex) {
     
     if(null == dataIndex || dataIndex < 0 || dataIndex >= supplierData.length) {
         throw new Error("Invalid dataIndex");
-***REMOVED***
+    }
 
     await gotoNewSupplierPage();
 
@@ -53,7 +53,7 @@ export async function createNewDemand(dataIndex) {
 
     if(null == dataIndex || dataIndex < 0 || dataIndex >= demandData.length) {
         throw new Error("Invalid dataIndex");
-***REMOVED***
+    }
 
     // await t.debug()
     await gotoNewDemandPage();

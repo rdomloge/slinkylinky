@@ -20,7 +20,7 @@ class AddEditDemand {
         this.newDemandSiteCreateButton = Selector('#createDemandSiteButton')
 
         this.demandSiteSearchResults = Selector("div[id^='demandSiteSearchResult-']")
-***REMOVED***
+    }
 }
 
 export default new AddEditDemand();

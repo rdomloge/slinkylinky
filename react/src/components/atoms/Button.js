@@ -34,13 +34,13 @@ export function StyledButton({submitHandler, enabled = true, label = "Submit", t
         secondary: "bg-green-700 hover:bg-green-900 border-green-900",
         tertiary: "bg-indigo-700 hover:bg-indigo-900 border-indigo-900",
         risky: "bg-red-700 hover:bg-red-900 border-red-900"
-***REMOVED***
+    }
     const textTypes = {
         primary: "text-blue-700 hover:text-blue-900",
         secondary: "text-green-700 hover:text-green-900",
         tertiary: "text-indigo-700 hover:text-indigo-900",
         risky: "text-red-700 hover:text-red-500",
-***REMOVED***
+    }
 
     const buttonClass = `${baseClass} ${buttonTypes[type]} ${enabled ? '' : ' opacity-50 cursor-not-allowed'}`;
     const textClass = `${textTypes[type]} ${enabled ? ' cursor-pointer' : ' opacity-50 cursor-not-allowed'}`;
@@ -51,13 +51,13 @@ export function StyledButton({submitHandler, enabled = true, label = "Submit", t
                 {label}
             </span>
         );
-***REMOVED*** else {
+    } else {
         return (
             <button onClick={submitHandler} disabled={!enabled} className={buttonClass+" "+extraClass}>
                 {label}
             </button>
         );
-***REMOVED***
+    }
 }
 
 export function SessionBlock({children}) {

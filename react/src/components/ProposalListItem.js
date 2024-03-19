@@ -18,7 +18,7 @@ export default function ProposalListItem({proposal, originalSupplier = null}) {
                         <SupplierSummary supplier={originalSupplier}/>
                     :
                         <SupplierSummary supplier={proposal.paidLinks[0].supplier}/>
-                ***REMOVED***
+                    }
                     {proposal.blogLive ?
                         <div>
                             <Link href={proposal.liveLinkUrl}>

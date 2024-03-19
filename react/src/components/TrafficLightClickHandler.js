@@ -22,7 +22,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         const url = entity._links.self.href;
         const id = url.substring(url.lastIndexOf('/')+1);
         return id;
-***REMOVED***
+    }
 
     function clickHandler() {
         if(propertyName === "blogLive")
@@ -30,21 +30,21 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                 proposal.liveLinkUrl = null
                 proposal.liveLinkTitle = null
                 toggle()
-        ***REMOVED***
+            }
             else {
                 setShowModal(true)
-        ***REMOVED***
+            }
         else if(propertyName === "contentReady") {
             if(proposal.contentReady) {
                 toggle()
-        ***REMOVED***
+            }
             else {
                 setShowContentCreator(true);
-        ***REMOVED***
-    ***REMOVED***
+            }
+        }
         else
             toggle();
-***REMOVED***
+    }
 
     function articleSubmitHandler(content) {
         const url = "/.rest/proposalsupport/addarticle?proposalId="+parseId(proposal);
@@ -52,18 +52,18 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             method: 'PATCH',
             headers: {'user': session.user.email, 'Content-Type':'text/plain'},
             body: content
-        ***REMOVED***)
+            })
             .then( (res) => {
                 if(res.ok) {
                     setShowContentCreator(false)
                     toggle()
-            ***REMOVED***
+                }
                 else
                     console.log("Error: "+res.status)
-        ***REMOVED***)
+            })
             
             ;
-***REMOVED***
+    }
 
     function setCapturedValue(url, title, supplierCost, supplierDa) {
         proposal.liveLinkUrl = url;
@@ -74,13 +74,13 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             proposal.paidLinks[0].supplier.weWriteFeeCurrency = supplierCurrency
             proposal.paidLinks[0].supplier.da = supplierDa
             proposal.paidLinks[0].supplier.website = stripUrlPath(url)
-    ***REMOVED***
+        }
 
         if("" === url || "" === title) 
             console.log("Blank URL or title");
         else
             toggle();
-***REMOVED***
+    }
     
     function toggle() {
         const proposalUrl = "/.rest/proposals/"+parseId(proposal);
@@ -89,31 +89,31 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         postData[propertyName] = ! proposal[propertyName]
         if(null != propertyDate) {
             postData[propertyDate] = postData[propertyName] ? new Date().toISOString() : null
-    ***REMOVED***
+        }
         if("blogLive" === propertyName) {
             postData.liveLinkUrl = proposal.liveLinkUrl
             postData.liveLinkTitle = proposal.liveLinkTitle
-    ***REMOVED***
+        }
         if("contentReady" === propertyName) {
             if(postData.contentReady) {
                 postData.article = proposal.article
-        ***REMOVED***
+            }
             else {
                 postData.article = null
-        ***REMOVED***
-    ***REMOVED***
+            }
+        }
         const bodyJson = JSON.stringify(postData)
 
         fetch(proposalUrl, {
             method: 'PATCH',
             headers: {'Content-Type':'application/json'},
             body: bodyJson
-    ***REMOVED***).then( (resp) => {
+        }).then( (resp) => {
             if(resp.ok) {
                 proposal[propertyName] = ! proposal[propertyName]
                 if(null != propertyDate) {
                     proposal[propertyDate] = proposal[propertyName] ? new Date().toISOString() : null
-            ***REMOVED***
+                }
 
                 if("blogLive" === propertyName) {
                     if(proposal.paidLinks[0].supplier.thirdParty) {
@@ -122,22 +122,22 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                             method: 'PATCH',
                             headers: {'Content-Type':'application/json'},
                             body: JSON.stringify(create3rdPartySupplierPatchData())
-                    ***REMOVED***)
+                        })
                         .catch(error => console.error("Oh noes! An error: "+error));
-                ***REMOVED***
-            ***REMOVED***
-                updateHandler({...proposal***REMOVED*** // force a re-render, since we don't need to update the supplier
-        ***REMOVED***
-    ***REMOVED***).catch(error => console.error("Oh noes! An error: "+error));
-***REMOVED***
+                    }
+                }
+                updateHandler({...proposal}); // force a re-render, since we don't need to update the supplier
+            }
+        }).catch(error => console.error("Oh noes! An error: "+error));
+    }
 
     function stripUrlPath(url) {
         if( ! url.startsWith("http")) {
             url = "https://"+url
-    ***REMOVED***
+        }
         const urlObj = new URL(url)
         return urlObj.origin
-***REMOVED***
+    }
 
     function create3rdPartySupplierPatchData() {
         const clearingData = proposal[propertyDate] === null; // clear the supplier data if the post is no longer live
@@ -150,7 +150,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             proposal.paidLinks[0].supplier.da = null
             proposal.paidLinks[0].supplier.website = null
             proposal.paidLinks[0].supplier.domain = null
-    ***REMOVED***
+        }
 
         const supplierData = {}
         supplierData.updatedBy = session.user.email
@@ -159,7 +159,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         supplierData.da = clearingData ? null : supplierDa
         supplierData.website = clearingData ? null : stripUrlPath(proposal.liveLinkUrl)
         return supplierData
-***REMOVED***
+    }
 
     return (
         <div className="inline-block cursor-pointer">
@@ -170,7 +170,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                 <ContentCreator dismissHandler={()=>setShowContentCreator(false)} submitHandler={articleSubmitHandler} proposal={proposal} />
             :
                 null
-        ***REMOVED***
+            }
             <div>
                 {showModal ?
                     <Modal dismissHandler={()=>setShowModal(false)} title="Post details" width="w-1/3">
@@ -190,18 +190,18 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                             </>
                         :
                             null
-                    ***REMOVED***
+                        }
                         <div className="pt-4">
                             <ClickHandlerButton label="Submit" 
                                 clickHandler={()=> {
                                     setCapturedValue(postUrl,postTitle, supplierCost, supplierDa);
                                     setShowModal(false);
-                            ***REMOVED***}/>
+                                }}/>
                         </div>
                     </Modal>
                     :
                     null
-            ***REMOVED***
+                }
             </div>
         </div>
     );

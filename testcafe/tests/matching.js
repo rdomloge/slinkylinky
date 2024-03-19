@@ -23,7 +23,7 @@ test("Suppliers match expected", async t=> {
         await t.expect(matchingModel.supplierDaInSupplierCard(s.name).innerText).eql(s.da)
         await t.expect(matchingModel.supplierFeeInSupplierCard(s.name).innerText).eql(s.fee)
         await t.expect(matchingModel.supplierSourceInSupplierCard(s.name).innerText).eql(s.source)
-***REMOVED***
+    }
     
     await matchingModel.clickSupplier('Jason')
     // need to check that selecting Jason correctly redirected us to staging

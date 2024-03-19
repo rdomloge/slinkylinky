@@ -9,7 +9,7 @@ class supplierListModel {
             .withExactText('New');
 
         this.supplierMenuItem = Selector('#__next > div > div:nth-child(1) > div > div:nth-child(3) > a')
-***REMOVED***
+    }
 }
 
 

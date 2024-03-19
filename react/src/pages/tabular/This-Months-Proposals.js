@@ -10,7 +10,7 @@ export default function TabularProposalData() {
     function dd(i) {
         if(i > 9) return i;
         else  return "0"+i;
-***REMOVED***
+    }
     
     function buildUrl() {
         var date = new Date();
@@ -26,7 +26,7 @@ export default function TabularProposalData() {
             "&endDate="+lastDateString+"T23:59"+
             "&projection=fullProposal";
         return proposalsUrl;
-***REMOVED***
+    }
 
     useEffect(
         () => {
@@ -35,7 +35,7 @@ export default function TabularProposalData() {
                 .then( (res) => res.json())
                 .then( (data) => setProposals(data._embedded.proposals));
             
-    ***REMOVED***, []
+        }, []
     );
 
     return (
@@ -78,7 +78,7 @@ export default function TabularProposalData() {
                     )))
                 :
                     null
-            ***REMOVED***
+                }
             </tbody>
             </table>
         </Layout>

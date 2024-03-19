@@ -40,9 +40,9 @@ export default function App() {
                         if(!resDemand.ok || !resSuppliers.ok) {
                             if(!resDemand.ok) throw new Error("Could not load demand")
                             if(!resSuppliers.ok) throw new Error("Could not load supplier")
-                    ***REMOVED***
+                        }
                         return Promise.all([resDemand.json(), resSuppliers.json()])
-                ***REMOVED***)
+                    })
                     .then(([dataDemand, dataSuppliers]) => {
                         setDemand(dataDemand);
                         setSuppliers(dataSuppliers);
@@ -56,18 +56,18 @@ export default function App() {
                             .then(resCount => resCount.json())
                             .then(counts => {
                                 setSupplierUsageCount(counts)
-                        ***REMOVED***)
-                ***REMOVED***)
+                            })
+                    })
                     // .catch((error) => {
                     //     if (typeof error === 'string' || error instanceof String) { 
                     //         setError(error);
-                    // ***REMOVED***
+                    //     }
                     //     else {
                     //         setError(error.message);
-                    // ***REMOVED***
+                    //     }
                     // })
-        ***REMOVED***
-    ***REMOVED***, [router.isReady, router.query.demandid]
+            }
+        }, [router.isReady, router.query.demandid]
     );
 
     function create3rdPartyProposal() {
@@ -79,18 +79,18 @@ export default function App() {
         fetch(combiUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': session.user.email}
-    ***REMOVED***)
+        })
         .then( (resp) => {
             if(resp.ok) {
                 console.log("Created proposal");
                 const locationUrl = resp.headers.get('Location')
                 location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
-        ***REMOVED***
+            }
             else {
                 console.log("Created proposal failed: "+JSON.stringify(resp));
-        ***REMOVED***
-    ***REMOVED***)
-***REMOVED***
+            }
+        })
+    }
 
     return (
         <Layout>
@@ -123,16 +123,16 @@ export default function App() {
                     </Modal>
                 : 
                     null
-            ***REMOVED***
+                }
                 <div>Matching suppliers</div>
                 {suppliers ?
                     <SupplierList suppliers={suppliers} demand={demand} 
                         demandid={router.query.demandid} usages={supplierUsageCount}/>
                 : 
                     null
-            ***REMOVED***
+                }
                 </>
-        ***REMOVED***
+            }
         </Layout>
     );
 }

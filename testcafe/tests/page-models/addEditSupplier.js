@@ -14,7 +14,7 @@ class addEditSupplierModel {
         this.submitButton = Selector('button')
             .with({visibilityCheck: true})
             .withExactText('Submit');
-***REMOVED***
+    }
 }
 
 
