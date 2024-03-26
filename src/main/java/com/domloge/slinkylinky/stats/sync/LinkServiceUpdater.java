@@ -46,7 +46,10 @@ public class LinkServiceUpdater {
         now = now.minusMonths(1);
         String uniqueYearMonth = now.getYear()+"-"+Util.dd(now.getMonthValue());
         DaMonthlyData latest = daRepo.findByDomainAndUniqueYearMonth(domain, uniqueYearMonth);
-
+        if(latest == null) {
+            log.error("No DA data found for domain {} and uniqueYM {} - cannot update supplier DA", domain, uniqueYearMonth);
+            return;
+        }
         if(supplier.getDa() == latest.getDa()) {
             log.info("DA for {} is already up to date in Link Service", domain);
             return;

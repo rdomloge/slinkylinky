@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.stats.moz;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -35,6 +37,10 @@ public class MozFacade {
 
     @Value("${moz.secret}")
     private String secretKey;
+
+    public MozFacade() {
+        restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    }
 
 
     @Getter @Setter
@@ -107,6 +113,9 @@ public class MozFacade {
                 byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(Charset.forName("US-ASCII")));
                 String authHeader = "Basic " + new String(encodedAuth);
                 set("Authorization", authHeader);
+                set("Content-Type", "application/json");
+                set("Accept", "application/json");
+                set("Charset", "utf-8");
             }
         };
     }
