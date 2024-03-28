@@ -3,6 +3,7 @@ package com.domloge.slinkylinky.linkservice.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.domloge.slinkylinky.linkservice.entity.validator.BlackListedSupplierValidator;
 import com.domloge.slinkylinky.linkservice.entity.validator.CategoryValidator;
 import com.domloge.slinkylinky.linkservice.entity.validator.DemandSiteValidator;
 import com.domloge.slinkylinky.linkservice.entity.validator.DemandValidator;
@@ -51,5 +52,9 @@ public class ValidatorConfig {
 
     @Bean SupplierValidator beforeSaveSupplierValidator() {
         return new SupplierValidator();
+    }
+
+    @Bean BlackListedSupplierValidator beforeCreateBlackListedSupplierValidator() {
+        return new BlackListedSupplierValidator();
     }
 }
