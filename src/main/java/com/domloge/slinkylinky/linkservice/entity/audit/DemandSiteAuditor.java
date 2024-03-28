@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleAfterDelete;
 import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,14 @@ public class DemandSiteAuditor {
         AuditRecord auditRecord = new AuditRecord();
         auditRecord.setWho(demandSite.getCreatedBy());
         auditRecord.setWhat("create demand site");
+        common(auditRecord, demandSite);
+    }
+
+    @HandleAfterDelete
+    public void handleAfterDelete(DemandSite demandSite) {
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setWho(demandSite.getUpdatedBy());
+        auditRecord.setWhat("delete demand site");
         common(auditRecord, demandSite);
     }
 
