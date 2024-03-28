@@ -30,11 +30,20 @@ export default function ListOrders() {
         else return b.externalId - a.externalId
     }
 
+    function archiveHandler(order) {
+        const index = orders.indexOf(order)
+        if(index > -1) {
+            const newOrders = [...orders]
+            newOrders.splice(index,1)
+            setOrders(newOrders)
+        }
+    }
+
     useEffect( () => {
-        fetch("/.rest/orders?projection=lightOrder")
+        fetch("/.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder")
             .then((res) => res.json())
             .then((result)=> {
-                const sorted = result._embedded.orders.sort((a,b) => sortOrders(a,b))
+                const sorted = result.sort((a,b) => sortOrders(a,b))
                 setOrders(sorted)
             })
             .catch((error)=>{
@@ -48,7 +57,7 @@ export default function ListOrders() {
             { !error && orders ?
                 <div className="">
                     {orders.map( (order,index) => {
-                        return <OrderCard order={order} key={index}/>
+                        return <OrderCard order={order} key={index} archiveHandler={archiveHandler}/>
                     })}
                 </div>
             :
