@@ -29,12 +29,29 @@ export async function gotoNewSupplierPage() {
         .expect(addEditSupplier.pageTitle.innerText).contains("New supplier");
 }
 
-export async function createSupplier(dataIndex) {
+export async function createSupplierIfMissing(dataIndex) {
     
     if(null == dataIndex || dataIndex < 0 || dataIndex >= supplierData.length) {
         throw new Error("Invalid dataIndex");
     }
 
+    // check to see if the supplier already exists
+    await t.useRole(gitHubUser)
+        .click(supplierListModel.supplierMenuItem)
+        .expect(supplierListModel.pageTitle.innerText).contains("Suppliers");
+
+    await t.typeText(supplierListModel.textSearchField, supplierData[dataIndex].name);
+
+    //search through the list of suppliers to see if the supplier with matching name already exists
+    let supplierCardNames = supplierListModel.supplierCardNames.withExactText(supplierData[dataIndex].name);
+    let supplierExists = await supplierCardNames.exists;
+
+    
+    if (supplierExists) {
+        return;
+    } 
+
+    // the supplier does not exist - create it
     await gotoNewSupplierPage();
 
     await t.typeText(addEditSupplier.nameInput, supplierData[dataIndex].name);
@@ -46,7 +63,27 @@ export async function createSupplier(dataIndex) {
     await t.typeText(addEditSupplier.categorySelectorInput, supplierData[dataIndex].categories[0]);
     await t.pressKey('enter');
     await t.click(addEditSupplier.submitButton)
-        .expect(addEditSupplier.pageTitle.innerText).contains('Edit supplier');
+        .expect(addEditSupplier.pageTitle.innerText).contains('Suppliers');
+}
+
+export async function createSupplier(dataIndex, randomWebsite = true) {
+    
+    if(null == dataIndex || dataIndex < 0 || dataIndex >= supplierData.length) {
+        throw new Error("Invalid dataIndex");
+    }
+
+    await gotoNewSupplierPage();
+
+    await t.typeText(addEditSupplier.nameInput, supplierData[dataIndex].name, {speed: 0.5});
+    await t.typeText(addEditSupplier.da, supplierData[dataIndex].da);
+    await t.typeText(addEditSupplier.website, (randomWebsite ? new Date().getTime() : "") + supplierData[dataIndex].website);
+    await t.typeText(addEditSupplier.source, supplierData[dataIndex].source);
+    await t.typeText(addEditSupplier.email, supplierData[dataIndex].email);
+    await t.typeText(addEditSupplier.fee, supplierData[dataIndex].fee);
+    await t.typeText(addEditSupplier.categorySelectorInput, supplierData[dataIndex].categories[0]);
+    await t.pressKey('enter');
+    await t.click(addEditSupplier.submitButton)
+        .expect(addEditSupplier.pageTitle.innerText).contains('Suppliers');
 }
 
 export async function createNewDemand(dataIndex) {
@@ -59,7 +96,7 @@ export async function createNewDemand(dataIndex) {
     await gotoNewDemandPage();
 
     await t.useRole(gitHubUser)
-        .typeText(addEditDemand.nameInput, demandData[dataIndex].name);
+        .typeText(addEditDemand.nameInput, demandData[dataIndex].name, {speed: 0.5}) // has to be a little slow so each character search is completed before the next one;
     const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('div.flex-0.pr-4.m-auto > button');
     await t.click(firstSearchResultSelectButton); // SELECT THE FIRST DEMAND SITE
     await t.expect(addEditDemand.nameLabel.innerText).eql(demandData[dataIndex].demandSiteExcpectName);

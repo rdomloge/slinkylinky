@@ -1,5 +1,5 @@
 import { gitHubUser } from './roles';
-import { createNewDemand, createSupplier } from './helper';
+import { createNewDemand, createSupplierIfMissing } from './helper';
 import demandListModel from './page-models/demandListModel';
 import matchingModel from './page-models/matchingModel';
 import stagingModel from './page-models/stagingModel';
@@ -11,7 +11,7 @@ test("Staging page shows correct supplier and demand", async t=> {
 
     // await t.useRole(gitHubUser)
 
-    await createSupplier(0);
+    await createSupplierIfMissing(0);
 
     await createNewDemand(1);
     await createNewDemand(2);

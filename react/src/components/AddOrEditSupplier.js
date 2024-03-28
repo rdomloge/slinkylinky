@@ -22,7 +22,8 @@ export default function AddOrEditSupplier({supplier}) {
 
     const { data: session } = useSession();
     const [errorMsg, setErrorMsg] = useState()
-    const [showModal, setShowModal] = useState(false)
+    const [showStatsModal, setShowStatsModal] = useState(false)
+    const [showBlacklistModal, setShowBlacklistModal] = useState(false)
 
     const [supplierName, setSupplierName] = useState(supplier.name)
     const [supplierDa, setSupplierDa] = useState(supplier.da)	
@@ -34,19 +35,66 @@ export default function AddOrEditSupplier({supplier}) {
     const [supplierFee, setSupplierFee] = useState(supplier.weWriteFee)
 
     const [supplierAlreadyExists, setSupplierAlreadyExists] = useState(false)
+    const [supplierIsBlackListed, setSupplierIsBlackListed] = useState(false)
     const [showStatsButton, setShowStatsButton] = useState(false)
+    const [dataPoints, setDataPoints] = useState([])
 
 
     function handleError(message) {
         setErrorMsg("Create failed: "+message)
     }
 
-    function supplierWebsiteChangeHandler(e) {
+    async function supplierWebsiteChangeHandler(e) {
         setSupplierWebsite(e)
         if(validDomain(e)) {
-            checkIfSupplierExists(e)
+            let existsAlready = await checkIfSupplierExists(e)
+            let blacklisted = await checkIfSupplierIsBlacklisted(e)
+            setShowStatsButton(!existsAlready && !blacklisted)
         }
-        // the decision for showing the stats button is made in checkIfSupplierExists
+        else {
+            setShowStatsButton(false)
+        }
+    }
+
+    function checkIfSupplierIsBlacklisted(website) {
+        const url = "/.rest/blackListedSupplierSupport/isBlackListed?website="+url_domain(website)
+        return fetch(url, { method: 'GET', headers: {'user': session.user.email}})
+                .then( (resp) => {
+                    if(resp.ok) {
+                        return resp.json().then( (data) => {
+                            console.log("Blacklisted: "+data)
+                            setSupplierIsBlackListed(data)
+                            return data
+                        })
+                    }
+                    else {
+                        console.log("Error determing whether blacklisted")
+                        return false
+                    }
+                })
+                .catch(err => { 
+                    return false 
+                });
+    }
+
+    function checkIfSupplierExists(website) {
+        const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
+        return fetch(url, {method: 'GET', headers: {'user': session.user.email}})
+                .then( (resp) => {
+                    if(resp.ok) {
+                        return resp.json().then( (data) => {
+                            setSupplierAlreadyExists(data)
+                            console.log("Supplier "+(data?"exists":"does not exist"))
+                            return data
+                        })
+                    }
+                    else {
+                        return false
+                    }
+                })
+                .catch(err => { 
+                    return false
+                });
     }
 
     function lookupDa(domain) {
@@ -67,29 +115,25 @@ export default function AddOrEditSupplier({supplier}) {
         .catch(err => { handleError("Oops") });
     }
 
-    async function checkIfSupplierExists(website) {
-        const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
-        fetch(url, {method: 'GET', headers: {'user': session.user.email}})
-        .then( (resp) => {
-            if(resp.ok) {
-                resp.json().then( (data) => {
-                    setSupplierAlreadyExists(data)
-                    setShowStatsButton(validDomain(website) && ! data)
-                })
-            }
-            else {
-                handleError("Unknown error: "+resp.status)
-            }
-        })
-    }
-
     function displaySemData() {
         supplier.domain = url_domain(supplierWebsite)
         lookupDa(supplier.domain)
-        setShowModal(true)
+        setShowStatsModal(true)
     }
 
-    
+    function doBlackList() {
+        console.log("Blacklisting "+supplierWebsite)
+        setShowBlacklistModal(false)
+        setShowStatsModal(false)
+
+        const url = "/.rest/blackListedSupplierSupport/addBlackListed?website="+url_domain(supplierWebsite)
+            + "&da="+supplierDa
+            + "&spamRating="+supplierSpamScore
+
+        fetch(url, {method: 'POST', headers: {'user': session.user.email}, body: JSON.stringify(dataPoints)})
+
+        setSupplierIsBlackListed(true)
+    }
 
     function submitHandler() {
         console.log("Updating supplier: "+JSON.stringify(supplier))
@@ -120,7 +164,8 @@ export default function AddOrEditSupplier({supplier}) {
             })
             .then( (resp) => {
                 if(resp.ok) {
-                    location.href = "/supplier/"+supplier.id;
+                    // location.href = "/supplier/"+supplier.id;
+                    location.href = "/supplier";
                 }
                 else {
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
@@ -140,8 +185,9 @@ export default function AddOrEditSupplier({supplier}) {
             })
             .then( (resp) => {
                 if(resp.ok) {
-                    const locationUrl = resp.headers.get('Location')
-                    location.href = "/supplier/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
+                    // const locationUrl = resp.headers.get('Location')
+                    // location.href = "/supplier/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
+                    location.href = "/supplier";
                 }
                 else {
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
@@ -152,23 +198,27 @@ export default function AddOrEditSupplier({supplier}) {
         }
     }
 
+    function submitEnabled() {
+        return supplierName.length > 2 
+            && ! supplierAlreadyExists
+            && validDomain(supplierWebsite)
+    }
+
     return (
         <>
             {supplier != null ?
                 <div className="list-card card">
                     <p className='text-red-600'>{errorMsg}</p>
                     <div className='float-right p-1 '>
-                        <button id="createnew" onClick={submitHandler} 
-                            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded block mb-4">
-                            Submit
-                        </button>
+                        <StyledButton label="Submit" type="primary" submitHandler={submitHandler} extraClass="block" enabled={submitEnabled()}/>
+                        
                         <DisableToggle changeHandler={(e) => supplier.disabled = e} initialValue={supplier.disabled}/>
                     </div>
                     <Image src={Icon} width={32} height={32} alt="Shipping icon"/>
 
 
                     <div className='w-1/4 inline-block pr-8'> 
-                        <TextInput binding={supplierName} label={"Name"} changeHandler={(e)=>setSupplierName(e)}/> 
+                        <TextInput binding={supplierName} label={"Name (min. 3)"} changeHandler={(e)=>setSupplierName(e)}/> 
                     </div>
                     <div className='w-28 inline-block pr-8'>
                         <NumberInput label={"DA"} changeHandler={(e) => setSupplierDa(e)} binding={supplierDa}/>
@@ -176,11 +226,17 @@ export default function AddOrEditSupplier({supplier}) {
                     <div className='w-1/4 inline-block pr-8'>
                         <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>supplierWebsiteChangeHandler(e)} />
                         {supplierAlreadyExists ? 
-                            <p class="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
-                                <span class="font-medium">Error! </span> 
+                            <p id="supplierExistsMessage" className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
+                                <span className="font-medium">Error! </span> 
                                 Supplier exists.
                             </p> 
-                        : <p class="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
+                        : <p className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
+                        {supplierIsBlackListed ? 
+                            <p id="blacklistedSupplierMessage" className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
+                                <span className="font-medium">Error! </span> 
+                                Supplier is blacklisted.
+                            </p> 
+                        : <p className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
                     </div>
                     <div className='w-1/4 inline-block pr-8'>
                         <TextInput binding={supplierSource} label={"Source"} changeHandler={(e)=>setSupplierSource(e)}/> 
@@ -216,17 +272,28 @@ export default function AddOrEditSupplier({supplier}) {
                             changeHandler={(e)=> supplier.categories = e}
                             initialValue={supplier.categories}/>
                     </div>
-                    {showModal ?
-                        <Modal title={"SEM rush traffic // "+supplier.domain} dismissHandler={()=>setShowModal(false)} width={"w-2/3"}>
+                    {showStatsModal ?
+                        <Modal title={"SEM rush traffic // "+supplier.domain} dismissHandler={()=>setShowStatsModal(false)} width={"w-2/3"} id="stats-modal">
+                            <StyledButton label="Blacklist" type="risky" submitHandler={()=>setShowBlacklistModal(true)} extraClass=" mt-0 float-right"/>
                             <span className="inline-block mr-6">Domain authority: 
                                 <span className="text-2xl" > {supplierDa}</span>
                             </span>
                             <span>Spam score: 
                                 <span className="text-2xl" > {supplierSpamScore}</span>
                             </span>
-                            <SupplierSemRushTraffic supplier={supplier} adhoc={true}/>
+                            <SupplierSemRushTraffic supplier={supplier} adhoc={true} dataListener={(data) => setDataPoints(data)}/>
                         </Modal>
                     : 
+                        null
+                    }
+
+                    {showBlacklistModal ?
+                        <Modal title={"Blacklist supplier"} dismissHandler={()=>setShowBlacklistModal(false)} width={"w-1/2"} id="blacklist-modal">
+                            <p className="p-2 text-2xl">{"Are you sure you want to blacklist "}<span className="font-bold">{supplierWebsite}</span>{"?"}</p>
+                            <WarningMessage message={"This is permanent action and future users will be prevented from creating Suppliers with this domain"}/>
+                            <StyledButton  label="Blacklist" type="risky" submitHandler={()=>doBlackList()} extraClass=" mt-4 float-right"/>
+                        </Modal>
+                    :
                         null
                     }
                 </div>

@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import Image from 'next/image'
 import PigIcon from '@/components/pig.svg'
 
-export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
+export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null}) {
     
     const [trafficDataPoints, setTrafficDataPoints] = useState([]);
     const [spamScore, setSpamScore] = useState();
@@ -52,6 +52,9 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false}) {
                         setSpamScore(data[data.length-1].spamScore)
                     }
                     setTrafficDataPoints(data)
+                    if(dataListener) {
+                        dataListener(data)
+                    }
                 })
             }
             else {

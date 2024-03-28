@@ -17,10 +17,10 @@ import { addProtocol } from './Util'
 
 
 
-export default function SupplierCard({supplier, editable, linkable, usages, latest = true}) {
+export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id}) {
 
     return (
-        <div className="list-card card relative">
+        <div id={id} className="list-card card relative">
             {supplier.thirdParty ? 
                 <Image className='third-party' src={ThirdPartyIcon} width={42} height={42} alt="Third party icon" tooltip="Third party"/>
             : null}
@@ -41,7 +41,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 <p className='text-right float-right'>Edit</p>
             </Link>
             :null}
-            <div className={"text-xl my-2 "+(supplier.disabled?"text-gray-300":"")}>{supplier.name}</div>
+            <div id={"supplier-name"} className={"text-xl my-2 "+(supplier.disabled?"text-gray-300":"")}>{supplier.name}</div>
             
             <div className='grid grid-cols-12'>
                 {linkable ?

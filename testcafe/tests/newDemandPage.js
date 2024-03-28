@@ -38,7 +38,8 @@ test("New demand demandSite selection ", async t=> {
     await gotoNewDemandPage();
 
     await t.useRole(gitHubUser)
-        .typeText(addEditDemand.nameInput, "car")
+        .typeText(addEditDemand.nameInput, "care", {speed: 0.1}) // has to be a little slow so each character search is completed before the next one
+
     const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('div.flex-0.pr-4.m-auto > button')
     await t.click(firstSearchResultSelectButton) // SELECT THE FIRST DEMAND SITE
 
