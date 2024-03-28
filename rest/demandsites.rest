@@ -4,6 +4,8 @@ GET {{host}}/demands/219?projection=fullLinkDemand
 ###
 GET {{host}}/demandsites/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase?name=air&email=air
 ###
+GET {{host}}/demandsites/search/countByDemandSiteId?demandSiteId=307 
+###
 PATCH {{host}}/demandsites/10
 Content-Type: application/json
 
