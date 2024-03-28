@@ -23,8 +23,14 @@ public class Util {
             throw new RuntimeException(e);
         }
         String host = uri.getHost();
-        InternetDomainName internetDomainName = InternetDomainName.from(host).topPrivateDomain(); 
-        return internetDomainName.toString(); 
+
+        try {
+            InternetDomainName internetDomainName = InternetDomainName.from(host).topPrivateDomain(); 
+            return internetDomainName.toString(); 
+        }
+        catch(IllegalStateException e) {
+            return host;
+        }
     }
 
     public static LocalDateTime parse(String d) {

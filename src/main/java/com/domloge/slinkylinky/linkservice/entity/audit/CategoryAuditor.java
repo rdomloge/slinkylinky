@@ -57,7 +57,7 @@ public class CategoryAuditor {
         try {
             auditRecord.setDetail(objectMapper.writeValueAsString(category));
         } catch (JsonProcessingException e) {
-            log.error("Could not write Demand to JSON", e);
+            log.error("Could not write Category to JSON", e);
             auditRecord.setDetail("Error writing to JSON..."+category.toString());
         }
         auditRabbitTemplate.convertAndSend(auditRecord);
