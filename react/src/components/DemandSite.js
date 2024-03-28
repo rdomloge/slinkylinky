@@ -2,7 +2,10 @@ import Link from "next/link";
 import { CategoryLite } from "./category";
 import Image from "next/image";
 import ArrowIcon from '@/pages/demand/left-chevron.svg'
-import SessionButton, { SessionBlock } from "./atoms/Button";
+import SessionButton, { SessionBlock, StyledButton } from "./atoms/Button";
+import Modal from "./atoms/Modal";
+import { useState } from "react";
+import { WarningMessage } from "./atoms/Messages";
 
 export default function DemandSiteSearchResult({demandSite, selectedHandler, id}) {
     return (
@@ -25,19 +28,64 @@ export default function DemandSiteSearchResult({demandSite, selectedHandler, id}
     );
 }
 
-export function DemandSiteListItemLite({demandSite, id}) {
+
+
+
+export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
+
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [linkedDemands, setLinkedDemands] = useState(-1);
+
+    function handleDeleteClicked() {
+        setShowDeleteModal(true);
+
+        fetch('/.rest/demandsites/search/countByDemandSiteId?demandSiteId='+demandSite.id)
+        .then(response => response.json())
+        .then(data => {
+            setLinkedDemands(data);
+        });
+    }
+
+    function doDelete() {
+        deleteHandler(demandSite)
+        setShowDeleteModal(false);
+    }
+
     return (
         <div className="card list-card" id={id}>
-            <SessionBlock>
-                <Link href={"/demandsites/"+demandSite.id}>
-                    <p className='text-right float-right'>Edit</p>
-                </Link>
-            </SessionBlock>
+            <div className="float-right">
+                <SessionBlock>
+                    <Link href={"/demandsites/"+demandSite.id}>
+                        <p className='text-right'>Edit</p>
+                    </Link>
+                    <StyledButton isText={true} label="Delete" type="risky" extraClass="text-right" submitHandler={() => handleDeleteClicked()}/>
+                </SessionBlock>
+            </div>
             <p className="text-lg">{demandSite.name}</p>
             <p>{demandSite.domain}</p>
             {demandSite.categories.filter(c => c.disabled == false).map( (c,index) =>
                 <CategoryLite category={c} key={index}/>
             )}
+            {showDeleteModal ?
+                <Modal title={"Delete Demand Site"} dismissHandler={()=>setShowDeleteModal(false)} width={"w-1/2"}>
+                    <p className="text-2xl font-bold mb">{demandSite.name}</p>
+                    <p className="italic mb-4">{demandSite.domain}</p>
+                    {linkedDemands < 0 ?
+                        <p>Checking for linked demand...</p>
+                    :
+                        <>
+                        <p>There are {linkedDemands} linked demands</p>
+                        {linkedDemands > 0 ?
+                            <WarningMessage message="You cannot delete this demand site because there are linked demands" />
+                        :
+                            <StyledButton label="Delete" type="risky" submitHandler={() => {doDelete()}}/>
+                        }
+                        </>
+                    }
+                </Modal>
+            : 
+                null
+            }
         </div>
     );
 }

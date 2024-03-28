@@ -5,12 +5,40 @@ import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import Loading from '@/components/Loading';
 import DemandSiteSearchResult, { DemandSiteListItemLite } from '@/components/DemandSite';
+import { useSession } from 'next-auth/react';
 
 export default function DemandSiteList() {
 
     const [demandsites, setDemandSites] = useState()
     const [missingCategories, setMissingCategories] = useState([])
     const [error, setError] = useState()
+    const { data: session } = useSession();
+
+    function deleteDemandSite(ds) {
+        fetch('/.rest/demandssitesupport/delete?demandSiteId='+ds.id, {
+            method: 'DELETE',
+            headers: {'user': session.user.name}
+        })
+        .then(response => {
+            if(response.ok) {
+                const withCategoriesIndex = demandsites.indexOf(ds);
+                const missingCategoriesIndex = missingCategories.indexOf(ds);
+                if (missingCategoriesIndex > -1) {
+                    const newDemandsites = [...missingCategories];
+                    newDemandsites.splice(missingCategoriesIndex, 1);
+                    setMissingCategories(newDemandsites);
+                }
+                else if (withCategoriesIndex > -1) {
+                    const newDemandsites = [...demandsites];
+                    newDemandsites.splice(withCategoriesIndex, 1);
+                    setDemandSites(newDemandsites);
+                }
+                else {
+                    console.error("Can't delete demand site, not found.")
+                }
+            }
+        })
+    }
 
     useEffect(() => {
         const demandSitesUrl = "/.rest/demandsites?projection=fullDemandSite&sort=name,asc&size=100"
@@ -35,7 +63,7 @@ export default function DemandSiteList() {
             <div className="grid grid-cols-3">
                 {missingCategories ?
                     missingCategories.map( (ds,index) => 
-                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index}/>
+                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index} deleteHandler={()=>deleteDemandSite(ds)} />
                     )
                 : <Loading/> }
             </div>
@@ -48,7 +76,7 @@ export default function DemandSiteList() {
             <div className="grid grid-cols-3">
                 {demandsites ?
                     demandsites.map( (ds,index) => 
-                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index}/>
+                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index} deleteHandler={()=>deleteDemandSite(ds)}/>
                     )
                 : <Loading error={error}/> }
             </div>

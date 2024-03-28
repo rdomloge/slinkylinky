@@ -109,7 +109,7 @@ export default function ListBloggers() {
                 </Link>
             </div>
             <div className="w-1/4 pr-8 inline-block">
-                <TextInput changeHandler={(value) =>setFilter(value)} label="Name / email / domain filter"/>
+                <TextInput changeHandler={(value) =>setFilter(value)} label="Name / email / domain filter" id={"nameEmailDomainFilter"}/>
             </div>
             <div className="w-1/3 pr-8 inline-block">
                 <CategoryFilter changeHandler={categoriesFilterChangeHandler} label="Category filter"/>
@@ -122,7 +122,7 @@ export default function ListBloggers() {
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <SupplierCard supplier={s} editable={true} usages={supplierUsageCount} linkable={true}/>
+                            <SupplierCard supplier={s} editable={true} usages={supplierUsageCount} linkable={true} id={"supplier-card-"+index}/>
                         </div>
                     )}
                 </div> 

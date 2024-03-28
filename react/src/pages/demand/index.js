@@ -29,7 +29,7 @@ export default function Demand() {
             .then(res => res.json())
             .then((result) => setDemands(filterPersonalIfNeeded(result)))
             .catch((error) => {
-                setError(error);
+                setError(error.message);
             });
 
     }, [personal]) 
@@ -55,6 +55,10 @@ export default function Demand() {
         ]
     }
 
+    function demandDeleteHandler(demand) {
+        setDemands(demands.filter( d => d.id !== demand.id));
+    }
+
     return (
         <Layout>
             <PageTitle title="Demand" count={demands}/>
@@ -71,7 +75,7 @@ export default function Demand() {
                 <div className="grid grid-cols-2">
                 {demands.map( (ld,index) => (
                     <div key={index}>
-                        <DemandCard demand={ld} key={index} fullfilable={true} editable={true} id={"demandCard-"+index}/>
+                        <DemandCard demand={ld} key={index} fullfilable={true} editable={true} id={"demandCard-"+index} deleteCascader={()=>demandDeleteHandler(ld)}/>
                     </div>
                 ))}
                 </div>

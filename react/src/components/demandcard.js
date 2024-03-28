@@ -18,7 +18,7 @@ import Modal from './atoms/Modal'
 import { useSession } from 'next-auth/react'
 import { addProtocol } from './Util'
 
-export default function DemandCard({demand, fullfilable, editable, id}) {
+export default function DemandCard({demand, fullfilable, editable, id, deleteCascader}) {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const { data: session } = useSession();
@@ -35,7 +35,8 @@ export default function DemandCard({demand, fullfilable, editable, id}) {
         })
         .then(res => {
             if (res.ok) {
-                window.location.reload()
+                // window.location.reload()
+                deleteCascader(demand)
             }
         })
     }
