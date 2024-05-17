@@ -26,7 +26,7 @@ export default function DemandSite() {
 
     return (
         <Layout>
-            <PageTitle title="Edit demand site"/>
+            <PageTitle title="Edit demand site" id="demandsite-detail-title-id"/>
             {demandSite ? 
                 <AddOrEditDemandSite demandSite={demandSite}/>
             : 

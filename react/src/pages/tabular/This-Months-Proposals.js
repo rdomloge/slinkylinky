@@ -40,7 +40,7 @@ export default function TabularProposalData() {
 
     return (
         <Layout>
-            <PageTitle title="Proposals" count={proposals}/>
+            <PageTitle title="Proposals" count={proposals} id="tabular-proposals-title-id"/>
             { ! proposals ? <Loading/> : null}
             <table className="table-auto border-separate border-spacing-0 border border-slate-400">
             <thead>
