@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -42,6 +43,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.rjeschke.txtmark.Processor;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -72,7 +74,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
     private ProposalAbortHandler proposalAbortHandler;
 
     @Autowired
-    private AuditReader auditReader;
+    private EntityManager entityManager;
 
     private ApplicationEventPublisher applicationEventPublisher;
 
@@ -110,6 +112,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         proposals.stream().forEach(p -> {
             Supplier currentSupplier = p.getPaidLinks().get(0).getSupplier();
             if(p.getSupplierSnapshotVersion() != currentSupplier.getVersion()) {
+                AuditReader auditReader = AuditReaderFactory.get(entityManager);
                 List<Number> revisions = auditReader.getRevisions(Supplier.class, currentSupplier.getId());
                 Supplier originalSupplier = auditReader.find(Supplier.class, currentSupplier.getId(), revisions.get((int) p.getSupplierSnapshotVersion()));
                 p.setPaidLinks(p.getPaidLinks().stream().map(pl -> {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.audit.SupplierAuditor;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SupplierSupportController {
 
     @Autowired
-    private AuditReader auditReader;
+    private EntityManager entityManager;
 
     @Autowired
     private SupplierRepo supplierRepo;
@@ -60,7 +62,7 @@ public class SupplierSupportController {
     @Transactional
     public ResponseEntity<Supplier> getSupplier(@RequestParam long supplierId, @RequestParam long version) {
         log.info("Getting supplier version for supplierId: " + supplierId + " version: " + version);
-
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
         List<Number> revisions = auditReader.getRevisions(Supplier.class, supplierId);
         if (revisions.size() < version) {
             return ResponseEntity.notFound().build();
@@ -73,6 +75,7 @@ public class SupplierSupportController {
 
     @GetMapping(path = "/exists", produces = "application/json")
     public ResponseEntity<Boolean> supplierExists(@RequestParam String supplierWebsite) {
+        log.info("Checking if supplier exists for supplierWebsite: " + supplierWebsite);
         String domain  = Util.stripDomain(supplierWebsite);
         Supplier s = supplierRepo.findByDomainIgnoreCase(domain);
         log.info("Supplier {} for supplierWebsite {} {}", domain, supplierWebsite, s != null ? "exists" : "does not exist");
