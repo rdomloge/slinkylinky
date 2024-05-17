@@ -15,8 +15,56 @@ export function validDomain(url) {
 }
 
 export function url_domain(data) {
-    let domain =  new URL(addProtocol(data))
-    let hostname = domain.hostname
-    return hostname.replace('www.','');
+    try {
+        let domain =  new URL(addProtocol(data))
+        let hostname = domain.hostname
+        return hostname.replace('www.','');
+    }
+    catch(e) {
+        console.log("Error parsing domain: "+e)
+        return null
+    }
 }
 
+export function checkIfSupplierIsBlacklisted(website, session) {
+    if(null == session || null == session.user || null == session.user.email) {
+        console.warn("No session found")
+        throw new Error("Missing session parameter")
+    }
+    const url = "/.rest/blackListedSupplierSupport/isBlackListed?website="+url_domain(website)
+    return fetch(url, { method: 'GET', headers: {'user': session.user.email}})
+            .then( (resp) => {
+                if(resp.ok) {
+                    return resp.json().then( (data) => {
+                        return data
+                    })
+                }
+                else {
+                    console.log("Error determing whether blacklisted")
+                    return false
+                }
+            })
+            .catch(err => { 
+                console.error("Error: "+JSON.stringify(err))
+                console.warn("Error determing whether blacklisted: "+website)
+                return false 
+            });
+}
+
+export function checkIfSupplierExists(website, session) {
+    const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
+    return fetch(url, {method: 'GET', headers: {'user': session.user.email}})
+        .then( (resp) => {
+            if(resp.ok) {
+                return resp.json().then( (data) => {
+                    return data
+                })
+            }
+            else {
+                return false
+            }
+        })
+        .catch(err => { 
+            return false
+        });
+}

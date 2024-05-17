@@ -7,16 +7,23 @@ import Image from 'next/image'
 import Icon from '@/components/shipping.png'
 import TextInput from '@/components/atoms/TextInput'
 import NumberInput from '@/components/atoms/NumberInput'
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import DisableToggle from './atoms/DisableToggle'
 import { fixForPosting } from "./CategoryUtil";
 import { StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import SupplierSemRushTraffic from "./SupplierStats";
-import { url_domain, validDomain } from "./Util";
+import { checkIfSupplierExists, checkIfSupplierIsBlacklisted, url_domain, validDomain } from "./Util";
 import { WarningMessage } from "./atoms/Messages";
 
-export default function AddOrEditSupplier({supplier}) {
+export default function AddOrEditSupplier({supplier, 
+        supplierName = '', setSupplierName, 
+        supplierWebsite='', setSupplierWebsite, 
+        supplierSource='', setSupplierSource,
+        supplierEmail='', setSupplierEmail,
+        supplierFee=0, setSupplierFee,
+        bulkMode=false,
+        bulkSupplierAddedHandler}) {
 
     if( ! supplier) throw new Error("Supplier cannot be null. If you are loading it, wrap this component in a null check before using it")
 
@@ -25,19 +32,22 @@ export default function AddOrEditSupplier({supplier}) {
     const [showStatsModal, setShowStatsModal] = useState(false)
     const [showBlacklistModal, setShowBlacklistModal] = useState(false)
 
-    const [supplierName, setSupplierName] = useState(supplier.name)
-    const [supplierDa, setSupplierDa] = useState(supplier.da)	
-    const [supplierSpamScore, setSupplierSpamScore] = useState()
-    const [supplierWebsite, setSupplierWebsite] = useState(supplier.website)
-    const [supplierSource, setSupplierSource] = useState(supplier.source)
-    const [supplierEmail, setSupplierEmail] = useState(supplier.email)
+    const [supplierDa, setSupplierDa] = useState(supplier.da)
+    const [supplierSpamScore, setSupplierSpamScore] = useState(0)
     const [supplierCurrency, setSupplierCurrency] = useState(supplier.weWriteFeeCurrency)
-    const [supplierFee, setSupplierFee] = useState(supplier.weWriteFee)
 
     const [supplierAlreadyExists, setSupplierAlreadyExists] = useState(false)
     const [supplierIsBlackListed, setSupplierIsBlackListed] = useState(false)
     const [showStatsButton, setShowStatsButton] = useState(false)
     const [dataPoints, setDataPoints] = useState([])
+
+    useEffect(() => {
+        if(supplierWebsite && supplierWebsite !== supplier.website) {
+            setSupplierAlreadyExists(false)
+            setSupplierIsBlackListed(false)
+            supplierWebsiteChangeHandler(supplierWebsite)
+        }
+    }, [supplierWebsite])
 
 
     function handleError(message) {
@@ -47,54 +57,17 @@ export default function AddOrEditSupplier({supplier}) {
     async function supplierWebsiteChangeHandler(e) {
         setSupplierWebsite(e)
         if(validDomain(e)) {
-            let existsAlready = await checkIfSupplierExists(e)
-            let blacklisted = await checkIfSupplierIsBlacklisted(e)
+            const existsAlready = await checkIfSupplierExists(e, session)
+            if(existsAlready) { setSupplierAlreadyExists(true) }
+            
+            const blacklisted = await checkIfSupplierIsBlacklisted(e, session)
+            if(blacklisted) { setSupplierIsBlackListed(true) }
+
             setShowStatsButton(!existsAlready && !blacklisted)
         }
         else {
             setShowStatsButton(false)
         }
-    }
-
-    function checkIfSupplierIsBlacklisted(website) {
-        const url = "/.rest/blackListedSupplierSupport/isBlackListed?website="+url_domain(website)
-        return fetch(url, { method: 'GET', headers: {'user': session.user.email}})
-                .then( (resp) => {
-                    if(resp.ok) {
-                        return resp.json().then( (data) => {
-                            console.log("Blacklisted: "+data)
-                            setSupplierIsBlackListed(data)
-                            return data
-                        })
-                    }
-                    else {
-                        console.log("Error determing whether blacklisted")
-                        return false
-                    }
-                })
-                .catch(err => { 
-                    return false 
-                });
-    }
-
-    function checkIfSupplierExists(website) {
-        const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
-        return fetch(url, {method: 'GET', headers: {'user': session.user.email}})
-                .then( (resp) => {
-                    if(resp.ok) {
-                        return resp.json().then( (data) => {
-                            setSupplierAlreadyExists(data)
-                            console.log("Supplier "+(data?"exists":"does not exist"))
-                            return data
-                        })
-                    }
-                    else {
-                        return false
-                    }
-                })
-                .catch(err => { 
-                    return false
-                });
     }
 
     function lookupDa(domain) {
@@ -164,8 +137,7 @@ export default function AddOrEditSupplier({supplier}) {
             })
             .then( (resp) => {
                 if(resp.ok) {
-                    // location.href = "/supplier/"+supplier.id;
-                    location.href = "/supplier";
+                    location.href = "/supplier"
                 }
                 else {
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
@@ -185,9 +157,16 @@ export default function AddOrEditSupplier({supplier}) {
             })
             .then( (resp) => {
                 if(resp.ok) {
-                    // const locationUrl = resp.headers.get('Location')
-                    // location.href = "/supplier/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
-                    location.href = "/supplier";
+                    if(bulkMode) {
+                        // should make a toast appear saying that it was created
+                        bulkSupplierAddedHandler(supplierWebsite);
+                        setSupplierDa(0);
+                        setSupplierWebsite('');
+                        setSupplierFee(0);
+                    }
+                    else {
+                        location.href = "/supplier"
+                    }
                 }
                 else {
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
@@ -217,14 +196,14 @@ export default function AddOrEditSupplier({supplier}) {
                     <Image src={Icon} width={32} height={32} alt="Shipping icon"/>
 
 
-                    <div className='w-1/4 inline-block pr-8'> 
-                        <TextInput binding={supplierName} label={"Name (min. 3)"} changeHandler={(e)=>setSupplierName(e)}/> 
+                    <div className='w-1/3 inline-block pr-8'> 
+                        <TextInput binding={supplierName} label={"Name (min. 3)"} changeHandler={(e)=>setSupplierName(e)} id={"nameInput"}/> 
                     </div>
-                    <div className='w-28 inline-block pr-8'>
-                        <NumberInput label={"DA"} changeHandler={(e) => setSupplierDa(e)} binding={supplierDa}/>
+                    <div className='w-24 inline-block pr-8'>
+                        <NumberInput label={"DA"} changeHandler={(e) => setSupplierDa(e)} binding={supplierDa} id={"daInput"}/>
                     </div>
-                    <div className='w-1/4 inline-block pr-8'>
-                        <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>supplierWebsiteChangeHandler(e)} />
+                    <div className='w-1/3 inline-block pr-8'>
+                        <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>supplierWebsiteChangeHandler(e)} id={"websiteInput"}/>
                         {supplierAlreadyExists ? 
                             <p id="supplierExistsMessage" className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
                                 <span className="font-medium">Error! </span> 
@@ -239,20 +218,20 @@ export default function AddOrEditSupplier({supplier}) {
                         : <p className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
                     </div>
                     <div className='w-1/4 inline-block pr-8'>
-                        <TextInput binding={supplierSource} label={"Source"} changeHandler={(e)=>setSupplierSource(e)}/> 
+                        <TextInput binding={supplierSource} label={"Source"} changeHandler={(e)=>setSupplierSource(e)} id={"sourceInput"}/> 
                     </div>
 
 
                     <div className='w-1/3 inline-block pr-8'>
-                        <TextInput binding={supplierEmail} label={"Email"} changeHandler={(e)=>setSupplierEmail(e)}/> 
+                        <TextInput binding={supplierEmail} label={"Email"} changeHandler={(e)=>setSupplierEmail(e)} id={"emailInput"}/> 
                     </div>
                     
                     
                     <div className='w-20 inline-block pr-8 mt-8'>
-                        <TextInput binding={supplierCurrency} label="Currency" changeHandler={(e)=>setSupplierCurrency(e)} maxLen={1}/>
+                        <TextInput binding={supplierCurrency} label="Currency" changeHandler={(e)=>setSupplierCurrency(e)} maxLen={1} id={"currencyInput"}/>
                     </div>
                     <div className='w-28 inline-block pr-8'>
-                        <NumberInput binding={supplierFee} label={"Fee"} changeHandler={(e)=>setSupplierFee(e)}/>
+                        <NumberInput binding={supplierFee} label={"Fee"} changeHandler={(e)=>setSupplierFee(e)} id={"costInput"}/>
                     </div>
 
                     {supplier.id == null && showStatsButton ?
