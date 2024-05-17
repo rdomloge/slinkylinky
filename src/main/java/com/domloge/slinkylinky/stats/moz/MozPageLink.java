@@ -9,7 +9,7 @@ public class MozPageLink {
 
     @Getter
     @Setter
-    class Page {
+    public static class Page {
         private String page;
 		private String subdomain;
 		private String root_domain;

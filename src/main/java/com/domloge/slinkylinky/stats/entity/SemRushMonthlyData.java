@@ -20,4 +20,14 @@ public class SemRushMonthlyData extends AbstractMonthlyData {
 
     @Column(nullable = false)
     @Getter @Setter private long srrank;
+
+    @Override
+    public String getDataPointName() {
+        return "SEMRush traffic";
+    }
+
+    @Override
+    public String getDataPointValue() {
+        return String.valueOf(traffic);
+    }
 }

@@ -20,7 +20,8 @@ public class SpamChecker {
         SpamMonthlyData data = new SpamMonthlyData();
         data.setDomain(domain);
         data.setSpamScore(mozDomain.getSpam_score());
-        data.setDate(LocalDate.now());
+        // data.setDate(LocalDate.now());
+        data.setDate(LocalDate.now().withMonth(ignoreMe.getValue()));
         return data;
     }
 }

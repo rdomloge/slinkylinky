@@ -15,4 +15,14 @@ public class SpamMonthlyData extends AbstractMonthlyData {
     
     
     @Setter @Getter int spamScore;
+
+    @Override
+    public String getDataPointName() {
+        return "Spam Score";
+    }
+
+    @Override
+    public String getDataPointValue() {
+        return String.valueOf(spamScore);
+    }
 }

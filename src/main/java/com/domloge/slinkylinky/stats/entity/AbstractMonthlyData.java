@@ -31,4 +31,7 @@ public abstract class AbstractMonthlyData {
         this.date = date;
         this.uniqueYearMonth = date.getYear()+"-"+Util.dd(date.getMonthValue());
     }
+
+    public abstract String getDataPointName();
+    public abstract String getDataPointValue();
 }

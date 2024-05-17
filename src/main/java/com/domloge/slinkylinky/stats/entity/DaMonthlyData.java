@@ -14,4 +14,14 @@ import lombok.Setter;
 public class DaMonthlyData extends AbstractMonthlyData {
     
     @Setter @Getter int da;
+
+    @Override
+    public String getDataPointName() {
+        return "DA";
+    }
+
+    @Override
+    public String getDataPointValue() {
+        return String.valueOf(da);
+    }
 }
