@@ -31,31 +31,39 @@
         
         
         <p style="clear:both; margin: top 30px;">Hi ${recipientName},</p>
+        <p>Your order with Link Sync is now complete. It's been a pleasure doing business with you - here are the details:</p>
         <p>
+            <table border="1" cellpadding="5" cellspacing="0">
+              <tr>
+                <th colspan="10" style="background-color:#100">
+                  <h1 style="margin-left: 10px; color: #ffff; text-align: left; margin-left: 5px">Order #${orderNum} complete</h1>
+                </th>
+              </tr>
+              <tr>
+                  <th>Anchor text</th>
+                  <th>URL</th>
+                  <th>DA Needed</th>
+                  <th>Word count</th>
+                  <th>Post title</th>
+                  <th>Post URL</th>
+                  <th>Site DA</th>
+                  <th>Price</th>
+                  <th>VAT</th>
+                  <th>Total</th>
+              </tr>
             <#list paidLinks as demand, link>
-                <p>Your order with Link Sync is now complete. It's been a pleasure doing business with you - here are the details:</p>
-                <table border="1" cellpadding="5" cellspacing="0">
-                  <tr>
-                    <th colspan="6" style="background-color:#100">
-                      <h1 style="margin-left: 10px; color: #ffff; text-align: left; margin-left: 5px">Order #${orderNum} complete</h1>
-                    </th>
-                  </tr>
-                  <tr>
-                      <th>Anchor text</th>
-                      <th>URL</th>
-                      <th>DA Needed</th>
-                      <th>Post title</th>
-                      <th>Post URL</th>
-                      <th>Site DA</th>
-                  </tr>
-                  <tr>
-                      <td>${demand.anchorText}</td>
-                      <td>${demand.url}</td>
-                      <td>${demand.daNeeded}</td>
-                      <td>${link.liveLinkTitle}</td>
-                      <td>${link.liveLinkUrl}</td>
-                      <td>${link.supplierDa}</td>
-                  </tr>
+              <tr>
+                  <td>${demand.anchorText}</td>
+                  <td>${demand.url}</td>
+                  <td>${demand.daNeeded}</td>
+                  <td>${demand.wordCount}</td>
+                  <td>${link.liveLinkTitle}</td>
+                  <td>${link.liveLinkUrl}</td>
+                  <td>${link.supplierDa}</td>
+                  <td>£${link.price?string(",##0.00")}</td>
+                  <td>£${link.tax?string(",##0.00")}</td>
+                  <td>£${link.total?string(",##0.00")}</td>
+              </tr>
             </#list> 
         </p>
         
