@@ -6,7 +6,7 @@ export default function SessionButton({label, clickHandler}) {
 
     return (
         <button disabled={!session} onClick={clickHandler}
-            className={"text-slate-200 font-bold py-2 px-4 border border-blue-700 rounded "
+            className={"text-slate-200 font-bold py-2 px-4 border border-blue-700 rounded align-super "
                 +(session ? "bg-blue-500 hover:bg-blue-700" : "bg-grey-500 hover:bg-grey-700")}>
             {label}
         </button>
@@ -15,7 +15,7 @@ export default function SessionButton({label, clickHandler}) {
 
 export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
 
-    const baseClass = "text-slate-200 font-bold py-2 p-4 border border-blue-700 rounded "
+    const baseClass = "text-slate-200 font-bold py-2 p-4 border border-blue-700 rounded inline-block "
     const enabledClass = baseClass + "bg-blue-500 hover:bg-blue-700"
     const disabledClass = baseClass + "bg-grey-500 hover:bg-grey-700"
 
@@ -27,7 +27,7 @@ export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
     );
 }
 
-export function StyledButton({submitHandler, enabled = true, label = "Submit", type = "primary", isText = false, extraClass = ""}) {
+export function StyledButton({submitHandler, enabled = true, label = "Submit", type = "primary", isText = false, extraClass = "", id = ""}) {
     const baseClass = "m-2 text-white font-bold py-2 px-4 border rounded disabled:opacity-50 "
     const buttonTypes = {
         primary: "bg-blue-700 hover:bg-blue-900 border-blue-900",
@@ -47,13 +47,13 @@ export function StyledButton({submitHandler, enabled = true, label = "Submit", t
 
     if (isText) {
         return (
-            <span onClick={submitHandler} className={textClass+" "+extraClass}>
+            <span id={id} onClick={submitHandler} className={textClass+" "+extraClass}>
                 {label}
             </span>
         );
     } else {
         return (
-            <button onClick={submitHandler} disabled={!enabled} className={buttonClass+" "+extraClass}>
+            <button id={id} onClick={submitHandler} disabled={!enabled} className={buttonClass+" "+extraClass}>
                 {label}
             </button>
         );
