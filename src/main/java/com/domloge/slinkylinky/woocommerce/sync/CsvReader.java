@@ -19,6 +19,7 @@ public class CsvReader {
     
     public List<LineItemUrlDetails> parse(String csv) throws IOException {
         CsvSchema schema = CsvSchema.builder()
+            .addColumn("itemId")
             .addColumn("daOrdered")
             .addColumn("chooseWordCount")
             .addColumn("anchorTextOptional")

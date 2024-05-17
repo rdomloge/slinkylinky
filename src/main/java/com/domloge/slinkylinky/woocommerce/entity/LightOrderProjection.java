@@ -17,6 +17,10 @@ public interface LightOrderProjection {
 
     String getShippingEmailAddress();
 
+    String getBillingEmailAddress();
+
+    boolean isArchived();
+
     OrderLineItemProjection[] getLineItems(); 
     
 }

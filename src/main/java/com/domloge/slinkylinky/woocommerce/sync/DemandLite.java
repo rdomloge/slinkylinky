@@ -11,4 +11,6 @@ public class DemandLite {
     private String anchorText;
 
     private String url;
+
+    private int wordCount;
 }

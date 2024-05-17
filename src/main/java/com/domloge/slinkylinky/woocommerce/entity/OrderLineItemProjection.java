@@ -9,5 +9,5 @@ public interface OrderLineItemProjection {
     long getDemandId();
     Long getLinkedProposalId();
     boolean getProposalComplete();
-    
+    double getPrice();
 }

@@ -23,7 +23,7 @@ public class LineItemDto {
     private List<TaxDto> taxes;
     private List<MetaDataDto> meta_data;
     private String sku;
-    private int price;
+    private double price;
     private ImageDto image;
     private String parent_name;
 

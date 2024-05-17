@@ -8,6 +8,9 @@ import lombok.ToString;
 @Getter
 @Setter
 public class LineItemUrlDetails {
+
+    long itemId;
+
     String daOrdered;
     
     String chooseWordCount;

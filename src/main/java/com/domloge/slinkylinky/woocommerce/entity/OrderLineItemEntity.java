@@ -26,4 +26,16 @@ public class OrderLineItemEntity {
 
     @Column(columnDefinition = "boolean default false")
     private boolean proposalComplete = false;
+
+    private long productId;
+
+    private String productName;
+
+    private String productNameWithWordCount;
+
+    private int wordCount;
+
+    private double price;
+    
+    private double tax;
 }

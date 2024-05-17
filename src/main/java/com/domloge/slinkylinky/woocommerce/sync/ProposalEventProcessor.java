@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.woocommerce.sync;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -105,14 +106,19 @@ public class ProposalEventProcessor {
         if(null == pfr) return;
 
         for(OrderLineItemEntity olie : orderLineItemsInProposal) {
-            
+            OrderEntity linkedOrder = orderRepo.findByLineItems_demandIdEquals(olie.getDemandId());
             if(pfr.isBlogLive()) {
+                if(linkedOrder.isLinkDetailsEmailSent()) {
+                    log.debug("Proposal {} is live, but order {} has already been marked as email sent so this event is not relevant here", 
+                        event.getProposalId(), linkedOrder.getId());
+                    return;
+                }
                 log.info("Proposal {} is now live, setting line item {} to complete", event.getProposalId(), olie.getId());
                 olie.setProposalComplete(true);
                 lineItemRepo.save(olie);
 
                 // have to see if all the demands of the same order are complete and update LinkSync if they are
-                OrderEntity linkedOrder = orderRepo.findByLineItems_demandIdEquals(olie.getDemandId());
+                
                 List<OrderLineItemEntity> incompleteLineItems = linkedOrder.getLineItems()
                     .stream()
                     .filter(li ->  ! li.isProposalComplete() )
@@ -125,6 +131,9 @@ public class ProposalEventProcessor {
                     log.info("Order {} (order {} in LinkSync) marked as complete: {}", linkedOrder.getId(), linkedOrder.getExternalId(), responseJson);
                     // send the link details email
                     linkDetailsSender.send(linkedOrder);
+                    linkedOrder.setLinkDetailsEmailSent(true);
+                    linkedOrder.setLinkDetailsEmailSentDate(LocalDateTime.now());
+                    orderRepo.save(linkedOrder);
                 }
                 else {
                     log.debug("Order {} still has {} incomplete line items", linkedOrder.getId(), incompleteLineItems.size());

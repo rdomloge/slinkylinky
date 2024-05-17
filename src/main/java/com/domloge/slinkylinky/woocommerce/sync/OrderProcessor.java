@@ -1,14 +1,11 @@
 package com.domloge.slinkylinky.woocommerce.sync;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,11 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderProcessor {
 
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-    DateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd"); // Quoted "Z" to indicate UTC, no timezone offset
-
-    @Value("${wc.uploads_base:https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart}")
-    private String wc_uploads_base;
-
+    
     @Value("${wc.user_agent:Mozilla/5.0}")
     private String userAgent;
 
@@ -59,6 +52,9 @@ public class OrderProcessor {
     private HttpUtils httpUtils;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    @Autowired
+    private CommercePortalFacade commercePortalFacade;
 
 
     public OrderProcessor() {
@@ -82,7 +78,7 @@ public class OrderProcessor {
         orderEntity.setWooOrderJson(json);
         orderEntity.setBillingEmailAddress(order.getBilling().getEmail());
         orderEntity.setShippingEmailAddress(order.getShipping().getEmail());
-        if(order.getShipping().getFirst_name() != null) {
+        if(order.getShipping().getFirst_name() != null && ! order.getShipping().getFirst_name().isEmpty()) {
             orderEntity.setCustomerName(order.getShipping().getFirst_name() + " " + order.getShipping().getLast_name());
         }
         else {
@@ -93,10 +89,11 @@ public class OrderProcessor {
         List<OrderLineItemEntity> lineItems = new LinkedList<>();
 
         String name = order.getBilling().getFirst_name() + " " + order.getBilling().getLast_name();
-        String csv = fetchLineItemCsv(order);
+        String csv = commercePortalFacade.fetchLineItemCsv(order);
         List<LineItemUrlDetails> details = csvReader.parse(csv);
         for (LineItemUrlDetails lineItem : details) {
             OrderLineItemEntity olie = processLineItem(name, lineItem, order);
+            addPrice(olie, order, lineItem);
             lineItemRepo.save(olie);
             lineItems.add(olie);
         }
@@ -105,20 +102,34 @@ public class OrderProcessor {
         log.info("========================================================================================");
     }
 
-    private String fetchLineItemCsv(OrderDto order) throws IOException {
-        String cartHash = order.getCart_hash();
-        Date dateCreated = order.getDate_created_gmt();
-        String dateCreated8601 = get8601Format(dateCreated);
-        String uploadUrl = wc_uploads_base + "/" + dateCreated8601 + "-" + cartHash + ".csv";
-        log.debug("Fetching CSV from {}", uploadUrl);
+    private void addPrice(OrderLineItemEntity olie, OrderDto order, LineItemUrlDetails lineItem) {
+        long lineItemId = lineItem.getItemId();
+        order.getLine_items().stream().
+            filter(li -> li.getId() == lineItemId)
+            .findFirst()
+            .ifPresent(li -> {
+                double price = li.getPrice();
+                double tax = Double.parseDouble(li.getTotal_tax());
+                long productId = li.getProduct_id();
+                String productNameWithWordCount = li.getName();
+                String productName = li.getParent_name();
 
-        return httpUtils.get(uploadUrl);
-    }
+                li.getMeta_data().stream()
+                    .filter(md -> md.getKey().equals("word-count"))
+                    .findFirst()
+                    .ifPresent(md -> {
+                        olie.setWordCount(Util.parseWordCountFromLineItemMetadata(md.getValue().toString()));
+                    });
 
-    private String get8601Format(Date date) {
-        ymdFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return ymdFormat.format(date);
+                olie.setPrice(price);
+                olie.setTax(tax);
+                olie.setProductId(productId);
+                olie.setProductName(productName);
+                olie.setProductNameWithWordCount(productNameWithWordCount);
+        });
     }
+    
+    
 
     private OrderLineItemEntity processLineItem(String customerName, LineItemUrlDetails lineItem, OrderDto order) throws IOException {
         // Find the corresponding Demand Site

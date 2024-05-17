@@ -59,6 +59,7 @@ public class LinkResolver {
                     demandLite.setAnchorText(pl.getDemand().getAnchorText());
                     demandLite.setUrl(pl.getDemand().getUrl());
                     demandLite.setDaNeeded(pl.getDemand().getDaNeeded());
+                    demandLite.setWordCount(lineItem.getWordCount());
                     return demandLite;
                 });
             if(dl.isEmpty()) { throw new RuntimeException("Proposal does not contain demand"); }
@@ -67,6 +68,9 @@ public class LinkResolver {
             ld.setLiveLinkTitle(proposal.getLiveLinkTitle());
             ld.setLiveLinkUrl(proposal.getLiveLinkUrl());
             ld.setSupplierDa(proposal.getPaidLinks().get(0).getSupplier().getDa());
+            ld.setPrice(lineItem.getPrice());
+            ld.setTax(lineItem.getTax());
+            ld.setTotal(lineItem.getTax() + lineItem.getPrice());
             map.put(dl.get(), ld);
         } 
         catch (IOException e) {

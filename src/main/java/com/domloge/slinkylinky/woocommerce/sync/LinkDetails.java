@@ -9,4 +9,7 @@ public class LinkDetails {
     private String liveLinkTitle;
     private String liveLinkUrl;
     private int supplierDa;
+    private double price;
+    private double tax;
+    private double total;
 }

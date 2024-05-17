@@ -1,9 +1,13 @@
 package com.domloge.slinkylinky.woocommerce.sync;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
@@ -12,6 +16,7 @@ import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -35,11 +40,19 @@ public class CommercePortalFacade { // we might change the name from LinkSync
     @Value("${wc.secret}")
     private String wc_secret;
 
-    @Value("${wc.base_url:https://link-sync.co.uk/wp-json/wc/v3}")
+    @Value("${wc.base_url}")
     private String wc_base_url;
+
+    @Value("${wc.uploads_base}")
+    private String wc_uploads_base;
 
     @Value("${wc.user_agent:Mozilla/5.0}")
     private String userAgent;
+
+    private DateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd"); // Quoted "Z" to indicate UTC, no timezone offset
+
+    @Autowired
+    private HttpUtils httpUtils;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -51,10 +64,26 @@ public class CommercePortalFacade { // we might change the name from LinkSync
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    
+    public String fetchLineItemCsv(OrderDto order) throws IOException {
+        String cartHash = order.getCart_hash();
+        Date dateCreated = order.getDate_created_gmt();
+        String dateCreated8601 = get8601Format(dateCreated);
+        String uploadUrl = wc_uploads_base + "/" + dateCreated8601 + "-" + cartHash + ".csv";
+        log.debug("Fetching CSV from {}", uploadUrl);
 
+        return httpUtils.get(uploadUrl);
+    }
+
+    private String get8601Format(Date date) {
+        ymdFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return ymdFormat.format(date);
+    }
 
     public OrderJsonWrapper getOrders(int page) throws IOException {
-        HttpGet request = new HttpGet(wc_base_url+"/orders?status=processing");
+        String url = wc_base_url+"/orders?status=processing";
+        HttpGet request = new HttpGet(url);
+        log.info("Fetching orders from {}", url);
         request.setHeader("Authorization",
             "Basic " + Base64.getEncoder().encodeToString((wc_key + ":" + wc_secret).getBytes())
         );
@@ -81,7 +110,9 @@ public class CommercePortalFacade { // we might change the name from LinkSync
     }
 
     public String completeOrder(long orderid) throws IOException {
-        HttpPut request = new HttpPut(wc_base_url+"/orders/"+orderid);
+        String url = wc_base_url+"/orders/"+orderid;
+        HttpPut request = new HttpPut(url);
+        log.info("Completing order {} using {}", orderid, url);    
         request.setHeader("Authorization",
             "Basic " + Base64.getEncoder().encodeToString((wc_key + ":" + wc_secret).getBytes())
         );

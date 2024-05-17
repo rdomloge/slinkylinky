@@ -50,4 +50,11 @@ public class OrderEntity {
     @Fetch(FetchMode.SUBSELECT)
     private List<OrderLineItemEntity> lineItems;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean linkDetailsEmailSent = false;
+
+    private LocalDateTime linkDetailsEmailSentDate = null;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean archived = false;
 }
