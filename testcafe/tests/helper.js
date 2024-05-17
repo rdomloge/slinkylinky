@@ -4,6 +4,7 @@ import addEditDemand from "./page-models/addEditDemand";
 import { gitHubUser } from './roles';
 import supplierListModel from "./page-models/supplierListModel";
 import addEditSupplier from "./page-models/addEditSupplier";
+import demandListModel from "./page-models/demandListModel";
 
 const demandData = require('./demand-data.json');
 const supplierData = require('./supplier-data.json');
@@ -17,7 +18,7 @@ export async function gotoNewDemandPage() {
     
     await t.useRole(gitHubUser)
         .click(demandList.newButton)
-        .expect(addEditDemand.pageTitle.innerText).contains("New demand");
+        .expect(addEditDemand.addPageTitle.innerText).contains("New demand");
 }
 
 export async function gotoNewSupplierPage() {
@@ -26,7 +27,7 @@ export async function gotoNewSupplierPage() {
         .expect(supplierListModel.pageTitle.innerText).contains("Suppliers");
     
     await t.click(supplierListModel.newButton)
-        .expect(addEditSupplier.pageTitle.innerText).contains("New supplier");
+        .expect(addEditSupplier.addPageTitle.innerText).contains("New supplier");
 }
 
 export async function createSupplierIfMissing(dataIndex) {
@@ -63,7 +64,7 @@ export async function createSupplierIfMissing(dataIndex) {
     await t.typeText(addEditSupplier.categorySelectorInput, supplierData[dataIndex].categories[0]);
     await t.pressKey('enter');
     await t.click(addEditSupplier.submitButton)
-        .expect(addEditSupplier.pageTitle.innerText).contains('Suppliers');
+        .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
 }
 
 export async function createSupplier(dataIndex, randomWebsite = true) {
@@ -83,7 +84,7 @@ export async function createSupplier(dataIndex, randomWebsite = true) {
     await t.typeText(addEditSupplier.categorySelectorInput, supplierData[dataIndex].categories[0]);
     await t.pressKey('enter');
     await t.click(addEditSupplier.submitButton)
-        .expect(addEditSupplier.pageTitle.innerText).contains('Suppliers');
+        .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
 }
 
 export async function createNewDemand(dataIndex) {
@@ -109,5 +110,12 @@ export async function createNewDemand(dataIndex) {
 
     // submit the form
     await t.click(addEditDemand.submitButton)
-        .expect(addEditDemand.pageTitle.innerText).contains("Demand ");
+        .expect(demandListModel.pageTitle.innerText).contains("Demand ");
+}
+
+export function clickWhenReady(selector) {
+    return t.expect(selector.exists).ok()
+        .expect(selector.visible).ok()
+        .expect(selector.hasAttribute('disabled')).notOk()
+        .click(selector);
 }

@@ -2,7 +2,8 @@ import { Selector } from "testcafe";
 
 class AddEditDemand {
     constructor() {
-        this.pageTitle = Selector('div').find('.pageTitle')
+        this.addPageTitle = Selector('#demand-add-id')
+        this.editPageTitle = Selector('#demand-edit-id')
         this.submitButton = Selector('#createnew')
             .with({visibilityCheck: true})
             .withExactText('Submit')

@@ -2,7 +2,7 @@ import { t, Selector } from "testcafe";
 
 class supplierListModel {
     constructor() {
-        this.pageTitle = Selector('div > .pageTitle')
+        this.pageTitle = Selector('#supplier-list-id')
         
         this.newButton = Selector('button')
             .with({visibilityCheck: true})

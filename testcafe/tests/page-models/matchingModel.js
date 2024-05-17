@@ -1,4 +1,5 @@
 import { t, Selector } from "testcafe";
+import supplierCard from "../card-models/supplierCard";
 
 class matchingModel {
     constructor() {
@@ -6,11 +7,9 @@ class matchingModel {
     }
 
     findCardByName(supplierName) {
-        return this.selectableSupplierCards
-            .find("div.list-card.card.relative > div.text-xl.my-2")
+        return Selector('#supplier-name')
             .withText(supplierName)
-            .parent()
-            .parent()
+            .parent('div[id^=selectableSupplierCard-]')
     }
 
     supplierWebsiteInSupplierCard(supplierName) {
@@ -39,7 +38,7 @@ class matchingModel {
 
     async clickSupplier(supplierName) {
         await t.click(this.findCardByName(supplierName)
-            .find('div.top-10.right-10.relative.float-right.z-50 > span'));
+            .find(supplierCard.selectButton));
     }
 }
 

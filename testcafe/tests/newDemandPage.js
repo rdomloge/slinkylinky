@@ -1,6 +1,7 @@
 import addEditDemand from './page-models/addEditDemand';
 import { gotoNewDemandPage } from './helper';
 import { gitHubUser } from './roles';
+import demandListModel from './page-models/demandListModel';
 
 
 fixture("New Demand Page")
@@ -63,7 +64,7 @@ test("New demand demandSite selection ", async t=> {
 
     // submit the form
     await t.click(addEditDemand.submitButton)
-        .expect(addEditDemand.pageTitle.innerText).contains("Demand ");
+        .expect(demandListModel.pageTitle.innerText).contains("Demand ");
 })
 
 test("New demand create new demandSite ", async t=> {
@@ -104,5 +105,5 @@ test("New demand create new demandSite ", async t=> {
 
     // submit the form
     await t.click(addEditDemand.submitButton)
-        .expect(addEditDemand.pageTitle.innerText).contains("Demand ");
+        .expect(demandListModel.pageTitle.innerText).contains("Demand ");
 })
