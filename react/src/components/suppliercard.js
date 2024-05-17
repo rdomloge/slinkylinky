@@ -37,10 +37,12 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 null
             }
             {editable ?
-            <Link href={"/supplier/"+supplier.id}>
-                <p className='text-right float-right'>Edit</p>
-            </Link>
-            :null}
+                <Link href={"/supplier/"+supplier.id}>
+                    <p id='supplier-editbtn-id' className='text-right float-right'>Edit</p>
+                </Link>
+            :
+                null
+            }
             <div id={"supplier-name"} className={"text-xl my-2 "+(supplier.disabled?"text-gray-300":"")}>{supplier.name}</div>
             
             <div className='grid grid-cols-12'>
@@ -52,7 +54,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         </Link>
                         <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
                         <Link href={"mailto:"+supplier.email} className='col-span-11'>
-                            <span className='align-middle truncate'>{supplier.email}</span>
+                            <span id='supplier-email' className='align-middle truncate'>{supplier.email}</span>
                         </Link>
                     </>
                 :
@@ -60,17 +62,17 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         <Image className='col-span-1 ' src={LinkIcon} alt="link" width={20} height={20}/>
                         <span className='col-span-11 align-middle truncate'>{supplier.website}</span>
                         <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
-                        <span className='col-span-11 align-middle truncate'>{supplier.email}</span>
+                        <span id='supplier-email' className='col-span-11 align-middle truncate'>{supplier.email}</span>
                     </>
                 }
                 <Image className='col-span-1 ' src={DaIcon} alt="da" width={20} height="auto"/>
-                <span className='col-span-11 align-middle text-lg font-bold'>{supplier.da}</span>
+                <span id='supplier-da' className='col-span-11 align-middle text-lg font-bold'>{supplier.da}</span>
                 
                 <Image className='col-span-1' src={MoneyIcon} alt="money" width={25} height="auto"/> 
-                <span className='col-span-11 align-middle'>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
+                <span id='supplier-fee' className='col-span-11 align-middle'>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
 
                 <Image className='col-span-1' src={EnterIcon} alt="money" width={30} height="auto"/> 
-                <span className='col-span-11 align-middle'>{supplier.source}</span>
+                <span id="supplier-source" className='col-span-11 align-middle'>{supplier.source}</span>
 
             </div>
             

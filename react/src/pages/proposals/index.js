@@ -109,12 +109,14 @@ export default function ListProposals() {
 
     return (
         <Layout>
-            <PageTitle title="Proposals" count={proposals}/>
-            <Link href="/tabular/This-Months-Proposals" className="inline-block mr-4">
-                <Image src={Icon} alt="Grid view" height={13} width={13}/>
-            </Link>
-            <MonthsBack/>
-            <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
+            <PageTitle id="proposal-list-id" title="Proposals" count={proposals}/>
+            <div className='block'>
+                <Link href="/tabular/This-Months-Proposals" className="inline-block mr-4">
+                    <Image src={Icon} alt="Grid view" height={13} width={13}/>
+                </Link>
+                <MonthsBack/>
+                <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
+            </div>
             {proposals ?
                 <ul>
                 {proposals.map( (p) => 

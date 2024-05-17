@@ -107,7 +107,7 @@ export default function Proposal() {
     return (
             <Layout>
                 
-                <PageTitle title="Proposal"/>
+                <PageTitle id="proposal-detail-id" title="Proposal"/>
                 {proposal ?
                     <>
                     <div><NiceDate isostring={proposal.dateCreated}/></div>

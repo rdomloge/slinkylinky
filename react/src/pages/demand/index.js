@@ -61,15 +61,17 @@ export default function Demand() {
 
     return (
         <Layout>
-            <PageTitle title="Demand" count={demands}/>
-            <div className="inline-block content-center">
+            <PageTitle id="demand-list-id" title="Demand" count={demands}/>
+            <div className="inline-block content-center pl-4">
                 <Link href='/demand/Add'>
                     <SessionButton label="New"/>
                 </Link>
             </div>
-            <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
-            <Select label="Sort" changeHandler={ (e) => setSortOrder(e)}
-                options={buildSortOptions()}/>
+            <div className="block pt-4">
+                <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
+                <Select label="Sort" changeHandler={ (e) => setSortOrder(e)}
+                    options={buildSortOptions()}/>
+            </div>
 
             {demands ? 
                 <div className="grid grid-cols-2">

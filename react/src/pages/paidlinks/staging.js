@@ -85,7 +85,7 @@ export default function App() {
 
     return (
         <Layout>
-            <PageTitle title="Proposal Staging"/>
+            <PageTitle id="paidlink-staging-id" title="Proposal Staging"/>
             
             <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id={"submitProposal"}/>
 

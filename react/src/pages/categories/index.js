@@ -86,8 +86,8 @@ export default function ListCategories() {
     
     return (
         <Layout>
-            <PageTitle title="Categories" count={categories}/>
-            <StyledButton label="New" type="primary" extraClass="mb-8" submitHandler={()=>setShowNewModal(true)} enabled={session}/>
+            <PageTitle id="category-list-id" title="Categories" count={categories}/>
+            <StyledButton label="New" type="primary" extraClass="mb-8 align-super" submitHandler={()=>setShowNewModal(true)} enabled={session}/>
             {categories ?
                 <div className="grid grid-cols-4">
                         {categories.map( (c,index) => {

@@ -101,13 +101,13 @@ export default function ListBloggers() {
     
     return (
         <Layout>
-            <PageTitle title="Suppliers" count={suppliers ? suppliers : null}/> 
-            <span className='pb-4'>{supplierCount} &#47;&#47; total suppliers ({activeSupplierCount} active)</span>
-            <div className="content-center pt-2">
+            <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers ? suppliers : null}/> 
+            <div className="content-center pt-2 pl-4 inline-block">
                 <Link href='/supplier/Add'>
                     <SessionButton label="New"/>
                 </Link>
             </div>
+            <span className='pb-4 block'>{supplierCount} &#47;&#47; total suppliers ({activeSupplierCount} active)</span>
             <div className="w-1/4 pr-8 inline-block">
                 <TextInput changeHandler={(value) =>setFilter(value)} label="Name / email / domain filter" id={"nameEmailDomainFilter"}/>
             </div>

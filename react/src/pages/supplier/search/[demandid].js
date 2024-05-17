@@ -94,7 +94,7 @@ export default function App() {
 
     return (
         <Layout>
-            <PageTitle title="Find a matching supplier"/>
+            <PageTitle id="supplier-search-id"  title="Find a matching supplier"/>
             {error || !demand ? 
                 <Loading error={error}/> 
             : 
@@ -149,7 +149,8 @@ function SupplierList(props) {
             {props.suppliers.map((s,index) => (
                 <div key={index} id={"selectableSupplierCard-"+index}>
                     <div className="top-10 right-10 relative float-right z-50">
-                        <StyledButton label="Select" 
+                        <StyledButton id="supplier-selectbtn-id"
+                            label="Select" 
                             submitHandler={()=>{selectSupplier(s,props)}} 
                             isText={true} 
                             key={index} 

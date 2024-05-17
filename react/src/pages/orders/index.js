@@ -53,7 +53,7 @@ export default function ListOrders() {
 
     return (
         <Layout>
-            <PageTitle title="Orders" />
+            <PageTitle title="Orders" id="order-list-title-id" />
             { !error && orders ?
                 <div className="">
                     {orders.map( (order,index) => {

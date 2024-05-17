@@ -7,7 +7,7 @@ export default function NewDemand() {
 
     return( 
         <Layout>
-            <PageTitle title="New demand"/>
+            <PageTitle id="demand-add-id" title="New demand"/>
             <AddOrEditDemand demand={ {name: "", anchorText: "", url: "", daNeeded: 0, requested: null} } /> 
         </Layout>
     );

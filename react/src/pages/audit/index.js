@@ -34,7 +34,7 @@ export default function AuditIndexPage() {
 
     return (
         <Layout>
-            <PageTitle title="Audit" count={audits}/>
+            <PageTitle title="Audit" count={audits} id="audit-list-title-id"/>
             <Paging page={page} pageCount={pageCount} total={total} baseUrl={"/audit"}/>
             { !error && audits ? 
                 <div className="grid grid-cols-4 gap-2">
