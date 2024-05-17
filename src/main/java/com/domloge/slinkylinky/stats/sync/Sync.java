@@ -67,7 +67,8 @@ public class Sync {
         this.rest = rest;
     }
 
-    @Scheduled(cron = "0 */60 * * * *")
+    // @PostConstruct
+    @Scheduled(cron = "0 0 3 * * *")
     public void syncAllSuppliers() {
         log.info("Syncing");
         downDomains.clear();
@@ -112,6 +113,12 @@ public class Sync {
 
         for (Supplier supplier : activeSuppliers) {
             log.info("=================================================================");
+            int domainLength = supplier.getDomain().length();
+            int padding = (62 - domainLength) / 2;
+            log.info("||{}{}{}||", " ".repeat(padding), supplier.getDomain(), " ".repeat(padding));
+            // log.info("||   Syncing supplier {}  ||", supplier.getDomain());
+            log.info("=================================================================");
+
             boolean supplierUp = supplierUpChecker.isSupplierUp(supplier);
             if(!supplierUp) {
                 log.error("Supplier {} is down", supplier.getDomain());
@@ -121,14 +128,14 @@ public class Sync {
                 log.debug("Supplier {} is up", supplier.getDomain());
             }
 
-            log.debug("Synching traffic for {}", supplier.getDomain());
+            log.debug("[[[ Synching traffic for {} ]]]", supplier.getDomain());
             syncSupplier(supplier, trafficRepo, semrush::forMonth, 12);
 
-            log.debug("Synching DA for {}", supplier.getDomain());
+            log.debug("[[[ Synching DA for {} ]]]", supplier.getDomain());
             syncSupplier(supplier, daRepo, daChecker::forThisMonth, 1);
             linkServiceUpdater.pushLatestDaToLinkservice(supplier);
 
-            log.debug("Synching spam for {}", supplier.getDomain());
+            log.debug("[[[ Synching spam for {} ]]]", supplier.getDomain());
             syncSupplier(supplier, spamRepo, spamChecker::forThisMonth, 1);
         }
 
@@ -141,7 +148,7 @@ public class Sync {
         LocalDate startDate = LocalDate.now().minusMonths(monthsBack);
         // make it the start of the month
         startDate = startDate.minusDays(startDate.getDayOfMonth() - 1);
-        LocalDate endDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().minusDays(LocalDate.now().getDayOfMonth());
         log.info("Synching Supplier({}) {} between {} and {}", supplier.getId(), domain, startDate, endDate);
         int changeCount = 0;
 
@@ -156,6 +163,11 @@ public class Sync {
                 log.info("{} has a gap in data for {}", domain, oldestGap);
                 try {
                     AbstractMonthlyData missingMonth = loader.forMonth(domain, oldestGap);
+                    log.info("Adding data point for domain {} with {} {} for {}", 
+                        domain, 
+                        missingMonth.getDataPointName(), 
+                        missingMonth.getDataPointValue(), 
+                        missingMonth.getUniqueYearMonth());
                     repo.saveMonth(missingMonth);
                     changeCount++;
                 } 
