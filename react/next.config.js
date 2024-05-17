@@ -6,7 +6,7 @@ const nextConfig = {
       if(process.env.NEXT_WEBPACK_USEPOLLING) {
         config.watchOptions = {
           poll: 5000,
-          aggregateTimeout:2000,
+          aggregateTimeout:20000,
           ignored: ['**/node_modules']
         }
       }
