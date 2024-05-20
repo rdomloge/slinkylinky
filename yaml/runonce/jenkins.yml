@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jenkins
+  namespace: slinkylinky
+spec:
+  serviceName: jenkins
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: jenkins
+        version: v1
+    spec:
+      containers:
+        - name: jenkins
+          image: jenkins/jenkins:lts-jdk17
+          imagePullPolicy: IfNotPresent
+          # volumeMounts: 
+          #   - name: sl-jenkins-data
+          #     mountPath: /var/jenkins_home
+          env:
+            - name: jenkins_PASSWORD
+              value: CHANGEME
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "1024Mi"
+            limits:
+              cpu: "1500m"
+              memory: "6000Mi"
+          ports:
+            - containerPort: 8080
+      # volumes:
+      #   - name: sl-jenkins-data
+      #     persistentVolumeClaim:
+      #       claimName: sl-jenkins-data
