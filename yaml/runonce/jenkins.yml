@@ -39,3 +39,19 @@ spec:
       #   - name: sl-jenkins-data
       #     persistentVolumeClaim:
       #       claimName: sl-jenkins-data
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-service
+  namespace: slinkylinky
+spec:
+  type: LoadBalancer
+  selector:
+    app: jenkins
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8099
+  #type: ClusterIP
