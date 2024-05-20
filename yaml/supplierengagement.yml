@@ -30,7 +30,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: supplierengagement
-          image: rdomloge/slinky-linky-supplierengagement:3.8
+          image: rdomloge/slinky-linky-supplierengagement:4.0
           imagePullPolicy: Always
           resources:
             requests:

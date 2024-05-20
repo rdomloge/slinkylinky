@@ -31,7 +31,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: woo
-          image: rdomloge/slinky-linky-woocommerce:3.8.1
+          image: rdomloge/slinky-linky-woocommerce:4.0
           imagePullPolicy: Always
           resources:
             requests:
