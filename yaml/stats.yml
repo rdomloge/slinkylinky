@@ -49,8 +49,6 @@ spec:
               value: "8080"
             - name: slinkylinky_vhost
               value: slinkylinky
-            - name: moz_accesskey
-              value: <SPECIFY>
             - name: moz_secret
               value: <SPECIFY>
             - name: linkservice_url
