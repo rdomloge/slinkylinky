@@ -16,7 +16,6 @@ import com.domloge.slinkylinky.stats.moz.DaChecker;
 import com.domloge.slinkylinky.stats.moz.LinkChecker;
 import com.domloge.slinkylinky.stats.moz.MozDomain;
 import com.domloge.slinkylinky.stats.moz.MozPageLink;
-import com.domloge.slinkylinky.stats.sync.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.extern.slf4j.Slf4j;

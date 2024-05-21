@@ -8,7 +8,6 @@ import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.Timeout;
 import org.springframework.stereotype.Component;
@@ -71,7 +70,6 @@ public class SupplierUpChecker {
                     throw new IOException("Error while following redirect", e);
                 }
             }
-            HttpEntity entity = response.getEntity();
             // Get response information
             if(response.getCode() == 200) return true;
             
