@@ -1,8 +1,6 @@
 package com.domloge.slinkylinky.stats.moz;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,11 +30,8 @@ public class MozFacade {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${moz.accesskey}")
-    private String accessId;
-
     @Value("${moz.secret}")
-    private String secretKey;
+    private String mozSecret;
 
     public MozFacade() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
@@ -78,7 +73,7 @@ public class MozFacade {
 
 
         String apiUrl = base + "url_metrics";
-        HttpHeaders headers = createHeaders(accessId, secretKey);
+        HttpHeaders headers = createHeaders(mozSecret);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("targets", new String[]{domain});
@@ -106,13 +101,10 @@ public class MozFacade {
         return mozDomain;
     }
 
-    public HttpHeaders createHeaders(String username, String password) {
+    public HttpHeaders createHeaders(String mozSecret) {
         return new HttpHeaders() {
             {
-                String auth = username + ":" + password;
-                byte[] encodedAuth = Base64.getEncoder().encode(auth.getBytes(Charset.forName("US-ASCII")));
-                String authHeader = "Basic " + new String(encodedAuth);
-                set("Authorization", authHeader);
+                set("x-moz-token", mozSecret);
                 set("Content-Type", "application/json");
                 set("Accept", "application/json");
                 set("Charset", "utf-8");

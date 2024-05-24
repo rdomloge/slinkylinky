@@ -24,11 +24,8 @@ public class LinkChecker {
     @Value("${moz.baseUrl}")
     private String base;
 
-    @Value("${moz.accesskey}")
-    private String accessId;
-
     @Value("${moz.secret}")
-    private String secretKey;
+    private String mozSecret;
 
     @Autowired
     private MozFacade mozFacade;
@@ -39,7 +36,7 @@ public class LinkChecker {
         log.debug("Checking " + demandurl + " for links from " + supplierDomain);
 
         String apiUrl = base + "links";
-        HttpHeaders headers = mozFacade.createHeaders(accessId, secretKey);
+        HttpHeaders headers = mozFacade.createHeaders(mozSecret);
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("target", demandurl);
