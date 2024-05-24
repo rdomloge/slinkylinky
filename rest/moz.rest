@@ -16,7 +16,7 @@ GET {{host}}/mozsupport/checkdomain?domain=frontpageadvantage.com
 user: santa@clause.com
 ###
 POST https://lsapi.seomoz.com/v2/url_metrics
-Authorization: Basic mozscape-a319a50eb7:6983ad49571ec937eab3522206234ae
+x-moz-token: UdycZvVEF8ePeyf9IFmuItW81qEfThmiuqk8D26mOSjypw7VCuRmZM7nw0OBIhAO
 
 {
     "targets": ["newvalleynews.co.uk"]
