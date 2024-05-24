@@ -15,12 +15,15 @@ public class DaChecker {
     private MozFacade mozFacade;
     
     
-    public DaMonthlyData forThisMonth(String domain, Month ignoreMe) {
+    public DaMonthlyData forThisMonth(String domain, Month month) {
         MozDomain mozDomain = mozFacade.checkDomain(domain);
         DaMonthlyData data = new DaMonthlyData();
         data.setDomain(domain);
         data.setDa(mozDomain.getDomain_authority());
-        data.setDate(LocalDate.now());
+        
+        LocalDate now = LocalDate.now();
+        data.setDate(LocalDate.of(now.getYear(), month, 1));
+        
         return data;
     }
     
