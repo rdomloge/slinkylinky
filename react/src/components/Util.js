@@ -6,7 +6,7 @@ export function addProtocol(url) {
 }
 
 export function validDomain(url) {
-    const urlRegex = /^(((http|https):\/\/|)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6}(:[0-9]{1,5})?(\/.*)?)$/;
+    const urlRegex = /^(((http|https):\/\/|)?[a-zA-Z0-9]+([\-\.]{1}[a-zA-Z0-9]+)*\.[a-zA-Z]{2,6}(:[0-9]{1,5})?(\/.*)?)$/;
     if (urlRegex.test(url)) {
          return true;
      } else {
