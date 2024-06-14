@@ -129,7 +129,7 @@ export default function SupplierResponse() {
                     :
                     <div className="flex justify-center items-center">
                         <div className="card p-8 m-8 w-2/3">
-                            <PageTitle title="Supplier response" />
+                            <PageTitle title="Supplier response" id="supplier-response-title-id" />
                             <h2 className="text-2xl font-bold py-4">{engagement.supplierName}</h2>
                             <p className="text-lg font-bold">Please indicate your response to our offer below.</p>
 
