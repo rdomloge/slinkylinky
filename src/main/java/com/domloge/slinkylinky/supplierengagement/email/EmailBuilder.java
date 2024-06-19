@@ -45,7 +45,7 @@ public class EmailBuilder {
     public Context build(ProposalUpdateEvent event, Engagement engagement) throws AddressException, MessagingException {
         MimeMessage message = emailSender.createMimeMessage(); 
         // message.setFrom(new InternetAddress("rdomloge@gmail.com")); 
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("rdomloge@gmail.com")); 
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("rdomloge@gmail.com,james.p@frontpageadvantage.com")); 
         message.setSubject("SlinkyLinky request for engagement"); 
 
         Context ctx = new Context();
