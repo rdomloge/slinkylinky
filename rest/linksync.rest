@@ -12,16 +12,10 @@ https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart/2024-02-21-0
 GET {{woocommerce_host}}/orders/297
 Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
 ###
-https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart/2024-02-20-415f1f53e797b633ccda0a0d4c3af103.csv
-###
-https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart/2024-02-20-415f1f53e797b633ccda0a0d4c3af103.csv
-###
-https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart/2024-02-21-415f1f53e797b633ccda0a0d4c3af103.csv
-###
-GET https://staging.link-sync.co.uk/wp-json/wc/v3/customers/3
+GET {{woocommerce_host}}/customers/3
 Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
 ###
-PUT https://staging.link-sync.co.uk/wp-json/wc/v3/orders/348
+PUT {{woocommerce_host}}/orders/348
 Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
 Content-Type: application/json
 
