@@ -57,6 +57,8 @@ public class OrderDto {
     private String currency_symbol;
     private LinksDto _links;
 
+    private String da_file;
+
     // Getters and setters
 }
 

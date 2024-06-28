@@ -49,8 +49,6 @@ public class CommercePortalFacade { // we might change the name from LinkSync
     @Value("${wc.user_agent:Mozilla/5.0}")
     private String userAgent;
 
-    private DateFormat ymdFormat = new SimpleDateFormat("yyyy-MM-dd"); // Quoted "Z" to indicate UTC, no timezone offset
-
     @Autowired
     private HttpUtils httpUtils;
 
@@ -64,20 +62,9 @@ public class CommercePortalFacade { // we might change the name from LinkSync
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    
     public String fetchLineItemCsv(OrderDto order) throws IOException {
-        String cartHash = order.getCart_hash();
-        Date dateCreated = order.getDate_created_gmt();
-        String dateCreated8601 = get8601Format(dateCreated);
-        String uploadUrl = wc_uploads_base + "/" + dateCreated8601 + "-" + cartHash + ".csv";
-        log.debug("Fetching CSV from {}", uploadUrl);
-
-        return httpUtils.get(uploadUrl);
-    }
-
-    private String get8601Format(Date date) {
-        ymdFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return ymdFormat.format(date);
+        log.debug("Fetching CSV from {}", order.getDa_file());
+        return httpUtils.get(order.getDa_file());
     }
 
     public OrderJsonWrapper getOrders(int page) throws IOException {
