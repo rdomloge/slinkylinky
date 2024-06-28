@@ -13,4 +13,6 @@ GET http://localhost:8084/.rest/orders/archiveorder?id=802
 ###
 GET http://localhost:8084/.rest/orders/search/findOrdersByArchivedEquals?archived=true&projection=lightOrder
 ###
-POST http://localhost:3000/.rest/orders/webhooks/ordercreated
+POST http://localhost:8084/.rest/orders/webhooks/ordercreated
+###
+POST http://[PROD IP ADDRESS]:8094/.rest/orders/webhooks/ordercreated
