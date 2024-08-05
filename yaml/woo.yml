@@ -59,11 +59,26 @@ spec:
               value: http://linkservice-service:8090
             - name: wc_uploads_base
               value: https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart
-          startupProbe:   
-            httpGet:
-              path: /.rest/profile
+          startupProbe:
+            tcpSocket:
               port: 8080
             initialDelaySeconds: 60
             failureThreshold: 30
             periodSeconds: 2
             timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 180
+            failureThreshold: 2
+            periodSeconds: 2
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 180
+            failureThreshold: 2
+            periodSeconds: 2
+            timeoutSeconds: 1
