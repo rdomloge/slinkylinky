@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import Footer from './Footer';
+import FooterPublic from './FooterPublic';
 import HeaderPublic from './HeaderPublic';
 
 const LayoutPublic =({children}) =>{
@@ -15,7 +15,7 @@ const LayoutPublic =({children}) =>{
                     {children}
                 </div>
             </div>
-            <Footer/>
+            <FooterPublic/>
         </>
     )
 }
