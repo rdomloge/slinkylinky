@@ -164,7 +164,7 @@ export default function SupplierResponse() {
                                     {noInvoice ? 
                                         <p className="pb-4 text-red-500 font-bold">This may slow down payment</p>
                                     :
-                                        <p className="pb-4">Invoice will be paid within 30 days</p>
+                                        <p className="pb-4">Invoice will be paid within 4 days</p>
                                     }
                                     <StyledCheckbox label="No invoice" onChangeHandler={(value)=>setNoInvoice(value.target.checked)}/>
                                     <div className="inline-block flex">
