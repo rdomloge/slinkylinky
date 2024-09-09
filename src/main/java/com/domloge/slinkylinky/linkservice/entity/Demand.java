@@ -19,7 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,6 +48,7 @@ public class Demand {
     private String createdBy;
     private String updatedBy;
     private String source;
+    private int wordCount;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
