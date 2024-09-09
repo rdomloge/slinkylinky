@@ -27,7 +27,7 @@
         </style>
         </head>
     <body>
-        <img src="cid:logo-cid" width='200px' style=""/>
+        
         
         
         <p style="clear:both; margin: top 30px;">Hi ${recipientName},</p>
@@ -76,5 +76,6 @@
         info@link-sync.co.uk <br />
         https://www.link-sync.co.uk <br />
         </p>
+        <img src="cid:logo-cid" width='100px' style=""/>
     </body>
 </html>
