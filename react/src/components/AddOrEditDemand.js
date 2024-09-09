@@ -21,6 +21,7 @@ export default function AddOrEditDemand({demand}) {
     const [demandUrl, setDemandUrl] = useState(demand.url)
     const [demandDaNeeded, setDemandDaNeeded] = useState(demand.daNeeded)
     const [demandRequested, setDemandRequested] = useState(demand.requested)
+    const [demandWordCount, setWordCount] = useState(demand.wordCount)
 
     const [errorMEssage, setErrorMessage] = useState()
         
@@ -35,6 +36,7 @@ export default function AddOrEditDemand({demand}) {
         demand.name = demandName
         demand.url = demandUrl
         demand.anchorText = demandAnchorText
+        demand.wordCount = demandWordCount
         
 
         fixForPosting(demand)
@@ -122,13 +124,17 @@ export default function AddOrEditDemand({demand}) {
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-6">
-                        <div className="w-full px-3">
+                        <div className="w-2/3 px-3">
                             <TextInput id="url" label="URL" changeHandler={(e)=>setDemandUrl(e)} binding={demandUrl} disabled={!demand.id && !demandsite}/>
+                        </div>
+                        <div className="w-1/3 px-3">
+                            <NumberInput id="wordCount" label="Words" changeHandler={(e)=>setWordCount(e)} binding={demandWordCount} disabled={!demand.id && !demandsite} 
+                                min={500} max={1500} step={250}/>
                         </div>
                     </div>
                     <div className="flex flex-wrap -mx-3 mb-2">
                         <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                            <NumberInput id="daNeeded" label="DA needed" changeHandler={(e)=>setDemandDaNeeded(e)} binding={demandDaNeeded}  disabled={!demand.id && !demandsite}/>
+                            <NumberInput id="daNeeded" label="DA needed" min={10} step={10} max={50} changeHandler={(e)=>setDemandDaNeeded(e)} binding={demandDaNeeded}  disabled={!demand.id && !demandsite}/>
                         </div>
                         <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
                             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">

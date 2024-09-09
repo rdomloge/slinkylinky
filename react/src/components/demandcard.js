@@ -11,6 +11,7 @@ import DaIcon from '@/components/authority.svg'
 import LSLogo from '@/components/linksync-logo.png'
 import SLLogo from '@/components/logo.png'
 import NiceDate from './atoms/DateTime'
+import WordCountIcon from '@/components/text-word-count.svg'
 import Link from 'next/link'
 import { SessionBlock, StyledButton } from './atoms/Button'
 import { useState } from 'react'
@@ -57,6 +58,10 @@ export default function DemandCard({demand, fullfilable, editable, id, deleteCas
                 <div>
                     <Image className='inline-block mr-2' src={DaIcon} alt="da" width={20} height="auto"/>
                     <span className='align-middle text-lg font-bold'>{demand.daNeeded}</span>
+                </div>
+                <div>
+                    <Image className='inline-block mr-2' src={WordCountIcon} alt="words" width={22} height="auto"/>
+                <span className='align-middle text-lg'>{demand.wordCount} words</span>
                 </div>
                 <div className='align-middle'>
                     <Image className='inline-block mr-2' src={CalendarIcon} alt="calendar" width={20} height={20}/>

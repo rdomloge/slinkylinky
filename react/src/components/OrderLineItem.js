@@ -35,7 +35,7 @@ export default function OrderLineItem({lineItem}) {
 
     return (
         <ol className="items-center grid grid-cols-3">
-            <LineItemStep title={"Demand created"} date={lineItem.dateCreated} description={""} showError={demandError}
+            <LineItemStep title={"Demand created"} date={lineItem.dateCreated} description={""} showError={demandError} wordCount={lineItem.wordCount}
                 linkText={demandDescription} linkUrl={ lineItem.linkedProposalId ? "/proposals/"+lineItem.linkedProposalId : "/supplier/search/" + lineItem.demandId}/> 
 
 
@@ -57,7 +57,7 @@ export default function OrderLineItem({lineItem}) {
     )
 }
 
-function LineItemStep({title, date, description, linkText, linkUrl, showError = false}) {
+function LineItemStep({title, date, description, linkText, linkUrl, showError = false, wordCount}) {
     return (
         <li className="relative mb-6 sm:mb-0 mt-2 ">
             
@@ -74,6 +74,7 @@ function LineItemStep({title, date, description, linkText, linkUrl, showError = 
                 {showError ? <Image src={WarningIcon} width={20} height={20} alt="Warning icon" className={"inline-block mx-2 mb-1"}/> : null }
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white inline-block">
                     {title}
+                    {wordCount ? <span className="text-sm font-normal text-gray-400 dark:text-gray-500 ml-2">({wordCount} words)</span> : null}
                 </h3>
                 <time className="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{date}</time>
                 {linkText && linkUrl ?
