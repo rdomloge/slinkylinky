@@ -15,8 +15,8 @@ public class DaChecker {
     private MozFacade mozFacade;
     
     
-    public DaMonthlyData forThisMonth(String domain, Month month) {
-        MozDomain mozDomain = mozFacade.checkDomain(domain);
+    public DaMonthlyData forThisMonth(String user, String domain, Month month) {
+        MozDomain mozDomain = mozFacade.checkDomain(user, domain);
         DaMonthlyData data = new DaMonthlyData();
         data.setDomain(domain);
         data.setDa(mozDomain.getDomain_authority());
@@ -27,7 +27,7 @@ public class DaChecker {
         return data;
     }
     
-    public MozDomain getCurrent(String domain) {
-        return mozFacade.checkDomain(domain);
+    public MozDomain getCurrent(String user, String domain) {
+        return mozFacade.checkDomain(user, domain);
     }
 }

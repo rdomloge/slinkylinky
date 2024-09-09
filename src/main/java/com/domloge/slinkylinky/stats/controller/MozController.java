@@ -44,16 +44,7 @@ public class MozController {
 
         log.info("Checking DA for " + domain);
 
-        // audit the usage of the Moz API
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEventTime(java.time.LocalDateTime.now());
-        auditRecord.setWho(user);
-        auditRecord.setWhat("Use Moz API");
-        auditRecord.setDetail("New Supplier DA check for " + domain);
-        auditRecord.setEntityType("Supplier");
-        auditRabbitTemplate.convertAndSend(auditRecord);
-
-        MozDomain domainResults = domainChecker.getCurrent(domain);
+        MozDomain domainResults = domainChecker.getCurrent(user, domain);
         return domainResults;
     }
     

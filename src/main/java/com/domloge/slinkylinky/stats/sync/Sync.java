@@ -162,7 +162,7 @@ public class Sync {
             else {
                 log.info("{} has a gap in data for {}", domain, oldestGap);
                 try {
-                    AbstractMonthlyData missingMonth = loader.forMonth(domain, oldestGap);
+                    AbstractMonthlyData missingMonth = loader.forMonth("system", domain, oldestGap);
                     log.info("Adding data point for domain {} with {} {} for {}", 
                         domain, 
                         missingMonth.getDataPointName(), 

@@ -15,13 +15,13 @@ public class SpamChecker {
     private MozFacade mozFacade;
     
 
-    public SpamMonthlyData forThisMonth(String domain, Month ignoreMe) {
-        MozDomain mozDomain = mozFacade.checkDomain(domain);
+    public SpamMonthlyData forThisMonth(String user, String domain, Month month) {
+        MozDomain mozDomain = mozFacade.checkDomain(user, domain);
         SpamMonthlyData data = new SpamMonthlyData();
         data.setDomain(domain);
         data.setSpamScore(mozDomain.getSpam_score());
         // data.setDate(LocalDate.now());
-        data.setDate(LocalDate.now().withMonth(ignoreMe.getValue()));
+        data.setDate(LocalDate.now().withMonth(month.getValue()));
         return data;
     }
 }

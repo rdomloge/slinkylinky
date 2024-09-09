@@ -6,5 +6,5 @@ import com.domloge.slinkylinky.stats.entity.AbstractMonthlyData;
 
 public interface TemporalDataLoader<T extends AbstractMonthlyData> {
     
-    T forMonth(String domain, Month month);
+    T forMonth(String user, String domain, Month month);
 }

@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +16,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.domloge.slinkylinky.stats.amqp.AuditRecord;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class MozFacade {
 
+    @Autowired
+    private AmqpTemplate auditRabbitTemplate;
+
     @Value("${moz.baseUrl}")
     private String base;
 
@@ -32,6 +38,8 @@ public class MozFacade {
 
     @Value("${moz.secret}")
     private String mozSecret;
+
+    private int usages = 0;
 
     public MozFacade() {
         restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
@@ -62,9 +70,8 @@ public class MozFacade {
     
     private TemporalCache cache = new TemporalCache();
 
-    public MozDomain checkDomain(String domain) {
+    public MozDomain checkDomain(String user, String domain) {
         
-
         if(cache.getMozData(domain).isPresent()) {
             log.debug("Returning cached data for " + domain);
             return cache.getMozData(domain).get();
@@ -88,17 +95,50 @@ public class MozFacade {
             throw new RuntimeException(e);
         }
 
-        ResponseEntity<MozDomainResponse> response = restTemplate.exchange(apiUrl, HttpMethod.POST, 
-            new HttpEntity<String>(body, headers), 
-            MozDomainResponse.class, apiUrl);
+        try {
+            ResponseEntity<MozDomainResponse> response = restTemplate.exchange(apiUrl, HttpMethod.POST, 
+                new HttpEntity<String>(body, headers), 
+                MozDomainResponse.class, apiUrl);
 
-        if(response.getBody().getResults().length == 0) {
-            throw new RuntimeException("No results for " + domain);
+            if(response.getStatusCode().isError()) {
+                throw new RuntimeException("Moz API returned " + response.getStatusCode().value());
+            }
+            else {
+                audit(user, domain, null);
+            }
+
+            usages++;
+            log.debug("Moz API usage count: " + usages);
+
+            if(response.getBody().getResults().length == 0) {
+                throw new RuntimeException("No results for " + domain);
+            }
+
+            MozDomain mozDomain = response.getBody().getResults()[0];
+            cache.setMozData(mozDomain, domain);
+            return mozDomain;
         }
+        catch (Exception e) {
+            audit(user, domain, e);
+            throw new RuntimeException(e);
+        }
+    }
 
-        MozDomain mozDomain = response.getBody().getResults()[0];
-        cache.setMozData(mozDomain, domain);
-        return mozDomain;
+    private void audit(String user, String domain, Exception e) {
+        // audit the usage of the Moz API
+        AuditRecord auditRecord = new AuditRecord();
+        auditRecord.setEventTime(java.time.LocalDateTime.now());
+        auditRecord.setWho(user);
+        if(null != e) {
+            auditRecord.setWhat("*Failed* Use Moz API");
+            auditRecord.setDetail("New Supplier DA check for " + domain + " by " + user + " failed: " + e.getMessage());
+        }
+        else {
+            auditRecord.setWhat("Use Moz API");
+            auditRecord.setDetail("New Supplier DA check for " + domain + " by " + user);
+        }
+        auditRecord.setEntityType("Supplier");
+        auditRabbitTemplate.convertAndSend(auditRecord);
     }
 
     public HttpHeaders createHeaders(String mozSecret) {
