@@ -53,7 +53,7 @@ export default function OrderCard({order, archiveHandler}) {
         <div key={order.id} className="card m-4">
             <StyledButton label="Archive" type="risky" isText={true} extraClass="float-right" submitHandler={() => setShowModal(true)}/>
             <h2 className={"text-6xl font-bold "+(isOrderComplete() ? "text-green-500" : "")}>Order {order.externalId}</h2>
-            <span className="text-red-500 block font-bold font-sm">Value: £{calculateOrderWorth()}</span>
+            <span className="text-red-500 block font-bold font-sm">Value: £{order.total}</span>
             <span className="align-middle">Created</span> <NiceDateTime isostring={order.dateCreated.substring(0, order.dateCreated.lastIndexOf('.'))} />
             <h3 className="font-bold text-2xl">{order.customerName} <span className="text-sm font-semibold">{order.shippingEmailAddress ? order.shippingEmailAddress : order.billingEmailAddress}</span></h3>
             {order.lineItems.map( (lineItem) => {
