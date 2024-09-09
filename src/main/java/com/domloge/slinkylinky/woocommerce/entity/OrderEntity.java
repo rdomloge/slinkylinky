@@ -57,4 +57,6 @@ public class OrderEntity {
 
     @Column(columnDefinition = "boolean default false")
     private boolean archived = false;
+
+    private Double total;
 }

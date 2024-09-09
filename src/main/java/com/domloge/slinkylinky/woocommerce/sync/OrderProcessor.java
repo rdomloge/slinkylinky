@@ -75,6 +75,7 @@ public class OrderProcessor {
 
         OrderEntity orderEntity = new OrderEntity();
         orderEntity.setExternalId(order.getId());
+        orderEntity.setTotal(Double.parseDouble(order.getTotal()));
         orderEntity.setWooOrderJson(json);
         orderEntity.setBillingEmailAddress(order.getBilling().getEmail());
         orderEntity.setShippingEmailAddress(order.getShipping().getEmail());
@@ -89,15 +90,20 @@ public class OrderProcessor {
         List<OrderLineItemEntity> lineItems = new LinkedList<>();
 
         String name = order.getBilling().getFirst_name() + " " + order.getBilling().getLast_name();
-        String csv = commercePortalFacade.fetchLineItemCsv(order);
-        List<LineItemUrlDetails> details = csvReader.parse(csv);
-        for (LineItemUrlDetails lineItem : details) {
-            OrderLineItemEntity olie = processLineItem(name, lineItem, order);
-            addPrice(olie, order, lineItem);
-            lineItemRepo.save(olie);
-            lineItems.add(olie);
+        if(order.getDa_file() != null) {
+            String csv = commercePortalFacade.fetchLineItemCsv(order);
+            List<LineItemUrlDetails> details = csvReader.parse(csv);
+            for (LineItemUrlDetails lineItem : details) {
+                OrderLineItemEntity olie = processLineItem(name, lineItem, order);
+                addPrice(olie, order, lineItem);
+                lineItemRepo.save(olie);
+                lineItems.add(olie);
+            }
+            orderEntity.setLineItems(lineItems);
         }
-        orderEntity.setLineItems(lineItems);
+        else {
+            log.debug("Order {} has no CSV URL - must be an older order; cannot add line items", order.getId());
+        }
         orderRepo.save(orderEntity);
         log.info("========================================================================================");
     }
@@ -161,6 +167,7 @@ public class OrderProcessor {
             .toArray(String[]::new));
         demandDetails.put("createdBy", customerName);
         demandDetails.put("source", "LinkSync");
+        demandDetails.put("wordCount", parseWordCount(lineItem.getChooseWordCount()));
         
         String location = httpUtils.postForLocation(linkService_base+"/demands", mapper.writeValueAsString(demandDetails));
         long demandId = Long.parseLong(location.substring(location.lastIndexOf('/') + 1));
@@ -168,6 +175,18 @@ public class OrderProcessor {
         olie.setDemandId(demandId);
 
         return olie; // need to return the demand dto
+    }
+
+    // strip the int from the string like  "1250 Words"
+    private int parseWordCount(String s) {
+        String regex = "(\\d+) Words";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+        java.util.regex.Matcher matcher = pattern.matcher(s);
+        if(matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return -1;
+
     }
 
 
