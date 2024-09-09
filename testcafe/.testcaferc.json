@@ -1,5 +1,10 @@
 {
     "screenshots": {
         "takeOnFails": true
-    }
+    },
+
+    "selectorTimeout": 30000,
+    "assertionTimeout": 30000,
+    "pageLoadTimeout": 30000,
+    "waitForTimeout": 30000
 }
