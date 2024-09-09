@@ -19,7 +19,7 @@ public class WebHookController {
     private OrderSync orderSync;
     
 
-    @PostMapping(path = "/webhooks/ordercreated", produces = "application/json")
+    @RequestMapping(path = "/webhooks/ordercreated", produces = "application/json")
     public ResponseEntity<Object> whOrderCreated() {
         log.info("Webhook:: Order created");
         Thread t = new Thread(() -> {
