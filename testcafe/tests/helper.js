@@ -17,7 +17,7 @@ export async function gotoNewDemandPage() {
     }
     
     await t.useRole(gitHubUser)
-        .click(demandList.newButton)
+    await clickWhenReady(demandList.newButton)
         .expect(addEditDemand.addPageTitle.innerText).contains("New demand");
 }
 
@@ -114,8 +114,11 @@ export async function createNewDemand(dataIndex) {
 }
 
 export function clickWhenReady(selector) {
+
+    
+
     return t.expect(selector.exists).ok()
         .expect(selector.visible).ok()
         .expect(selector.hasAttribute('disabled')).notOk()
-        .click(selector);
+        .click(selector.filter(node => !node.hasAttribute('disabled')));
 }

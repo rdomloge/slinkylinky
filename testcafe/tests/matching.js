@@ -18,6 +18,8 @@ test("Suppliers match expected", async t=> {
     for (let i = 0; i < matchingSuppliers.length; i++) {
         const s = matchingSuppliers[i];
         const supplierCard = matchingModel.findCardByName(s.name)
+        const url = await matchingModel.supplierWebsiteInSupplierCard(s.name).innerText;
+        console.log(url)
         await t.expect(matchingModel.supplierWebsiteInSupplierCard(s.name).innerText).eql(s.url)
         await t.expect(matchingModel.supplierEmailInSupplierCard(s.name).innerText).eql(s.email)
         await t.expect(matchingModel.supplierDaInSupplierCard(s.name).innerText).eql(s.da)

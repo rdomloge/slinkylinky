@@ -1,5 +1,6 @@
 import { t, Selector } from "testcafe";
 import supplierCard from "../card-models/supplierCard";
+import { clickWhenReady } from "../helper";
 
 class matchingModel {
     constructor() {
@@ -8,7 +9,7 @@ class matchingModel {
 
     findCardByName(supplierName) {
         return Selector('#supplier-name')
-            .withText(supplierName)
+            .withExactText(supplierName)
             .parent('div[id^=selectableSupplierCard-]')
     }
 
@@ -37,8 +38,18 @@ class matchingModel {
     }
 
     async clickSupplier(supplierName) {
-        await t.click(this.findCardByName(supplierName)
-            .find(supplierCard.selectButton));
+        console.log(`clicking supplier ${supplierName}`);
+        const matchingCard = this.findCardByName(supplierName);
+        await t.expect(matchingCard.exists).ok();
+
+        console.log(null != matchingCard ? `found card` : `no card found`);
+        
+        const selectBtn = matchingCard.find(supplierCard.selectButton);
+        await t.expect(selectBtn.exists).ok();
+
+        console.log(null != selectBtn ? `found select button` : `no select button found`);
+        console.log("Type: "+(typeof selectBtn));
+        await clickWhenReady(selectBtn);
     }
 }
 

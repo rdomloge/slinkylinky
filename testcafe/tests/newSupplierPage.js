@@ -3,6 +3,7 @@ import addEditSupplierPage from './page-models/addEditSupplier';
 import supplierListModel from './page-models/supplierListModel';
 import supplierCard from './card-models/supplierCard';
 import menu from './page-models/menu';
+import { clickWhenReady } from './helper';
 
 
 fixture("New Supplier Page")
@@ -48,6 +49,7 @@ test("Submit load stats button invisible until valid domain in website field", a
     
     // clear the website field and check that the load stats button is gone
     await t.selectText(addEditSupplierPage.website).pressKey('delete');
+    await t.takeScreenshot({ fullPage: true, path: 'newSupplier-website-text-deleted.png'})
     await t.expect(addEditSupplierPage.loadStatsButton.exists).notOk();
 });
 
@@ -96,19 +98,19 @@ test("Black list a site and confirm that the error message appears and is persis
     await t.expect(addEditSupplierPage.loadStatsButton.exists).ok();
 
     // click the load stats button to black list the site
-    await t.click(addEditSupplierPage.loadStatsButton)
+    await clickWhenReady(addEditSupplierPage.loadStatsButton)
         .expect(addEditSupplierPage.blackListButton.exists).ok();
     
     // confirm the black list
-    await t.click(addEditSupplierPage.blackListButton)
+    await clickWhenReady(addEditSupplierPage.blackListButton)
         .expect(addEditSupplierPage.confirmBlacklistButton.exists).ok();
-    await t.click(addEditSupplierPage.confirmBlacklistButton);
+    await clickWhenReady(addEditSupplierPage.confirmBlacklistButton);
     await t.expect(addEditSupplierPage.blacklistedSupplierMessage.innerText).eql('Error! Supplier is blacklisted.');
 
     // go back to the home page and come back to the new supplier page
-    await t.click(menu.supplierItem)
+    await clickWhenReady(menu.supplierItem)
         .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
-    await t.click(supplierListModel.newButton)
+    await clickWhenReady(supplierListModel.newButton)
         .expect(addEditSupplierPage.addPageTitle.innerText).contains('New supplier');
     
     await t.typeText(addEditSupplierPage.website, website, {speed: 0.5});
@@ -116,7 +118,7 @@ test("Black list a site and confirm that the error message appears and is persis
 });
 
 test("Disable existing Supplier", async t=> {
-    await t.click(menu.supplierItem)
+    await clickWhenReady(menu.supplierItem)
         .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
 
     await t.useRole(gitHubUser)
@@ -124,19 +126,19 @@ test("Disable existing Supplier", async t=> {
     await t.typeText(supplierListModel.textSearchField, 'urbansplatter', {speed: 0.5})
         .expect(supplierListModel.pageTitle.innerText).contains('Suppliers (1)');
 
-    await t.click(supplierListModel.supplierCards.find(supplierCard.editButton));
+    await clickWhenReady(supplierListModel.supplierCards.find(supplierCard.editButton));
     await t.expect(addEditSupplierPage.editPageTitle.innerText).contains('Edit supplier');
 
     const currentState = await addEditSupplierPage.disableInput.checked;
 
-    await t.click(addEditSupplierPage.disableToggle)
-    await t.click(addEditSupplierPage.submitButton)
+    await clickWhenReady(addEditSupplierPage.disableToggle)
+    await clickWhenReady(addEditSupplierPage.submitButton)
         .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
 
     await t.typeText(supplierListModel.textSearchField, 'urbansplatter', {speed: 0.5})
         .expect(supplierListModel.pageTitle.innerText).contains('Suppliers (1)');
 
-    await t.click(supplierListModel.supplierCards.find(supplierCard.editButton))
+    await clickWhenReady(supplierListModel.supplierCards.find(supplierCard.editButton))
         .expect(addEditSupplierPage.editPageTitle.innerText).contains('Edit supplier')
         .expect(addEditSupplierPage.disableInput.checked).eql(!currentState);
 
