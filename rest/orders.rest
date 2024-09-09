@@ -15,4 +15,4 @@ GET http://localhost:8084/.rest/orders/search/findOrdersByArchivedEquals?archive
 ###
 POST http://localhost:8084/.rest/orders/webhooks/ordercreated
 ###
-POST http://[PROD IP ADDRESS]:8094/.rest/orders/webhooks/ordercreated
+POST http://slinkylinky.uk:8094/.rest/orders/webhooks/ordercreated
