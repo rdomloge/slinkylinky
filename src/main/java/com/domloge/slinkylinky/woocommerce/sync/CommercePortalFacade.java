@@ -63,12 +63,17 @@ public class CommercePortalFacade { // we might change the name from LinkSync
     }
 
     public String fetchLineItemCsv(OrderDto order) throws IOException {
+        
+        if(null == order.getDa_file()) {
+            throw new IllegalStateException("CSV file URL missing from order.");
+        }
+
         log.debug("Fetching CSV from {}", order.getDa_file());
         return httpUtils.get(order.getDa_file());
     }
 
     public OrderJsonWrapper getOrders(int page) throws IOException {
-        String url = wc_base_url+"/orders?status=processing";
+        String url = wc_base_url+"/orders?status=processing&page="+page+"&per_page=5";
         HttpGet request = new HttpGet(url);
         log.info("Fetching orders from {}", url);
         request.setHeader("Authorization",
