@@ -17,11 +17,8 @@
           }
         </style>
         </head>
-    <body>
-        <img src="cid:logo-cid" width='73px' style="float:left"/>
-        <h1 style="float:left; margin-left: 10px;">Slinky Linky</h1>
-        
-        <p style="clear:both; margin: top 30px;">Hi ${recipientName}</p>
+    <body>        
+        <p style="clear:both; margin: top 30px;">Hi ${recipientName},</p>
         <p>
             Are you able to post the attached on your website ${website} please. 
             
@@ -32,7 +29,7 @@
             make payment in the next couple of days. 
         </p>
         <p>
-            Our preferred method of payment is paypal. I believe we agreed a fee of ${fee}?
+            Our supported method of payment is PayPal for the agreed fee of ${fee}.
         </p>
         
         <p>
@@ -40,7 +37,11 @@
         </p>
         <p>Regards,</p>
         <p>
-        <em>${senderName} at SlinkyLinky</em> <br />
+        <em>${signoff}</em> <br />
+        <em>${signoffContactDetails} <br />
         </p>
+
+        <img src="cid:logo-cid" width='53px' style="float:left"/>
+        <h1 style="float:left; margin-left: 10px; margin-top: 0px">Slinky Linky</h1>
     </body>
 </html>

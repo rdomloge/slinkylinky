@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
@@ -19,6 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ContentBuilder {
     
     private String content;
+
+    @Value("${spring.mail.requestsignoff}")
+    private String signoff;
+
+    @Value("${spring.mail.requestcontact}")
+    private String signoffContactDetails;
 
     public String getContent() {
         return content;
@@ -45,7 +52,8 @@ public class ContentBuilder {
         templateModel.put("recipientName", ctx.getEvent().getSupplierName());
         templateModel.put("fee", fee);
         templateModel.put("responseUrl", responseUrl);
-        templateModel.put("senderName", "Chris");
+        templateModel.put("signoff", signoff);
+        templateModel.put("signoffContactDetails", signoffContactDetails);
         templateModel.put("website", ctx.getEvent().getSupplierWebsite());
         
         try {
