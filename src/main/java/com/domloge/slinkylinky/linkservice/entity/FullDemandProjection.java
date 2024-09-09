@@ -25,5 +25,7 @@ public interface FullDemandProjection {
 
     String getSource();
 
+    int getWordCount();
+
     FullCategoryProjection[] getCategories();
 }
