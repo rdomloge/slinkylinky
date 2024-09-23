@@ -29,6 +29,10 @@
             make payment in the next couple of days. 
         </p>
         <p>
+            If you are unable, or unwilling, to post this article for us, please click the decline button on <a href='${responseUrl}'>this</a> link. 
+            If we don&apos;t hear from you within 24 hours we will look elsewhere to secure this post.
+        </p>
+        <p>
             Our supported method of payment is PayPal for the agreed fee of ${fee}.
         </p>
         
