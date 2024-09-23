@@ -25,7 +25,7 @@ export default function MonthsBack() {
     }
 
     function lastNMonths(n) {
-        const months = [ new Date().toLocaleString('default', { month: 'short' }) ]
+        const months = [ new Date().toLocaleString('en-GB', { month: 'short' }) ]
         for(let i=0; i < n; i++) {
             months.push(goBackMonths(i+1).toLocaleString('en-GB', { month: 'short' }))
         }
