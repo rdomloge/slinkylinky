@@ -7,22 +7,23 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
 import com.domloge.slinkylinky.supplierengagement.AuditRecord;
+import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
+import com.domloge.slinkylinky.supplierengagement.email.Context;
+import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
+import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
 import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
 
-import jakarta.transaction.Transactional;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -30,8 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(".rest/engagements")
 @Slf4j
 public class UploadController {
-
-    private static final long MAX_FILE_SIZE = 1024 * 1024 * 10; // 10MB
 
     @Autowired
     private EngagementRepo engagementRepo;
@@ -42,9 +41,19 @@ public class UploadController {
     @Autowired
     private AmqpTemplate supplierengagementRabbitTemplate;
 
+    @Autowired
+    private EmailBuilder emailBuilder;
+
+    @Autowired
+    private EmailSender emailSender;
+
+    @Autowired
+    private ContentBuilder contentBuilder;
+
+
 
     @PatchMapping(path = "/decline", produces = "application/json")
-    public ResponseEntity<Object> decline(@RequestParam("guid") String guid, @RequestBody Engagement engagement) {
+    public ResponseEntity<Object> decline(@RequestParam("guid") String guid, @RequestBody Engagement engagement) throws IOException {
         Engagement dbEngagement = engagementRepo.findByGuid(guid);
         if(null == dbEngagement) {
             log.warn("Attempted decline for unknown engagement: " + guid);
@@ -67,17 +76,41 @@ public class UploadController {
 
         log.info("Engagement {} declined. DNC: {} Reason: {}", dbEngagement.getId(), engagement.isDoNotContact(), engagement.getDeclinedReason());
 
+        // Email Front Page Advantage to warn of decline - must happen before aborting proposal or email sending fails due to missing proposal
+        sendDeclineWarningEmail(dbEngagement);
+
         // publish event to cause linkservice to abort proposal
         SupplierEngagementEvent event = new SupplierEngagementEvent();
         event.buildForDecline(dbEngagement.getProposalId(), engagement.getDeclinedReason(), engagement.isDoNotContact());
         supplierengagementRabbitTemplate.convertAndSend(event);
-        // email chris (should this service do it or linkservice?)
-        // audit
 
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "/updateblogdetails", produces = "application/json")
+    private void sendDeclineWarningEmail(Engagement engagement) throws IOException {
+        try {
+
+            Context ctx = new Context();
+            ctx.setDbEngagement(engagement);
+            String content = contentBuilder.buildForDecline(ctx);
+            MimeMessage mimeMessage = emailBuilder.buildSupplierDeclinedContext(engagement, content);
+            emailSender.send(mimeMessage, engagement.getProposalId());
+
+            AuditRecord auditRecord = new AuditRecord();
+            auditRecord.setEntityId(engagement.getProposalId());
+            auditRecord.setEntityType("Proposal");
+            auditRecord.setEventTime(java.time.LocalDateTime.now());
+            auditRecord.setWho("system");
+            auditRecord.setWhat("Supplier-declined warning email sent");
+            auditRecord.setDetail(content);
+            auditRabbitTemplate.convertAndSend(auditRecord);
+        }
+        catch(MessagingException e) {
+            log.error("Failed to send email", e);
+        }
+    }
+
+    @PatchMapping(path = "/accept", produces = "application/json")
     public ResponseEntity<Object> update(@RequestParam("guid") String guid, @RequestBody Engagement engagement) {
         Engagement dbEngagement = engagementRepo.findByGuid(guid);
         if(null == dbEngagement) {
@@ -88,6 +121,7 @@ public class UploadController {
         dbEngagement.setBlogTitle(engagement.getBlogTitle());
         dbEngagement.setBlogUrl(engagement.getBlogUrl());
         dbEngagement.setStatus(EngagementStatus.ACCEPTED);
+        dbEngagement.setInvoiceUrl(engagement.getInvoiceUrl());
         engagementRepo.save(dbEngagement);
 
         AuditRecord auditRecord = new AuditRecord();
@@ -102,7 +136,6 @@ public class UploadController {
         SupplierEngagementEvent event = new SupplierEngagementEvent();
         event.buildForAccept(dbEngagement.getBlogTitle(), 
             dbEngagement.getBlogUrl(), 
-            dbEngagement.getInvoiceFileName() !=null, 
             dbEngagement.getProposalId());
         supplierengagementRabbitTemplate.convertAndSend(event);
 
@@ -110,60 +143,5 @@ public class UploadController {
 
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping(path = "/downloadInvoice", produces = "application/octet-stream")
-    public ResponseEntity<Object> downloadInvoice(@RequestParam long proposalId) {
-        Engagement engagement = engagementRepo.findByProposalIdAndStatusACCEPTED(proposalId);
-        if(null == engagement) {
-            log.warn("Attempted invoice download for unknown proposal: " + proposalId);
-            return ResponseEntity.notFound().build();
-        }
-
-        if(null == engagement.getInvoiceFileContent()) {
-            log.warn("Attempted invoice download for proposal with no invoice: " + proposalId);
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=" + engagement.getInvoiceFileName())
-            .body(engagement.getInvoiceFileContent());
-    }
-
-
-    @PostMapping(path = "/uploadInvoice", produces = "text/HTML")
-    @Transactional
-    public ResponseEntity<Object> uploadInvoice(@RequestParam String guid, @RequestParam("file") MultipartFile file,
-			RedirectAttributes redirectAttributes) throws IOException {
-
-        Engagement engagement = engagementRepo.findByGuid(guid);
-        if(null == engagement) {
-            log.warn("Attempted invoice upload for unknown engagement: " + guid);
-            return ResponseEntity.notFound().build();
-        }
-
-        if(file.getSize() > MAX_FILE_SIZE) {
-            log.warn("Attempted invoice upload filesize too large: " + file.getSize());
-            return ResponseEntity.badRequest().body("Invoice filesize too large");
-        }
-        
-        engagement.setInvoiceFileName(file.getOriginalFilename());
-        engagement.setInvoiceFileContentType(file.getContentType());
-        engagement.setInvoiceFileContent(file.getBytes());
-        engagementRepo.save(engagement);
-
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEntityId(engagement.getProposalId());
-        auditRecord.setEntityType("Proposal");
-        auditRecord.setEventTime(java.time.LocalDateTime.now());
-        auditRecord.setWho("Supplier through public API");
-        auditRecord.setWhat("Invoice uploaded");
-        auditRecord.setDetail("Name: "+file.getOriginalFilename()+", Size: "+file.getSize()+", Content type: "+file.getContentType());
-        auditRabbitTemplate.convertAndSend(auditRecord);
-
-        log.info("Invoice {} uploaded for engagement {}", file.getOriginalFilename(), guid);
-
-        // proposalAuditor.handleBeforeSave(dbProposal);
-        // log.info(user + " uploaded invoice for proposal " + proposalId);
-        return ResponseEntity.ok().build();
-    }
+    
 }

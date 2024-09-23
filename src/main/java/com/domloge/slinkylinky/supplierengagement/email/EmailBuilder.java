@@ -33,36 +33,54 @@ public class EmailBuilder {
     @Autowired
     private JavaMailSender emailSender;
 
-    @Value("${slinkyLinky.domain}")
-    private String slinkyLinkyDomain;
+    
 
     @Value("${spring.mail.testing.addresses}")
     private String testingEmailAddresses;
 
-    @Autowired
-    private ContentBuilder contentBuilder;
+    @Value("${spring.mail.declinedWarning.addresses}")
+    private String declinedWarningEmailAddresses;
+
+    @Value("${spring.mail.from}")
+    private String from;
+
+    @Value("${spring.mail.testing}")
+    private boolean isTesting;
 
     
-    
 
-    public Context build(ProposalUpdateEvent event, Engagement engagement) throws AddressException, MessagingException {
+    
+    public MimeMessage buildSupplierDeclinedContext(Engagement engagement, String content) throws AddressException, MessagingException {
         MimeMessage message = emailSender.createMimeMessage(); 
-        // message.setFrom(new InternetAddress("rdomloge@gmail.com")); 
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(testingEmailAddresses)); 
-        message.setSubject("SlinkyLinky request for engagement"); 
-
-        Context ctx = new Context();
-        ctx.setSlinkyLinkyDomain(slinkyLinkyDomain);
-        ctx.setEvent(event);
-
-        
-
-        ctx.setDbEngagement(engagement);
+        message.setFrom(from);
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(declinedWarningEmailAddresses)); 
+        message.setSubject("Proposal declined by supplier"); 
 
         BodyPart messageBodyPart = new MimeBodyPart(); 
-        contentBuilder.build(ctx);
-        ctx.setContentBuilder(contentBuilder);
-        messageBodyPart.setContent(contentBuilder.getContent(), "text/html; charset=utf-8");
+        messageBodyPart.setContent(content, "text/html; charset=utf-8");
+
+        Multipart multipart = new MimeMultipart("related"); 
+        multipart.addBodyPart(messageBodyPart);
+        multipart.addBodyPart(buildLogoBodyPart());
+
+        message.setContent(multipart); 
+
+        return message;
+    }
+
+    public MimeMessage buildSupplierEngagementContext(ProposalUpdateEvent event, String content) throws AddressException, MessagingException {
+        MimeMessage message = emailSender.createMimeMessage(); 
+        message.setFrom(from);
+        if(isTesting) {
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(testingEmailAddresses)); 
+        } else {
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail())); 
+        }
+        
+        message.setSubject("SlinkyLinky request for engagement"); 
+
+        BodyPart messageBodyPart = new MimeBodyPart(); 
+        messageBodyPart.setContent(content, "text/html; charset=utf-8");
 
         MimeBodyPart attachmentPart = new MimeBodyPart();
         attachmentPart.setFileName("article.md");
@@ -73,6 +91,20 @@ public class EmailBuilder {
         html.setFileName("article.html");
         html.setContent(Processor.process(event.getArticle()), "text/html; charset=utf-8");
 
+        
+        
+        Multipart multipart = new MimeMultipart("related"); 
+        multipart.addBodyPart(messageBodyPart); 
+        multipart.addBodyPart(attachmentPart); 
+        multipart.addBodyPart(html);
+        multipart.addBodyPart(buildLogoBodyPart());
+
+        message.setContent(multipart); 
+
+        return message;  
+    }
+
+    private MimeBodyPart buildLogoBodyPart() throws MessagingException {
         MimeBodyPart logo = new MimeBodyPart();
         logo.setFileName("logo.png");
         logo.setContentID("logo-cid");
@@ -80,7 +112,7 @@ public class EmailBuilder {
         try {
             logo.attachFile(this.getClass().getClassLoader().getResource("logo.png").getFile());
             InputStream imageStream = this.getClass().getClassLoader().getResource("logo.png").openStream();
-            log.debug("Stream available: {}" + imageStream);;
+            log.debug("Stream available: {}" + imageStream);
             logo.setDataHandler(
                 new DataHandler(
                     new ByteArrayDataSource(imageStream, 
@@ -88,16 +120,6 @@ public class EmailBuilder {
         } catch (IOException | MessagingException e) {
             log.error("Could not load logo to email", e);
         }
-        
-        Multipart multipart = new MimeMultipart("related"); 
-        multipart.addBodyPart(messageBodyPart); 
-        multipart.addBodyPart(attachmentPart); 
-        multipart.addBodyPart(html);
-        multipart.addBodyPart(logo);
-
-        message.setContent(multipart); 
-
-        ctx.setMessage(message);
-        return ctx;  
+        return logo;
     }
 }

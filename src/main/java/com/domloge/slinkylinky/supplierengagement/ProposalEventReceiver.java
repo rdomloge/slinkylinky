@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.ProposalUpdateEvent;
 import com.domloge.slinkylinky.events.ProposalUpdateEvent.ProposalEventType;
+import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
@@ -35,6 +36,9 @@ public class ProposalEventReceiver {
 
     @Autowired
     private EmailSender emailSender;
+
+    @Autowired
+    private ContentBuilder contentBuilder;
 
     @Autowired
     private AmqpTemplate auditRabbitTemplate;
@@ -64,14 +68,14 @@ public class ProposalEventReceiver {
                 if(article != null) {
                     log.debug("Proposal updated, article present");
                     // if there's an existing engagement, we do nothing, if there isn't, we create one
-                    Engagement engagement = engagementRepo.findByProposalIdAndStatusNew(event.getProposalId());
+                    Engagement engagement = engagementRepo.findByProposalIdAndStatusNewOrAcceptedOrDeclined(event.getProposalId());
                     if(engagement == null) {
-                        log.info("No existing engagement found for proposal {}, creating new one" + event.getProposalId());
+                        log.info("No existing engagement found for proposal {}, creating new one ", event.getProposalId());
                         engagement = createNewEngagement(event);
                         sendEmail(engagement, event);
                     }
                     else {
-                        log.info("Found existing, 'NEW' engagement, no need to do anything");
+                        log.info("Found existing, '{}' engagement, no need to do anything", engagement.getStatus());
                     }
                 }
                 else {
@@ -93,32 +97,35 @@ public class ProposalEventReceiver {
         }
     }
 
-    @PostConstruct
-    public void sendTestEmail() {
-        log.info("Sending test email");
-        ProposalUpdateEvent event = new ProposalUpdateEvent();
-        event.setProposalDetails("This is the articel", 123);
-        event.setSupplierDetails("Test supplier name", "rdomloge@gmail.com", "http://test.com", 100, "$", false);
+    // @PostConstruct
+    // public void sendTestEmail() {
+    //     log.info("Sending test email");
+    //     ProposalUpdateEvent event = new ProposalUpdateEvent();
+    //     event.setProposalDetails("This is the articel", 123);
+    //     event.setSupplierDetails("Test supplier name", "rdomloge@gmail.com", "http://test.com", 100, "$", false);
 
-        Engagement engagement = new Engagement();
-        engagement.setSupplierName("Test supplier");
-        engagement.setSupplierEmail("rdomloge@gmail.com");
-        engagement.setSupplierWebsite("http://test.com");
-        engagement.setSupplierWeWriteFee(100);
-        engagement.setSupplierWeWriteFeeCurrency("$");
-        engagement.setGuid("abc-123");
-        engagement.setProposalId(123);
-        engagement.setSupplierEmailSent(java.time.LocalDateTime.now());
-        engagement.setArticle("Test article");
-        engagement.setStatus(EngagementStatus.NEW);
+    //     Engagement engagement = new Engagement();
+    //     engagement.setSupplierName("Test supplier");
+    //     engagement.setSupplierEmail("rdomloge@gmail.com");
+    //     engagement.setSupplierWebsite("http://test.com");
+    //     engagement.setSupplierWeWriteFee(100);
+    //     engagement.setSupplierWeWriteFeeCurrency("$");
+    //     engagement.setGuid("abc-123");
+    //     engagement.setProposalId(123);
+    //     engagement.setSupplierEmailSent(java.time.LocalDateTime.now());
+    //     engagement.setArticle("Test article");
+    //     engagement.setStatus(EngagementStatus.NEW);
 
-        sendEmail(engagement, event);
-    }
+    //     sendEmail(engagement, event);
+    // }
 
     private void sendEmail(Engagement engagement, ProposalUpdateEvent event) {
         try {
-            Context ctx = emailBuilder.build(event, engagement);
-            MimeMessage mimeMessage = ctx.getMessage();
+            Context ctx = new Context();
+            ctx.setEvent(event);
+            ctx.setDbEngagement(engagement);
+            String content = contentBuilder.buildForSupplierEngagement(ctx);
+            MimeMessage mimeMessage = emailBuilder.buildSupplierEngagementContext(event, content);
             emailSender.send(mimeMessage, event.getProposalId());
 
             AuditRecord auditRecord = new AuditRecord();
@@ -127,7 +134,7 @@ public class ProposalEventReceiver {
             auditRecord.setEventTime(java.time.LocalDateTime.now());
             auditRecord.setWho("system");
             auditRecord.setWhat("Email sent to supplier");
-            auditRecord.setDetail(ctx.getContentBuilder().getContent());
+            auditRecord.setDetail(content);
             auditRabbitTemplate.convertAndSend(auditRecord);
         }
         catch(MessagingException e) {

@@ -21,11 +21,8 @@ public class EmailSender {
     @Autowired
     private AmqpTemplate supplierengagementRabbitTemplate;
 
-    @Value("${spring.mail.from}")
-    private String from;
-
+    
     public void send(MimeMessage mimeMessage, long proposalId) throws MessagingException {
-        mimeMessage.setFrom(from);
         emailSender.send(mimeMessage);
         SupplierEngagementEvent event = new SupplierEngagementEvent();
         event.buildForSent(proposalId);
