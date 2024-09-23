@@ -17,8 +17,8 @@ public interface EngagementRepo extends CrudRepository <Engagement, Long> {
     public Engagement findByGuid(String guid);
 
     @Transactional
-    @Query("select e from Engagement e where e.proposalId = ?1 and e.status = 'NEW'")
-    public Engagement findByProposalIdAndStatusNew(long proposalId);
+    @Query("select e from Engagement e where e.proposalId = ?1 and (e.status = 'NEW' or e.status = 'ACCEPTED' or e.status = 'DECLINED')")
+    public Engagement findByProposalIdAndStatusNewOrAcceptedOrDeclined(long proposalId);
 
     @Transactional
     @Query("select e from Engagement e where e.proposalId = ?1 and e.status = 'ACCEPTED'")

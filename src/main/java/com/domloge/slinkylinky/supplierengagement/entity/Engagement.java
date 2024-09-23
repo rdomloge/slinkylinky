@@ -38,17 +38,11 @@ public class Engagement {
 
     private String guid;
 
-    private String invoiceFileName;
-
-    private String invoiceFileContentType;
-
-    @Lob
-    @Column(name = "invoiceFileContent")
-    private byte[] invoiceFileContent;
-
     private String blogTitle;
 
     private String blogUrl;
+
+    private String invoiceUrl;
 
     @Enumerated(EnumType.STRING)
     private EngagementStatus status;
