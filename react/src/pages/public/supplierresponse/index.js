@@ -23,12 +23,9 @@ export default function SupplierResponse() {
     const [showPreviewModal, setShowPreviewModal] = useState(false)
     const [blogTitle, setBlogTitle] = useState("")
     const [blogUrl, setBlogUrl] = useState("")
-    const [noInvoice, setNoInvoice] = useState(false)
+    const [invoiceUrl, setInvoiceUrl] = useState("");
     const [declineReason, setDeclineReason] = useState("")
     const [doNotContact, setDoNotContact] = useState(false)
-
-    const [filename, setFilename] = useState(null);
-
 
 
     useEffect(() => {
@@ -44,33 +41,19 @@ export default function SupplierResponse() {
         }
     }, [router.isReady, router.query.id])
 
-    const uploadToClient = (event) => {
-        if (event.target.files && event.target.files[0]) {
-            const i = event.target.files[0];
-            setFilename(i);
-        }
-    };
+    
 
-    const uploadToServer = (event) => {
-        const body = new FormData();
-        body.append("file", filename);
+    const handleAccept = (event) => {
         const id = router.query.id;
-        return fetch("/.rest/engagements/uploadInvoice?guid="+id, {
-            method: "POST", 
-            body: body
-        })
-    };
-
-    const sendBlogDetails = (event) => {
-        const id = router.query.id;
-        const response = fetch("/.rest/engagements/updateblogdetails?guid="+id, {
+        const response = fetch("/.rest/engagements/accept?guid="+id, {
             method: "PATCH", 
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 blogTitle: blogTitle,
-                blogUrl: blogUrl
+                blogUrl: blogUrl,
+                invoiceUrl: invoiceUrl
             })})
             .then((res) => {
                 if(res.ok) {
@@ -102,22 +85,8 @@ export default function SupplierResponse() {
 
 
     function submit() {
-        if(noInvoice) {
-            sendBlogDetails();
-            setShowAcceptModal(false);
-        } 
-        else {
-            uploadToServer()
-            .then((res) => {
-                if(res.ok) {
-                    sendBlogDetails();
-                    setShowAcceptModal(false);
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-            })
-        }
+        handleAccept();
+        setShowAcceptModal(false);
     }
 
     return (
@@ -155,22 +124,15 @@ export default function SupplierResponse() {
 
                             {showAcceptModal ?
                                 <Modal title="Accept offer" dismissHandler={() => { setShowAcceptModal(false) }} width="w-1/2">
-                                    <p className="text-2xl font-bold">By accepting this offer, you agree to the terms and conditions of the contract.</p>
+                                    <p className="text-2xl font-bold">By accepting this offer you agree to the links being permanent do-follow links.</p>
                                     <TextInput label="Article title" changeHandler={(e) => { setBlogTitle(e) }} />
                                     <TextInput label="URL to article" changeHandler={(e) => { setBlogUrl(e) }} />
-                                    <div className="block p-4">
-                                        <input type="file" onChange={uploadToClient} />
-                                    </div>
-                                    {noInvoice ? 
-                                        <p className="pb-4 text-red-500 font-bold">This may slow down payment</p>
-                                    :
-                                        <p className="pb-4">Invoice will be paid within 4 days</p>
-                                    }
-                                    <StyledCheckbox label="No invoice" onChangeHandler={(value)=>setNoInvoice(value.target.checked)}/>
+                                    <TextInput label="URL to invoice" changeHandler={(e) => { setInvoiceUrl(e) }} />
+                                    
                                     <div className="inline-block flex">
                                         <div className="flex-1 flex justify-end">
                                             <StyledButton type="secondary" label="Accept" submitHandler={submit} 
-                                                enabled={blogTitle.length > 0 && blogUrl.length > 0 && (filename || noInvoice)} />
+                                                enabled={blogTitle.length > 0 && blogUrl.length > 0 && invoiceUrl.length > 0} />
                                         </div>
                                     </div>
                                 </Modal>
@@ -186,7 +148,7 @@ export default function SupplierResponse() {
                                         <StyledButton type="risky" label="Decline" submitHandler={() => { handleDecline() }} />
                                     </div>
                                     {doNotContact && doNotContact === true ? 
-                                        <InfoMessage message="You can will receive one more email confirming that you are being removed from our system and we will not send you any future engagements" />
+                                        <InfoMessage message="You will receive one more email confirming that you are being removed from our system and we will not send you any future engagements" />
                                     : 
                                         null 
                                     }
@@ -197,13 +159,6 @@ export default function SupplierResponse() {
                             {showPreviewModal ?
                                 <Modal title="Article" dismissHandler={() => { setShowPreviewModal(false) }} width="w-2/3">
                                     <iframe src={"/.rest/proposalsupport/getArticleFormatted?proposalId=" + engagement.proposalId} width="100%" height={480} />
-                                </Modal>
-                                :
-                                null
-                            }
-                            {uploadError ?
-                                <Modal title="Upload error" dismissHandler={() => { setUploadError(null) }} width="w-1/2">
-                                    <p className="text-red-500">Invoice upload failed. Perhaps try a smaller file size?</p>
                                 </Modal>
                                 :
                                 null

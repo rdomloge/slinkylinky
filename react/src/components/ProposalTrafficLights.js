@@ -22,6 +22,7 @@ export default function TrafficLights({proposal, updateHandler, interactive}) {
                 null
                 }
                 <TrafficLight text="Live" value={proposal.blogLive} />
+                <TrafficLight text="Validated" value={proposal.validated} />
             </div>
         );
     }
@@ -56,6 +57,9 @@ export default function TrafficLights({proposal, updateHandler, interactive}) {
                 }
                 <TrafficLightClickHandler proposal={proposal} updateHandler={updateHandler} propertyName="blogLive" propertyDate="dateBlogLive">
                     <TrafficLight text="Live" value={proposal.blogLive} />
+                </TrafficLightClickHandler>
+                <TrafficLightClickHandler proposal={proposal} updateHandler={updateHandler} propertyName="validated" propertyDate="dateValidated">
+                    <TrafficLight text="Validated" value={proposal.validated} />
                 </TrafficLightClickHandler>
             </div>
         );

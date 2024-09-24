@@ -14,8 +14,8 @@ import { StyledButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
 import { useSession } from 'next-auth/react'
 import DotMenu from '@/components/atoms/DotMenu'
-import TextInput from '@/components/atoms/TextInput'
 import LabeledText from '@/components/atoms/LabeledText'
+import { addProtocol } from '@/components/Util'
 
 export default function Proposal() {
     const router = useRouter()
@@ -45,6 +45,9 @@ export default function Proposal() {
                     .then( (p) => {
                         setProposal(p);
                         setDemands(p.paidLinks.map(pl => pl.demand))
+                        if(p.proposalSent) {
+                            loadEngagement();
+                        }
                         if(p.supplierSnapshotVersion != p.paidLinks[0].supplier.version) {
                             setCurrentSupplier(p.paidLinks[0].supplier); 
                             // load the version of the supplier that was current at the time of the proposal
@@ -89,9 +92,13 @@ export default function Proposal() {
         const items = [];
         if(proposal) {
             if(proposal.invoiceReceived) {
-                items.push({label: 'Download invoice', onClick: () => {
-                    setShowInvoiceDownloadModal(true)
-                    loadEngagement();
+                items.push({label: 'View invoice', onClick: () => {
+                    // setShowInvoiceDownloadModal(true)
+                    // loadEngagement();
+                    
+                    const url = addProtocol(engagement.invoiceUrl);
+                    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                    if (newWindow) newWindow.opener = null
                 }});
             }
             if(proposal.contentReady) {
@@ -120,7 +127,7 @@ export default function Proposal() {
                         <div className="card grid grid-cols-3 m-4">
                             <span className='text-center font-extrabold text-lg col-span-2'>{proposal.liveLinkTitle}</span>
                             <span className='truncate'>
-                                <Link href={proposal.liveLinkUrl} className='truncate'>
+                                <Link href={addProtocol(proposal.liveLinkUrl)} className='truncate' target='_blank'>
                                     {proposal.liveLinkUrl}
                                 </Link>
                             </span>
@@ -144,9 +151,10 @@ export default function Proposal() {
                             <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
                             <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
                             <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
-                            <span>Date invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
-                            <span>Date invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
+                            <span>Invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
+                            <span>Invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
                             <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
+                            <span>Validated</span> <NiceDate isostring={proposal.dateValidated}/> 
                         </div>
                     </div>
                     {showAbortModal ?
