@@ -58,11 +58,11 @@ spec:
               value: slinkylinky.uk
             - name: slinkylinky_vhost
               value: slinkylinky
-            - name: "mail_declineEmailRecipientName"
-              value: "James"
-            - name: "mail_declined_warning_addresses"
-              value: "rdomloge@gmail.com,james.p@frontpageadvantage.com"
-            - name: "spring_mail_testing"
+            - name: mail_declineEmailRecipientName
+              value: James
+            - name: mail_declined_warning_addresses
+              value: rdomloge@gmail.com,james.p@frontpageadvantage.com
+            - name: spring_mail_testing
               value: "true"
           startupProbe:
             httpGet:
