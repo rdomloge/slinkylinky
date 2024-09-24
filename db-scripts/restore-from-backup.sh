@@ -6,10 +6,10 @@
 ## THE DATABASES MUST ALREADY EXIST AND BE OWNED BY SLINKYLINKY
 
 docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v C:/Users/domloger/Downloads/temp:/backup -ti postgres \
--f backup/2024-09-09_1000-backup.sql -h host.docker.internal -U slinkylinky postgres
+-f backup/2024-09-17_1200-backup.sql -h host.docker.internal -U slinkylinky postgres
 
 docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v C:/Users/domloger/repos/chris/linkservice/db-scripts:/backup -ti postgres \
--f backup/v5.0-sql-changes-linksvc.sql -h host.docker.internal -U slinkylinky slinkylinky
+-f backup/v5.1-sql-changes-linksvc.sql -h host.docker.internal -U slinkylinky slinkylinky
 
 docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v C:/Users/domloger/repos/chris/linkservice/db-scripts:/backup -ti postgres \
--f backup/v5.0-sql-changes-woo.sql -h host.docker.internal -U slinkylinky woo
+-f backup/v5.1-sql-changes-suppeng.sql -h host.docker.internal -U slinkylinky supplierengagement
