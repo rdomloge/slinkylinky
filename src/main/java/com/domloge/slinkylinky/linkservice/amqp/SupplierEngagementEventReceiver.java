@@ -84,15 +84,10 @@ public class SupplierEngagementEventReceiver implements ApplicationEventPublishe
             proposal.setDateAcceptedBySupplier(LocalDateTime.now());
             proposal.setProposalAccepted(true);
 
-            if(event.isInvoiceUploaded()) {
-                log.info("Invoice uploaded");
-                // set invoice received flag to true
-                proposal.setInvoiceReceived(true);
-                proposal.setDateInvoiceReceived(LocalDateTime.now());
-            }
-            else {
-                log.info("Invoice not uploaded");
-            }
+            // set invoice received flag to true
+            proposal.setInvoiceReceived(true);
+            proposal.setDateInvoiceReceived(LocalDateTime.now());
+            
             proposal.setBlogLive(true);
             proposal.setDateBlogLive(LocalDateTime.now());
             proposal.setLiveLinkTitle(event.getBlogTitle());
