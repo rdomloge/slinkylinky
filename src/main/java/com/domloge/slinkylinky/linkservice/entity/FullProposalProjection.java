@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.entity;
 
 import java.time.LocalDateTime;
 
+import org.springframework.cglib.core.Local;
 import org.springframework.data.rest.core.config.Projection;
 
 @Projection(name="fullProposal", types = {Proposal.class})
@@ -30,6 +31,10 @@ public interface FullProposalProjection {
     boolean isInvoicePaid();
 
     boolean isContentReady();
+
+    boolean isValidated();
+
+    LocalDateTime getDateValidated();
 
     String getLiveLinkUrl();
 

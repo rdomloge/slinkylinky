@@ -52,6 +52,10 @@ public class Proposal {
     
     private boolean contentReady;
 
+    private LocalDateTime dateValidated;
+    @Column(columnDefinition = "boolean default false")
+    private boolean validated;
+
     private String liveLinkUrl;
     private String liveLinkTitle;
 
@@ -70,6 +74,7 @@ public class Proposal {
     @Fetch(FetchMode.SUBSELECT)
     @Audited
     private List<PaidLink> paidLinks;
+
 
 
     @Version
