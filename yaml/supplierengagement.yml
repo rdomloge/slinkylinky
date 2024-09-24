@@ -30,7 +30,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: supplierengagement
-          image: rdomloge/slinky-linky-supplierengagement:5.0
+          image: rdomloge/slinky-linky-supplierengagement:5.1
           imagePullPolicy: Always
           resources:
             requests:
@@ -58,6 +58,12 @@ spec:
               value: slinkylinky.uk
             - name: slinkylinky_vhost
               value: slinkylinky
+            - name: "mail_declineEmailRecipientName"
+              value: "James"
+            - name: "mail_declined_warning_addresses"
+              value: "rdomloge@gmail.com,james.p@frontpageadvantage.com"
+            - name: "spring_mail_testing"
+              value: "true"
           startupProbe:
             httpGet:
               path: /.rest/engagements
