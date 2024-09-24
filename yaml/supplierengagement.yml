@@ -62,6 +62,8 @@ spec:
               value: James
             - name: mail_declined_warning_addresses
               value: rdomloge@gmail.com,james.p@frontpageadvantage.com
+            - name: linkservice_baseurl
+              value: http://linkservice-service:8090/.rest
             - name: spring_mail_testing
               value: "true"
           startupProbe:
