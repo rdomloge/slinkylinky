@@ -30,7 +30,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: supplierengagement
-          image: rdomloge/slinky-linky-supplierengagement:5.1
+          image: rdomloge/slinky-linky-supplierengagement:5.2
           imagePullPolicy: Always
           resources:
             requests:
@@ -66,6 +66,8 @@ spec:
               value: http://linkservice-service:8090/.rest
             - name: spring_mail_testing
               value: "true"
+            - name: mail_bccRecipients
+              value: rdomloge@gmail.com,chris.p@frontpageadvantage.com,james.p@frontpageadvantage.com
           startupProbe:
             httpGet:
               path: /.rest/engagements
