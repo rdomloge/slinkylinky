@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import com.domloge.slinkylinky.events.ProposalUpdateEvent;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
@@ -47,6 +48,9 @@ public class EmailBuilder {
     @Value("${spring.mail.testing}")
     private boolean isTesting;
 
+    @Value("${spring.mail.bccRecipients}")
+    private String bccRecipients;
+
     
 
     
@@ -54,6 +58,9 @@ public class EmailBuilder {
         MimeMessage message = emailSender.createMimeMessage(); 
         message.setFrom(from);
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(declinedWarningEmailAddresses)); 
+        if(StringUtils.hasText(bccRecipients)) {
+            message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
+        }
         message.setSubject("Proposal declined by supplier"); 
 
         BodyPart messageBodyPart = new MimeBodyPart(); 
@@ -72,9 +79,13 @@ public class EmailBuilder {
         MimeMessage message = emailSender.createMimeMessage(); 
         message.setFrom(from);
         if(isTesting) {
+            log.warn("Sending to testing addresses ({})", testingEmailAddresses);
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(testingEmailAddresses)); 
         } else {
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail())); 
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail()));
+            if(StringUtils.hasText(bccRecipients)) {
+                message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
+            }
         }
         
         message.setSubject("SlinkyLinky request for engagement"); 
