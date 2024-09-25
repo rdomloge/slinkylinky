@@ -82,10 +82,11 @@ public class EmailBuilder {
             log.warn("Sending to testing addresses ({})", testingEmailAddresses);
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(testingEmailAddresses)); 
         } else {
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail()));
-            if(StringUtils.hasText(bccRecipients)) {
-                message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
-            }
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail()));   
+        }
+        
+        if(StringUtils.hasText(bccRecipients)) {
+            message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
         }
         
         message.setSubject("SlinkyLinky request for engagement"); 
