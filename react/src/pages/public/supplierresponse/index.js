@@ -9,14 +9,14 @@ import PageTitle from "@/components/pagetitle";
 import Loading from "@/components/Loading";
 import Jumbotron from "@/components/Jumbotron";
 import StyledCheckbox from "@/components/atoms/Checkbox";
-import { InfoMessage } from "@/components/atoms/Messages";
+import ErrorMessage, { InfoMessage } from "@/components/atoms/Messages";
 
 export default function SupplierResponse() {
 
     const router = useRouter()
 
-    const [error, setError] = useState(null)
-    const [uploadError, setUploadError] = useState(null)
+    const [guidError, setGuidError] = useState(null)
+    const [acceptError, setAcceptError] = useState(null)
     const [engagement, setEngagement] = useState()
     const [showAcceptModal, setShowAcceptModal] = useState()
     const [showDeclineModal, setShowDeclineModal] = useState()
@@ -37,7 +37,7 @@ export default function SupplierResponse() {
                 .then((e) => {
                     setEngagement(e);
                 })
-                .catch((err) => setError(err));
+                .catch((err) => setGuidError(err));
         }
     }, [router.isReady, router.query.id])
 
@@ -57,10 +57,17 @@ export default function SupplierResponse() {
             })})
             .then((res) => {
                 if(res.ok) {
+                    setShowAcceptModal(false);
                     window.location.reload();
                 }
+                else {
+                    throw Error("Accept failed (duplicate live URL or invoice URL?)")   
+                }
             })
-            .catch((err) => console.error(err))
+            .catch((err) => {
+                console.error(err)
+                setAcceptError(err);
+            })
     }
 
     function handleDecline() {
@@ -83,11 +90,6 @@ export default function SupplierResponse() {
         .catch((err) => console.error(err))
     }
 
-
-    function submit() {
-        handleAccept();
-        setShowAcceptModal(false);
-    }
 
     return (
         <>
@@ -131,10 +133,17 @@ export default function SupplierResponse() {
                                     
                                     <div className="inline-block flex">
                                         <div className="flex-1 flex justify-end">
-                                            <StyledButton type="secondary" label="Accept" submitHandler={submit} 
+                                            <StyledButton type="secondary" label="Accept" submitHandler={handleAccept} 
                                                 enabled={blogTitle.length > 0 && blogUrl.length > 0 && invoiceUrl.length > 0} />
                                         </div>
                                     </div>
+                                    {acceptError ? 
+                                        <div className="mt-4">
+                                            <ErrorMessage message={"Server error. Duplicate weblog URL or invoice URL?"} />
+                                        </div>
+                                    :
+                                        null
+                                    }
                                 </Modal>
                                 :
                                 null
@@ -169,7 +178,7 @@ export default function SupplierResponse() {
                 </LayoutPublic>
                 :
                 <>
-                    {error ?
+                    {guidError ?
                         <p className="text-8xl font-black p-8">404 - page not found</p>
                         :
                         <Loading />
