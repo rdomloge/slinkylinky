@@ -57,11 +57,6 @@ public class Sync {
     @Autowired
     private LinkServiceUpdater linkServiceUpdater;
 
-    @Autowired
-    private SupplierUpChecker supplierUpChecker;
-
-    private LinkedList<String> downDomains = new LinkedList<>();
-
     
     public Sync(RestTemplate rest) {
         this.rest = rest;
@@ -71,7 +66,6 @@ public class Sync {
     @Scheduled(cron = "0 0 3 * * *")
     public void syncAllSuppliers() {
         log.info("Syncing");
-        downDomains.clear();
 
         int page = 0;
 
@@ -82,11 +76,6 @@ public class Sync {
         }
         catch(TransientSyncException e) {
             log.error("Too many requests to Moz - backing off");
-        }
-
-        log.info("List of down domains");
-        for(String domain : downDomains) {
-            log.info("{}", domain);
         }
 
         log.info("Syncing complete");
@@ -118,15 +107,6 @@ public class Sync {
             log.info("||{}{}{}||", " ".repeat(padding), supplier.getDomain(), " ".repeat(padding));
             // log.info("||   Syncing supplier {}  ||", supplier.getDomain());
             log.info("=================================================================");
-
-            boolean supplierUp = supplierUpChecker.isSupplierUp(supplier);
-            if(!supplierUp) {
-                log.error("Supplier {} is down", supplier.getDomain());
-                downDomains.add(supplier.getDomain());
-            }
-            else {
-                log.debug("Supplier {} is up", supplier.getDomain());
-            }
 
             log.debug("[[[ Synching traffic for {} ]]]", supplier.getDomain());
             syncSupplier(supplier, trafficRepo, semrush::forMonth, 12);
