@@ -21,7 +21,7 @@ export function NiceDateTime({isostring}) {
     }
     return (
         <>
-        <span className="align-middle">{new Date(isostring).toDateString()}</span>
+        <span className="align-middle">{new Date(isostring).toDateString()} {new Date(isostring).toLocaleTimeString()}</span>
         </>
     );
 }
