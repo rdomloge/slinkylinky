@@ -97,7 +97,7 @@ export default function Proposal() {
                     // loadEngagement();
                     
                     const url = addProtocol(engagement.invoiceUrl);
-                    const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+                    const newWindow = window.open(url, '_blank')
                     if (newWindow) newWindow.opener = null
                 }});
             }
@@ -112,7 +112,7 @@ export default function Proposal() {
     }
 
     return (
-            <Layout>
+            <Layout pagetitle='Proposal details'>
                 
                 <PageTitle id="proposal-detail-id" title="Proposal"/>
                 {proposal ?
@@ -136,7 +136,18 @@ export default function Proposal() {
                     <div className="flex">
                             {supplier ?
                                 <div className="flex-initial w-1/2" id="supplierPanel">
-                                <SupplierCard supplier={supplier} latest={null == currentSupplier} editable={false} linkable={true} />
+                                    <SupplierCard supplier={supplier} latest={null == currentSupplier} editable={false} linkable={true} />
+                                    <div className="card list-card">
+                                        <div className="grid grid-cols-2" id="metadata">
+                                            <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
+                                            <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
+                                            <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
+                                            <span>Invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
+                                            <span>Invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
+                                            <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
+                                            <span>Validated</span> <NiceDate isostring={proposal.dateValidated}/> 
+                                        </div>
+                                    </div>
                                 </div>
                             : 
                                 null
@@ -146,17 +157,7 @@ export default function Proposal() {
                             </div>
                             
                     </div>
-                    <div className="card list-card w-1/3">
-                        <div className="grid grid-cols-2" id="metadata">
-                            <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
-                            <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
-                            <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
-                            <span>Invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
-                            <span>Invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
-                            <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
-                            <span>Validated</span> <NiceDate isostring={proposal.dateValidated}/> 
-                        </div>
-                    </div>
+                    
                     {showAbortModal ?
                         <Modal title={"Abort proposal"} dismissHandler={() => setShowAbortModal(false)}>
                             <p className='text-2xl font-dark py-2'>Are you sure you want to abort this proposal?</p>
