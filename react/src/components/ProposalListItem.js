@@ -21,7 +21,7 @@ export default function ProposalListItem({proposal, originalSupplier = null}) {
                     }
                     {proposal.blogLive ?
                         <div>
-                            <Link href={proposal.liveLinkUrl}>
+                            <Link href={proposal.liveLinkUrl} rel='nofollow'>
                                 <p className='font-extrabold truncate'>
                                     {proposal.liveLinkTitle}
                                 </p>
@@ -34,7 +34,7 @@ export default function ProposalListItem({proposal, originalSupplier = null}) {
                     </div>
                 </div>
                 <div className='col-span-3 m-3'>
-                    <Link href={"/proposals/"+proposal.id} className='font-semibold text-right text-2xl'>
+                    <Link href={"/proposals/"+proposal.id} className='font-semibold text-right text-2xl' rel='nofollow'>
                         <p className='font-semibold text-right text-2xl mb-4'>View</p>
                     </Link>
                     <p className='font-semibold text-right'>Demand</p>

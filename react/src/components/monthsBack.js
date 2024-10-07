@@ -43,27 +43,27 @@ export default function MonthsBack() {
     return (
         <span className='display-block'>
             <div className={classFor(4)}>
-                <Link href="/proposals?minusMonths=4">
+                <Link href="/proposals?minusMonths=4" rel='nofollow'>
                     {months[4]}
                 </Link>
             </div>
             <div className={classFor(3)}>
-                <Link href="/proposals?minusMonths=3">
+                <Link href="/proposals?minusMonths=3" rel='nofollow'>
                     {months[3]}
                 </Link>
             </div>
             <div className={classFor(2)}>
-                <Link href="/proposals?minusMonths=2">
+                <Link href="/proposals?minusMonths=2" rel='nofollow'>
                     {months[2]}
                 </Link>
             </div>
             <div className={classFor(1)}>
-                <Link href="/proposals?minusMonths=1">
+                <Link href="/proposals?minusMonths=1" rel='nofollow'>
                     {months[1]}
                 </Link>
             </div>
             <div className={classFor(0)}>
-                <Link href="/proposals">
+                <Link href="/proposals" rel='nofollow'>
                     {months[0]}
                 </Link>
             </div>

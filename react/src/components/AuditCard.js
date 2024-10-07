@@ -19,7 +19,7 @@ export function AuditLine({auditrecord}) {
         <span><NiceDateTime isostring={auditrecord.eventTime}/></span>
         <span>{auditrecord.who} </span>
         <span>{auditrecord.what}</span>
-        <Link href={"/audit/trace?entityType="+auditrecord.entityType+"&entityId="+auditrecord.entityId}>
+        <Link href={"/audit/trace?entityType="+auditrecord.entityType+"&entityId="+auditrecord.entityId} rel="nofollow">
             <span>{auditrecord.entityId}</span>
         </Link>
         </>

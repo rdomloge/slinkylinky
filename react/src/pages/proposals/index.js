@@ -4,13 +4,9 @@ import React, {useState, useEffect} from 'react'
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/router'
 
-import Image from 'next/image'
-import Icon from '@/pages/proposals/grid.svg'
-
 import ProposalListItem from "@/components/ProposalListItem";
 import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
-import Link from "next/link";
 import MonthsBack from "@/components/monthsBack";
 import OwnerFilter from "@/components/OwnerFilter";
 import Loading from '@/components/Loading';
@@ -108,12 +104,9 @@ export default function ListProposals() {
     );
 
     return (
-        <Layout>
+        <Layout pagetitle='Proposals'>
             <PageTitle id="proposal-list-id" title="Proposals" count={proposals}/>
             <div className='block'>
-                <Link href="/tabular/This-Months-Proposals" className="inline-block mr-4">
-                    <Image src={Icon} alt="Grid view" height={13} width={13}/>
-                </Link>
                 <MonthsBack/>
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
             </div>

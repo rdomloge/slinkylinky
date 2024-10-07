@@ -55,7 +55,7 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
         <div className="card list-card" id={id}>
             <div className="float-right">
                 <SessionBlock>
-                    <Link href={"/demandsites/"+demandSite.id}>
+                    <Link href={"/demandsites/"+demandSite.id} rel="nofollow">
                         <p className='text-right'>Edit</p>
                     </Link>
                     <StyledButton isText={true} label="Delete" type="risky" extraClass="text-right" submitHandler={() => handleDeleteClicked()}/>

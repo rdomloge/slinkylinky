@@ -37,7 +37,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 null
             }
             {editable ?
-                <Link href={"/supplier/"+supplier.id}>
+                <Link href={"/supplier/"+supplier.id} rel='nofollow'>
                     <p id='supplier-editbtn-id' className='text-right float-right'>Edit</p>
                 </Link>
             :
@@ -49,11 +49,11 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 {linkable ?
                     <>
                         <Image className='col-span-1 inline-block ' src={LinkIcon} alt="link" width={20} height={20}/>
-                        <Link href={addProtocol(supplier.website)} className='col-span-11' target='_blank'>
+                        <Link href={addProtocol(supplier.website)} className='col-span-11' target='_blank' rel='nofollow'>
                             <span className='align-middle truncate'>{supplier.website}</span>
                         </Link>
                         <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
-                        <Link href={"mailto:"+supplier.email} className='col-span-11'>
+                        <Link href={"mailto:"+supplier.email} className='col-span-11' rel='nofollow'>
                             <span id='supplier-email' className='align-middle truncate'>{supplier.email}</span>
                         </Link>
                     </>

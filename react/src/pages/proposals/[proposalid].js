@@ -127,7 +127,7 @@ export default function Proposal() {
                         <div className="card grid grid-cols-3 m-4">
                             <span className='text-center font-extrabold text-lg col-span-2'>{proposal.liveLinkTitle}</span>
                             <span className='truncate'>
-                                <Link href={addProtocol(proposal.liveLinkUrl)} className='truncate' target='_blank'>
+                                <Link href={addProtocol(proposal.liveLinkUrl)} className='truncate' target='_blank' rel='nofollow'>
                                     {proposal.liveLinkUrl}
                                 </Link>
                             </span>
@@ -177,7 +177,7 @@ export default function Proposal() {
                                 <LabeledText label="Filename" text={engagement.invoiceFileName} textClasses={"text-2xl"}/>
                                 <LabeledText label="File type" text={engagement.invoiceFileContentType} />
                                 <div className="flex justify-end pt-4">
-                                    <Link href={"/.rest/engagements/downloadInvoice?proposalId="+engagement.proposalId} target='_blank'>
+                                    <Link href={"/.rest/engagements/downloadInvoice?proposalId="+engagement.proposalId} target='_blank' rel='nofollow'>
                                         Download
                                     </Link>
                                 </div>

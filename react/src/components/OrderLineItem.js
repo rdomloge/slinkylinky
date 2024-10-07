@@ -78,7 +78,7 @@ function LineItemStep({title, date, description, linkText, linkUrl, showError = 
                 </h3>
                 <time className="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">{date}</time>
                 {linkText && linkUrl ?
-                    <p className="text-gray-500 dark:text-gray-400 truncate">{description} <Link href={linkUrl}>{linkText}</Link></p>
+                    <p className="text-gray-500 dark:text-gray-400 truncate">{description} <Link href={linkUrl} rel='nofollow'>{linkText}</Link></p>
                 :
                     <p className="text-gray-500 dark:text-gray-400 truncate">{description}</p>
                 }

@@ -1,13 +1,17 @@
-'use client'
-
 import React from 'react';
 import FooterPublic from './FooterPublic';
 import HeaderPublic from './HeaderPublic';
+import Head from 'next/head'
 
-const LayoutPublic =({children}) =>{
+const LayoutPublic =({children}, pagetitle = " ") =>{
     
     return(
         <>
+            <Head>
+                <meta name="robots" content="noindex,nofollow" />
+                <title>Slinky Linky :: {pagetitle}</title>
+            </Head>
+
             <HeaderPublic/>
             
             <div className="grid grid-cols-8 gap-2">

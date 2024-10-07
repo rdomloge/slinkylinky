@@ -47,7 +47,7 @@ export default function DemandCard({demand, fullfilable, editable, id, deleteCas
             <div className='col-span-9'>
                 <Image src={CartIcon} width={32} height={32} alt="Shopping cart icon"/>
                 <div className='text-xl my-2'>{demand.name}</div>
-                <Link href={addProtocol(demand.url)} target='_blank' className='truncate'>
+                <Link href={addProtocol(demand.url)} target='_blank' className='truncate' rel='nofollow'>
                     <Image className='inline-block mr-2' src={LinkIcon} alt="link" width={20} height={20}/>
                     <p className='inline-block align-middle truncate w-5/6'>{demand.url}</p>
                 </Link>
@@ -74,13 +74,13 @@ export default function DemandCard({demand, fullfilable, editable, id, deleteCas
             <SessionBlock>
                 <div className=''>
                     {fullfilable ?
-                    <Link href={'/supplier/search/'+demand.id}>
+                    <Link href={'/supplier/search/'+demand.id} rel='nofollow'>
                         <span className='block text-lg font-bold text-right'>Fullfil</span>
                     </Link>
                     :null}
                     {editable ?
                     <>
-                    <Link href={'/demand/'+demand.id}>
+                    <Link href={'/demand/'+demand.id} rel='nofollow'>
                         <span className='block text-right'>Edit</span>
                     </Link>
                     <div className='flex justify-end'>

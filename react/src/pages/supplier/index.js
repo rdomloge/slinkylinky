@@ -103,7 +103,7 @@ export default function ListBloggers() {
         <Layout>
             <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers ? suppliers : null}/> 
             <div className="content-center pt-2 pl-4 inline-block">
-                <Link href='/supplier/Add'>
+                <Link href='/supplier/Add' rel='nofollow'>
                     <SessionButton label="New"/>
                 </Link>
             </div>

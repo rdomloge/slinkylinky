@@ -60,10 +60,10 @@ export default function Demand() {
     }
 
     return (
-        <Layout>
+        <Layout pagetitle="Demand">
             <PageTitle id="demand-list-id" title="Demand" count={demands}/>
             <div className="inline-block content-center pl-4">
-                <Link href='/demand/Add'>
+                <Link href='/demand/Add' rel='nofollow'>
                     <SessionButton label="New"/>
                 </Link>
             </div>
