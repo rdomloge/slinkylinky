@@ -85,7 +85,7 @@ export default function ListCategories() {
 
     
     return (
-        <Layout>
+        <Layout pagetitle="Categories">
             <PageTitle id="category-list-id" title="Categories" count={categories}/>
             <StyledButton label="New" type="primary" extraClass="mb-8 align-super" submitHandler={()=>setShowNewModal(true)} enabled={session}/>
             {categories ?

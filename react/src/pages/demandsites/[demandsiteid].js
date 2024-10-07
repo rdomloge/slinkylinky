@@ -25,7 +25,7 @@ export default function DemandSite() {
         }, [router.isReady, router.query.demandsiteid]);
 
     return (
-        <Layout>
+        <Layout pagetitle="Edit demand site">
             <PageTitle title="Edit demand site" id="demandsite-detail-title-id"/>
             {demandSite ? 
                 <AddOrEditDemandSite demandSite={demandSite}/>

@@ -33,7 +33,7 @@ export default function AuditIndexPage() {
     },[router.isReady, router.query.page]);
 
     return (
-        <Layout>
+        <Layout pagetitle='Audit trail'>
             <PageTitle title="Audit" count={audits} id="audit-list-title-id"/>
             <Paging page={page} pageCount={pageCount} total={total} baseUrl={"/audit"}/>
             { !error && audits ? 

@@ -25,7 +25,7 @@ export default function EntityAuditTrail() {
     );
 
     return (
-        <Layout>
+        <Layout pagetitle='Audit trace'>
             <PageTitle title="Audit trail" id="audit-trace-title-id"/>
             <ol className="relative border-s border-gray-600 dark:border-gray-700">
                 {trail 

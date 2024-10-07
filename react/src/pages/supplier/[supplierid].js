@@ -34,7 +34,7 @@ export default function EditSupplier() {
         }, [router.isReady, router.query.supplierid]);
 
     return (
-        <Layout>
+        <Layout pagetitle="Edit supplier">
             <PageTitle id="supplier-edit-id" title="Edit supplier"/>
             {supplier ?
                 <AddOrEditSupplier supplier={supplier} 

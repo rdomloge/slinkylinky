@@ -93,7 +93,7 @@ export default function App() {
     }
 
     return (
-        <Layout>
+        <Layout pagetitle="Supplier search">
             <PageTitle id="supplier-search-id"  title="Find a matching supplier"/>
             {error || !demand ? 
                 <Loading error={error}/> 

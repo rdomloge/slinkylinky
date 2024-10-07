@@ -57,7 +57,7 @@ export default function DemandSiteList() {
     }, []);
 
     return (
-        <Layout>
+        <Layout pagetitle='Demand site list'>
             <PageTitle id="demandsite-list-id" title="Demand sites" count={demandsites ? demandsites.concat(missingCategories) : null}/>
             <p className="pl-2">{demandsites ? (missingCategories.length + " missing categories (top of page), " + demandsites.length+" categorised") : ""}</p>
             <div className="grid grid-cols-3">

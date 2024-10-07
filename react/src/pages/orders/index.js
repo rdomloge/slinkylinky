@@ -52,7 +52,7 @@ export default function ListOrders() {
     },[]);
 
     return (
-        <Layout>
+        <Layout pagetitle="Orders">
             <PageTitle title="Orders" id="order-list-title-id" />
             { !error && orders ?
                 <div className="">

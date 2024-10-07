@@ -28,7 +28,7 @@ export default function Demand() {
     )
 
     return (
-        <Layout>
+        <Layout pagetitle='Edit demand'>
             <PageTitle id="demand-edit-id" title="Edit Demand"/>
             {demand ? 
                 <AddOrEditDemand demand={demand}/>

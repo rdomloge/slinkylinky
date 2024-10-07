@@ -100,7 +100,7 @@ export default function ListBloggers() {
 
     
     return (
-        <Layout>
+        <Layout pagetitle='Supplier list'>
             <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers ? suppliers : null}/> 
             <div className="content-center pt-2 pl-4 inline-block">
                 <Link href='/supplier/Add' rel='nofollow'>

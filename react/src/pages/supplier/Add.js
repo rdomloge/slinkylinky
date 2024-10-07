@@ -39,7 +39,7 @@ export default function NewSupplier() {
     }
     
     return (
-        <Layout>
+        <Layout pagetitle="New supplier">
             <PageTitle id="supplier-add-id" title="New supplier"/>
             <StyledButton label="Bulk upload" submitHandler={()=>setShowBulkUploadModal(true)} type="secondary" extraClass="inline-block pl-4" isText={true}/>
             <div className="flex">
