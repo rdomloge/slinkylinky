@@ -56,3 +56,8 @@ GET {{host}}/suppliers/306?projection=fullSupplier
 GET {{host}}/suppliers/search/countByDisabledFalse
 ###
 GET {{host}}/suppliers/search/countByName
+###
+POST http://localhost:8080/.rest/supplierSupport/supplierresponse?proposalId=1534
+Content-Type: application/json
+
+{"supplierId": 306, "response": "ACCEPTED"}

@@ -4,13 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.data.rest.core.event.AfterCreateEvent;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
-import com.domloge.slinkylinky.linkservice.ProposalAbortHandler;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -19,20 +15,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class SupplierEngagementEventReceiver implements ApplicationEventPublisherAware {
+public class SupplierEngagementEventReceiver {
 
     @Autowired
     private ProposalRepo proposalRepo;
-
-    @Autowired
-    private ProposalAbortHandler proposalAbortHandler;
-
-    private ApplicationEventPublisher applicationEventPublisher;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -59,9 +49,6 @@ public class SupplierEngagementEventReceiver implements ApplicationEventPublishe
                 case PROPOSAL_SENT:
                     handleProposalSent(event, proposal);
                     break;
-                case RECEIVED_RESPONSE:
-                    handleSupplierResponse(event, proposal);
-                    break;
                 default:
                     break;
             }
@@ -77,32 +64,6 @@ public class SupplierEngagementEventReceiver implements ApplicationEventPublishe
         proposalRepo.save(proposal);
     }
 
-    @Transactional
-    private void handleSupplierResponse(SupplierEngagementEvent event, Proposal proposal) {
-
-        if(event.getResponse() == SupplierEngagementEvent.Response.ACCEPTED) {
-            proposal.setDateAcceptedBySupplier(LocalDateTime.now());
-            proposal.setProposalAccepted(true);
-
-            // set invoice received flag to true
-            proposal.setInvoiceReceived(true);
-            proposal.setDateInvoiceReceived(LocalDateTime.now());
-            
-            proposal.setBlogLive(true);
-            proposal.setDateBlogLive(LocalDateTime.now());
-            proposal.setLiveLinkTitle(event.getBlogTitle());
-            proposal.setLiveLinkUrl(event.getBlogUrl());
-            Proposal dbProposal = proposalRepo.save(proposal);
-            applicationEventPublisher.publishEvent(new AfterCreateEvent(dbProposal));
-        }
-        else if(event.getResponse() == SupplierEngagementEvent.Response.DECLINED) {
-            proposalAbortHandler.handle(event.getProposalId(), "supplier");        
-        }
-        else {
-            log.error("Unknown response type {}", event.getResponse());
-        }
-    }
-
     public void receiveMessage(byte[] message)  {
         try {
             receiveMessage(new String(message, "utf-8"));
@@ -112,8 +73,5 @@ public class SupplierEngagementEventReceiver implements ApplicationEventPublishe
         }
     }
 
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
+    
 }
