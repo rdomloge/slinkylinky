@@ -5,12 +5,18 @@ import java.time.LocalDateTime;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestTemplate;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
 import com.domloge.slinkylinky.supplierengagement.AuditRecord;
@@ -18,6 +24,8 @@ import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
+import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
+import com.domloge.slinkylinky.supplierengagement.email.Proposal;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
 import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
@@ -49,6 +57,17 @@ public class UploadController {
 
     @Autowired
     private ContentBuilder contentBuilder;
+    
+    private RestTemplate restTemplate;
+
+    @Value("${linkservice_baseurl}")
+    private String linkService_base;
+
+
+    public UploadController() {
+        RestTemplateBuilder builder = new RestTemplateBuilder();
+        restTemplate = builder.build();
+    }
 
 
 
@@ -111,7 +130,7 @@ public class UploadController {
     }
 
     @PatchMapping(path = "/accept", produces = "application/json")
-    public ResponseEntity<Object> update(@RequestParam("guid") String guid, @RequestBody Engagement engagement) {
+    public ResponseEntity<Object> update(@RequestParam("guid") String guid, @RequestBody Engagement engagement) throws IOException {
         Engagement dbEngagement = engagementRepo.findByGuid(guid);
         if(null == dbEngagement) {
             log.warn("Attempted blog details update for unknown engagement: " + guid);
@@ -137,7 +156,13 @@ public class UploadController {
         event.buildForAccept(dbEngagement.getBlogTitle(), 
             dbEngagement.getBlogUrl(), 
             dbEngagement.getProposalId());
-        supplierengagementRabbitTemplate.convertAndSend(event);
+        // supplierengagementRabbitTemplate.convertAndSend(event);
+        String url = linkService_base+"/supplierSupport/supplierresponse?proposalId="+dbEngagement.getProposalId();
+        ResponseEntity<Void> response = restTemplate.postForEntity(url, event, null);
+        if(response.getStatusCode().isError()) {
+            log.error("Failed to send event to linkservice: " + response.getStatusCode());
+            throw new IOException("Failed to send event to linkservice: " + response.getStatusCode()); 
+        }
 
         log.info("Engagement {} complete. Blog title: {}", dbEngagement.getId(), engagement.getBlogTitle());
 
@@ -145,3 +170,4 @@ public class UploadController {
     }
     
 }
+
