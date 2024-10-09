@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import React, {useState, useEffect} from 'react'
 import { useSession } from "next-auth/react";
@@ -16,6 +16,8 @@ export default function Demand() {
     const [demands, setDemands] = useState()
     const { data: session } = useSession();
     const [error, setError] = useState();
+    const [sortOrder, setSortOrder] = useState("requested");
+    const [sortOptions, setSortOptions] = useState([]);
 
     useEffect( () => {
 
@@ -32,7 +34,13 @@ export default function Demand() {
                 setError(error.message);
             });
 
-    }, [personal]) 
+        // Need to build in effect so that window.localStorage is available, but only run once because we don't want it to be
+        // dependent on any state changes and rebuilt every time.
+        if(sortOptions.length === 0) {
+            buildSortOptions();
+        }
+
+    }, [personal, sortOrder]); 
 
     function filterPersonalIfNeeded(data) {
         if( ! session) return data;
@@ -44,15 +52,23 @@ export default function Demand() {
         }
     }
 
-    function setSortOrder(e) {
+    function setAndStoreSortOrder(e) {
         window.localStorage.setItem("demandSortOrder", e);
+        setSortOrder(e);
     }
 
     function buildSortOptions() {
-        return [
-            {value: "requested", name: "Requested (ASC)"}, 
+        const storedSortOrder = window.localStorage.getItem("demandSortOrder");
+        
+        var options = [
+            {value: "requested", name: "Requested (ASC)"},
             {value: "daNeeded", name: "DA (DESC)"}
-        ]
+        ];
+
+        if(storedSortOrder === "daNeeded") {
+            options.reverse();
+        }
+        setSortOptions(options)
     }
 
     function demandDeleteHandler(demand) {
@@ -69,8 +85,8 @@ export default function Demand() {
             </div>
             <div className="block pt-4">
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
-                <Select label="Sort" changeHandler={ (e) => setSortOrder(e)}
-                    options={buildSortOptions()}/>
+                <Select label="Sort" changeHandler={ (e) => setAndStoreSortOrder(e)}
+                    options={sortOptions}/>
             </div>
 
             {demands ? 
