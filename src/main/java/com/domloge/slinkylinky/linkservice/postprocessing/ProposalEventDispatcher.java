@@ -27,7 +27,7 @@ public class ProposalEventDispatcher {
  
     @HandleAfterSave
     public void handleAfterSave(Proposal proposal) throws JsonProcessingException {
-        log.info("Proposal {} has been saved", proposal.getId());
+        log.info("Proposal {} has been updated", proposal.getId());
         
         doCommon(proposal, new ProposalUpdateEvent(ProposalEventType.UPDATED));
     }
