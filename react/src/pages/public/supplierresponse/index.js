@@ -44,6 +44,7 @@ export default function SupplierResponse() {
     
 
     const handleAccept = (event) => {
+        setAcceptError(null);
         const id = router.query.id;
         const response = fetch("/.rest/engagements/accept?guid="+id, {
             method: "PATCH", 
