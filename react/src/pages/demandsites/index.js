@@ -41,7 +41,7 @@ export default function DemandSiteList() {
     }
 
     useEffect(() => {
-        const demandSitesUrl = "/.rest/demandsites?projection=fullDemandSite&sort=name,asc&size=100"
+        const demandSitesUrl = "/.rest/demandsites?projection=fullDemandSite&sort=name,asc&size=200"
         fetch(demandSitesUrl)
             .then((res) => {
                 if (!res.ok) {
