@@ -39,20 +39,12 @@ public class ContentBuilder {
     @Value("${spring.mail.declineEmailRecipientName}")
     private String declineEmailRecipientName;
 
-    @Value("${linkservice_baseurl}")
-    private String linkService_base;
+    
 
     @Autowired
     private HttpUtils httpUtils;
 
-    private ObjectMapper mapper = new ObjectMapper();
-
-    public ContentBuilder() {
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
+    
 
 
     public String getContent() {
@@ -96,7 +88,7 @@ public class ContentBuilder {
     public String buildForDecline(Context ctx) throws IOException {
         Map<String, Object> templateModel = new HashMap<>();
 
-        Proposal p = loadProposalDemandDomains(ctx);
+        Proposal p = httpUtils.loadProposalDemandDomains(ctx.getDbEngagement().getProposalId());
 
         templateModel.put("recipientName", declineEmailRecipientName);
         templateModel.put("supplierName", ctx.getDbEngagement().getSupplierName());
@@ -120,14 +112,5 @@ public class ContentBuilder {
         }
     }
 
-    private Proposal loadProposalDemandDomains(Context ctx) throws IOException {
-        long proposalId = ctx.getDbEngagement().getProposalId();
-        String url = linkService_base + "/proposals/" + proposalId + "?projection=fullProposal";
-        String response = httpUtils.get(url);
-        if(null == response) {
-            log.error("Error fetching proposal {}", proposalId);
-            throw new RuntimeException("Could not find proposal " + proposalId);
-        }
-        return mapper.readValue(response, Proposal.class);
-    }
+    
 }
