@@ -11,7 +11,7 @@ export default function Layout ({children, pagetitle = " "}) {
         <>
             <Head>
                 <meta name="robots" content="noindex,nofollow" />
-                <title>Slinky Linky // {pagetitle}</title>
+                <title>{"Slinky Linky | " + pagetitle}</title>
             </Head>
             <Header/>
             
