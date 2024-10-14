@@ -55,7 +55,7 @@ spec:
             - name: mail_from
               value: <SPECIFY>
             - name: slinkylinky_domain
-              value: slinkylinky.uk
+              value: https://slinkylinky.uk
             - name: slinkylinky_vhost
               value: slinkylinky
             - name: mail_declineEmailRecipientName
