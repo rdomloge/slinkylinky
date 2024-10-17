@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk:17
+FROM azul/zulu-openjdk:21-jre
 
 EXPOSE 8080
 
