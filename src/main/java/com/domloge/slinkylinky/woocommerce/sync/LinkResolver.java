@@ -8,16 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.domloge.slinkylinky.woocommerce.dto.BillingDto;
-import com.domloge.slinkylinky.woocommerce.dto.OrderDto;
-import com.domloge.slinkylinky.woocommerce.dto.ShippingDto;
-import com.domloge.slinkylinky.woocommerce.entity.OrderEntity;
 import com.domloge.slinkylinky.woocommerce.entity.OrderLineItemEntity;
 import com.domloge.slinkylinky.woocommerce.sync.dto.Proposal;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -87,6 +81,4 @@ public class LinkResolver {
         }
         return mapper.readValue(response, Proposal.class);
     }
-
-    
 }
