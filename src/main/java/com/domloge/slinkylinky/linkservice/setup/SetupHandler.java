@@ -23,7 +23,7 @@ public class SetupHandler {
     @Autowired
     private SetupService setupService;
 
-    @PostConstruct
+    // @PostConstruct
     private void setupData() {
         setupCategories();
         setupDemandSites();
