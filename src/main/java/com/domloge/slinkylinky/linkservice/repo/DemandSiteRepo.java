@@ -17,6 +17,13 @@ public interface DemandSiteRepo extends CrudRepository <DemandSite, Long>, Pagin
 
     DemandSite[] findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase(String email, String name);
 
+    @Query( nativeQuery=true, value = "SELECT ds.* "+
+                                        "FROM demand_site ds "+
+                                        "WHERE ds.id NOT IN "+
+                                        "(SELECT demand_site_id FROM demand_site_categories) "+
+                                        "ORDER BY ds.domain ASC")
+    DemandSite[] findByMissingCategories();
+
     @Query(value="SELECT COUNT(id) FROM demand d WHERE d.demand_site_id=?1", nativeQuery=true)
     int countByDemandSiteId(long demandSiteId);
 

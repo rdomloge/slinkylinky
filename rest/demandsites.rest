@@ -6,6 +6,8 @@ GET {{host}}/demandsites/search/findByEmailContainsIgnoreCaseOrNameContainsIgnor
 ###
 GET {{host}}/demandsites/search/countByDemandSiteId?demandSiteId=307 
 ###
+GET {{host}}/demandsites/search/findByMissingCategories
+###
 PATCH {{host}}/demandsites/10
 Content-Type: application/json
 
