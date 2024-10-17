@@ -31,7 +31,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: stats
-          image: rdomloge/slinky-linky-stats:5.0.1
+          image: rdomloge/slinky-linky-stats:5.5
           imagePullPolicy: Always
           resources:
             requests:
