@@ -73,6 +73,7 @@ public class ProposalEventReceiver {
                         log.info("No existing engagement found for proposal {}, creating new one ", event.getProposalId());
                         engagement = createNewEngagement(event);
                         sendEmail(engagement, event);
+                        log.info("Engagement email sent to supplier");
                     }
                     else {
                         log.info("Found existing, '{}' engagement, no need to do anything", engagement.getStatus());

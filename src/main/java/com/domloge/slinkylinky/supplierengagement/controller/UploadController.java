@@ -6,16 +6,13 @@ import java.time.LocalDateTime;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
@@ -24,8 +21,6 @@ import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
-import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
-import com.domloge.slinkylinky.supplierengagement.email.Proposal;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
 import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
@@ -97,6 +92,7 @@ public class UploadController {
 
         // Email Front Page Advantage to warn of decline - must happen before aborting proposal or email sending fails due to missing proposal
         sendDeclineWarningEmail(dbEngagement);
+        log.info("Decline warning email sent");
 
         // publish event to cause linkservice to abort proposal
         SupplierEngagementEvent event = new SupplierEngagementEvent();

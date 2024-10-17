@@ -57,7 +57,8 @@ public class EmailBuilder {
     public MimeMessage buildSupplierDeclinedContext(Engagement engagement, String content) throws AddressException, MessagingException {
         MimeMessage message = emailSender.createMimeMessage(); 
         message.setFrom(from);
-        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(declinedWarningEmailAddresses)); 
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(declinedWarningEmailAddresses));
+        log.info("Sending to declined warning addresses ({})", declinedWarningEmailAddresses);
         if(StringUtils.hasText(bccRecipients)) {
             message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
         }
@@ -82,7 +83,8 @@ public class EmailBuilder {
             log.warn("Sending to testing addresses ({})", testingEmailAddresses);
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(testingEmailAddresses)); 
         } else {
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail()));   
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(event.getSupplierEmail()));
+            log.info("Sending to supplier email ({})", event.getSupplierEmail());
         }
         
         if(StringUtils.hasText(bccRecipients)) {
