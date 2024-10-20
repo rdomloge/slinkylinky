@@ -126,14 +126,14 @@ public class ProposalEventReceiver {
             ctx.setEvent(event);
             ctx.setDbEngagement(engagement);
             String content = contentBuilder.buildForSupplierEngagement(ctx);
-            MimeMessage mimeMessage = emailBuilder.buildSupplierEngagementContext(event, content);
+            MimeMessage mimeMessage = emailBuilder.buildSupplierEngagementMessage(event, content);
             emailSender.send(mimeMessage, event.getProposalId());
 
             AuditRecord auditRecord = new AuditRecord();
             auditRecord.setEntityId(event.getProposalId());
             auditRecord.setEntityType("Proposal");
             auditRecord.setEventTime(java.time.LocalDateTime.now());
-            auditRecord.setWho("system");
+            auditRecord.setWho("supplier-engagement-bot");
             auditRecord.setWhat("Email sent to supplier");
             auditRecord.setDetail(content);
             auditRabbitTemplate.convertAndSend(auditRecord);
