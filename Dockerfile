@@ -1,13 +1,17 @@
-FROM --platform=$BUILDPLATFORM node:alpine as adminsite_base
+FROM --platform=$BUILDPLATFORM node:22 as adminsite_base
 
 WORKDIR /adminwebsite
 
-COPY react .
+# Copy the entire project, ignoring node_modules (which is specified in .dockerignore)
+COPY react/package.json .
+COPY react/package-lock.json .
+# Install dependencies
 RUN npm ci
 
 FROM --platform=$BUILDPLATFORM adminsite_base as adminsite_build
+COPY react .
+# Build the project
 RUN npm run build
-
 
 
 

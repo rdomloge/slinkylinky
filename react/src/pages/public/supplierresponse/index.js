@@ -96,7 +96,7 @@ export default function SupplierResponse() {
         <>
             {engagement ?
                 <LayoutPublic pagetitle="Proposal Response">
-                    {engagement.status === 'ACCEPTED' || engagement.status === 'DECLINED' ?
+                    {engagement.status != 'NEW' ?
                         <Jumbotron header={"Many thanks for submitting your response."} message={engagement.status === 'DECLINED' ? "Sorry to see you go" : "We'll be in touch soon!"}/>
                     :
                     <div className="flex justify-center items-center">
