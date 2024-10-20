@@ -97,7 +97,13 @@ public class UploadController {
         // publish event to cause linkservice to abort proposal
         SupplierEngagementEvent event = new SupplierEngagementEvent();
         event.buildForDecline(dbEngagement.getProposalId(), engagement.getDeclinedReason(), engagement.isDoNotContact());
-        supplierengagementRabbitTemplate.convertAndSend(event);
+        // supplierengagementRabbitTemplate.convertAndSend(event);
+        String url = linkService_base+"/supplierSupport/supplierresponse?proposalId="+dbEngagement.getProposalId();
+        ResponseEntity<Void> response = restTemplate.postForEntity(url, event, null);
+        if(response.getStatusCode().isError()) {
+            log.error("Failed to send event to linkservice: " + response.getStatusCode());
+            throw new IOException("Failed to send event to linkservice: " + response.getStatusCode()); 
+        }
 
         return ResponseEntity.ok().build();
     }
@@ -108,7 +114,7 @@ public class UploadController {
             Context ctx = new Context();
             ctx.setDbEngagement(engagement);
             String content = contentBuilder.buildForDecline(ctx);
-            MimeMessage mimeMessage = emailBuilder.buildSupplierDeclinedContext(engagement, content);
+            MimeMessage mimeMessage = emailBuilder.buildSupplierDeclinedMessage(engagement, content);
             emailSender.send(mimeMessage, engagement.getProposalId());
 
             AuditRecord auditRecord = new AuditRecord();
