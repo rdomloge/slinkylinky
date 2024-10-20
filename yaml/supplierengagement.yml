@@ -68,6 +68,8 @@ spec:
               value: "true"
             - name: mail_bccRecipients
               value: rdomloge@gmail.com,chris.p@frontpageadvantage.com,james.p@frontpageadvantage.com
+            - name: mail_expiredWarningAddresses
+              value: james.p@frontpageadvantage.com,rdomloge@gmail.com
           startupProbe:
             httpGet:
               path: /.rest/engagements
