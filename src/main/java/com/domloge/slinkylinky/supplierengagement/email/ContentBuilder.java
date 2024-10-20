@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.supplierengagement.email;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,11 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -88,7 +85,7 @@ public class ContentBuilder {
     public String buildForDecline(Context ctx) throws IOException {
         Map<String, Object> templateModel = new HashMap<>();
 
-        Proposal p = httpUtils.loadProposalDemandDomains(ctx.getDbEngagement().getProposalId());
+        Proposal p = httpUtils.loadProposal(ctx.getDbEngagement().getProposalId());
 
         templateModel.put("recipientName", declineEmailRecipientName);
         templateModel.put("supplierName", ctx.getDbEngagement().getSupplierName());
@@ -105,6 +102,32 @@ public class ContentBuilder {
 
         try {
             return buildUsingFreemarkerTemplate(templateModel, "supplier-declined.ftl");
+        } 
+        catch (MessagingException | IOException | TemplateException e) {
+            log.error("Error building email content from FreeMarker", e);
+            return "Error building email content from FreeMarker";
+        }
+    }
+
+    public String buildEngagementExpiredContent(Engagement engagement, Proposal proposal) throws IOException {
+        Map<String, Object> templateModel = new HashMap<>();
+
+        templateModel.put("recipientName", declineEmailRecipientName);
+        templateModel.put("supplierName", engagement.getSupplierName());
+        templateModel.put("supplierDomain", engagement.getSupplierWebsite());
+        templateModel.put("proposalId", ""+engagement.getProposalId());
+        templateModel.put("sentDate", engagement.getSupplierEmailSent().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+        templateModel.put("deadlineDate", "48hrs later");
+        templateModel.put("demand1Domain", proposal.getPaidLinks().get(0).getDemand().getDomain());
+        if(proposal.getPaidLinks().size() > 1) {
+            templateModel.put("demand2Domain", proposal.getPaidLinks().get(1).getDemand().getDomain());
+        }   
+        if(proposal.getPaidLinks().size() > 2) {
+            templateModel.put("demand3Domain", proposal.getPaidLinks().get(2).getDemand().getDomain());
+        }   
+
+        try {
+            return buildUsingFreemarkerTemplate(templateModel, "expired.ftl");
         } 
         catch (MessagingException | IOException | TemplateException e) {
             log.error("Error building email content from FreeMarker", e);

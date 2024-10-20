@@ -42,6 +42,9 @@ public class EmailBuilder {
     @Value("${spring.mail.declinedWarning.addresses}")
     private String declinedWarningEmailAddresses;
 
+    @Value("${spring.mail.expiredWarning.addresses}")
+    private String expiredWarningEmailAddresses;
+
     @Value("${spring.mail.from}")
     private String from;
 
@@ -52,9 +55,30 @@ public class EmailBuilder {
     private String bccRecipients;
 
     
+    public MimeMessage buildEngagementExpiredMessage(Engagement engagement, String content) throws AddressException, MessagingException {
+        MimeMessage message = emailSender.createMimeMessage(); 
+        message.setFrom(from);
+        message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(expiredWarningEmailAddresses));
+        log.info("Sending to declined warning addresses ({})", expiredWarningEmailAddresses);
+        if(StringUtils.hasText(bccRecipients)) {
+            message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
+        }
+        message.setSubject("Supplier engagement expired"); 
+
+        BodyPart messageBodyPart = new MimeBodyPart(); 
+        messageBodyPart.setContent(content, "text/html; charset=utf-8");
+
+        Multipart multipart = new MimeMultipart("related"); 
+        multipart.addBodyPart(messageBodyPart);
+        multipart.addBodyPart(buildLogoBodyPart());
+
+        message.setContent(multipart); 
+
+        return message;
+    }
 
     
-    public MimeMessage buildSupplierDeclinedContext(Engagement engagement, String content) throws AddressException, MessagingException {
+    public MimeMessage buildSupplierDeclinedMessage(Engagement engagement, String content) throws AddressException, MessagingException {
         MimeMessage message = emailSender.createMimeMessage(); 
         message.setFrom(from);
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(declinedWarningEmailAddresses));
@@ -76,7 +100,7 @@ public class EmailBuilder {
         return message;
     }
 
-    public MimeMessage buildSupplierEngagementContext(ProposalUpdateEvent event, String content) throws AddressException, MessagingException {
+    public MimeMessage buildSupplierEngagementMessage(ProposalUpdateEvent event, String content) throws AddressException, MessagingException {
         MimeMessage message = emailSender.createMimeMessage(); 
         message.setFrom(from);
         if(isTesting) {
