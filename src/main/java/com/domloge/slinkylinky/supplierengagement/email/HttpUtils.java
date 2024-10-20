@@ -2,17 +2,14 @@ package com.domloge.slinkylinky.supplierengagement.email;
 
 import java.io.IOException;
 
+import org.apache.hc.client5.http.classic.methods.HttpDelete;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +37,18 @@ public class HttpUtils {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    public void abortProposal(long proposalId) throws IOException {
+        String url = linkService_base + "/proposalsupport/abort?proposalId=" + proposalId;
+        HttpDelete delete = new HttpDelete(url);
+        delete.setHeader("user", "supplier-engagement-bot");
+        try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+            try (CloseableHttpResponse response = httpclient.execute(delete)) {
+                if(response.getCode() != 200) {
+                    throw new IOException("Failed to abort proposal " + proposalId + " - " + response.getCode());
+                }
+            }
+        } 
+    }
     
     public String get(String url) throws IOException {
         String resultContent = null;
@@ -67,12 +76,12 @@ public class HttpUtils {
         return resultContent;
     }
 
-    public Proposal loadProposalDemandDomains(long proposalId) throws IOException {
+    public Proposal loadProposal(long proposalId) throws IOException {
         String url = linkService_base + "/proposals/" + proposalId + "?projection=fullProposal";
         String response = get(url);
         if(null == response) {
-            log.error("Error fetching proposal {}", proposalId);
-            throw new RuntimeException("Could not find proposal " + proposalId);
+            log.error("Proposal {} not found (404)", proposalId);
+            return null;
         }
         return mapper.readValue(response, Proposal.class);
     }
