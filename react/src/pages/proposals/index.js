@@ -10,6 +10,7 @@ import PageTitle from "@/components/pagetitle";
 import MonthsBack from "@/components/monthsBack";
 import OwnerFilter from "@/components/OwnerFilter";
 import Loading from '@/components/Loading';
+import Divider from '@/components/divider';
 
 export default function ListProposals() {
     const router = useRouter()
@@ -17,6 +18,10 @@ export default function ListProposals() {
     const [proposals, setProposals] = useState()
     const [personal, setPersonal] = useState()
     const [error, setError] = useState()
+
+    const [completeProposals, setCompleteProposals] = useState();
+    const [waitingForSupplier, setWaitingForSupplier] = useState();
+    const [waitingForAdmin, setWaitingForAdmin] = useState();
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
@@ -80,6 +85,27 @@ export default function ListProposals() {
         return forMe;
     }
 
+    // filter proposals into 3 buckets for presentation
+    function filterProposals(data) {
+
+        const [waitingForSupplier, waitingForAdmin, complete] = data.reduce( (acc, p) => {
+            const third = p.paidLinks[0].supplier.thirdParty;
+            if( (!p.proposalAccepted && p.proposalSent && !third) || (third && !p.blogLive)) {
+                acc[0].push(p)
+            }
+            else if(p.validated && (p.invoicePaid || third)) {
+                acc[2].push(p)
+            }
+            else {
+                acc[1].push(p)
+            }
+            return acc;
+        }, [[],[],[]])
+        setCompleteProposals(complete)
+        setWaitingForSupplier(waitingForSupplier)
+        setWaitingForAdmin(waitingForAdmin)
+    }
+
     useEffect(
         () => {
             if(router.isReady) {
@@ -95,8 +121,9 @@ export default function ListProposals() {
                     })
                     .then( (data) => {
 
-                        setProposals(filterForThisUser(data))}
-                    )
+                        setProposals(filterForThisUser(data));
+                        filterProposals(data);
+                    })
                     .catch( (error) => setError(error.message));
             }
             
@@ -110,9 +137,42 @@ export default function ListProposals() {
                 <MonthsBack/>
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
             </div>
-            {proposals ?
+            
+            <Divider text={"Waiting for us"} size='text-3xl'/>
+
+            {waitingForAdmin ?
                 <ul>
-                {proposals.map( (p) => 
+                {waitingForAdmin.map( (p) => 
+                    <li className="m-2" key={p.id}>
+                        <ProposalListItem proposal={p}/>
+                    </li>
+                )}
+                </ul>
+            : 
+                <Loading error={error}/>
+            }
+            
+            
+            <Divider text={"Waiting for them"} size='text-3xl'/>
+
+            {waitingForSupplier ?
+                <ul>
+                {waitingForSupplier.map( (p) => 
+                    <li className="m-2" key={p.id}>
+                        <ProposalListItem proposal={p}/>
+                    </li>
+                )}
+                </ul>
+            : 
+                <Loading error={error}/>
+            }
+            
+            
+            <Divider text={"Complete"} size='text-3xl'/>
+
+            {completeProposals ?
+                <ul>
+                {completeProposals.map( (p) => 
                     <li className="m-2" key={p.id}>
                         <ProposalListItem proposal={p}/>
                     </li>
