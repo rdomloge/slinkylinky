@@ -160,5 +160,5 @@ spec:
     app: keycloak
   ports:
     - protocol: TCP
-      port: 8080
+      port: 8100
       targetPort: 8080
