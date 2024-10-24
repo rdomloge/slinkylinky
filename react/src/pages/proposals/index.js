@@ -11,17 +11,16 @@ import MonthsBack from "@/components/monthsBack";
 import OwnerFilter from "@/components/OwnerFilter";
 import Loading from '@/components/Loading';
 import Divider from '@/components/divider';
+import Link from 'next/link';
 
 export default function ListProposals() {
     const router = useRouter()
-    const { data: session } = useSession();
     const [proposals, setProposals] = useState()
-    const [personal, setPersonal] = useState()
     const [error, setError] = useState()
 
-    const [completeProposals, setCompleteProposals] = useState();
-    const [waitingForSupplier, setWaitingForSupplier] = useState();
-    const [waitingForAdmin, setWaitingForAdmin] = useState();
+    const [completeProposals, setCompleteProposals] = useState([]);
+    const [waitingForSupplier, setWaitingForSupplier] = useState([]);
+    const [waitingForAdmin, setWaitingForAdmin] = useState([]);
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
@@ -65,26 +64,6 @@ export default function ListProposals() {
         return proposalsUrl;
     }
     
-    
-    function filterForThisUser(data) {
-        if(personal) {
-            const filteredProposals = data.filter( (p) => {
-                return paidLinksContainsDemandForMe(p.paidLinks)
-            })
-            return filteredProposals
-        }
-        else {
-            return data
-        }
-    }
-
-    function paidLinksContainsDemandForMe(paidLinks) {
-        if( ! session) return true;
-        var forMe = false;
-        paidLinks.forEach( pl => {if(pl.demand.createdBy === session.user.email) forMe = true});
-        return forMe;
-    }
-
     // filter proposals into 3 buckets for presentation
     function filterProposals(data) {
 
@@ -120,14 +99,12 @@ export default function ListProposals() {
                         return res.json()
                     })
                     .then( (data) => {
-
-                        setProposals(filterForThisUser(data));
                         filterProposals(data);
                     })
                     .catch( (error) => setError(error.message));
             }
             
-        }, [router.isReady, router.query.minusMonths, personal]
+        }, [router.isReady, router.query.minusMonths]
     );
 
     return (
@@ -135,10 +112,14 @@ export default function ListProposals() {
             <PageTitle id="proposal-list-id" title="Proposals" count={proposals}/>
             <div className='block'>
                 <MonthsBack/>
-                <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
             </div>
+            <nav className='sticky top-0 border-b-2 bg-white pb-4 ps-1'>
+                <Link href={"#waiting-for-us"}>{waitingForAdmin.length + " needing attention, "} </Link>
+                <Link href={"#waiting-for-them"}>{waitingForSupplier.length + " need chasing, "} </Link>
+                <Link href={"#complete-proposals"}>{completeProposals.length + " complete"} </Link>
+            </nav>
             
-            <Divider text={"Waiting for us"} size='text-3xl'/>
+            <Divider text={"Waiting for us"} size='text-3xl' id='waiting-for-us'/>
 
             {waitingForAdmin ?
                 <ul>
@@ -153,7 +134,7 @@ export default function ListProposals() {
             }
             
             
-            <Divider text={"Waiting for them"} size='text-3xl'/>
+            <Divider text={"Waiting for them"} size='text-3xl' id='waiting-for-them'/>
 
             {waitingForSupplier ?
                 <ul>
@@ -168,7 +149,7 @@ export default function ListProposals() {
             }
             
             
-            <Divider text={"Complete"} size='text-3xl'/>
+            <Divider text={"Complete"} size='text-3xl' id='complete-proposals'/>
 
             {completeProposals ?
                 <ul>
