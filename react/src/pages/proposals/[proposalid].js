@@ -16,6 +16,10 @@ import { useSession } from 'next-auth/react'
 import DotMenu from '@/components/atoms/DotMenu'
 import LabeledText from '@/components/atoms/LabeledText'
 import { addProtocol } from '@/components/Util'
+import Image from "next/image";
+import Timer from "@/pages/proposals/timer.svg";
+import DoNotExpire from "@/pages/proposals/expired.svg";
+
 
 export default function Proposal() {
     const router = useRouter()
@@ -88,6 +92,19 @@ export default function Proposal() {
             });
     }
 
+    function setDoNotExpire() {
+        const url = "/.rest/proposals/"+router.query.proposalid;
+        const payload  = {doNotExpire: true, updatedBy: session.user.email};
+        fetch(url, {method: 'PATCH', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'}})
+            .then( (res) => {
+                if(res.ok) {
+                    setProposal({...proposal, doNotExpire: true});
+                }
+            })
+            .catch( (err) => setError(err.message));
+    }
+
+
     function createMenuItems() {
         const items = [];
         if(proposal) {
@@ -106,6 +123,9 @@ export default function Proposal() {
                     setShowPreviewModal(true);
                 }});
             }
+            if( ! proposal.doNotExpire) {
+                items.push({label: 'Do not expire', onClick: () => setDoNotExpire()});
+            }
             items.push({label: 'Abort', onClick: () => setShowAbortModal(true)});
         }
         return items;
@@ -115,11 +135,20 @@ export default function Proposal() {
             <Layout pagetitle='Proposal details'>
                 
                 <PageTitle id="proposal-detail-id" title="Proposal"/>
+                
                 {proposal ?
                     <>
-                    <div><NiceDate isostring={proposal.dateCreated}/></div>
-                    <div className="float-right p-2 m-2">
-                        
+                    <div>
+                        {proposal.doNotExpire ?
+                            <div className="float-left mt-1 mr-1">
+                                <Image src={DoNotExpire} alt="Do not expire" width={22} height={22} className="" ho/>
+                            </div>
+                            :
+                            <div className="float-left mt-1 mr-1">
+                                <Image src={Timer} alt="Expires" width={22} height={22} className="" />
+                            </div>
+                        }
+                        <NiceDate isostring={proposal.dateCreated}/>
                     </div>
                     <DotMenu items={createMenuItems()} classNames="float-left mt-6"/>
                     <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
