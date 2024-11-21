@@ -72,7 +72,7 @@ spec:
               value: james.p@frontpageadvantage.com,rdomloge@gmail.com
           startupProbe:
             httpGet:
-              path: /.rest/engagements
+              path: /.rest/profile
               port: 8080
             initialDelaySeconds: 60
             failureThreshold: 30
