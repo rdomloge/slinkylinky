@@ -46,7 +46,7 @@ GET {{host}}/proposals/611/paidLinks?projection=fullProposal
 ###
 GET {{host}}/paidlinks/826/demand
 ###
-GET {{host}}/proposals/653?projection=fullProposal
+GET {{host}}/proposals/611?projection=fullProposal
 ###
 GET {{host}}/proposals/653?projection=fullProposal
 ###
@@ -54,3 +54,12 @@ GET {{host}}/proposalsupport/getProposalsWithOriginalSuppliers?startDate=2024-02
 ###
 DELETE {{host}}/proposalsupport/abort?proposalId=1
 user: ernie@disney.com
+###
+PATCH {{host}}/proposals/1759
+Content-Type: application/json
+
+{
+  "doNotExpire": false,
+  "updatedBy": "Mickey Mouse"
+}
+###

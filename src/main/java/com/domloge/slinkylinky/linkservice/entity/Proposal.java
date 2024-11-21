@@ -75,6 +75,9 @@ public class Proposal {
     @Audited
     private List<PaidLink> paidLinks;
 
+    @Column(columnDefinition = "boolean default false")
+    private boolean doNotExpire;
+
 
 
     @Version
