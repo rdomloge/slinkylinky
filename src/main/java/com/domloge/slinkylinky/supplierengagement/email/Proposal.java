@@ -44,6 +44,8 @@ public class Proposal {
 
     private List<PaidLink> paidLinks;
 
+    private boolean doNotExpire;
+
 
     private Long version;
 }

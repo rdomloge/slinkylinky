@@ -75,6 +75,10 @@ public class ProposalAutoCanceller  {
                     log.error("Proposal {} not found - engagement {} refers to a missing proposal", engagement.getProposalId(), engagement.getId());	
                     continue;
                 }
+                if(p.isDoNotExpire()) {
+                    log.info("Proposal {} is marked as do not expire - skipping", engagement.getProposalId());
+                    continue;
+                }
                 if(p.isProposalAccepted() || p.isBlogLive() ||  p.isInvoiceReceived() || p.isInvoicePaid()) {
                     log.info("Proposal {} is in invalid state - cannot cancel (a:{} l:{} ir:{} ip:{})", p.getId(), p.isProposalAccepted(), p.isBlogLive(), p.isInvoiceReceived(), p.isInvoicePaid());
                     continue;
