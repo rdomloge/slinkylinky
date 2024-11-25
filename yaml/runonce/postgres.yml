@@ -30,7 +30,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: postgres
-          image: postgres
+          image: postgres:16.6
           imagePullPolicy: Always
           volumeMounts: 
             - name: sl-postgres-data
