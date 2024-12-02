@@ -2,20 +2,22 @@ import React from 'react';
 import FooterPublic from './FooterPublic';
 import HeaderPublic from './HeaderPublic';
 import Head from 'next/head'
+import ReactGA from 'react-ga4';
 
 const LayoutPublic =({children, pagetitle = " "}) =>{
+
+    const TRACKING_ID = "G-4K0WX1L508"; // your Measurement ID
+    ReactGA.initialize(TRACKING_ID);
+
+    useEffect(() => {
+        ReactGA.initialize(TRACKING_ID);
+        // Send pageview with a custom path
+        ReactGA.send({ hitType: "pageview", page: "/", title: "Public landing page" });
+    }, [])
     
     return(
         <>
             <Head>
-                <script async src="https://www.googletagmanager.com/gtag/js?id=G-4K0WX1L508"></script>
-                <script>
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments)}
-                    gtag('js', new Date());
-
-                    gtag('config', 'G-4K0WX1L508');
-                </script>
                 <meta name="robots" content="noindex,nofollow" />
                 <title>{"Slinky Linky | " + pagetitle}</title>
             </Head>
