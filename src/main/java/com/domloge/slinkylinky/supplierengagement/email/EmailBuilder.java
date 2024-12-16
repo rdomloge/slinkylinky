@@ -63,7 +63,7 @@ public class EmailBuilder {
         if(StringUtils.hasText(bccRecipients)) {
             message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
         }
-        message.setSubject("Supplier engagement expired"); 
+        message.setSubject("Supplier engagement "+engagement.getProposalId()+" expired"); 
 
         BodyPart messageBodyPart = new MimeBodyPart(); 
         messageBodyPart.setContent(content, "text/html; charset=utf-8");
@@ -86,7 +86,7 @@ public class EmailBuilder {
         if(StringUtils.hasText(bccRecipients)) {
             message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
         }
-        message.setSubject("Proposal declined by supplier"); 
+        message.setSubject("Proposal "+engagement.getProposalId()+" declined by supplier"); 
 
         BodyPart messageBodyPart = new MimeBodyPart(); 
         messageBodyPart.setContent(content, "text/html; charset=utf-8");
@@ -115,7 +115,7 @@ public class EmailBuilder {
             message.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
         }
         
-        message.setSubject("SlinkyLinky request for engagement"); 
+        message.setSubject("SlinkyLinky request for engagement (#"+event.getProposalId()+")"); 
 
         BodyPart messageBodyPart = new MimeBodyPart(); 
         messageBodyPart.setContent(content, "text/html; charset=utf-8");
