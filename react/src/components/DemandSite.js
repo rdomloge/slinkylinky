@@ -46,6 +46,10 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
         });
     }
 
+    function handleHistoryClicked() {
+        window.location.href = '/demandsites/history?domain='+demandSite.domain;
+    }
+
     function doDelete() {
         deleteHandler(demandSite)
         setShowDeleteModal(false);
@@ -59,6 +63,7 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
                         <p className='text-right'>Edit</p>
                     </Link>
                     <StyledButton isText={true} label="Delete" type="risky" extraClass="text-right" submitHandler={() => handleDeleteClicked()}/>
+                    <StyledButton isText={true} label="History" type="tertiary" extraClass="text-right block" submitHandler={() => handleHistoryClicked()}/>
                 </SessionBlock>
             </div>
             <p className="text-lg">{demandSite.name}</p>

@@ -1,6 +1,6 @@
 import Router from 'next/router';
 
-export default function Paging({ total, page, pageCount, baseUrl }) {
+export default function Paging({ total, page, pageCount, baseUrl, baseQuery = {} }) {
     
     const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
 
@@ -40,7 +40,8 @@ export default function Paging({ total, page, pageCount, baseUrl }) {
         return pageNumbers;
     }
 
-    function setUrl(path, query) {
+    function setUrl(path, xtraquery) {
+        let query = {...baseQuery, ...xtraquery}
         Router.push({
             pathname: path,
             query: query
