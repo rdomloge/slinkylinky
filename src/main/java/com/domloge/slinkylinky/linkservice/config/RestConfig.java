@@ -13,6 +13,10 @@ import com.domloge.slinkylinky.linkservice.entity.FullDemandsSiteProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullPaidLinkProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullProposalProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullSupplierProjection;
+import com.domloge.slinkylinky.linkservice.entity.LiteDemandProjection;
+import com.domloge.slinkylinky.linkservice.entity.LitePaidLinkProjection;
+import com.domloge.slinkylinky.linkservice.entity.LiteProposalProjection;
+import com.domloge.slinkylinky.linkservice.entity.LiteSupplierProjection;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
@@ -24,12 +28,17 @@ public class RestConfig implements RepositoryRestConfigurer {
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
         
-        config.getProjectionConfiguration()
-            .addProjection(FullProposalProjection.class)
-            .addProjection(FullPaidLinkProjection.class)
-            .addProjection(FullSupplierProjection.class)
-            .addProjection(FullDemandProjection.class)
-            .addProjection(FullCategoryProjection.class);
+        // This isn't needed as long as the projection interfaces are in the same package as the entities
+        // config.getProjectionConfiguration()
+        //     .addProjection(FullProposalProjection.class)
+        //     .addProjection(FullPaidLinkProjection.class)
+        //     .addProjection(FullSupplierProjection.class)
+        //     .addProjection(FullDemandProjection.class)
+        //     .addProjection(FullCategoryProjection.class)
+        //     .addProjection(FullDemandsSiteProjection.class)
+        //     .addProjection(LitePaidLinkProjection.class)
+        //     .addProjection(LiteDemandProjection.class)
+        //     .addProjection(LiteDemandProjection.class);
         
         config.exposeIdsFor(
           Demand.class, 
@@ -43,6 +52,11 @@ public class RestConfig implements RepositoryRestConfigurer {
           FullSupplierProjection.class,
           FullProposalProjection.class,
           FullPaidLinkProjection.class,
-          FullCategoryProjection.class);
+          FullCategoryProjection.class,
+          LitePaidLinkProjection.class,
+          LiteDemandProjection.class,
+          LiteSupplierProjection.class,
+          LiteProposalProjection.class
+          );
     }
 }

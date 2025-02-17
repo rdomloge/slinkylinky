@@ -63,3 +63,6 @@ Content-Type: application/json
   "updatedBy": "Mickey Mouse"
 }
 ###
+GET {{host}}/proposals/search/findAllByPaidLinks_Demand_Domain?domain=acticareuk.com&projection=liteProposal&size=20&page=0
+###
+GET {{host}}/proposals/search/findAllByPaidLinks_Demand_DomainOrderByDateCreatedDesc?domain=acticareuk.com
