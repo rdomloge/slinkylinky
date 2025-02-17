@@ -29,7 +29,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
         - name: linkservice
-          image: rdomloge/slinky-linky-linkservice:5.6
+          image: rdomloge/slinky-linky-linkservice:5.10.0
           imagePullPolicy: Always
           resources:
             requests:
@@ -66,7 +66,7 @@ spec:
               port: 8080
             initialDelaySeconds: 180
             failureThreshold: 2
-            periodSeconds: 2
+            periodSeconds: 10
             timeoutSeconds: 1
           readinessProbe:
             httpGet:
@@ -74,6 +74,6 @@ spec:
               port: 8080
             initialDelaySeconds: 180
             failureThreshold: 2
-            periodSeconds: 2
+            periodSeconds: 10
             timeoutSeconds: 1
 
