@@ -1,21 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Menu from './Menu';
 import Footer from './Footer';
 import Header from './Header';
 import Head from 'next/head'
-import ReactGA from 'react-ga4';
 
 
 export default function Layout ({children, pagetitle = " "}) {
 
-    const TRACKING_ID = "G-4K0WX1L508"; // your Measurement ID
-    ReactGA.initialize(TRACKING_ID);
-
-    useEffect(() => {
-        ReactGA.initialize(TRACKING_ID);
-        // Send pageview with a custom path
-        ReactGA.send({ hitType: "pageview", page: "/", title: "Root" });
-    }, [])
+    
     
     return(
         <>
