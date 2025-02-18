@@ -17,7 +17,7 @@ import { addProtocol } from './Util'
 
 
 
-export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id}) {
+export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id, showCategories = true, showSemRushTraffic = true}) {
 
     return (
         <div id={id} className="list-card card relative">
@@ -76,8 +76,17 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
 
             </div>
             
-            <CategoriesCard categories={supplier.categories}/>
-            <SupplierSemRushTraffic supplier={supplier}/>
+            {showCategories ?
+                <CategoriesCard categories={supplier.categories}/>
+            : 
+                null
+            }
+
+            {showSemRushTraffic ?
+                <SupplierSemRushTraffic supplier={supplier}/>
+            : 
+                null
+            }
         </div>
     )
 }
