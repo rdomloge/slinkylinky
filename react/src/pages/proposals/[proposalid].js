@@ -19,6 +19,7 @@ import { addProtocol } from '@/components/Util'
 import Image from "next/image";
 import Timer from "@/pages/proposals/timer.svg";
 import DoNotExpire from "@/pages/proposals/expired.svg";
+import AddOrEditDemand from '@/components/AddOrEditDemand'
 
 
 export default function Proposal() {
@@ -34,6 +35,8 @@ export default function Proposal() {
     const [invoiceError, setInvoiceError] = useState(null);
     const [showPreviewModal, setShowPreviewModal] = useState(false)
     const [currentSupplier, setCurrentSupplier] = useState()
+    const [showEditDemandModal, setShowEditDemandModal] = useState(false)
+    const [demandBeingEdited, setDemandBeingEdited] = useState()
 
     useEffect(
         () => {
@@ -102,6 +105,11 @@ export default function Proposal() {
                 }
             })
             .catch( (err) => setError(err.message));
+    }
+
+    function editDemand(demand) {
+        setDemandBeingEdited(demand);
+        setShowEditDemandModal(true);
     }
 
 
@@ -182,7 +190,15 @@ export default function Proposal() {
                                 null
                             }
                             <div className="flex-1">
-                                {demands.map( (ld,index) => <DemandCard demand={ld} key={ld.name} id={"demandcard-"+index}/>)}
+                                {demands.map( (ld,index) => 
+                                    <DemandCard 
+                                        demand={ld} 
+                                        key={ld.name} 
+                                        id={"demandcard-"+index} 
+                                        editable={true} 
+                                        editHandler={(demand) => editDemand(demand)}
+                                        fullfilable={false} 
+                                        deletable={false}/>)}
                             </div>
                             
                     </div>
@@ -234,6 +250,13 @@ export default function Proposal() {
                             <iframe src={"/.rest/proposalsupport/getArticleFormatted?proposalId=" + router.query.proposalid} width="100%" height={480} />
                         </Modal>
                         :
+                        null
+                    }
+                    {showEditDemandModal ?
+                        <Modal title="Edit demand" dismissHandler={() => setShowEditDemandModal(false)}>
+                            <AddOrEditDemand demand={demandBeingEdited} successHandler={() => setShowEditDemandModal(false)} />
+                        </Modal>
+                    :
                         null
                     }
                     </>

@@ -19,7 +19,7 @@ import Modal from './atoms/Modal'
 import { useSession } from 'next-auth/react'
 import { addProtocol } from './Util'
 
-export default function DemandCard({demand, fullfilable, editable, id, deleteCascader}) {
+export default function DemandCard({demand, fullfilable=false, editable=false, id, deleteCascader, deletable=false, editHandler}) {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
     const { data: session } = useSession();
@@ -80,9 +80,18 @@ export default function DemandCard({demand, fullfilable, editable, id, deleteCas
                     :null}
                     {editable ?
                     <>
-                    <Link href={'/demand/'+demand.id} rel='nofollow'>
-                        <span className='block text-right'>Edit</span>
-                    </Link>
+                    {editHandler ? 
+                        <StyledButton label='Edit' type='primary' submitHandler={() => editHandler(demand)} isText={true}/>
+                    :
+                        <Link href={'/demand/'+demand.id} rel='nofollow'>
+                            <span className='block text-right'>Edit</span>
+                        </Link>
+                    }
+                    
+                    </>
+                    :null}
+                    {deletable ?
+                    <>
                     <div className='flex justify-end'>
                         <StyledButton label='Delete' type='risky' submitHandler={()=> setShowDeleteModal(true)} isText={true}/>
                     </div>
