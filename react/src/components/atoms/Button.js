@@ -13,20 +13,6 @@ export default function SessionButton({label, clickHandler}) {
     );
 }
 
-export function EditDemandSubmitButton({submitHandler, demand, demandsite}) {
-
-    const baseClass = "text-slate-200 font-bold py-2 p-4 border border-blue-700 rounded inline-block "
-    const enabledClass = baseClass + "bg-blue-500 hover:bg-blue-700"
-    const disabledClass = baseClass + "bg-grey-500 hover:bg-grey-700"
-
-    return (
-        <button id="createnew" onClick={submitHandler} disabled={!demand.id ? !demandsite : false}
-            className={!demand.id ? (demandsite ? enabledClass : disabledClass) : enabledClass}>
-            Submit
-        </button>
-    );
-}
-
 export function StyledButton({submitHandler, enabled = true, label = "Submit", type = "primary", isText = false, extraClass = "", id = ""}) {
     const baseClass = "m-2 text-white font-bold py-2 px-4 border rounded disabled:opacity-50 "
     const buttonTypes = {

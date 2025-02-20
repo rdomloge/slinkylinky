@@ -5,7 +5,7 @@ import NumberInput from '@/components/atoms/NumberInput';
 import DemandSiteFinder from './DemandSiteFinder';
 import Loading from './Loading';
 import CategoriesCard from './categoriescard';
-import { EditDemandSubmitButton } from './atoms/Button';
+import { StyledButton } from './atoms/Button';
 import { fixForPosting } from './CategoryUtil'; 
 import ErrorMessage from './atoms/Messages';
 
@@ -100,63 +100,72 @@ export default function AddOrEditDemand({demand, successHandler}) {
         demand.categories = categoryHrefs
     }
 
+    function isSubmitButtonEnabled() {
+        if(demand.id) {
+            return true
+        }
+        return demandsite ? true : false
+    }
+
     return (
         <>
         {demand ?
-            <div className="">
-                <div className="content-center mb-4">
-                    <EditDemandSubmitButton submitHandler={submitHandler} demand={demand} demandsite={demandsite}/>
+            <div className="flex">
+                <div className="mb-4">
+                    <StyledButton submitHandler={submitHandler} enabled={isSubmitButtonEnabled()} label="Submit" type="primary"/>
                 </div>
-                <div>
-                
-                    <ErrorMessage message={errorMEssage}/>
+                <div className="flex-initial">
+                    <div className="flex p-4">
                     
-                    <form className="w-full max-w-lg card">
-                        <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-                                {demandsite ?
-                                    <p id="nameLbl" className="h-full flex items-center text-xl">{demandsite.name}</p>
-                                :
-                                    <TextInput id="name" label="name" disabled={editMode || demandsite} changeHandler={(e)=>{
-                                        setDemandName(e)
-                                        setSearchTerm(e)
-                                    }} binding={demandName}/>
-                                }
-                            </div>
-                            <div className="w-full md:w-1/2 px-3">
-                                <TextInput id="anchorText" label="Anchor text" changeHandler={(e)=>setDemandAnchorText(e)} binding={demandAnchorText} disabled={!demand.id && !demandsite}/>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap -mx-3 mb-6">
-                            <div className="w-2/3 px-3">
-                                <TextInput id="url" label="URL" changeHandler={(e)=>setDemandUrl(e)} binding={demandUrl} disabled={!demand.id && !demandsite}/>
-                            </div>
-                            <div className="w-1/3 px-3">
-                                <NumberInput id="wordCount" label="Words" changeHandler={(e)=>setWordCount(e)} binding={demandWordCount} disabled={!demand.id && !demandsite} 
-                                    min={500} max={1500} step={250}/>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap -mx-3 mb-2">
-                            <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                                <NumberInput id="daNeeded" label="DA needed" min={10} step={10} max={50} changeHandler={(e)=>setDemandDaNeeded(e)} binding={demandDaNeeded}  disabled={!demand.id && !demandsite}/>
-                            </div>
-                            <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-                                    Categories
-                                </label>
-                                <CategoriesCard categories={demand.categories}/>
-                            </div>
-                            <div className="w-full md:w-3/3 px-3 mb-6 mt-6 md:mb-0">
-                                <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-                                    Requested
-                                </label>
-                                <div className="relative">
-                                <input id="requested" type="date" placeholder="" onChange={(e)=>setDemandRequested(e.target.value)} value={demand.created}
-                                    className="appearance-none block w-full border-b border-teal-500 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"/>
+                        <ErrorMessage message={errorMEssage}/>
+                        
+                        <form className="max-w-lg card">
+                            <div className="flex flex-wrap -mx-3 mb-6">
+                                <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+                                    {demandsite ?
+                                        <p id="nameLbl" className="h-full flex items-center text-xl">{demandsite.name}</p>
+                                    :
+                                        <TextInput id="name" label="name" disabled={editMode || demandsite} changeHandler={(e)=>{
+                                            setDemandName(e)
+                                            setSearchTerm(e)
+                                        }} binding={demandName}/>
+                                    }
+                                </div>
+                                <div className="w-full md:w-1/2 px-3">
+                                    <TextInput id="anchorText" label="Anchor text" changeHandler={(e)=>setDemandAnchorText(e)} binding={demandAnchorText} disabled={!demand.id && !demandsite}/>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                            <div className="flex flex-wrap -mx-3 mb-6">
+                                <div className="w-2/3 px-3">
+                                    <TextInput id="url" label="URL" changeHandler={(e)=>setDemandUrl(e)} binding={demandUrl} disabled={!demand.id && !demandsite}/>
+                                </div>
+                                <div className="w-1/3 px-3">
+                                    <NumberInput id="wordCount" label="Words" changeHandler={(e)=>setWordCount(e)} binding={demandWordCount} disabled={!demand.id && !demandsite} 
+                                        min={500} max={1500} step={250}/>
+                                </div>
+                            </div>
+                            <div className="flex flex-wrap -mx-3 mb-2">
+                                <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                                    <NumberInput id="daNeeded" label="DA needed" min={10} step={10} max={50} changeHandler={(e)=>setDemandDaNeeded(e)} binding={demandDaNeeded}  disabled={!demand.id && !demandsite}/>
+                                </div>
+                                <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
+                                    <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+                                        Categories
+                                    </label>
+                                    <CategoriesCard categories={demand.categories}/>
+                                </div>
+                                <div className="w-full md:w-3/3 px-3 mb-6 mt-6 md:mb-0">
+                                    <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+                                        Requested
+                                    </label>
+                                    <div className="relative">
+                                    <input id="requested" type="date" placeholder="" onChange={(e)=>setDemandRequested(e.target.value)} value={demand.created}
+                                        className="appearance-none block w-full border-b border-teal-500 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div className="flex-1 p-4">
                     {demand.id ?

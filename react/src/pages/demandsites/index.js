@@ -6,7 +6,6 @@ import PageTitle from "@/components/pagetitle";
 import Loading from '@/components/Loading';
 import { DemandSiteListItemLite } from '@/components/DemandSite';
 import Paging from '@/components/Paging';
-import DemandSiteGrid from './demandSiteGrid';
 
 export default function DemandSiteList() {
 
@@ -92,7 +91,13 @@ export default function DemandSiteList() {
             <PageTitle id="demandsite-list-id" title="Demand sites" count={demandsites}/>
             <p className="pl-2">{demandsites ? (missingCategories.length + " missing categories (top of page), " + demandsites.length+" categorised") : ""}</p>
             
-            <DemandSiteGrid demandSites={missingCategories} />
+            <div className="grid grid-cols-3">
+            {missingCategories ?
+                missingCategories.map( (ds,index) => (
+                    <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index} deleteHandler={()=>deleteDemandSite(ds)} />
+                ))
+            : <Loading/> }
+        </div>
 
             <div className="inline-flex items-center justify-center w-full">
                 <hr className="w-4/5 h-px my-8 bg-gray-500 border-0 dark:bg-gray-700"/>
@@ -103,7 +108,13 @@ export default function DemandSiteList() {
             
             <Paging baseUrl="/demandsites" total={total} pageCount={pageCount} page={page} />
 
-            <DemandSiteGrid demandSites={demandsites} />
+            <div className="grid grid-cols-3">
+                {demandsites ?
+                    demandsites.map( (ds,index) => (
+                        <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index} deleteHandler={()=>deleteDemandSite(ds)} />
+                    ))
+                : <Loading/> }
+            </div>
         </Layout>
     );
 }
