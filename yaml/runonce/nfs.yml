@@ -33,6 +33,38 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  name: sl-jenkins-data
+spec:
+  capacity:
+    storage: 20Gi
+  storageClassName: standard
+  accessModes:
+  - ReadWriteOnce
+  nfs:
+    server: 10.0.0.60
+    path: "/volume1/sl-jenkins-data"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sl-jenkins-worker-home
+spec:
+  capacity:
+    storage: 20Gi
+  storageClassName: standard
+  accessModes:
+  - ReadWriteOnce
+  nfs:
+    server: 10.0.0.60
+    path: "/volume1/sl-jenkins-worker-home"
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
   name: sl-es-data
 spec:
   capacity:
