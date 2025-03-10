@@ -20,9 +20,9 @@ spec:
         - name: jenkins
           image: jenkins/jenkins:lts-jdk17
           imagePullPolicy: IfNotPresent
-          # volumeMounts: 
-          #   - name: sl-jenkins-data
-          #     mountPath: /var/jenkins_home
+          volumeMounts: 
+            - name: sl-jenkins-data
+              mountPath: /var/jenkins_home
           env:
             - name: jenkins_PASSWORD
               value: CHANGEME
@@ -35,12 +35,14 @@ spec:
               memory: "6000Mi"
           ports:
             - containerPort: 8080
-      # volumes:
-      #   - name: sl-jenkins-data
-      #     persistentVolumeClaim:
-      #       claimName: sl-jenkins-data
+      volumes:
+        - name: sl-jenkins-data
+          persistentVolumeClaim:
+            claimName: sl-jenkins-data
+
 ---
 
+# Create a Jenkins service
 apiVersion: v1
 kind: Service
 metadata:
@@ -55,3 +57,98 @@ spec:
       port: 8099
       targetPort: 8080
   #type: ClusterIP
+
+---
+
+# Create a persistent volume claim for Jenkins
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sl-jenkins-data
+  namespace: slinkylinky
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+  volumeMode: Filesystem
+  volumeName: sl-jenkins-data
+
+---
+# Create a persistent volume for Jenkins
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: sl-jenkins-data
+  namespace: slinkylinky
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  volumeMode: Filesystem
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+  
+---
+# Create a Jenkins worker deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins-worker
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-worker
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: jenkins-worker
+        version: v1
+    spec:
+      containers:
+        - name: jenkins-worker
+          image: jenkins/jnlp-slave:4.3-4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: jenkins_URL
+              value: http://jenkins-service:8080
+            - name: jenkins_SECRET
+              value: CHANGEME
+            - name: jenkins_AGENT_NAME
+              value: jenkins-worker
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: jenkins-worker-home
+              mountPath: /home/jenkins
+      volumes:
+        - name: jenkins-worker-home
+          emptyDir: {}
+
+---
+# Create a Jenkins worker service
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-worker-service
+  namespace: slinkylinky
+spec:
+  selector:
+    app: jenkins-worker
+  ports:
+    - protocol: TCP
+      port: 50000
+      targetPort: 50000
+  type: ClusterIP
