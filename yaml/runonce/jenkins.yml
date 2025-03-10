@@ -75,23 +75,6 @@ spec:
   storageClassName: standard
   volumeMode: Filesystem
   volumeName: sl-jenkins-data
-
----
-# Create a persistent volume for Jenkins
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: sl-jenkins-data
-  namespace: slinkylinky
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: standard
-  volumeMode: Filesystem
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
   
 ---
 # Create a Jenkins worker deployment
