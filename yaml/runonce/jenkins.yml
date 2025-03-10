@@ -57,22 +57,6 @@ spec:
       port: 8099
       targetPort: 8080
   #type: ClusterIP
-
----
-
-# Create a persistent volume claim for Jenkins
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: sl-jenkins-data
-  namespace: slinkylinky
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: standard
   
 ---
 # # Create a Jenkins worker deployment
