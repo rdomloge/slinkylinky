@@ -1,19 +1,40 @@
-import { useEffect, useState } from "react";
 import LineGraph from "./LineGraph";
 import TrafficAnalyser from "./TrafficAnalyser";
 import { useSession } from "next-auth/react";
 import Image from 'next/image'
 import PigIcon from '@/components/pig.svg'
+import { useEffect, useState, useRef } from "react";
 
 export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null}) {
-    
     const [trafficDataPoints, setTrafficDataPoints] = useState([]);
     const [spamScore, setSpamScore] = useState();
     const { data: session } = useSession();
-
+    const containerRef = useRef(null);
+    const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
+        const observer = new window.IntersectionObserver(
+            ([entry]) => setIsVisible(entry.isIntersecting),
+            { threshold: 0.1 }
+        );
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+        return () => {
+            if (containerRef.current) {
+                observer.unobserve(containerRef.current);
+            }
+        };
+    }, []);
 
+    useEffect(() => {
+        if (isVisible) {
+            getTrafficData();
+        }
+        // eslint-disable-next-line
+    }, [session, supplier, isVisible]);
+
+    function getTrafficData() {
         if(!session) { return; }
         
         var url;
@@ -28,7 +49,6 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false, dataLis
             const day = lastDayOfLastMonth.getDate()
             const startDate = new Date(year, month, day).toISOString().substring(0,10);
             const endDate = lastDayOfLastMonth.toISOString().substring(0,10);
-            // const endDate = new Date().toISOString().substring(0,10); // temporarily use today as end date so that we get some spam data
             url = "/.rest/stats/fordomain?"
                         +"domain="+supplier.domain
                         +"&startDate="+startDate
@@ -61,11 +81,10 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false, dataLis
                 console.log("Unknown error: "+resp.status)
             }
         })
+    }
 
-    }, [session, supplier]);
-    
     return (
-        <div>
+        <div ref={containerRef}>
         {trafficDataPoints ?
             <>
             <LineGraph datapoints={trafficDataPoints}/>
