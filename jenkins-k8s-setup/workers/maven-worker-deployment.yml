@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-worker
+  name: maven-worker
   namespace: slinkylinky
 spec:
   replicas: 1
