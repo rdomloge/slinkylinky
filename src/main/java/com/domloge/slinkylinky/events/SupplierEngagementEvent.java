@@ -45,13 +45,11 @@ public class SupplierEngagementEvent extends BaseEvent {
 
     @Getter private String blogUrl;
 
-    @Getter private boolean invoiceUploaded;
 
-    public void buildForAccept(String blogTitle, String blogUrl, boolean invoiceUploaded, long proposalId) {
+    public void buildForAccept(String blogTitle, String blogUrl, long proposalId) {
         this.response = Response.ACCEPTED;
         this.blogTitle = blogTitle;
         this.blogUrl = blogUrl;
-        this.invoiceUploaded = invoiceUploaded;
         this.proposalId = proposalId;
         this.type = EventType.RECEIVED_RESPONSE;
     }
