@@ -7,35 +7,35 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: spring-worker
+      app: maven-worker
       version: v1
   template:
     metadata:
       labels:
-        app: spring-worker
+        app: maven-worker
         version: v1
     spec:
       containers:
-        - name: spring-worker
-          image: jenkins/jnlp-slave:4.3-4
+        - name: maven-worker
+          image: rdomloge/jenkins-worker-maven-jdk21-latest
           imagePullPolicy: IfNotPresent
           env:
-            - name: jenkins_URL
-              value: http://jenkins-service:8080
-            - name: jenkins_SECRET
-              value: CHANGEME
-            - name: jenkins_AGENT_NAME
-              value: spring-worker
+            - name: JENKINS_URL
+              value: http://jenkins-service:8099
+            - name: JENKINS_SECRET
+              value: '[get from Jenkins secret in web UI]'
+            - name: JENKINS_AGENT_NAME
+              value: maven-worker
           resources:
             requests:
               cpu: "100m"
               memory: "256Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
+              memory: "2Gi"
           volumeMounts:
-            - name: spring-worker-home
+            - name: maven-worker-home
               mountPath: /home/jenkins
       volumes:
-        - name: spring-worker-home
+        - name: maven-worker-home
           emptyDir: {}
