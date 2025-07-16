@@ -18,7 +18,7 @@ spec:
       containers:
         - name: maven-worker
           image: rdomloge/jenkins-worker-maven-jdk21-latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: JENKINS_URL
               value: http://jenkins-service:8099
