@@ -1,6 +1,6 @@
 pipeline {
     
-    agent maven-worker
+    agent 'maven-worker'
 
     environment {
         IMAGE_NAME = 'rdomloge/slinky-linky-linkservice:5.10.0'
