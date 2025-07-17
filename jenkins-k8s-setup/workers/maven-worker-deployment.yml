@@ -26,6 +26,8 @@ spec:
               value: '[get from Jenkins secret in web UI]'
             - name: JENKINS_AGENT_NAME
               value: maven-worker
+            - name: JAVA_TOOL_OPTIONS
+              value: '-Djava.util.logging.config.file=/home/jenkins/logging.properties'
           resources:
             requests:
               cpu: "100m"
@@ -34,8 +36,29 @@ spec:
               cpu: "2000m"
               memory: "2Gi"
           volumeMounts:
-            - name: maven-worker-home
-              mountPath: /home/jenkins
-      volumes:
-        - name: maven-worker-home
-          emptyDir: {}
+            - name: maven-worker-logging-config
+              mountPath: /home/jenkins/logging.properties
+              subPath: logging.properties
+
+---
+# Create a config map, containing Java log configuration, to be mounted on the worker pod as logging.properties
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maven-worker-logging-config
+  namespace: slinkylinky
+data:
+  logging.properties: |
+    handlers = java.util.logging.ConsoleHandler
+
+    # see https://docs.oracle.com/en/java/javase/17/docs/api/java.logging/java/util/logging/SimpleFormatter.html
+    java.util.logging.SimpleFormatter.format = [%1$tF %1$tT][%4$-6s][%2$s] %5$s %6$s %n
+
+    # Keep this level to ALL or FINEST or it will be filtered before applying other levels
+    java.util.logging.ConsoleHandler.level = ALL
+
+    # Default level
+    .level= INFO
+
+    # High verbosity for a dedicated package com.myplugin.*
+    com.myplugin.level = ALL
