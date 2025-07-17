@@ -26,6 +26,10 @@ spec:
               value: '[get from Jenkins secret in web UI]'
             - name: JENKINS_AGENT_NAME
               value: maven-worker
+            - name: JENKINS_AGENT_WORKDIR
+              value: /home/jenkins/agent
+            - name: JENKINS_AGENT_WORKDIR_ROOT
+              value: /home/jenkins
             - name: JAVA_OPTS
               value: '-Djava.util.logging.config.file=/home/jenkins/logging.properties'
           resources:
@@ -61,7 +65,7 @@ data:
     # Keep this level to ALL or FINEST or it will be filtered before applying other levels
     java.util.logging.ConsoleHandler.level = ALL
 
-    # Default level
+    # Default level - one of SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST (this only configured console output on the worker, not visible in the Jenkins UI)
     .level= INFO
 
     # High verbosity for a dedicated package com.myplugin.*
