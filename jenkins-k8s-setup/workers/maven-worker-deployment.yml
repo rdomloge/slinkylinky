@@ -39,6 +39,10 @@ spec:
             - name: maven-worker-logging-config
               mountPath: /home/jenkins/logging.properties
               subPath: logging.properties
+      volumes:
+        - name: maven-worker-logging-config
+          configMap:
+            name: maven-worker-logging-config
 
 ---
 # Create a config map, containing Java log configuration, to be mounted on the worker pod as logging.properties
