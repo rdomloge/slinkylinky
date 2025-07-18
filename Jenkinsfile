@@ -18,12 +18,18 @@ pipeline {
                 sh 'mvn -Dmaven.test.skip=true clean package'
             }
         }
+        stage('Build image') {
+            /* This builds the actual image; synonymous to
+            * docker build on the command line */
+
+            app = docker.build("getintodevops/hellonode")
+        }
         stage('Build and Push Docker Image') {
             steps {
-                sh '''
+                /*sh '''
                     docker buildx build --builder $BUILDER --platform linux/amd64,linux/arm64 \
                     -t $IMAGE_NAME . --push
-                '''
+                '''*/
             }
         }
     }
