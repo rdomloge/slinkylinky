@@ -22,9 +22,8 @@ pipeline {
             node {
                 /* This builds the actual image; synonymous to
                 * docker build on the command line */
-                steps {
-                    docker.build("getintodevops/hellonode")
-                }
+                def newApp = docker.build "rdomloge/linkservice:${env.BUILD_ID}"
+                newApp.push()
             }
         }
         
