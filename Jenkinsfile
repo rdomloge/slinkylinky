@@ -19,11 +19,13 @@ pipeline {
             }
         }
         stage('Build image') {
-            node {
+            steps {
                 /* This builds the actual image; synonymous to
                 * docker build on the command line */
-                def newApp = docker.build "rdomloge/linkservice:${env.BUILD_ID}"
-                newApp.push()
+                script {
+                    def newApp = docker.build "rdomloge/linkservice:${env.BUILD_ID}"
+                    newApp.push()
+                }
             }
         }
         
