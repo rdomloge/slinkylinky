@@ -18,13 +18,16 @@ pipeline {
                 sh 'mvn -Dmaven.test.skip=true clean package'
             }
         }
-        stage('Build image') {
-            /* This builds the actual image; synonymous to
-            * docker build on the command line */
-            steps {
-                docker.build("getintodevops/hellonode")
+        node {
+            stage('Build image') {
+                /* This builds the actual image; synonymous to
+                * docker build on the command line */
+                steps {
+                    docker.build("getintodevops/hellonode")
+                }
             }
         }
+        
     }
     post {
         always {
