@@ -18,8 +18,8 @@ pipeline {
                 sh 'mvn -Dmaven.test.skip=true clean package'
             }
         }
-        node {
-            stage('Build image') {
+        stage('Build image') {
+            node {
                 /* This builds the actual image; synonymous to
                 * docker build on the command line */
                 steps {
