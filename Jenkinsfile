@@ -23,7 +23,7 @@ pipeline {
                 /* This builds the actual image; synonymous to
                 * docker build on the command line */
                 script {
-                    def newApp = docker.build "rdomloge/linkservice:${env.BUILD_ID}"
+                    def newApp = docker.build "rdomloge/slinky-linky-linkservice:${env.BUILD_ID}"
                     newApp.push()
                 }
             }
