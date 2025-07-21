@@ -18,9 +18,6 @@ spec:
       # Only run on a node that has the image-builder role
       nodeSelector:
         node-role.kubernetes.io/image-builder: "true"
-      tolerations:
-        - key: "node-role.kubernetes.io/image-builder"
-          operator: "Exists"
       containers:
         - name: maven-worker
           image: rdomloge/jenkins-worker-maven-jdk21-latest:1.0.11
