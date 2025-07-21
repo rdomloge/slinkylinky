@@ -15,6 +15,10 @@ spec:
         app: maven-worker
         version: v1
     spec:
+      # Only run on node 12 which has Docker installed (with jenkins-docker role)
+      tolerations:
+        - key: "node-role.kubernetes.io/image-builder"
+          operator: "Exists"
       containers:
         - name: maven-worker
           image: rdomloge/jenkins-worker-maven-jdk21-latest:1.0.11
