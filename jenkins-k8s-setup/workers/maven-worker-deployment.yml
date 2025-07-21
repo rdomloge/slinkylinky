@@ -46,10 +46,16 @@ spec:
             - name: maven-worker-logging-config
               mountPath: /home/jenkins/logging.properties
               subPath: logging.properties
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
       volumes:
         - name: maven-worker-logging-config
           configMap:
             name: maven-worker-logging-config
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
 
 ---
 # Create a config map, containing Java log configuration, to be mounted on the worker pod as logging.properties
