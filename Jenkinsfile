@@ -23,7 +23,7 @@ pipeline {
                 /* This builds the actual image; synonymous to
                 * docker build on the command line */
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
                         // Use the Dockerfile in the root of the repository
                         def newApp = docker.build("rdomloge/slinky-linky-linkservice:${env.BUILD_ID}")
                         newApp.push()
