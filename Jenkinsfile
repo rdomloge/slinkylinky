@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git"
+                git branch: 'main', url: "https://banana@github.com/rdomloge/linkservice.git"
             }
         }
         stage('Build Maven Project') {
