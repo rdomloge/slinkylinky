@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     withKubeConfig([credentialsId: 'prod-k8s', serverUrl: 'https://ca57a015-970b-4005-aa7b-250bf9e1d370.uk-lon-1-gw.linodelke.net:443']) {
-                        sh 'kubectl apply -f yaml/linkservice.yml'
+                        sh 'kubectl apply -f ../../yaml/linkservice.yml'
                     }
                 }
             }
