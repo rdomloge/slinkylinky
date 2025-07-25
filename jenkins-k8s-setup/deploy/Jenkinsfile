@@ -16,8 +16,11 @@ pipeline {
         stage('Deploy...something') {
             steps {
                 script {
-                    withKubeConfig([credentialsId: 'prod-k8s', serverUrl: 'https://ca57a015-970b-4005-aa7b-250bf9e1d370.uk-lon-1-gw.linodelke.net:443']) {
-                        sh 'kubectl apply -f ../../yaml/linkservice.yml'
+                    withKubeConfig([credentialsId: 'prod-k8s', 
+                                    serverUrl: 'https://ca57a015-970b-4005-aa7b-250bf9e1d370.uk-lon-1-gw.linodelke.net:443'],
+                                    caCertificate: 'LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJUGpXVGEzVm40N1F3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TlRBM01UQXdPVEkwTVROYUZ3MHpOVEEzTURnd09USTVNVE5hTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUURiRHVOajl1bzN2dTluQ0RkL3VVaHk3cWErRUVZajRDZGtiNWQ5ZGtXdHI1SG9jeHRhYXRLeUE1UFoKeGdhcXZBbmtpREZITXhFWHhHNi9yclllS3RaSEk4WWY3c0RtWlVxdjhtOGhWMXQ0STVFK1hCZm1sWjluaG5DeQp2aGNCZFp1UUsrV2pvUDFlZ0o5M0FZZ01rS20zUVlUbmp1ZEtzTStWbktkMHYwVytpQ0JBclo2a3pkb3hHK2hECkJKL3FhNFJpLzdEamdJOTBPQ1NzUWhiVEtieUhRVXg2T2Y4aFltY3B4azNjRG1ZdElmV2Z1YWw1ejM2NWRwSVMKekJwNUtHTFY3MlM2R3VZOE5mUlB3SFEyTVY4T2hGNHk3ZHJ1WlkrT0d1ejZELzdmU3BPeitGU1J5bmtnaGN3RQp6TWxNVUpEOW1aRFpGSEhyQmFaSjRnYVhqN01oQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJSWlhYc1JLbFA4STZPNDE3VzUvMXpnSVlPbXFUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQzVGekhnSUhOVgp2bFdNZzZKakZKL1VBcmM0KzY4ZkFNRFBWWlhVWS8wNWxJV09MZmcybWFsWis1ampjdmJNcUZQd2RSOEt6cFE1CnRHL0lWK1I0OEdSNmx0SVI2Q1RvMkExbkYxMjVsdjgrQTRIMDZPVGdhZHZXSUlPRVYrZmZ2M0tDeWJpZEdSOCsKQ0ZwbytVeDc5c1F1MEpGajdid0RmMnhNNGNkaVRBK1BLaWlrK3NmVUkzOUNLUllLSm1FUFhiTEJHSUpHS0JaOQprcG9TVGFmazRkYkIyM3ZlZUpQZ1BTeUI2YlFoZVNnUjd6ZzNnYmtEU2ppS2dRRGwwdWZTYWMrL3QrTWJXY3czCnVvWTFlbmRuTmpaRzVkQlcrNFQ4UERGZkFMa2RxN1paUVRobHA4OGNHYkRIMkNPSnVZTUtSeTgra014MHQwbWcKZ05YaFA0bTlud1BZCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K',
+                                    namespace: 'slinky-linky']) {
+                        sh 'kubectl get nodes'
                     }
                 }
             }
