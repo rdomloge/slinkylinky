@@ -1,0 +1,27 @@
+pipeline {
+    
+    agent { label "kubectl-worker" }
+
+    environment {
+        BUILDER = 'mybuilder'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: "https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+            }
+        }
+
+        stage('Runonce stuff') {
+            steps {
+                script {
+                    withKubeConfig(credentialsId: 'prod-k8s', 
+                                    serverUrl: 'https://ca57a015-970b-4005-aa7b-250bf9e1d370.uk-lon-1-gw.linodelke.net:443') {
+                        sh 'kubectl apply -f ${WORKSPACE}/yaml/runonce/'
+                    }
+                }
+            }
+        }
+    }
+}
