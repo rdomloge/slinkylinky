@@ -1,6 +1,6 @@
 pipeline {
     
-    agent { label "maven-worker" }
+    agent { label "kubectl-worker" }
 
     environment {
         BUILDER = 'mybuilder'
