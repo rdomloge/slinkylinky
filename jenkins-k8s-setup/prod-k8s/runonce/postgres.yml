@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: slinkylinky
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: postgres
+        version: v1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - linkservice
+                      - adminwebsite
+                      - postgres
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: postgres
+          image: postgres:16.6
+          imagePullPolicy: Always
+          volumeMounts: 
+            - name: sl-postgres-data
+              mountPath: /var/lib/postgresql/data
+          env:
+            - name: POSTGRES_PASSWORD
+              value: CHANGEME
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "600Mi"
+            limits:
+              cpu: "1500m"
+              memory: "750Mi"
+          ports:
+            - containerPort: 5432
+      volumes:
+        - name: sl-postgres-data
+          persistentVolumeClaim:
+            claimName: sl-postgres-data
