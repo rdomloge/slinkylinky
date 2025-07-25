@@ -1,13 +1,12 @@
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
   name: sl-postgres-data
   namespace: slinkylinky
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: standard
   resources:
     requests:
       storage: 10Gi
-
+  storageClassName: linode-block-storage-retain
