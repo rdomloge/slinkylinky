@@ -22,8 +22,8 @@ pipeline {
                                     namespace: 'slinky-linky', 
                                     restrictKubeConfigAccess: false, 
                                     serverUrl: 'https://ca57a015-970b-4005-aa7b-250bf9e1d370.uk-lon-1-gw.linodelke.net:443') {
-                        sh 'kubectl apply -f yaml/runonce/namespaces.yaml'
-                        sh 'kubectl apply -f yaml/linkservice.yaml'
+                        sh 'kubectl apply -f ../../yaml/runonce/namespaces.yaml'
+                        sh 'kubectl apply -f ../../yaml/linkservice.yaml'
                     }
                 }
             }
