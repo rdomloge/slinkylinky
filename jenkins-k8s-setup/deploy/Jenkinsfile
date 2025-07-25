@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "https://${GITHUB_PERSONAL_ACCESS_TOKEN}github.com/rdomloge/sl-k8s-scripts.git"
+                git branch: 'main', url: "https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
             }
         }
         
