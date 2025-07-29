@@ -50,4 +50,4 @@ spec:
       volumes:
         - name: sl-postgres-data
           persistentVolumeClaim:
-            claimName: sl-postgres-data
+            claimName: test
