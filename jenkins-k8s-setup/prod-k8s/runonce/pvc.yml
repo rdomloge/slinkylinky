@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: test
+  name: sl-postgres-data
   namespace: slinkylinky
 spec:
   accessModes:
