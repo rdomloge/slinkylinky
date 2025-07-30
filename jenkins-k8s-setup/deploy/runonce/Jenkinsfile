@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     withKubeConfig(credentialsId: 'prod-k8s', 
-                                    serverUrl: 'https://ca57a015-970b-4005-aa7b-250bf9e1d370.uk-lon-1-gw.linodelke.net:443') {
+                                    serverUrl: '${K8S_SERVER_URL}') {
                         sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/namespace.yml'
                         sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/pvc.yml'
                         sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/postgres.yml'
