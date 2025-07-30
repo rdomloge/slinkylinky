@@ -58,5 +58,12 @@ public class RestConfig implements RepositoryRestConfigurer {
           LiteSupplierProjection.class,
           LiteProposalProjection.class
           );
+
+          // Allow CORS for localhost and host.docker.internal
+          cors.addMapping("/*")
+            .allowedOrigins(
+                "http://host.docker.internal:3000", "http://localhost:3000"
+            )
+            .allowedMethods("*");
     }
 }

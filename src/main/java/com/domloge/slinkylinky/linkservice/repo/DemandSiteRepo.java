@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 
 @RepositoryRestResource(collectionResourceRel = "demandsites", path = "demandsites")
-@CrossOrigin(originPatterns = {"*localhost*"})
+// @CrossOrigin(originPatterns = {"*host.docker.internal*"})
 public interface DemandSiteRepo extends CrudRepository <DemandSite, Long>, PagingAndSortingRepository<DemandSite, Long> {
 
     DemandSite findByDomainIgnoreCase(String domain);
