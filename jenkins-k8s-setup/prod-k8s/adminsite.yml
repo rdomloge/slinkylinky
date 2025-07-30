@@ -28,6 +28,9 @@ spec:
               memory: "256Mi"
           ports:
             - containerPort: 3000
+          env:
+            - name: NEXT_AUTH_SECRET
+              value: "b7f8c2e4-4a1d-4e9a-9f3b-2d8e8a7c6f1e_!S3cure$Str0ng#SSL@2025"
           startupProbe:
             httpGet:
               path: /demand
@@ -36,3 +39,4 @@ spec:
             failureThreshold: 30
             periodSeconds: 10
             timeoutSeconds: 5
+
