@@ -15,20 +15,6 @@ spec:
         app: stats
         version: v1
     spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values:
-                      - linkservice
-                      - supplierengagement
-                      - stats
-                      - adminwebsite
-                      - postgres
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: stats
           image: rdomloge/slinky-linky-stats:5.5.1-CI-3
