@@ -33,7 +33,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: db-connection-secret
-                  key: DATABASE_URL
+                  key: STATS_DATABASE_URL
             - name: server_port
               value: "8080"
             - name: slinkylinky_vhost
