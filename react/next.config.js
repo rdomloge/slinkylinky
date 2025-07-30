@@ -50,7 +50,7 @@ const nextConfig = {
         },
         {
           source: '/.rest/:path*',
-          destination: 'http://host.docker.internal:8080/.rest/:path*'
+          destination: 'linkservice-service:8090/.rest/:path*'
         }
       ]
     },
