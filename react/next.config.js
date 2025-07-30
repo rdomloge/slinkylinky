@@ -50,7 +50,7 @@ const nextConfig = {
         },
         {
           source: '/.rest/:path*',
-          destination: 'linkservice-service:8090/.rest/:path*'
+          destination: 'http://linkservice-service:8090/.rest/:path*'
         }
       ]
     },
