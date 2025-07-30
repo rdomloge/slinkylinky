@@ -10,6 +10,7 @@ GET {{host}}/demandsites/search/findByMissingCategories
 ###
 PATCH {{host}}/demandsites/10
 Content-Type: application/json
+Origin: http://host.docker.internal
 
 {
   "name": "Fresh Air Fitness",
