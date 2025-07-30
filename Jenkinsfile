@@ -27,7 +27,7 @@ pipeline {
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
                         // Use the Dockerfile in the root of the repository
 
-                        def image = docker.image("rdomloge/slinky-linky-linkservice:${env.BUILD_ID}")
+                        def image = docker.image("rdomloge/slinky-linky-linkservice:${SEMVER_BUILD_NUM}-${env.BUILD_ID}")
                         sh "docker buildx create --use --name multiarch"
                         sh """
                         docker buildx build \
