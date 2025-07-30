@@ -3,14 +3,15 @@ pipeline {
     agent { label "maven-worker" }
 
     environment {
-        IMAGE_NAME = 'rdomloge/slinky-linky-linkservice:5.10.0'
         BUILDER = 'mybuilder'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git"
+                withFolderProperties() {
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git"
+                }
             }
         }
         stage('Build Maven Project') {
