@@ -36,6 +36,10 @@ spec:
             - name: sl-postgres-data
               mountPath: /var/lib/postgresql/data
           env:
+            # This is needed to make PG put it's data in a subdirectory under the mounted volume, since Linode puts a 
+            # lost+found directory at the root of the volume which PG doesn't like.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
             - name: POSTGRES_PASSWORD
               value: CHANGEME
           resources:
