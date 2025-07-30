@@ -30,7 +30,10 @@ spec:
             - containerPort: 8080
           env:
             - name: spring_datasource_url
-              value: jdbc:postgresql://postgres-service:5432/slinkylinky?user=slinkylinky&password=sl
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: DATABASE_URL
             - name: chatgpt_api_key
               value: <SPECIFY>
             - name: chatgpt_model

@@ -30,7 +30,10 @@ spec:
             - containerPort: 8080
           env:
             - name: spring_datasource_url
-              value: <SPECIFY>
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: DATABASE_URL
             - name: server_port
               value: "8080"
             - name: slinkylinky_vhost
