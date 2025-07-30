@@ -8,7 +8,7 @@ COPY react/package-lock.json .
 # Install dependencies
 RUN npm ci
 
-FROM --platform=$BUILDPLATFORM adminsite_base as adminsite_build
+FROM --platform=$BUILDPLATFORM adminsite_base AS adminsite_build
 COPY react .
 # Build the project
 RUN npm run build
