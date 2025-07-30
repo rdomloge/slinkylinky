@@ -10,19 +10,21 @@ pipeline {
         stage('Checkout') {
             steps {
                 withFolderProperties() {
-                    git branch: 'main', url: "https://${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
                 }
             }
         }
 
         stage('Runonce stuff') {
             steps {
-                script {
-                    withKubeConfig(credentialsId: 'prod-k8s', 
-                                    serverUrl: "${K8S_SERVER_URL}") {
-                        sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/namespace.yml'
-                        sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/pvc.yml'
-                        sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/postgres.yml'
+                withFolderProperties() {
+                    script {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/namespace.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/pvc.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/runonce/postgres.yml'
+                        }
                     }
                 }
             }
