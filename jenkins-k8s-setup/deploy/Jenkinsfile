@@ -23,6 +23,7 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             
                             sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/linkservice.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/adminsite.yml'
                         }
                     }
                 }
