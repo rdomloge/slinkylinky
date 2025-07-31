@@ -26,9 +26,7 @@ spec:
             - --metrics
             - 0.0.0.0:2000
             - run
-          args:
-            - --token
-            - <token value>
+          args: ["--token", "$(token-value)"]
           livenessProbe:
             httpGet:
               path: /ready
@@ -37,7 +35,7 @@ spec:
             failureThreshold: 3
             periodSeconds: 10
           env:
-            - name: --token
+            - name: token-value
               valueFrom:
                 secretKeyRef:
                   name: cloudflare-tunnel-secret
