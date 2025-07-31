@@ -58,6 +58,17 @@ spec:
                 secretKeyRef:
                   name: mail-secret
                   key: MAIL_PASSWORD
+            - name: mail_host
+              valueFrom:
+                configMapKeyRef:
+                  name: mail-config
+                  key: MAIL_HOST
+            - name: mail_from
+              valueFrom:
+                configMapKeyRef:
+                  name: mail-config
+                  key: MAIL_FROM
+
           startupProbe:
             tcpSocket:
               port: 8080
