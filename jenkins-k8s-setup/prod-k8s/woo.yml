@@ -48,6 +48,16 @@ spec:
               value: http://linkservice-service:8090
             - name: wc_uploads_base
               value: https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart
+            - name: mail_username
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: MAIL_USERNAME
+            - name: mail_password
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: MAIL_PASSWORD
           startupProbe:
             tcpSocket:
               port: 8080
