@@ -31,6 +31,21 @@ spec:
           env:
             - name: NEXTAUTH_SECRET
               value: "b7f8c2e4-4a1d-4e9a-9f3b-2d8e8a7c6f1e_!S3cure$Str0ng#SSL@2025"
+            - name: NEXTAUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-website-config
+                  key: NEXTAUTH_URL
+            - name: GITHUB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth-secret
+                  key: GITHUB_SECRET
+            - name: GITHUB_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth-secret
+                  key: GITHUB_ID
           startupProbe:
             httpGet:
               path: /demand
