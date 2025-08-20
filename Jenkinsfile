@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 withFolderProperties() {
-                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinky-linky-supplierengagement.git"
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/supplierengagement.git"
                 }
             }
         }
