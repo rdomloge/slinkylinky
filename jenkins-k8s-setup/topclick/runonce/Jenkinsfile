@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
-        FOLDER = '${WORKSPACE}/jenkins-k8s-setup/topclick'
+        FOLDER = "${WORKSPACE}/jenkins-k8s-setup/topclick" 
     }
 
     stages {
