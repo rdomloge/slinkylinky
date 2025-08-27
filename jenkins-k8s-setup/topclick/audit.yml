@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: audit
-          image: rdomloge/slinky-linky-audit:5.5.1-CI-2
+          image: rdomloge/slinky-linky-audit:5.5.2-CI-3
           imagePullPolicy: Always
           resources:
             requests:
