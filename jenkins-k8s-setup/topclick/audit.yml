@@ -34,6 +34,11 @@ spec:
                 secretKeyRef:
                   name: db-connection-secret
                   key: AUDIT_DATABASE_URL
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
             - name: server_port
               value: "8080"
             - name: slinkylinky_vhost
