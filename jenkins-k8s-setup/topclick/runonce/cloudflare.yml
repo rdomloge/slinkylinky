@@ -39,7 +39,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: cloudflare-tunnel-secret
-                  key: staging-token
+                  key: topclick-token
           resources:
             requests:
               cpu: "100m"
