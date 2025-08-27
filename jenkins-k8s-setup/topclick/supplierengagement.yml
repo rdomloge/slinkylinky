@@ -49,7 +49,7 @@ spec:
             - name: mail_host
               valueFrom:
                 configMapKeyRef:
-                  name: common-mail-config
+                  name: common-config
                   key: MAIL_HOST
             - name: mail_from
               valueFrom:
