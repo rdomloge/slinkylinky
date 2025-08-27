@@ -26,6 +26,7 @@ pipeline {
                             sh 'kubectl apply -f ${FOLDER}/cloudflare.yml'
                             sh 'kubectl apply -f ${FOLDER}/pvc.yml'
                             sh 'kubectl apply -f ${FOLDER}/postgres.yml'
+                            sh 'kubectl apply -f ${FOLDER}/services.yml'
                         }
                     }
                 }
