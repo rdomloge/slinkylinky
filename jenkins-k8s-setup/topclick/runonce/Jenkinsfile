@@ -24,6 +24,8 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             sh 'kubectl apply -f ${FOLDER}/runonce/namespace.yml'
                             sh 'kubectl apply -f ${FOLDER}/runonce/cloudflare.yml'
+                            sh 'kubectl apply -f ${FOLDER}/runonce/pvc.yml'
+                            sh 'kubectl apply -f ${FOLDER}/runonce/postgres.yml'
                         }
                     }
                 }
