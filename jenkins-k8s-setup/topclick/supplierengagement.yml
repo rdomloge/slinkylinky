@@ -62,17 +62,17 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: mail-secret
-                  key: MAIL_USERNAME
+                  key: SUPPLIERENGAGEMENT_MAIL_USERNAME
             - name: mail_password
               valueFrom:
                 secretKeyRef:
                   name: mail-secret
-                  key: MAIL_PASSWORD
+                  key: SUPPLIERENGAGEMENT_MAIL_PASSWORD
             - name: mail_host
               valueFrom:
-                configMapKeyRef:
-                  name: common-config
-                  key: MAIL_HOST
+                secretKeyRef:
+                  name: mail-secret
+                  key: SUPPLIERENGAGEMENT_MAIL_HOST
             - name: mail_from
               valueFrom:
                 configMapKeyRef:
