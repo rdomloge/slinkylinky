@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: cloudflared-topclick
-  namespace: slinkylinky
+  namespace: topclick
 spec:
   serviceName: cloudflared
   replicas: 1

@@ -4,6 +4,7 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
+        FOLDER = '${WORKSPACE}/jenkins-k8s-setup/topclick'
     }
 
     stages {
@@ -21,7 +22,8 @@ pipeline {
                     script {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
-                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/topclick/runonce/cloudflare.yml'
+                            sh 'kubectl apply -f ${FOLDER}/runonce/namespace.yml'
+                            sh 'kubectl apply -f ${FOLDER}/runonce/cloudflare.yml'
                         }
                     }
                 }
