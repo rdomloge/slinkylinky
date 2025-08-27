@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats
+  namespace: topclick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stats
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: stats
+        version: v1
+    spec:
+      containers:
+        - name: stats
+          image: rdomloge/slinky-linky-stats:5.5.1-CI-5
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: STATS_DATABASE_URL
+            - name: server_port
+              value: "8080"
+            - name: slinkylinky_vhost
+              value: slinkylinky
+            - name: moz_secret
+              value: <SPECIFY>
+            - name: linkservice_url
+              value: http://linkservice-service:8090
+            - name: semrush_key
+              value: <SPECIFY>
+          startupProbe:
+            httpGet:
+              path: /.rest/stats/fordomain?domain=uknewsgroup.co.uk&startDate=2024-01-01&endDate=2024-02-28
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2

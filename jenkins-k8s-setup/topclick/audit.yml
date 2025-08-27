@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit
+  namespace: topclick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audit
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: audit
+        version: v1
+    spec:
+      containers:
+        - name: audit
+          image: rdomloge/slinky-linky-audit:5.5.1-CI-2
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: AUDIT_DATABASE_URL
+            - name: server_port
+              value: "8080"
+            - name: slinkylinky_vhost
+              value: slinkylinky
+          startupProbe:
+            httpGet:
+              path: /.rest/auditrecords
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2
