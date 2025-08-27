@@ -34,8 +34,30 @@ spec:
                 secretKeyRef:
                   name: db-connection-secret
                   key: SUPPLIERENGAGEMENT_DATABASE_URL
+            - name: linkservice_baseurl
+              value: http://linkservice-service:8090/.rest
             - name: server_port
               value: "8080"
+            - name: slinkylinky_domain
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SLINKYLINKY_DOMAIN
+            - name: slinkylinky_vhost
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SLINKYLINKY_VHOST
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
+            - name: spring_mail_testing
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: SPRING_MAIL_TESTING
             - name: mail_username
               valueFrom:
                 secretKeyRef:
@@ -56,21 +78,6 @@ spec:
                 configMapKeyRef:
                   name: supplierengagement-config
                   key: MAIL_FROM
-            - name: slinkylinky_domain
-              valueFrom:
-                configMapKeyRef:
-                  name: common-config
-                  key: SLINKYLINKY_DOMAIN
-            - name: slinkylinky_vhost
-              valueFrom:
-                configMapKeyRef:
-                  name: common-config
-                  key: SLINKYLINKY_VHOST
-            - name: slinkylinky_rabbitmq_host
-              valueFrom:
-                configMapKeyRef:
-                  name: rabbitmq-config
-                  key: RABBITMQ_HOST
             - name: mail_declineEmailRecipientName
               valueFrom:
                 configMapKeyRef:
@@ -81,17 +88,21 @@ spec:
                 configMapKeyRef:
                   name: supplierengagement-config
                   key: MAIL_DECLINED_WARNING_ADDRESSES
-            - name: linkservice_baseurl
-              value: http://linkservice-service:8090/.rest
-            - name: spring_mail_testing
+            - name: mail_bccRecipients
               valueFrom:
                 configMapKeyRef:
                   name: supplierengagement-config
-                  key: SPRING_MAIL_TESTING
-            - name: mail_bccRecipients
-              value: rdomloge@gmail.com
+                  key: MAIL_BCCRECIPIENTS
             - name: mail_expiredWarningAddresses
-              value: rdomloge@gmail.com
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_EXPIRED_WARNING_ADDRESSES
+            - name: mail_requestsignoff
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_REQUESTSIGNOFF
           startupProbe:
             httpGet:
               path: /.rest/profile
