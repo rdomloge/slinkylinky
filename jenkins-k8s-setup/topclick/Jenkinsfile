@@ -24,6 +24,7 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh 'kubectl apply -f ${FOLDER}/adminsite.yml'
+                            sh 'kubectl apply -f ${FOLDER}/linkservice.yml'
                         }
                     }
                 }
