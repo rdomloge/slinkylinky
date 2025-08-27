@@ -103,6 +103,11 @@ spec:
                 configMapKeyRef:
                   name: supplierengagement-config
                   key: MAIL_REQUESTSIGNOFF
+            - name: mail_requestcontact
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_REQUESTCONTACT
           startupProbe:
             httpGet:
               path: /.rest/profile
