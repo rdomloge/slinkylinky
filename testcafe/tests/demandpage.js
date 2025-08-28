@@ -4,18 +4,24 @@ import { createNewDemand, createSupplier } from './helper';
 
 
 fixture("Demand List Page")
-    .page("http://localhost:3000/demand");
+    .page("http://" + process.env.HOST + ":3000/demand");
+
+console.log("Running testcafe tests for demand page against " + process.env.HOST + ":3000/demand");
 
 test("Functionality enabled on login", async t => {
 
     await t.expect(Selector('div').find('.pageTitle').innerText).contains("Demand");
+
+    console.log("Demand page loaded.");
     
     const newButton = Selector('button')
         .with({visibilityCheck: true})
         .withExactText('New');
 
     // have to make sure there is some demand
+    console.log("Creating a new demand");
     await createNewDemand(0);
+    console.log("Created a new demand");
     await t.useRole(Role.anonymous());
 
     const firstDemandCard = Selector('#demandCard-0');

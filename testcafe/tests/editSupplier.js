@@ -7,7 +7,7 @@ import { clickWhenReady } from './helper';
 
 
 fixture("Edit Supplier Page")
-    .page("http://localhost:3000/supplier");
+    .page("http://" + process.env.HOST + ":3000/supplier");
 
 test("Name pulled through and persisted when edited", async t=> {
     await t.useRole(gitHubUser)

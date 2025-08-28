@@ -5,7 +5,7 @@ import matchingModel from './page-models/matchingModel';
 import stagingModel from './page-models/stagingModel';
 
 fixture("Staging Page")
-    .page("http://localhost:3000/demand");
+    .page("http://" + process.env.HOST + ":3000/demand");
 
 test("Staging page shows correct supplier and demand", async t=> {
 

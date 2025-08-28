@@ -7,13 +7,14 @@ import proposalModel from './page-models/proposalModel';
 const matchingSuppliers = require('./matching-supplier-data.json');
 
 fixture("Matching page")
-    .page("http://localhost:3000/demand");
+    .page("http://" + process.env.HOST + ":3000/demand");
 
 test("Suppliers match expected", async t=> {
     
     await createNewDemand(0);
 
     await demandListModel.clickFulFill('Acticare');
+    console.log("Demand created. Clicked fulfill for Acticare");
 
     for (let i = 0; i < matchingSuppliers.length; i++) {
         const s = matchingSuppliers[i];
@@ -27,7 +28,8 @@ test("Suppliers match expected", async t=> {
         await t.expect(matchingModel.supplierSourceInSupplierCard(s.name).innerText).eql(s.source)
     }
     
-    await matchingModel.clickSupplier('Jason')
+    console.log("All suppliers matched expected data - looking for Jason");
+    await matchingModel.clickSupplier('David Smith')
     // need to check that selecting Jason correctly redirected us to staging
 
     // // probably shouldn't do this - this is a test of the matching page

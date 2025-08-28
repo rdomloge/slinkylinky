@@ -7,7 +7,7 @@ import { clickWhenReady } from './helper';
 
 
 fixture("New Supplier Page")
-    .page("http://localhost:3000/supplier/Add");
+    .page("http://" + process.env.HOST + ":3000/supplier/Add");
 
 test("New supplier initial state", async t=> {
     await t.expect(addEditSupplierPage.loadStatsButton.exists).notOk();

@@ -1,7 +1,10 @@
 {
     "screenshots": {
-        "takeOnFails": true
+        "takeOnFails": true,
+        "path": "/tests/screenshots/"
     },
+
+    
 
     "selectorTimeout": 30000,
     "assertionTimeout": 30000,

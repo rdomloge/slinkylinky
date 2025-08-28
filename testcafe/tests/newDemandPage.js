@@ -5,7 +5,7 @@ import demandListModel from './page-models/demandListModel';
 
 
 fixture("New Demand Page")
-    .page("http://localhost:3000/demand");
+    .page("http://" + process.env.HOST + ":3000/demand");
 
 test("New demand initial state", async t=> {
         
@@ -41,7 +41,7 @@ test("New demand demandSite selection ", async t=> {
     await t.useRole(gitHubUser)
         .typeText(addEditDemand.nameInput, "care", {speed: 0.1}) // has to be a little slow so each character search is completed before the next one
 
-    const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('div.flex-0.pr-4.m-auto > button')
+    const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('#select-demand-site-button')
     await t.click(firstSearchResultSelectButton) // SELECT THE FIRST DEMAND SITE
 
     await t.expect(addEditDemand.submitButton.hasAttribute('disabled')).notOk();
@@ -78,11 +78,15 @@ test("New demand create new demandSite ", async t=> {
     const uniqueDomain = "testcafe"+date.getTime()+".com"
     const uniqueName = "TestCafe demandsite-"+date.getTime()
 
+    await t.takeScreenshot({path: "new-demand-create-demand-site.png"})
+
     await t.typeText(addEditDemand.newDemandSiteNameInput, uniqueName)
     await t.typeText(addEditDemand.newDemandSiteUrlInput, uniqueDomain)
     await t.click(addEditDemand.newDemandSiteCreateButton)
         .expect(addEditDemand.newDemandSiteNameInput.exists).notOk()
         .expect(addEditDemand.newDemandSiteUrlInput.exists).notOk();
+    
+    await t.takeScreenshot({path: "new-demand-create-demand-site-after-submit.png"})
 
     // verify that the search results now match the new demand site
     const firstSearchResult = addEditDemand.demandSiteSearchResults.nth(0)

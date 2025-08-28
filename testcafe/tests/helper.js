@@ -98,7 +98,7 @@ export async function createNewDemand(dataIndex) {
 
     await t.useRole(gitHubUser)
         .typeText(addEditDemand.nameInput, demandData[dataIndex].name, {speed: 0.5}) // has to be a little slow so each character search is completed before the next one;
-    const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('div.flex-0.pr-4.m-auto > button');
+    const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('#select-demand-site-button');
     await t.click(firstSearchResultSelectButton); // SELECT THE FIRST DEMAND SITE
     await t.expect(addEditDemand.nameLabel.innerText).eql(demandData[dataIndex].demandSiteExcpectName);
 
