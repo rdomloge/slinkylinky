@@ -8,10 +8,12 @@ import ProposalListItem from "@/components/ProposalListItem";
 import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import MonthsBack from "@/components/monthsBack";
-import OwnerFilter from "@/components/OwnerFilter";
 import Loading from '@/components/Loading';
 import Divider from '@/components/divider';
 import Link from 'next/link';
+import FiltersPanel from '@/components/filters';
+import { Toggle } from '@/components/atoms/Toggle';
+
 
 export default function ListProposals() {
     const router = useRouter()
@@ -21,6 +23,7 @@ export default function ListProposals() {
     const [completeProposals, setCompleteProposals] = useState([]);
     const [waitingForSupplier, setWaitingForSupplier] = useState([]);
     const [waitingForAdmin, setWaitingForAdmin] = useState([]);
+    const [unpaidfilter, setUnpaidFilter] = useState(false);
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
@@ -85,6 +88,26 @@ export default function ListProposals() {
         setWaitingForAdmin(waitingForAdmin)
     }
 
+    function applyUnpaidFilter() {
+        if(unpaidfilter) {
+            setUnpaidFilter(false);
+            filterProposals(proposals);
+        }
+        else {
+            setUnpaidFilter(true);
+            setCompleteProposals([]);
+            setWaitingForSupplier([]);
+            const [unpaid] = proposals.reduce( (acc, p) => {
+                if(!p.invoicePaid && p.validated && p.proposalSent && !p.paidLinks[0].supplier.thirdParty && p.blogLive && p.proposalAccepted) {
+                    acc[0].push(p)
+                }
+                return acc;
+            }, [[]])
+            setWaitingForAdmin(unpaid)
+        }
+        
+    }
+
     useEffect(
         () => {
             if(router.isReady) {
@@ -100,6 +123,7 @@ export default function ListProposals() {
                     })
                     .then( (data) => {
                         filterProposals(data);
+                        setProposals(data);
                     })
                     .catch( (error) => setError(error.message));
             }
@@ -113,6 +137,9 @@ export default function ListProposals() {
             <div className='block'>
                 <MonthsBack/>
             </div>
+            <FiltersPanel>
+                <Toggle initialValue={unpaidfilter} changeHandler={applyUnpaidFilter} label={"Unpaid"}/>
+            </FiltersPanel>
             <nav className='sticky top-0 border-b-2 bg-white pb-4 ps-1'>
                 <Link href={"#waiting-for-us"}>{waitingForAdmin.length + " needing attention, "} </Link>
                 <Link href={"#waiting-for-them"}>{waitingForSupplier.length + " need chasing, "} </Link>
