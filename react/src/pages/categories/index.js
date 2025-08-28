@@ -9,7 +9,7 @@ import Modal from "@/components/atoms/Modal";
 import TextInput from "@/components/atoms/TextInput";
 import { useSession } from "next-auth/react";
 import ErrorMessage, { InfoMessage, WarningMessage } from "@/components/atoms/Messages";
-import DisableToggle from "@/components/atoms/DisableToggle";
+import DisableToggle from "@/components/atoms/Toggle";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()
