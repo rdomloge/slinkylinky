@@ -8,7 +8,7 @@ import Icon from '@/components/shipping.png'
 import TextInput from '@/components/atoms/TextInput'
 import NumberInput from '@/components/atoms/NumberInput'
 import React, {useEffect, useState} from 'react';
-import DisableToggle from './atoms/DisableToggle'
+import DisableToggle from './atoms/Toggle'
 import { fixForPosting } from "./CategoryUtil";
 import { StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";

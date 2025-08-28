@@ -112,7 +112,7 @@ export default function AddOrEditDemand({demand, successHandler}) {
         {demand ?
             <div className="flex">
                 <div className="mb-4">
-                    <StyledButton submitHandler={submitHandler} enabled={isSubmitButtonEnabled()} label="Submit" type="primary"/>
+                    <StyledButton submitHandler={submitHandler} enabled={isSubmitButtonEnabled()} label="Submit" type="primary" id='createnew'/>
                 </div>
                 <div className="flex-initial">
                     <div className="flex p-4">
