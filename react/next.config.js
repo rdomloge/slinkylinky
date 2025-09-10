@@ -50,8 +50,10 @@ const nextConfig = {
         },
         {
           source: '/.rest/:path*',
-          destination: 'http://linkservice-service:8090/.rest/:path*'
+          destination: 'http://host.docker.internal:8080/.rest/:path*'
         }
+        // these don't need to be edited for prod (they are circumvented with CF tunnels) - you edit the CF tunnel rules under 
+        // 'Zero Trust >> Networks >> Tunnels >> your-tunnel >> Configure >> Public Hostnames'
       ]
     },
     images: {
