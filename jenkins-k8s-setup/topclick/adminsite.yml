@@ -31,6 +31,21 @@ spec:
           env:
             - name: NEXTAUTH_SECRET
               value: "b7f8c2e4-4a1d-4e9a-9f3b-2d8e8a7c6f1e_!S3cure$Str0ng#SSL@2025"
+            - name: KEYCLOAK_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ID
+            - name: KEYCLOAK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_SECRET
+            - name: KEYCLOAK_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
             - name: NEXTAUTH_URL
               valueFrom:
                 configMapKeyRef:
