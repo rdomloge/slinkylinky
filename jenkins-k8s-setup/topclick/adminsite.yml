@@ -51,6 +51,13 @@ spec:
                 configMapKeyRef:
                   name: admin-website-config
                   key: NEXTAUTH_URL
+            # This next value is needed for when the app is running in k8s - back channel comms to keycloak fails if you go out via cloudflare and back in again
+            # https://next-auth.js.org/configuration/options#nextauth_url_internal
+            - name: NEXTAUTH_URL_INTERNAL
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-website-config
+                  key: NEXTAUTH_URL_INTERNAL
             - name: GITHUB_SECRET
               valueFrom:
                 secretKeyRef:
