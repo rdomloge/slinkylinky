@@ -14,7 +14,11 @@ export default function Profile() {
                                 <h4 className="text-right">Signed in as {session.user.name}</h4>
                                 <button className="float-right" onClick={() => signOut()}>Sign out</button>
                             </div>
-                            <Image className="rounded-full p-1 flex-none border-2 border-blue-600" src={session.user.image} alt="Profile image" width={60} height={60}/>
+                            {session.user.image ?
+                                <Image className="rounded-full p-1 flex-none border-2 border-blue-600" src={session.user.image} alt="Profile image" width={60} height={60}/>
+                            :
+                                <Image className="rounded-full p-1 flex-none border-2 border-blue-600" src={Icon} alt="Profile image" width={60} height={60}/>
+                            }
                         </div>
                     :
                         <div className="flex p-2">
