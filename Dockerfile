@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:22 as adminsite_base
+FROM --platform=$BUILDPLATFORM node:22 AS adminsite_base
 
 WORKDIR /adminwebsite
 
