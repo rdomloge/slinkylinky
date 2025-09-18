@@ -3,5 +3,5 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://10.0.0.12:8100/realms/slinkylinky
-          jwk-set-uri: http://10.0.0.12:8100/realms/slinkylinky/protocol/openid-connect/certs
+          issuer-uri: ${ISSUER_URI}
+          jwk-set-uri: ${JWK_SET_URI}
