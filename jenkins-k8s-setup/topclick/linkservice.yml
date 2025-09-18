@@ -50,6 +50,11 @@ spec:
                 configMapKeyRef:
                   name: keycloak-credentials
                   key: KEYCLOAK_ISSUER
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
           startupProbe:
             tcpSocket:
               port: 8080
