@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
 import KeycloakProvider from "next-auth/providers/keycloak";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 async function refreshAccessToken(token) {
   try {
@@ -12,7 +13,7 @@ async function refreshAccessToken(token) {
       grant_type: "refresh_token",
       refresh_token: token.refreshToken,
     });
-    const response = await fetch(url, {
+    const response = await fetch(url, {       // Do not use fetchWithAuth here!! This is a call to the Keycloak server directly
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -43,13 +44,14 @@ export default NextAuth({
     // ...add more providers here
   ],
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       // Initial sign in
-      if (account) {
+      if (account && user) {
         return {
           accessToken: account.access_token || account.id_token,
           accessTokenExpires: Date.now() + (account.expires_in ? account.expires_in * 1000 : 0),
           refreshToken: account.refresh_token,
+          user, // store user info in token
         };
       }
       // Return previous token if the access token has not expired yet
@@ -60,9 +62,9 @@ export default NextAuth({
       return await refreshAccessToken(token);
     },
     async session({ session, token }) {
-      // Expose the accessToken to the client
       session.accessToken = token.accessToken;
       session.error = token.error;
+      session.user = token.user; // restore user info to session
       return session;
     }
   },
