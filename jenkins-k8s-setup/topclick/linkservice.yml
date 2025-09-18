@@ -40,10 +40,16 @@ spec:
               value: gpt-3.5-turbo
             - name: slinkylinky_vhost
               value: slinkylinky
-            - name: spring_security_oauth2_resourceserver_jwt_issuer_uri
-              value: setme
-            - name: jwt_required
-              value: "false"
+            - name: JWK_SET_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak-credentials
+                  key: JWK_SET_URI
+            - name: ISSUER_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
           startupProbe:
             tcpSocket:
               port: 8080
