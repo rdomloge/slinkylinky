@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: adminwebsite
-          image: rdomloge/slinky-linky-adminwebsite:6.0.0-CI-14
+          image: rdomloge/slinky-linky-adminwebsite:6.0.1-CI-16
           imagePullPolicy: Always
           resources:
             requests:
