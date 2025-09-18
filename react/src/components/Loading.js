@@ -12,7 +12,7 @@ export default function Loading({error}) {
                         {error ?
                             <>
                                 <Image src={Icon} width={100} height={100} alt="Error icon" className="p-1 inline-block p-4"/>
-                                <div className="inline-block text-2xl p-2 text-red-500 align-middle w-2/3">Error: {error}</div>
+                                <div className="inline-block text-2xl p-2 text-red-500 align-middle w-2/3">Error: {typeof error === 'string' || error instanceof String ? error : error.message}</div>
                             </>
                         :
                             <svg aria-hidden="true" className="w-12 h-12 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" 
