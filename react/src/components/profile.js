@@ -2,6 +2,7 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import Icon from "@/components/user.svg";
+import Link from "next/link";
 
 export default function Profile() {
     const { data: session } = useSession();
@@ -11,7 +12,9 @@ export default function Profile() {
                     {session ?
                         <div className="flex p-2">
                             <div className="flex-1 p-1 h-1">
-                                <h4 className="text-right">Signed in as {session.user.name}</h4>
+                                <Link href={`/realms/${process.env.NEXT_PUBLIC_REALM}/account/`} target="_blank" rel="noopener noreferrer">
+                                    <h4 className="text-right">Signed in as {session.user.name}</h4>
+                                </Link>
                                 <button className="float-right" onClick={() => signOut()}>Sign out</button>
                             </div>
                             {session.user.image ?
