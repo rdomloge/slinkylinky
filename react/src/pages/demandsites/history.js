@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { CompactDate } from '@/components/atoms/DateTime';
 import Loading from '@/components/Loading';
 import Link from 'next/link';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 
 const History = () => {
@@ -29,7 +30,7 @@ const History = () => {
         try {
             // /proposals/search/findByPaidLinksDemandDomain?demandDomain=acticareuk.com&projection=liteProposal&size=2&page=0
             const url = `/.rest/proposals/search/findAllByPaidLinks_Demand_DomainOrderByDateCreatedDesc?domain=${domain}&projection=liteProposal&size=30&page=${page-1}`;
-            fetch(url).then((res) => {
+            fetchWithAuth(url).then((res) => {
                 if (!res.ok) {
                     throw new Error("Can't fetch historical paid links.");
                 }

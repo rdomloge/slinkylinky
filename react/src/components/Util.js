@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
+
 export function addProtocol(url) {
     if (!/^(?:f|ht)tps?\:\/\//i.test(url)) {
         url = "https://" + url;
@@ -32,7 +34,7 @@ export function checkIfSupplierIsBlacklisted(website, session) {
         throw new Error("Missing session parameter")
     }
     const url = "/.rest/blackListedSupplierSupport/isBlackListed?website="+url_domain(website)
-    return fetch(url, { method: 'GET', headers: {'user': session.user.email}})
+    return fetchWithAuth(url, { method: 'GET', headers: {'user': session.user.email}})
             .then( (resp) => {
                 if(resp.ok) {
                     return resp.json().then( (data) => {
@@ -53,7 +55,7 @@ export function checkIfSupplierIsBlacklisted(website, session) {
 
 export function checkIfSupplierExists(website, session) {
     const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
-    return fetch(url, {method: 'GET', headers: {'user': session.user.email}})
+    return fetchWithAuth(url, {method: 'GET', headers: {'user': session.user.email}})
         .then( (resp) => {
             if(resp.ok) {
                 return resp.json().then( (data) => {

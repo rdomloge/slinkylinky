@@ -13,6 +13,7 @@ import Loading from '@/components/Loading';
 import ErrorMessage from '@/components/atoms/Messages';
 import ProposalValidationPanel from '@/components/ProposalWarnings';
 import { ClickHandlerButton } from '@/components/atoms/Button';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 function parseId(entity) {
     const url = entity._links.self.href;
@@ -37,7 +38,7 @@ export default function App() {
         const aggregateDemand = selectedOtherDemands.concat([demand]);
         const proposalUrl = "/.rest/proposalsupport/createProposal?supplierId=" + supplierId + "&demandIds=" + aggregateDemand.map((d) => d.id).join(',');
 
-        fetch(proposalUrl, {
+        fetchWithAuth(proposalUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': session.user.email},
         })
@@ -61,8 +62,8 @@ export default function App() {
                 const supplierUrl = "/.rest/suppliers/"+ supplierId+"?projection=fullSupplier";
                 const otherDemandsUrl = "/.rest/demands/search/findDemandForSupplierId?supplierId="
                                             + supplierId + "&demandIdToIgnore="+demandId+"&projection=fullDemand";
-                
-                Promise.all([fetch(demandUrl), fetch(supplierUrl), fetch(otherDemandsUrl)])
+
+                Promise.all([fetchWithAuth(demandUrl), fetchWithAuth(supplierUrl), fetchWithAuth(otherDemandsUrl)])
                     .then(([resDemand, resSupplier, resOtherDemands]) => {
                         if(!resDemand.ok || !resSupplier.ok || !resOtherDemands.ok) {
                             throw new Error("Could not fetch data");

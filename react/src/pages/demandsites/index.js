@@ -6,6 +6,7 @@ import PageTitle from "@/components/pagetitle";
 import Loading from '@/components/Loading';
 import { DemandSiteListItemLite } from '@/components/DemandSite';
 import Paging from '@/components/Paging';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function DemandSiteList() {
 
@@ -19,7 +20,7 @@ export default function DemandSiteList() {
     const [pageCount, setPageCount] = useState(0)
 
     function deleteDemandSite(ds) {
-        fetch('/.rest/demandssitesupport/delete?demandSiteId='+ds.id, {
+        fetchWithAuth('/.rest/demandssitesupport/delete?demandSiteId='+ds.id, {
             method: 'DELETE',
             headers: {'user': session.user.name}
         })
@@ -48,7 +49,7 @@ export default function DemandSiteList() {
     useEffect(() => {
         const missingCategoriesUrl = "/.rest/demandsites/search/findByMissingCategories";
 
-        fetch(missingCategoriesUrl)
+        fetchWithAuth(missingCategoriesUrl)
             .then((res) => {
                 if (!res.ok) {
                     throw new Error("Can't fetch demand sites with missing categories.")
@@ -70,7 +71,7 @@ export default function DemandSiteList() {
             const page = router.query.page ? parseInt(router.query.page) : 1
             setPage(page)
             const demandSitesUrl = "/.rest/demandsites?projection=fullDemandSite&sort=name,asc&size=12&page="+(page-1)
-            fetch(demandSitesUrl)
+            fetchWithAuth(demandSitesUrl)
                 .then((res) => {
                     if (!res.ok) {
                         throw new Error("Can't fetch demand sites.")

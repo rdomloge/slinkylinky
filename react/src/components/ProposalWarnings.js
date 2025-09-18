@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import ErrorMessage from './atoms/Messages';
 import { useSession } from "next-auth/react";
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 const cache = {};
 
@@ -102,7 +103,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
 
     function lookupWithMoz(demand, supplier) {
         const mozUrl = "/.rest/mozsupport/checklink?demandurl="+demand.domain+"&supplierDomain="+supplier.domain
-        return fetch(mozUrl, {
+        return fetchWithAuth(mozUrl, {
                     method: 'GET',
                     headers: {'user': session.user.email, 'demandId': demand.id}
                 })

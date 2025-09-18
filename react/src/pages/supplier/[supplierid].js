@@ -3,6 +3,7 @@ import PageTitle from "@/components/pagetitle";
 import AddOrEditSupplier from "@/components/AddOrEditSupplier";
 import React, {useState, useEffect} from 'react';
 import { useRouter } from 'next/router'
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function EditSupplier() {
     const router = useRouter()
@@ -17,7 +18,7 @@ export default function EditSupplier() {
         () => {
             if(router.isReady) {
                 const supplierUrl = "/.rest/suppliers/"+router.query.supplierid+"?projection=fullSupplier";
-                fetch(supplierUrl, {
+                fetchWithAuth(supplierUrl, {
                     headers: {'Cache-Control': 'no-cache'}
                 })
                 .then( (res) => res.json())

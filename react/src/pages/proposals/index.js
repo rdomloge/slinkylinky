@@ -13,6 +13,7 @@ import Divider from '@/components/divider';
 import Link from 'next/link';
 import FiltersPanel from '@/components/filters';
 import { Toggle } from '@/components/atoms/Toggle';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 
 export default function ListProposals() {
@@ -114,7 +115,7 @@ export default function ListProposals() {
 
                 const minusMonths = router.query.minusMonths
                 
-                fetch(buildUrl(minusMonths))
+                fetchWithAuth(buildUrl(minusMonths))
                     .then( (res) => {
                         if(!res.ok) {
                             throw new Error("Can't fetch proposals.")

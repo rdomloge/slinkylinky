@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import Loading from "@/components/Loading";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function DemandSite() {
     const router = useRouter()
@@ -17,7 +18,7 @@ export default function DemandSite() {
             if(router.isReady) {
                 const demandSiteUrl = "/.rest/demandsites/"+router.query.demandsiteid + "?projection=fullDemandSite"
                 
-                fetch(demandSiteUrl)
+                fetchWithAuth(demandSiteUrl)
                     .then(res => res.json())
                     .then(data => setDemandSite(data))
                     .catch(err => setError(err));

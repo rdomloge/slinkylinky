@@ -20,6 +20,7 @@ import Image from "next/image";
 import Timer from "@/pages/proposals/timer.svg";
 import DoNotExpire from "@/pages/proposals/expired.svg";
 import AddOrEditDemand from '@/components/AddOrEditDemand'
+import { fetchWithAuth } from '@/utils/fetchWithAuth'
 
 
 export default function Proposal() {
@@ -42,7 +43,7 @@ export default function Proposal() {
         () => {
             if(router.isReady) {
                 const proposalsUrl = "/.rest/proposals/"+router.query.proposalid+"?projection=fullProposal";
-                fetch(proposalsUrl, {headers: {'Cache-Control': 'no-cache'}})
+                fetchWithAuth(proposalsUrl, {headers: {'Cache-Control': 'no-cache'}})
                     .then( (res) => {
                         if(res.status == 404) {
                             throw new Error("Proposal not found")
@@ -60,7 +61,7 @@ export default function Proposal() {
                             // load the version of the supplier that was current at the time of the proposal
                             const url = "/.rest/supplierSupport/getVersion?supplierId="+p.paidLinks[0].supplier.id+"&projection=fullSupplier"
                                         +"&version="+p.supplierSnapshotVersion
-                            fetch(url, {headers: {'Cache-Control': 'no-cache'}})
+                            fetchWithAuth(url, {headers: {'Cache-Control': 'no-cache'}})
                                 .then( (res) => res.json())
                                 .then( (s) => setSupplier(s)) 
                         }
@@ -74,7 +75,7 @@ export default function Proposal() {
     
     function abortProposal() {
         const url = "/.rest/proposalsupport/abort?proposalId="+router.query.proposalid;
-        fetch(url, {
+        fetchWithAuth(url, {
                 method: 'DELETE', 
                 headers: {'user': session.user.email}})
             .then( (res) => {
@@ -87,7 +88,7 @@ export default function Proposal() {
 
     function loadEngagement() {
         const url = "/.rest/engagements/search/findByProposalIdAndStatusACCEPTED?proposalId="+router.query.proposalid;
-        fetch(url)
+        fetchWithAuth(url)
             .then( (res) => res.json())
             .then( (e) => setEngagement(e))
             .catch( (err) => {
@@ -98,7 +99,7 @@ export default function Proposal() {
     function setDoNotExpire() {
         const url = "/.rest/proposals/"+router.query.proposalid;
         const payload  = {doNotExpire: true, updatedBy: session.user.email};
-        fetch(url, {method: 'PATCH', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'}})
+        fetchWithAuth(url, {method: 'PATCH', body: JSON.stringify(payload), headers: {'Content-Type': 'application/json'}})
             .then( (res) => {
                 if(res.ok) {
                     setProposal({...proposal, doNotExpire: true});

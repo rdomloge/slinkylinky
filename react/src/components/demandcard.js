@@ -18,6 +18,7 @@ import { useState } from 'react'
 import Modal from './atoms/Modal'
 import { useSession } from 'next-auth/react'
 import { addProtocol } from './Util'
+import { fetchWithAuth } from '@/utils/fetchWithAuth'
 
 export default function DemandCard({demand, fullfilable=false, editable=false, id, deleteCascader, deletable=false, editHandler}) {
 
@@ -26,7 +27,7 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
 
     function deleteHandler() {
         setShowDeleteModal(false)
-        fetch('/.rest/demandsupport/delete?demandId='+demand.id, {
+        fetchWithAuth('/.rest/demandsupport/delete?demandId='+demand.id, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

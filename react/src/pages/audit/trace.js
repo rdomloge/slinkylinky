@@ -5,6 +5,7 @@ import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import Loading from '@/components/Loading';
 import TimelineEntry from '@/components/atoms/TimelineEntry';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function EntityAuditTrail() {
     const router = useRouter()
@@ -19,7 +20,7 @@ export default function EntityAuditTrail() {
                     + "?entityType="+entityType
                     + "&entityId="+entityId
 
-                fetch(trailUrl).then(resp=>resp.json()).then(data=>setTrail(data))
+                fetchWithAuth(trailUrl).then(resp=>resp.json()).then(data=>setTrail(data))
             }
         }, [router.isReady]
     );

@@ -4,6 +4,7 @@ import { StyledButton } from "./atoms/Button";
 import { NiceDateTime } from "./atoms/DateTime"
 import Modal from "./atoms/Modal";
 import { useSession } from "next-auth/react";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function OrderCard({order, archiveHandler}) {
 
@@ -32,7 +33,7 @@ export default function OrderCard({order, archiveHandler}) {
         setShowModal(false)
         
         const orderUrl = "/.rest/orders/archiveorder?id="+order.id
-        fetch(orderUrl, {
+        fetchWithAuth(orderUrl, {
             method: 'GET',
             headers: {
                 'user': session.user.email

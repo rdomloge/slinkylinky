@@ -6,6 +6,7 @@ import SessionButton, { SessionBlock, StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import { useState } from "react";
 import { WarningMessage } from "./atoms/Messages";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function DemandSiteSearchResult({demandSite, selectedHandler, id}) {
     return (
@@ -39,7 +40,7 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
     function handleDeleteClicked() {
         setShowDeleteModal(true);
 
-        fetch('/.rest/demandsites/search/countByDemandSiteId?demandSiteId='+demandSite.id)
+        fetchWithAuth('/.rest/demandsites/search/countByDemandSiteId?demandSiteId='+demandSite.id)
         .then(response => response.json())
         .then(data => {
             setLinkedDemands(data);

@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import Image from 'next/image'
 import PigIcon from '@/components/pig.svg'
 import { useEffect, useState, useRef } from "react";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null}) {
     const [trafficDataPoints, setTrafficDataPoints] = useState([]);
@@ -55,7 +56,7 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false, dataLis
                         +"&endDate="+endDate
         }
 
-        fetch(url, {headers: {
+        fetchWithAuth(url, {headers: {
             'user': session.user.email}
         })
         .then( (resp) => {

@@ -6,6 +6,7 @@ import Loading from '@/components/Loading';
 import { AuditLine } from '@/components/AuditCard';
 import Paging from '@/components/Paging';
 import { useRouter } from 'next/router';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function AuditIndexPage() {
 
@@ -21,7 +22,7 @@ export default function AuditIndexPage() {
             const page = router.query.page ? parseInt(router.query.page) : 1
             setPage(page)
             const auditUrl = "/.rest/auditrecords?size=10&page="+(page-1)
-            fetch(auditUrl)
+            fetchWithAuth(auditUrl)
                 .then((resp)=>resp.json())
                 .then((data)=> {
                     setAudits(data._embedded.auditrecords)

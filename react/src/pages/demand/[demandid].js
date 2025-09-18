@@ -6,6 +6,7 @@ import PageTitle from '@/components/pagetitle'
 import Layout from '@/components/layout/Layout'
 import AddOrEditDemand from '@/components/AddOrEditDemand'
 import Loading from '@/components/Loading'
+import { fetchWithAuth } from '@/utils/fetchWithAuth'
 
 export default function Demand() {
     const router = useRouter()
@@ -16,7 +17,7 @@ export default function Demand() {
         () => {
             if(router.isReady) {
                 const demandUrl = '/.rest/demands/'+ router.query.demandid+"?projection=fullDemand";
-                fetch(demandUrl)
+                fetchWithAuth(demandUrl)
                     .then(res => res.json())
                         .then(json => {
                             json.id = router.query.demandid;

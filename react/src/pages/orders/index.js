@@ -2,6 +2,7 @@ import Loading from "@/components/Loading";
 import OrderCard from "@/components/OrderCard";
 import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { useEffect, useState } from "react";
 
 export default function ListOrders() {
@@ -40,7 +41,7 @@ export default function ListOrders() {
     }
 
     useEffect( () => {
-        fetch("/.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder")
+        fetchWithAuth("/.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder")
             .then((res) => res.json())
             .then((result)=> {
                 const sorted = result.sort((a,b) => sortOrders(a,b))

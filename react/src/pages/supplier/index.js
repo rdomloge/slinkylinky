@@ -14,6 +14,7 @@ import CategoryFilter from "@/components/CategorySelector";
 import SessionButton from "@/components/atoms/Button";
 import NumberInput from '@/components/atoms/NumberInput';
 import Loading from '@/components/Loading';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()
@@ -28,11 +29,11 @@ export default function ListBloggers() {
     useEffect(() => {
         const countUrl = "/.rest/suppliers/search/count"
         const activeCountUrl = "/.rest/suppliers/search/countByDisabledFalse"
-        fetch(countUrl)
+        fetchWithAuth(countUrl)
             .then( (res) => res.json())
             .then( (data) => setSupplierCount(data));
 
-        fetch(activeCountUrl)
+        fetchWithAuth(activeCountUrl)
             .then( (res) => res.json())
             .then( (data) => setActiveSupplierCount(data));
     }, []);
@@ -52,14 +53,14 @@ export default function ListBloggers() {
                                         filterOrMaxNum("da", daFilter, 40, 100)+
                                         categoriesToCsvArray();
                 
-                fetch(suppliersUrl)
+                fetchWithAuth(suppliersUrl)
                     .then( (res) => res.json())
                     .then( (data) => {
                         setSuppliers(data)
                         setIsLoading(false)
                         var usageUrl = supplierUsageCountUrl;
                         data.forEach((s,index) => usageUrl += s.id + (index < data.length-1 ? "," : ""));
-                        fetch(usageUrl)
+                        fetchWithAuth(usageUrl)
                             .then(resCount => resCount.json())
                             .then(counts => {
                                 setSupplierUsageCount(counts)

@@ -10,6 +10,7 @@ import OwnerFilter from '@/components/OwnerFilter';
 import SessionButton from '@/components/atoms/Button';
 import Select from '@/components/atoms/Select';
 import Loading from '@/components/Loading';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function Demand() {
     const [personal, setPersonal] = useState()
@@ -19,15 +20,14 @@ export default function Demand() {
     const [sortOrder, setSortOrder] = useState("requested");
     const [sortOptions, setSortOptions] = useState([]);
 
-    useEffect( () => {
-
+    useEffect(() => {
+        if( ! session) return;
         const storedSortOrder = window.localStorage.getItem("demandSortOrder");
-        
-        const requestedOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand"
-        const daNeededOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullDemand"
+        const requestedOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand";
+        const daNeededOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullDemand";
         const url = (storedSortOrder) === "daNeeded" ? daNeededOrderUrl : requestedOrderUrl;
 
-        fetch(url)
+        fetchWithAuth(url)
             .then(res => res.json())
             .then((result) => setDemands(filterPersonalIfNeeded(result)))
             .catch((error) => {
@@ -36,11 +36,10 @@ export default function Demand() {
 
         // Need to build in effect so that window.localStorage is available, but only run once because we don't want it to be
         // dependent on any state changes and rebuilt every time.
-        if(sortOptions.length === 0) {
+        if (sortOptions.length === 0) {
             buildSortOptions();
         }
-
-    }, [personal, sortOrder]); 
+    }, [personal, sortOrder, session]);
 
     function filterPersonalIfNeeded(data) {
         if( ! session) return data;

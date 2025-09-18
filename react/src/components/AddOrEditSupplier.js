@@ -15,6 +15,7 @@ import Modal from "./atoms/Modal";
 import SupplierSemRushTraffic from "./SupplierStats";
 import { checkIfSupplierExists, checkIfSupplierIsBlacklisted, url_domain, validDomain } from "./Util";
 import { WarningMessage } from "./atoms/Messages";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function AddOrEditSupplier({supplier, 
         supplierName = '', setSupplierName, 
@@ -72,7 +73,7 @@ export default function AddOrEditSupplier({supplier,
 
     function lookupDa(domain) {
         const url = "/.rest/mozsupport/checkdomain?domain="+domain
-        fetch(url, {method: 'GET', headers: {'user': session.user.email}})
+        fetchWithAuth(url, {method: 'GET', headers: {'user': session.user.email}})
         .then( (resp) => {
             if(resp.ok) {
                 resp.json().then( (data) => {
@@ -103,7 +104,7 @@ export default function AddOrEditSupplier({supplier,
             + "&da="+supplierDa
             + "&spamRating="+supplierSpamScore
 
-        fetch(url, {method: 'POST', headers: {'user': session.user.email}, body: JSON.stringify(dataPoints)})
+        fetchWithAuth(url, {method: 'POST', headers: {'user': session.user.email}, body: JSON.stringify(dataPoints)})
 
         setSupplierIsBlackListed(true)
     }
@@ -130,7 +131,7 @@ export default function AddOrEditSupplier({supplier,
 
             patchData.updatedBy = session.user.email
             
-            fetch(supplierUrl+"/"+supplier.id, {
+            fetchWithAuth(supplierUrl+"/"+supplier.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(patchData)
@@ -150,7 +151,7 @@ export default function AddOrEditSupplier({supplier,
             patchData.createdBy = session.user.email
             if( ! patchData.weWriteFeeCurrency) patchData.weWriteFeeCurrency = "£"
 
-            fetch(supplierUrl, {
+            fetchWithAuth(supplierUrl, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(patchData)

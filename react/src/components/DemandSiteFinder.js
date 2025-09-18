@@ -6,6 +6,7 @@ import TextInput from './atoms/TextInput';
 import { ClickHandlerButton } from './atoms/Button';
 import Image from 'next/image';
 import Icon from '@/pages/demand/arrow-bend-up-left.svg';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}) {
     const { data: session } = useSession();
@@ -17,7 +18,7 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
     useEffect( () => {
         if(searchTerm && searchTerm.length > 2) {
             const searchUrl = "/.rest/demandsites/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase?name="+searchTerm+"&email="+searchTerm
-            fetch(searchUrl)
+            fetchWithAuth(searchUrl)
                 .then(resp => resp.json())
                 .then(data => setSearchResults(data))
         }
@@ -35,7 +36,7 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
         demandsite.createdBy = session.user.email
         demandsite.categories = []
 
-        fetch(demandsiteUrl, {
+        fetchWithAuth(demandsiteUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
             body: JSON.stringify(demandsite)

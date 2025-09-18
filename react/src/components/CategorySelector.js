@@ -1,5 +1,6 @@
 import AsyncSelect from 'react-select/async';
 import React, {useState, useEffect} from 'react'
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function CategorySelector({changeHandler, label, initialValue}) {
 
@@ -24,7 +25,7 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
 
     const findCategories = (inputValue, callback) => {
         console.log("Fetching categories like "+inputValue)
-        fetch(buildUrlForInputValue(inputValue))
+        fetchWithAuth(buildUrlForInputValue(inputValue))
             .then(res => res.json())
             .then(
                 json => callback(json.map(c => ({value: "/categories/"+c.id, label: c.name}))))

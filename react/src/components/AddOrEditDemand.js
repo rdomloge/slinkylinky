@@ -8,6 +8,7 @@ import CategoriesCard from './categoriescard';
 import { StyledButton } from './atoms/Button';
 import { fixForPosting } from './CategoryUtil'; 
 import ErrorMessage from './atoms/Messages';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function AddOrEditDemand({demand, successHandler}) {
 
@@ -46,7 +47,7 @@ export default function AddOrEditDemand({demand, successHandler}) {
             delete demand._links
             demand.updatedBy = session.user.email
 
-            fetch(restUrl+"/"+demand.id, {
+            fetchWithAuth(restUrl+"/"+demand.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demand)
@@ -67,7 +68,7 @@ export default function AddOrEditDemand({demand, successHandler}) {
         else {
             demand.createdBy = session.user.email
             demand.source = 'SlinkyLinky'
-            fetch(restUrl, {
+            fetchWithAuth(restUrl, {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demand)

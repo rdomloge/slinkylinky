@@ -7,6 +7,7 @@ import TextInput from "./atoms/TextInput";
 import { ClickHandlerButton } from "./atoms/Button";
 import NumberInput from "./atoms/NumberInput";
 import ContentCreator from "./ContentCreator";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function TrafficLightClickHandler({children, proposal, updateHandler, propertyName, propertyDate}) {
     const { data: session } = useSession();
@@ -48,7 +49,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
 
     function articleSubmitHandler(content) {
         const url = "/.rest/proposalsupport/addarticle?proposalId="+parseId(proposal);
-        fetch(url, {
+        fetchWithAuth(url, {
             method: 'PATCH',
             headers: {'user': session.user.email, 'Content-Type':'text/plain'},
             body: content
@@ -104,7 +105,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         }
         const bodyJson = JSON.stringify(postData)
 
-        fetch(proposalUrl, {
+        fetchWithAuth(proposalUrl, {
             method: 'PATCH',
             headers: {'Content-Type':'application/json'},
             body: bodyJson
@@ -118,7 +119,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                 if("blogLive" === propertyName) {
                     if(proposal.paidLinks[0].supplier.thirdParty) {
                         const supplierUrl = "/.rest/suppliers/"+proposal.paidLinks[0].supplier.id;
-                        fetch(supplierUrl, {
+                        fetchWithAuth(supplierUrl, {
                             method: 'PATCH',
                             headers: {'Content-Type':'application/json'},
                             body: JSON.stringify(create3rdPartySupplierPatchData())

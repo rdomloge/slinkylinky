@@ -4,11 +4,12 @@ import Layout from "@/components/layout/Layout";
 import PageTitle from "@/components/pagetitle";
 import React, {useState, useEffect} from 'react'
 import Loading from "@/components/Loading";
-import { SessionBlock, StyledButton } from "@/components/atoms/Button";
+import { StyledButton } from "@/components/atoms/Button";
 import Modal from "@/components/atoms/Modal";
 import TextInput from "@/components/atoms/TextInput";
 import { useSession } from "next-auth/react";
-import ErrorMessage, { InfoMessage, WarningMessage } from "@/components/atoms/Messages";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import { InfoMessage, WarningMessage } from "@/components/atoms/Messages";
 import DisableToggle from "@/components/atoms/Toggle";
 
 export default function ListCategories() {
@@ -27,7 +28,8 @@ export default function ListCategories() {
 
     useEffect(
         () => {
-            fetch(catUrl)
+            if( ! session) return;
+            fetchWithAuth(catUrl)
                 .then( (res) => res.json())
                 .then( (data) => setCategories(data))
                 .catch( (error) => setError(error));
@@ -40,7 +42,7 @@ export default function ListCategories() {
         
 
         setCategories(categories);
-        fetch(patchUrl, {
+        fetchWithAuth(patchUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': session.user.email},
             body: JSON.stringify(newCategory)
@@ -76,7 +78,7 @@ export default function ListCategories() {
         console.log("Saving updated category: "+editingCategoryName);
         setShowEditModal(false);
         
-        fetch(patchUrl + editingCategory.id, {
+        fetchWithAuth(patchUrl + editingCategory.id, {
             method: 'PATCH',
             headers: {'Content-Type':'application/json', 'user': session.user.email},
             body: JSON.stringify({name: editingCategoryName, disabled: editingCategory.disabled, updatedBy: session.user.email})

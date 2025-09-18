@@ -2,6 +2,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import Image from 'next/image'
 import WarningIcon from '@/components/warning.svg'
+import { fetchWithAuth } from "@/utils/fetchWithAuth"
 
 export default function OrderLineItem({lineItem}) {
 
@@ -12,7 +13,7 @@ export default function OrderLineItem({lineItem}) {
     const [proposalTitle, setProposalTitle] = useState()
 
     useEffect( () => {
-        fetch("/.rest/demands/"+lineItem.demandId)
+        fetchWithAuth("/.rest/demands/"+lineItem.demandId)
             .then((res) => res.json())
             .then((result)=> setDemandDescription(result.name))
             .catch((error)=>{
@@ -20,7 +21,7 @@ export default function OrderLineItem({lineItem}) {
             })
 
         if(lineItem.linkedProposalId) {
-            fetch("/.rest/proposals/"+lineItem.linkedProposalId+"?projection=fullProposal")
+            fetchWithAuth("/.rest/proposals/"+lineItem.linkedProposalId+"?projection=fullProposal")
                 .then((res) => res.json())
                 .then((result)=> {
                     setSupplierDescription(result.paidLinks[0].supplier.domain)

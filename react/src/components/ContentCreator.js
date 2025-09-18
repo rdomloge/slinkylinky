@@ -3,6 +3,7 @@ import { DisableableSubmitButton, StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import { useSession } from "next-auth/react";
 import Loading from "./Loading";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 
 export default function ContentCreator({dismissHandler, submitHandler, proposal}) {
@@ -22,7 +23,7 @@ export default function ContentCreator({dismissHandler, submitHandler, proposal}
     function generate() {
         setLoading(true)
         const url = "/.rest/aisupport/generate";
-        fetch(url, {
+        fetchWithAuth(url, {
             method: 'POST',
             headers: {'user': session.user.email, 
                         'Content-Type':'text/plain',

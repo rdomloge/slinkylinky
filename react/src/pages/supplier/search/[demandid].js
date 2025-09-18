@@ -13,6 +13,7 @@ import SessionButton, { ClickHandlerButton, StyledButton } from '@/components/at
 import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
 import Loading from "@/components/Loading";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function App() {
     const router = useRouter()
@@ -35,7 +36,7 @@ export default function App() {
                 const existingLinkCountUrl = "/.rest/paidlinks/search/countByDemand_domain?domain="
                 const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
 
-                Promise.all([fetch(demandUrl), fetch(suppliersUrl)])
+                Promise.all([fetchWithAuth(demandUrl), fetchWithAuth(suppliersUrl)])
                     .then(([resDemand, resSuppliers]) => {
                         if(!resDemand.ok || !resSuppliers.ok) {
                             if(!resDemand.ok) throw new Error("Could not load demand")
@@ -46,26 +47,21 @@ export default function App() {
                     .then(([dataDemand, dataSuppliers]) => {
                         setDemand(dataDemand);
                         setSuppliers(dataSuppliers);
-                        fetch(existingLinkCountUrl+dataDemand.domain)
+                        fetchWithAuth(existingLinkCountUrl+dataDemand.domain)
                             .then(resCount => resCount.json())
                             .then(count => setExistingLinkCount(count));
                         
                         var usageUrl = supplierUsageCountUrl;
                         dataSuppliers.forEach((s,index) => usageUrl += s.id + (index < dataSuppliers.length-1 ? "," : ""));
-                        fetch(usageUrl)
+                        fetchWithAuth(usageUrl)
                             .then(resCount => resCount.json())
                             .then(counts => {
                                 setSupplierUsageCount(counts)
                             })
                     })
-                    // .catch((error) => {
-                    //     if (typeof error === 'string' || error instanceof String) { 
-                    //         setError(error);
-                    //     }
-                    //     else {
-                    //         setError(error.message);
-                    //     }
-                    // })
+                    .catch((error) => {
+                        setError(error);
+                    })
             }
         }, [router.isReady, router.query.demandid]
     );
@@ -76,7 +72,7 @@ export default function App() {
 
         const combiUrl = "/.rest/proposalsupport/resolveProposal3rdParty?name="+newSupplierName+"&demandId="+demand.id
 
-        fetch(combiUrl, {
+        fetchWithAuth(combiUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': session.user.email}
         })

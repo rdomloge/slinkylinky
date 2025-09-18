@@ -6,6 +6,7 @@ import TextInput from '@/components/atoms/TextInput';
 import SessionButton from "./atoms/Button";
 import { fixForPosting } from "./CategoryUtil";
 import { useState } from "react";
+import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 
 export default function AddOrEditDemandSite({demandSite}) {
@@ -27,7 +28,7 @@ export default function AddOrEditDemandSite({demandSite}) {
         if(demandSite.id) {
             demandSite.updatedBy = session.user.email
 
-            fetch(restUrl+"/"+demandSite.id, {
+            fetchWithAuth(restUrl+"/"+demandSite.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
                 body: JSON.stringify(demandSite)
