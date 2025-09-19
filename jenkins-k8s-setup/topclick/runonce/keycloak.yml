@@ -45,14 +45,14 @@ spec:
               initialDelaySeconds: 20
               failureThreshold: 5
               periodSeconds: 10
-          livenessProbe:
-              httpGet:
-                path: /health/live
-                port: 9000
-          readinessProbe:
-              httpGet:
-                path: /health/ready
-                port: 9000
+          # livenessProbe:
+          #     httpGet:
+          #       path: /health/live
+          #       port: 9000
+          # readinessProbe:
+          #     httpGet:
+          #       path: /health/ready
+          #       port: 9000
       volumes:
         - name: sl-keycloak-data
           persistentVolumeClaim:
