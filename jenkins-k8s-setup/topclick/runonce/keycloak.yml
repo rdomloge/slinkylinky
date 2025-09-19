@@ -30,8 +30,6 @@ spec:
               value: USERNAME
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
               value: PASSWORD
-            - name: http-management-port
-              value: "9000"
           resources:
             requests:
               cpu: "1000m"
