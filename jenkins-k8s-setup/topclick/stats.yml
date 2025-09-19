@@ -55,6 +55,16 @@ spec:
                 configMapKeyRef:
                   name: rabbitmq-config
                   key: RABBITMQ_HOST
+            - name: JWK_SET_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak-credentials
+                  key: JWK_SET_URI
+            - name: ISSUER_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
           startupProbe:
             httpGet:
               path: /.rest/stats/fordomain?domain=uknewsgroup.co.uk&startDate=2024-01-01&endDate=2024-02-28
