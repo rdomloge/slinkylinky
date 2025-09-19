@@ -36,6 +36,7 @@ spec:
               memory: "1500Mi"
           ports:
             - containerPort: 8080
+            - containerPort: 9000
           startupProbe:
               httpGet:
                 path: /health
