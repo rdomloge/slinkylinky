@@ -24,7 +24,7 @@ spec:
           args: ["start-dev"]
           volumeMounts: 
             - name: sl-keycloak-data
-              mountPath: /var/lib/postgresql/data
+              mountPath: /opt/keycloak
           env:
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: USERNAME
