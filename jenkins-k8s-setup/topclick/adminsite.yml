@@ -68,11 +68,6 @@ spec:
                 secretKeyRef:
                   name: github-oauth-secret
                   key: GITHUB_ID
-            - name: NEXT_PUBLIC_URL_BASE
-              valueFrom:
-                configMapKeyRef:
-                  name: admin-website-config
-                  key: NEXT_PUBLIC_BASE_URL
           startupProbe:
             httpGet:
               path: /demand
