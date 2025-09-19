@@ -21,15 +21,30 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.0.2
           imagePullPolicy: Always
-          args: ["start-dev"]
+          args: ["start", "--optimized"]
           volumeMounts: 
             - name: sl-keycloak-data
-              mountPath: /opt/keycloak
+              mountPath: /opt/keycloak/data
           env:
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
-              value: USERNAME
+              value: admin
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-              value: PASSWORD
+              value: admin
+            - name: db-url
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: DB_URL
+            - name: db-username
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: DB_USERNAME
+            - name: db-password
+              valueFrom:  
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: DB_PASSWORD  
           resources:
             requests:
               cpu: "1000m"
