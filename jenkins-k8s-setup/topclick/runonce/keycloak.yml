@@ -22,9 +22,9 @@ spec:
           image: quay.io/keycloak/keycloak:26.0.2
           imagePullPolicy: Always
           args: ["start-dev"]
-          # volumeMounts: 
-          #   - name: sl-keycloak-data
-          #     mountPath: /var/lib/postgresql/data
+          volumeMounts: 
+            - name: sl-keycloak-data
+              mountPath: /var/lib/postgresql/data
           env:
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: USERNAME
@@ -36,7 +36,19 @@ spec:
               memory: "1500Mi"
           ports:
             - containerPort: 8080
-      # volumes:
-      #   - name: sl-keycloak-data
-      #     persistentVolumeClaim:
-      #       claimName: sl-keycloak-data
+          startupProbe:
+              httpGet:
+                path: /health
+                port: 8080
+          livenessProbe:
+              httpGet:
+                path: /health/live
+                port: 8080
+          readinessProbe:
+              httpGet:
+                path: /health/ready
+                port: 8080
+      volumes:
+        - name: sl-keycloak-data
+          persistentVolumeClaim:
+            claimName: sl-keycloak-data
