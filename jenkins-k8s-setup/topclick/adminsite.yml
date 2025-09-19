@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: adminwebsite
-          image: rdomloge/slinky-linky-adminwebsite:6.0.3-CI-18
+          image: rdomloge/slinky-linky-adminwebsite:6.0.4-CI-19
           imagePullPolicy: Always
           resources:
             requests:
@@ -68,6 +68,11 @@ spec:
                 secretKeyRef:
                   name: github-oauth-secret
                   key: GITHUB_ID
+            - name: NEXT_PUBLIC_URL_BASE
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-website-config
+                  key: NEXT_PUBLIC_URL_BASE
           startupProbe:
             httpGet:
               path: /demand
