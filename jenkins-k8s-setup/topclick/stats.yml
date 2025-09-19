@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: stats
-          image: rdomloge/slinky-linky-stats:5.5.1-CI-5
+          image: rdomloge/slinky-linky-stats:6.0.0-CI-6
           imagePullPolicy: Always
           resources:
             requests:
@@ -39,11 +39,22 @@ spec:
             - name: slinkylinky_vhost
               value: slinkylinky
             - name: moz_secret
-              value: <SPECIFY>
+              valueFrom:
+                secretKeyRef:
+                  name: stats-secret
+                  key: MOZ_SECRET
             - name: linkservice_url
               value: http://linkservice-service:8090
             - name: semrush_key
-              value: <SPECIFY>
+              valueFrom:
+                secretKeyRef:
+                  name: stats-secret
+                  key: SEMRUSH_KEY
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
           startupProbe:
             httpGet:
               path: /.rest/stats/fordomain?domain=uknewsgroup.co.uk&startDate=2024-01-01&endDate=2024-02-28
