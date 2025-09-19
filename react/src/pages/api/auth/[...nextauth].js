@@ -13,15 +13,21 @@ async function refreshAccessToken(token) {
       grant_type: "refresh_token",
       refresh_token: token.refreshToken,
     });
-    const response = await fetch(url, {       // Do not use fetchWithAuth here!! This is a call to the Keycloak server directly
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: params,
     });
-    if (!response.ok) throw new Error("Failed to refresh token");
     const refreshedTokens = await response.json();
+    if (!response.ok) {
+      // Keycloak returns 400 with { error: 'invalid_grant', ... } if refresh token is expired/invalid
+      if (refreshedTokens.error === "invalid_grant") {
+        return { ...token, error: "RefreshTokenExpired" };
+      }
+      throw new Error("Failed to refresh token");
+    }
     return {
       ...token,
       accessToken: refreshedTokens.access_token,
