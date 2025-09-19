@@ -39,15 +39,15 @@ spec:
           startupProbe:
               httpGet:
                 path: /health
-                port: 8080
+                port: 9000
           livenessProbe:
               httpGet:
                 path: /health/live
-                port: 8080
+                port: 9000
           readinessProbe:
               httpGet:
                 path: /health/ready
-                port: 8080
+                port: 9000
       volumes:
         - name: sl-keycloak-data
           persistentVolumeClaim:
