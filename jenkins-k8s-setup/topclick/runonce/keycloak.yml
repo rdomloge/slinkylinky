@@ -40,9 +40,8 @@ spec:
             - containerPort: 8080
             - containerPort: 9000
           startupProbe:
-              httpGet:
-                path: /health
-                port: 9000
+              tcpSocket:
+                port: 8080
               initialDelaySeconds: 20
               failureThreshold: 5
               periodSeconds: 10
