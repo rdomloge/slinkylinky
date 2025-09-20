@@ -30,8 +30,8 @@ spec:
             - name: db-url
               valueFrom:
                 secretKeyRef:
-                  name: keycloak-credentials
-                  key: DB_URL
+                  name: db-connection-secret
+                  key: KEYCLOAK_DATABASE_URL
             - name: db-username
               valueFrom:
                 secretKeyRef:
