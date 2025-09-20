@@ -21,8 +21,12 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.0.2
           imagePullPolicy: Always
-          args: ["start"]
+          args: ["start", "--optimized"]
           env:
+            - name: KC_HEALTH_ENABLED
+              value: true
+            - name: KC_METRICS_ENABLED
+              value: true
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: admin
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
