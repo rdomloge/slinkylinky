@@ -24,9 +24,9 @@ spec:
           args: ["start", "--optimized"]
           env:
             - name: KC_HEALTH_ENABLED
-              value: true
+              value: "true"
             - name: KC_METRICS_ENABLED
-              value: true
+              value: "true"
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: admin
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
