@@ -10,18 +10,3 @@ spec:
     requests:
       storage: 10Gi
   storageClassName: linode-block-storage-retain
-
----
-
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: sl-keycloak-data
-  namespace: topclick
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: linode-block-storage-retain
