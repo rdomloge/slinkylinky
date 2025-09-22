@@ -54,10 +54,25 @@ spec:
                   name: keycloak-credentials
                   key: KEYCLOAK_ISSUER
           startupProbe:
-            httpGet:
-              path: /.rest/auditrecords
+            tcpSocket:
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15
             failureThreshold: 30
             periodSeconds: 2
             timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1
