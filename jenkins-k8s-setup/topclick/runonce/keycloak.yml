@@ -19,10 +19,14 @@ spec:
       
       containers:
         - name: keycloak
-          image: quay.io/keycloak/keycloak:26.0.2
+          image: quay.io/keycloak/keycloak:26.3.4
           imagePullPolicy: Always
-          args: ["start", "--optimized"]
+          args: ["start"]
           env:
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: 'KC_CACHE'
+              value: 'ispn'
             - name: KC_HEALTH_ENABLED
               value: "true"
             - name: KC_METRICS_ENABLED
@@ -31,39 +35,44 @@ spec:
               value: admin
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
               value: admin
-            - name: db-url
+            - name: 'KC_DB_URL_DATABASE'
+              value: 'keycloak'
+            - name: 'KC_DB_URL_HOST'
+              value: 'postgres-service'
+            - name: 'KC_DB'
+              value: 'keycloak'
+            # In a production environment, use a secret to store username and password to the database
+            - name: 'KC_DB_PASSWORD'
               valueFrom:
                 secretKeyRef:
-                  name: db-connection-secret
-                  key: KEYCLOAK_DATABASE_URL
-            - name: db-username
+                  name: keycloak-db-secret
+                  key: KC_DB_PASSWORD
+            - name: 'KC_DB_USERNAME'
               valueFrom:
                 secretKeyRef:
-                  name: keycloak-credentials
-                  key: DB_USERNAME
-            - name: db-password
-              valueFrom:  
-                secretKeyRef:
-                  name: keycloak-credentials
-                  key: DB_PASSWORD  
+                  name: keycloak-db-secret
+                  key: KC_DB_USERNAME
           resources:
             requests:
-              cpu: "1000m"
-              memory: "1500Mi"
+              cpu: "500m"
+              memory: "1700Mi"
           ports:
             - containerPort: 8080
-            - containerPort: 9000
           startupProbe:
-              tcpSocket:
-                port: 8080
-              initialDelaySeconds: 20
-              failureThreshold: 5
-              periodSeconds: 10
-          # livenessProbe:
-          #     httpGet:
-          #       path: /health/live
-          #       port: 9000
-          # readinessProbe:
-          #     httpGet:
-          #       path: /health/ready
-          #       port: 9000
+            httpGet:
+              path: /health/started
+              port: 9000
+            periodSeconds: 1
+            failureThreshold: 600              
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 9000
+            periodSeconds: 10
+            failureThreshold: 3              
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 9000
+            periodSeconds: 10
+            failureThreshold: 3
