@@ -27,6 +27,8 @@ spec:
               value: "true"
             - name: KC_HOSTNAME_STRICT
               value: "false"
+            - name: KC_PROXY_HEADERS
+              value: "Forwarded"
             - name: 'KC_CACHE'
               value: 'ispn'
             - name: KC_HEALTH_ENABLED
