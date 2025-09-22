@@ -45,12 +45,12 @@ spec:
               value: slinkylinky
             - name: JWK_SET_URI
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: keycloak-credentials
                   key: JWK_SET_URI
             - name: ISSUER_URI
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: keycloak-credentials
                   key: KEYCLOAK_ISSUER
           startupProbe:
