@@ -108,6 +108,16 @@ spec:
                 configMapKeyRef:
                   name: supplierengagement-config
                   key: MAIL_REQUESTCONTACT
+            - name: JWK_SET_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: JWK_SET_URI
+            - name: ISSUER_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
           startupProbe:
             tcpSocket:
               port: 8080
