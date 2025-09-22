@@ -45,12 +45,12 @@ spec:
             - name: 'KC_DB_PASSWORD'
               valueFrom:
                 secretKeyRef:
-                  name: keycloak-db-secret
+                  name: keycloak-credentials
                   key: KC_DB_PASSWORD
             - name: 'KC_DB_USERNAME'
               valueFrom:
                 secretKeyRef:
-                  name: keycloak-db-secret
+                  name: keycloak-credentials
                   key: KC_DB_USERNAME
           resources:
             requests:
