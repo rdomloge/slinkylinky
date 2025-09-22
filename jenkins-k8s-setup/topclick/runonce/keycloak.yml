@@ -40,7 +40,7 @@ spec:
             - name: 'KC_DB_URL_HOST'
               value: 'postgres-service'
             - name: 'KC_DB'
-              value: 'keycloak'
+              value: 'postgres'
             # In a production environment, use a secret to store username and password to the database
             - name: 'KC_DB_PASSWORD'
               valueFrom:
