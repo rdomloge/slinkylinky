@@ -35,6 +35,8 @@ spec:
               value: admin
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
               value: admin
+            - name: KC_HTTP_ENABLED
+              value: "true"
             - name: 'KC_DB_URL_DATABASE'
               value: 'keycloak'
             - name: 'KC_DB_URL_HOST'
