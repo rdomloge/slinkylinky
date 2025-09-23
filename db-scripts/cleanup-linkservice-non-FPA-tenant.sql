@@ -1,0 +1,10 @@
+delete from demand_categories;
+delete from paid_link;
+delete from paid_link_aud;
+delete from demand;
+delete from demand_site_categories;
+delete from demand_site;
+delete from proposal_paid_links;
+delete from proposal_paid_links_aud;
+delete from proposal;
+delete from proposal_aud;
