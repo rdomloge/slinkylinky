@@ -14,6 +14,7 @@ import Link from 'next/link'
 import Counter from './Counter'
 import SupplierSemRushTraffic from './SupplierStats'
 import { addProtocol } from './Util'
+import { AuthorizedAccess } from './authorizedAccess'
 
 
 
@@ -37,9 +38,11 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 null
             }
             {editable ?
-                <Link href={"/supplier/"+supplier.id} rel='nofollow'>
-                    <p id='supplier-editbtn-id' className='text-right float-right'>Edit</p>
-                </Link>
+                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                    <Link href={"/supplier/"+supplier.id} rel='nofollow'>
+                        <p id='supplier-editbtn-id' className='text-right float-right'>Edit</p>
+                    </Link>
+                </AuthorizedAccess>
             :
                 null
             }

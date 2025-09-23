@@ -15,6 +15,7 @@ import SessionButton from "@/components/atoms/Button";
 import NumberInput from '@/components/atoms/NumberInput';
 import Loading from '@/components/Loading';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { AuthorizedAccess } from '@/components/authorizedAccess';
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()
@@ -104,9 +105,11 @@ export default function ListBloggers() {
         <Layout pagetitle='Supplier list'>
             <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers ? suppliers : null}/> 
             <div className="content-center pt-2 pl-4 inline-block">
-                <Link href='/supplier/Add' rel='nofollow'>
-                    <SessionButton label="New"/>
-                </Link>
+                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                    <Link href='/supplier/Add' rel='nofollow'>
+                        <SessionButton label="New"/>
+                    </Link>
+                </AuthorizedAccess>
             </div>
             <span className='pb-4 block'>{supplierCount} &#47;&#47; total suppliers ({activeSupplierCount} active)</span>
             <div className="w-1/4 pr-8 inline-block">
