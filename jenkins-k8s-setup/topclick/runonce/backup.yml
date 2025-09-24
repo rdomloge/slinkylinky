@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: slinkylinky
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: backup
+              image: postgres
+              command: ["/bin/sh"]
+              args: ["-c", "pg_dumpall --clean --if-exists -h postgres-service -U slinkylinky --no-role-passwords -f /backup/$(FILENAME)-backup.sql"]
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-connection-secret
+                      key: POSTGRES_BACKUP_PASSWORD
+                - name: FILENAME
+                  value: $(date +"%Y-%m-%d_%H%M")
+              restartPolicy: OnFailure
+
+            - name: rsync-offite
+              image: busybox
+              command: ["/bin/sh"]
+              args: ["-c", "rsync -avz --remove-source-files /backup/ $(RSYNC_USER)@${RSYNC_HOST}::slinkylinky-backups"]
+              volumeMounts:
+                - name: backup-volume
+                  mountPath: /backup
+              env:
+                - name: RSYNC_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_PASSWORD
+                - name: RSYNC_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_USER
+                - name: RSYNC_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_HOST
+              restartPolicy: OnFailure
+          containers:
+            - name: job-done
+              image: busybox
+              command: ['sh', '-c', 'echo "Backup and rsync completed"']
+          volumes:
+          - name: temp-backup-volume
+            emptyDir: {}
+          
+            
