@@ -37,7 +37,7 @@ spec:
               image: rdomloge/scp-sshpass:1.0
               command: ["/bin/sh"]
               args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -r /backup $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
-              pullPolicy: Always
+              imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
