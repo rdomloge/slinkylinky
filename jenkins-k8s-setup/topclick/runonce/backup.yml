@@ -36,7 +36,7 @@ spec:
             - name: scp-offite
               image: busybox
               command: ["/bin/sh"]
-              args: ["-c", "scp /backups/$(FILENAME)-backup.sql $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
+              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -r /backups $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
