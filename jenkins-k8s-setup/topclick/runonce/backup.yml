@@ -36,7 +36,7 @@ spec:
             - name: scp-offite
               image: rdomloge/scp-sshpass:1.0
               command: ["/bin/sh"]
-              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -r /backup $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
+              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -P 2222 -r /backup $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
               imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
