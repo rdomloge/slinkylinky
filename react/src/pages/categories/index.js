@@ -11,6 +11,7 @@ import { useSession } from "next-auth/react";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { InfoMessage, WarningMessage } from "@/components/atoms/Messages";
 import DisableToggle from "@/components/atoms/Toggle";
+import { AuthorizedAccess } from "@/components/authorizedAccess";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()
@@ -89,20 +90,19 @@ export default function ListCategories() {
     return (
         <Layout pagetitle="Categories">
             <PageTitle id="category-list-id" title="Categories" count={categories}/>
-            <StyledButton label="New" type="primary" extraClass="mb-8 align-super" submitHandler={()=>setShowNewModal(true)} enabled={session}/>
+            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                <StyledButton label="New" type="primary" extraClass="mb-8 align-super" submitHandler={()=>setShowNewModal(true)} enabled={session}/>
+            </AuthorizedAccess>
             {categories ?
                 <div className="grid grid-cols-4">
                         {categories.map( (c,index) => {
                             return (
                                 <div className={"font-bold text-xl p-2 border rounded-full m-1 p-2 bg-slate-100 "+(c.disabled?"line-through":"")} key={index}>
                                     {c.name} 
-                                    {session ?
-                                        <>
+                                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                                         <StyledButton label="Edit" type="secondary" isText={true} extraClass="float-right font-light text-sm" 
                                             submitHandler={()=>editCategory(c)}/>
-                                        </>
-                                        : null
-                                    }
+                                    </AuthorizedAccess>
                                 </div>
                         )})}
                 </div>
