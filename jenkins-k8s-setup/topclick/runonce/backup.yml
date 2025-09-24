@@ -34,7 +34,7 @@ spec:
                   value: $(date +"%Y-%m-%d_%H%M")
 
             - name: scp-offite
-              image: ubuntu
+              image: rdomloge/scp-sshpass:1.0
               command: ["/bin/sh"]
               args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -r /backups $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
               volumeMounts:
