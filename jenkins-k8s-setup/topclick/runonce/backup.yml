@@ -33,10 +33,10 @@ spec:
                 - name: FILENAME
                   value: $(date +"%Y-%m-%d_%H%M")
 
-            - name: rsync-offite
+            - name: scp-offite
               image: busybox
               command: ["/bin/sh"]
-              args: ["-c", "rsync -avz --remove-source-files /backup/ $(RSYNC_USER)@${RSYNC_HOST}::slinkylinky-backups"]
+              args: ["-c", "scp /backups/$(FILENAME)-backup.sql $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
