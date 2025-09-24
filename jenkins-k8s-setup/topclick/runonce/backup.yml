@@ -27,7 +27,6 @@ spec:
                       key: POSTGRES_BACKUP_PASSWORD
                 - name: FILENAME
                   value: $(date +"%Y-%m-%d_%H%M")
-              restartPolicy: Always
 
             - name: rsync-offite
               image: busybox
@@ -52,11 +51,11 @@ spec:
                     secretKeyRef:
                       name: rsync-credentials
                       key: RSYNC_HOST
-              restartPolicy: Always
           containers:
             - name: job-done
               image: busybox
               command: ['sh', '-c', 'echo "Backup and rsync completed"']
+          restartPolicy: Never
           volumes:
           - name: temp-backup-volume
             emptyDir: {}
