@@ -15,7 +15,7 @@ spec:
             - name: backup
               image: postgres
               command: ["/bin/sh"]
-              args: ["-c", "pg_dumpall --clean --if-exists -h postgres-service -U slinkylinky --no-role-passwords -f /backup/$(FILENAME)-backup.sql"]
+              args: ["-c", "pg_dumpall --clean --if-exists -h postgres-service -U ${POSTGRES_BACKUP_USER} --no-role-passwords -f /backup/$(FILENAME)-backup.sql"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
@@ -25,6 +25,11 @@ spec:
                     secretKeyRef:
                       name: db-connection-secret
                       key: POSTGRES_BACKUP_PASSWORD
+                - name: POSTGRES_BACKUP_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-connection-secret
+                      key: POSTGRES_BACKUP_USER
                 - name: FILENAME
                   value: $(date +"%Y-%m-%d_%H%M")
 
