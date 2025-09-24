@@ -33,7 +33,7 @@ spec:
               command: ["/bin/sh"]
               args: ["-c", "rsync -avz --remove-source-files /backup/ $(RSYNC_USER)@${RSYNC_HOST}::slinkylinky-backups"]
               volumeMounts:
-                - name: backup-volume
+                - name: temp-backup-volume
                   mountPath: /backup
               env:
                 - name: RSYNC_PASSWORD
