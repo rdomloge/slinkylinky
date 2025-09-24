@@ -27,7 +27,7 @@ spec:
                       key: POSTGRES_BACKUP_PASSWORD
                 - name: FILENAME
                   value: $(date +"%Y-%m-%d_%H%M")
-              restartPolicy: Never
+              restartPolicy: Always
 
             - name: rsync-offite
               image: busybox
@@ -52,7 +52,7 @@ spec:
                     secretKeyRef:
                       name: rsync-credentials
                       key: RSYNC_HOST
-              restartPolicy: Never
+              restartPolicy: Always
           containers:
             - name: job-done
               image: busybox
