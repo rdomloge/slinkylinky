@@ -36,7 +36,7 @@ spec:
             - name: scp-offite
               image: rdomloge/scp-sshpass:1.0
               command: ["/bin/sh"]
-              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -P 1478 -r /backup/*.sql $(RSYNC_USER)@${RSYNC_HOST}:~/*.sql"]
+              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -P 1478 -r /backup/ $(RSYNC_USER)@${RSYNC_HOST}:~/"]
               imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
