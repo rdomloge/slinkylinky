@@ -6,7 +6,7 @@ metadata:
 spec:
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
-  schedule: "*/5 * * * *"
+  schedule: "0 * * * *"
   jobTemplate:
     spec:
       template:
@@ -15,7 +15,7 @@ spec:
             - name: backup
               image: postgres
               command: ["/bin/sh"]
-              args: ["-c", "pg_dumpall --clean --if-exists --exclude-database=keycloak -h postgres-service -U ${POSTGRES_BACKUP_USER} --no-role-passwords -f /backup/file-backup.sql"]
+              args: ["-c", "pg_dumpall --clean --if-exists --exclude-database=keycloak -h postgres-service -U ${POSTGRES_BACKUP_USER} --no-role-passwords -f /backup/$(FILENAME)-backup.sql"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
@@ -36,7 +36,7 @@ spec:
             - name: scp-offite
               image: rdomloge/scp-sshpass:1.0
               command: ["/bin/sh"]
-              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -P 2222 /backup/file-backup.sql $(RSYNC_USER)@${RSYNC_HOST}:/volume1/homes/ramsay/file-backup.sql"]
+              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -P 2222 -r /backup/ $(RSYNC_USER)@${RSYNC_HOST}:/volume1/homes/ramsay/"]
               imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
