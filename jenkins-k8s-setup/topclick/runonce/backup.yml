@@ -43,6 +43,7 @@ spec:
                   mountPath: /backup
                 - name: sshdir
                   mountPath: /home/appuser/.ssh
+                  readOnly: true
               env:
                 - name: RSYNC_PASSWORD
                   valueFrom:
@@ -70,7 +71,7 @@ spec:
             - name: sshdir
               secret:
                 secretName: secret-ssh-auth
-                defaultMode: 0400
+                #defaultMode: 0400
                 items:
                   - key: ssh-privatekey
                     path: id_rsa
