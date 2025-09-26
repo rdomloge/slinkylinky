@@ -34,7 +34,7 @@ spec:
             - name: compress
               image: rdomloge/utils:1.0
               command: ["/bin/sh"]
-              args: ["-c", "cd /backup && zip -9 backup.sql"]
+              args: ["-c", "cd /backup && zip -9 backup.zip backup.sql && rm -f backup.sql"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
