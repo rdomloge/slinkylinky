@@ -4,9 +4,11 @@ FROM alpine:latest
 # Install required packages: openssh-client (provides scp), sshpass, and bash
 RUN apk update && \
     apk add --no-cache \
-    openssh-client \
+    openssl \
+    openssh \
     sshpass \
     bash \
+    zip \
     && rm -rf /var/cache/apk/*
 
 # Set bash as the default shell
