@@ -42,7 +42,7 @@ spec:
                 - name: temp-backup-volume
                   mountPath: /backup
                 - name: sshdir
-                  mountPath: ${HOME}/.ssh
+                  mountPath: /home/appuser/.ssh
                   readOnly: true
               env:
                 - name: RSYNC_PASSWORD
