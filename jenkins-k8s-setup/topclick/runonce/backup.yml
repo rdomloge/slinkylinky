@@ -38,6 +38,14 @@ spec:
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
+
+            - name: list-backup-directory-contents
+              image: busybox
+              command: ["/bin/sh"]
+              args: ["-c", "ls -lh /backup"]
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
             
             - name: scp-offite
               image: rdomloge/utils:1.0
