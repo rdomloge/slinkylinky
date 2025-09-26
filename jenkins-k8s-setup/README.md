@@ -2,6 +2,41 @@
 
 This project provides a complete setup for running Jenkins in a Kubernetes environment, including dedicated workers for building Spring Java projects and Next.js React projects. 
 
+## Notes from Ramsay (the rest was CoPilot)
+When Jenkins starts a build it first checks out on the controller node.
+This then accesses the Jenkinsfile which tells it what to get the worker to do.
+git config --global safe.directory '*'
+Lightweight checkout should be unchecked in the Jenkins job configuration.
+Branch should be changed to 'main' in the Jenkins job configuration.
+
+## Builder preparation
+The kubernetes nodes obviously all run K8S containers, but they don't have Docker installed by default.
+A node needs to be selected - I suggest the single rpi5 node, k8s-node-13, to have Docker installed on it.
+
+To install Docker on the worker node, use https://docs.docker.com/engine/install/ubuntu/
+
+The node must then be labeled to indicate that it has Docker, using
+```
+kubectl label node k8s-node-13 node-role.kubernetes.io/image-builder=true
+```
+
+Install a cross-platform builder on the node:
+```
+    docker buildx create --name mybuilder --driver docker-container --bootstrap --use --platform linux/amd64,linux/arm64
+```
+
+Finally, Jenkins needs to be configured with the DockerHub credentials. This can be done in the Jenkins UI under "Manage Jenkins" -> "Manage Credentials".
+
+## Kubernetes access setup
+To allow Jenkins to access the Kubernetes cluster, you need to get the kubeconfig file from your cluster provider and save it locally (delete it straight after use).
+Then in Jenkins create a new set of credentials of type 'file', give it the ID `prod-k8s`, and upload the kubeconfig file.
+
+## Linode Kubernetes CSI Driver
+Install chocolated
+Install helm
+helm install linode-csi-driver --set apiToken="<token from linode console>" --set region="London 2" linode-csi/linode-blockstorage-csi-driver
+
+
 ## Project Structure
 
 ```
