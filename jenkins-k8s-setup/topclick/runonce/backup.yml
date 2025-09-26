@@ -32,9 +32,9 @@ spec:
                       key: POSTGRES_BACKUP_USER
                 
             - name: compress
-              image: rdomloge/utils:1.0
+              image: busybox
               command: ["/bin/sh"]
-              args: ["-c", "cd /backup && zip backup.zip backup.sql && rm -f backup.sql"]
+              args: ["-c", "cd /backup && bzip2 backup.sql && rm -f backup.sql"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
@@ -42,7 +42,7 @@ spec:
             - name: scp-offite
               image: rdomloge/utils:1.0
               command: ["/bin/sh"]
-              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.zip $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups/$(FILENAME)-backup.zip"]
+              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.bz2 $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups/$(FILENAME)-backup.bz2"]
               imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
