@@ -34,7 +34,7 @@ spec:
             - name: compress
               image: busybox
               command: ["/bin/sh"]
-              args: ["-c", "cd /backup && gzip -v9 backup.sql"]
+              args: ["-c", "cd /backup && zip -9 backup.sql"]
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
