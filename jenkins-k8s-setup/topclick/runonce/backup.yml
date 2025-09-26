@@ -72,8 +72,8 @@ spec:
               secret:
                 secretName: secret-ssh-auth
                 defaultMode: 0400
-              items:
-              - key: ssh-privatekey
-                path: id_rsa
+                items:
+                  - key: ssh-privatekey
+                    path: id_rsa
           
             
