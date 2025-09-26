@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supplierengagement
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supplierengagement
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: supplierengagement
+        version: v1
+    spec:
+      containers:
+        - name: supplierengagement
+          image: rdomloge/slinky-linky-supplierengagement:5.7.3
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: SUPPLIERENGAGEMENT_DATABASE_URL
+            - name: server_port
+              value: "8080"
+            - name: mail_username
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: MAIL_USERNAME
+            - name: mail_password
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: MAIL_PASSWORD
+            - name: mail_host
+              valueFrom:
+                configMapKeyRef:
+                  name: common-mail-config
+                  key: MAIL_HOST
+            - name: mail_from
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_FROM
+            - name: slinkylinky_domain
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SLINKYLINKY_DOMAIN
+            - name: slinkylinky_vhost
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SLINKYLINKY_VHOST
+            - name: mail_declineEmailRecipientName
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_DECLINE_EMAIL_RECIPIENT_NAME
+            - name: mail_declined_warning_addresses
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_DECLINED_WARNING_ADDRESSES
+            - name: linkservice_baseurl
+              value: http://linkservice-service:8090/.rest
+            - name: spring_mail_testing
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: SPRING_MAIL_TESTING
+            - name: mail_bccRecipients
+              value: rdomloge@gmail.com
+            - name: mail_expiredWarningAddresses
+              value: rdomloge@gmail.com
+          startupProbe:
+            httpGet:
+              path: /.rest/profile
+              port: 8080
+            initialDelaySeconds: 60
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2

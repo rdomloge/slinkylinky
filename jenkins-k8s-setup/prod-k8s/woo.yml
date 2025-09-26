@@ -52,21 +52,21 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: mail-secret
-                  key: MAIL_USERNAME
+                  key: WOO_MAIL_USERNAME
             - name: mail_password
               valueFrom:
                 secretKeyRef:
                   name: mail-secret
-                  key: MAIL_PASSWORD
+                  key: WOO_MAIL_PASSWORD
             - name: mail_host
               valueFrom:
-                configMapKeyRef:
-                  name: mail-config
-                  key: MAIL_HOST
+                secretKeyRef:
+                  name: mail-secret
+                  key: WOO_MAIL_HOST
             - name: mail_from
               valueFrom:
                 configMapKeyRef:
-                  name: mail-config
+                  name: woo-mail-config
                   key: MAIL_FROM
 
           startupProbe:

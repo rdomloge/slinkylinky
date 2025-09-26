@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: jenkins
-          image: jenkins/jenkins:lts-jdk17
+          image: jenkins/jenkins:lts-jdk21
           imagePullPolicy: IfNotPresent
           volumeMounts: 
             - name: sl-jenkins-data
