@@ -32,7 +32,7 @@ spec:
                       key: POSTGRES_BACKUP_USER
                 
             - name: compress
-              image: busybox
+              image: rdomloge/utils:1.0
               command: ["/bin/sh"]
               args: ["-c", "cd /backup && lrzip -z backup.sql"]
               volumeMounts:
