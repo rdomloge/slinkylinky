@@ -41,6 +41,9 @@ spec:
               volumeMounts:
                 - name: temp-backup-volume
                   mountPath: /backup
+                - name: sshdir
+                  mountPath: ${HOME}/.ssh
+                  readOnly: true
               env:
                 - name: RSYNC_PASSWORD
                   valueFrom:
@@ -63,7 +66,14 @@ spec:
               command: ['sh', '-c', 'echo "Backup and rsync completed"']
           restartPolicy: Never
           volumes:
-          - name: temp-backup-volume
-            emptyDir: {}
+            - name: temp-backup-volume
+              emptyDir: {}
+            - name: sshdir
+              secret:
+                secretName: secret-ssh-auth
+                defaultMode: 0400
+              items:
+              - key: ssh-privatekey
+                path: id_rsa
           
             
