@@ -87,7 +87,7 @@ spec:
                   mountPath: /root/.ssh
                   subPath: known_hosts
                   readOnly: true
-                - name: empty-known-hosts
+                - name: empty-known-hosts2
                   mountPath: /root/.ssh
                   subPath: known_hosts2
                   readOnly: true
@@ -101,6 +101,8 @@ spec:
             - name: temp-backup-volume
               emptyDir: {}
             - name: empty-known-hosts
+              emptyDir: {}
+            - name: empty-known-hosts2
               emptyDir: {}
             - name: sshdir
               secret:
