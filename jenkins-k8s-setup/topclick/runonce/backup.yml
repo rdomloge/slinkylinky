@@ -42,7 +42,7 @@ spec:
             - name: scp-offite
               image: rdomloge/utils:1.0
               command: ["/bin/sh"]
-              args: ["-c", "sshpass -p '${RSYNC_PASSWORD}' scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.7z $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups/$(FILENAME)-backup.7z"]
+              args: ["-c", "scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.7z $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups/$(FILENAME)-backup.7z"]
               imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
@@ -68,12 +68,16 @@ spec:
                     secretKeyRef:
                       name: rsync-credentials
                       key: RSYNC_HOST
-                      
+
             - name: rotate-backups
               image: rdomloge/backup-rotation
               command: ["rotate-backups"]
               args: ["-H", "168", "-d", "90", "-w", "24", "-m", "12", "ramsay@rdomloge.entrydns.org:/volume1/sl-topclick-postgres-backups/"]
-            
+              volumeMounts:
+                - name: sshdir
+                  mountPath: /home/appuser/.ssh
+                  readOnly: true
+                  
           containers:
             - name: job-done
               image: busybox
