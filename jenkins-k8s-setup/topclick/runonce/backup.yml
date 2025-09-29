@@ -53,11 +53,6 @@ spec:
               env:
                 - name: FILENAME
                   value: $(date +"%Y-%m-%d_%H%M")
-                - name: RSYNC_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: rsync-credentials
-                      key: RSYNC_PASSWORD
                 - name: RSYNC_USER
                   valueFrom:
                     secretKeyRef:
@@ -73,6 +68,17 @@ spec:
               image: rdomloge/backup-rotation
               command: ["rotate-backups"]
               args: ["-H", "168", "-d", "90", "-w", "24", "-m", "12", "$(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups"]
+              env:
+                - name: RSYNC_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_USER
+                - name: RSYNC_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_HOST
               volumeMounts:
                 - name: sshdir
                   mountPath: /home/appuser/.ssh
