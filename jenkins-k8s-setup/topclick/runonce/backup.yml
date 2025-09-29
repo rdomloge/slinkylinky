@@ -83,6 +83,14 @@ spec:
                 - name: sshdir
                   mountPath: /root/.ssh
                   readOnly: true
+                - name: empty-known-hosts
+                  mountPath: /root/.ssh
+                  subPath: known_hosts
+                  readOnly: true
+                - name: empty-known-hosts
+                  mountPath: /root/.ssh
+                  subPath: known_hosts2
+                  readOnly: true
 
           containers:
             - name: job-done
@@ -91,6 +99,8 @@ spec:
           restartPolicy: Never
           volumes:
             - name: temp-backup-volume
+              emptyDir: {}
+            - name: empty-known-hosts
               emptyDir: {}
             - name: sshdir
               secret:
