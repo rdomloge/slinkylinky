@@ -81,7 +81,7 @@ spec:
                       key: RSYNC_HOST
               volumeMounts:
                 - name: sshdir
-                  mountPath: /home/appuser/.ssh
+                  mountPath: /root/.ssh
                   readOnly: true
 
           containers:
