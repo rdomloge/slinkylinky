@@ -4,6 +4,8 @@ import Footer from './Footer';
 import Header from './Header';
 import Head from 'next/head'
 import { useSession, signIn, signOut } from "next-auth/react"
+import TenantWarning from '../tenantWarning';
+import TenantBanner from '../TenantBanner';
 
 export default function Layout ({children, pagetitle = " "}) {
 
@@ -11,6 +13,7 @@ export default function Layout ({children, pagetitle = " "}) {
     if (session && session.user && status === "authenticated") {
         return(
             <>
+            <TenantWarning/>
                 <Head>
                     <meta name="robots" content="noindex,nofollow" />
                     <title>{"Slinky Linky | " + pagetitle}</title>
