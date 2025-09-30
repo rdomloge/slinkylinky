@@ -5,7 +5,6 @@ import Header from './Header';
 import Head from 'next/head'
 import { useSession, signIn, signOut } from "next-auth/react"
 import TenantWarning from '../tenantWarning';
-import TenantBanner from '../TenantBanner';
 
 export default function Layout ({children, pagetitle = " "}) {
 
