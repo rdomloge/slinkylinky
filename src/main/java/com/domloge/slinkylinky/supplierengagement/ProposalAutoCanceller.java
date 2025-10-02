@@ -50,8 +50,9 @@ public class ProposalAutoCanceller  {
     @Scheduled(fixedRate = 1000 * 60 * 60)
     public void findExpiredProposals() {
         log.info("Finding expired proposals");
-        // Find proposals where the supplier email was sent more than 48 hours ago
-        Engagement[] expired = engagementRepo.findByStatusAndSupplierEmailSentBefore(EngagementStatus.NEW, LocalDateTime.now().minus(2, ChronoUnit.DAYS));
+        // Find proposals where the supplier email was sent more than 2 business days ago
+        Engagement[] expired = engagementRepo.findByStatusAndSupplierEmailSentBefore(
+            EngagementStatus.NEW, calculateTwoBusinessDaysAgo());
         log.info("Found {} expired proposals", expired.length);
 
         for (Engagement engagement : expired) {
@@ -96,7 +97,20 @@ public class ProposalAutoCanceller  {
                 log.error("Error sending email", e);
             }
         }
-        
+    }
+
+    private LocalDateTime calculateTwoBusinessDaysAgo() {
+        LocalDateTime now = LocalDateTime.now();
+        int businessDays = 0;
+
+        while (businessDays < 2) {
+            now = now.minusDays(1);
+            if (now.getDayOfWeek().getValue() >= 1 && now.getDayOfWeek().getValue() <= 5) { // Monday to Friday
+                businessDays++;
+            }
+        }
+
+        return now;
     }
     
 }
