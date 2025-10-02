@@ -92,6 +92,19 @@ public class ProposalEventReceiver {
             case DELETED:
                 log.info("Proposal deleted, clearing up existing engagements");
                 // find matching engagements and (soft) delete
+                Engagement[] engagements = engagementRepo.findByProposalId(event.getProposalId());
+                for(Engagement engagement : engagements) {
+                    if(engagement.getStatus() == EngagementStatus.NEW) {
+                        log.info("Deleting engagement {}", engagement.getGuid());
+                        engagement.setStatus(EngagementStatus.CANCELLED);
+                        engagementRepo.save(engagement);
+                        continue;
+                    }
+                    else {
+                        log.info("Found engagement {} with status {}, not deleting", engagement.getGuid(), engagement.getStatus());
+                    }
+                    
+                }
                 break;
             default:
                 break;
