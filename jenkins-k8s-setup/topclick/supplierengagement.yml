@@ -133,6 +133,11 @@ spec:
                 secretKeyRef:
                   name: keycloak-credentials
                   key: KEYCLOAK_BASE_URL
+            - name: keycloak_clientcredentials_token_uri
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
           startupProbe:
             tcpSocket:
               port: 8080
