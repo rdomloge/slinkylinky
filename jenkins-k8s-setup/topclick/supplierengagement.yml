@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: supplierengagement
-          image: rdomloge/slinky-linky-supplierengagement:6.0.2-CI-10
+          image: rdomloge/slinky-linky-supplierengagement:6.0.3-CI-11
           imagePullPolicy: Always
           resources:
             requests:
