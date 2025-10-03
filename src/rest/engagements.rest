@@ -1,8 +1,10 @@
 GET {{host}}/engagements
 ###
-
+GET {{host}}/profile
+###
 GET {{host}}/engagements/search/findByGuid?guid=0345594b-a59d-4be3-baed-292378b1579c
-
+###
+GET {{host}}/engagements/
 ###
 GET {{host}}/engagements/1
 
