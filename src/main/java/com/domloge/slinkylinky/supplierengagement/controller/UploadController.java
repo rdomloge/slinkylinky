@@ -7,6 +7,8 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -21,6 +23,7 @@ import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
+import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
 import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
@@ -42,9 +45,6 @@ public class UploadController {
     private AmqpTemplate auditRabbitTemplate;
 
     @Autowired
-    private AmqpTemplate supplierengagementRabbitTemplate;
-
-    @Autowired
     private EmailBuilder emailBuilder;
 
     @Autowired
@@ -57,6 +57,9 @@ public class UploadController {
 
     @Value("${linkservice_baseurl}")
     private String linkService_base;
+
+    @Autowired
+    private HttpUtils httpUtils;
 
 
     public UploadController() {
@@ -99,7 +102,10 @@ public class UploadController {
         event.buildForDecline(dbEngagement.getProposalId(), engagement.getDeclinedReason(), engagement.isDoNotContact());
         // supplierengagementRabbitTemplate.convertAndSend(event);
         String url = linkService_base+"/supplierSupport/supplierresponse?proposalId="+dbEngagement.getProposalId();
-        ResponseEntity<Void> response = restTemplate.postForEntity(url, event, null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(httpUtils.fetchAccessToken());
+        HttpEntity<SupplierEngagementEvent> request = new HttpEntity<>(event, headers);
+        ResponseEntity<Void> response = restTemplate.postForEntity(url, request, null);
         if(response.getStatusCode().isError()) {
             log.error("Failed to send event to linkservice: " + response.getStatusCode());
             throw new IOException("Failed to send event to linkservice: " + response.getStatusCode()); 
@@ -160,7 +166,10 @@ public class UploadController {
             dbEngagement.getProposalId());
         // supplierengagementRabbitTemplate.convertAndSend(event);
         String url = linkService_base+"/supplierSupport/supplierresponse?proposalId="+dbEngagement.getProposalId();
-        ResponseEntity<Void> response = restTemplate.postForEntity(url, event, null);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(httpUtils.fetchAccessToken());
+        HttpEntity<SupplierEngagementEvent> request = new HttpEntity<>(event, headers);
+        ResponseEntity<Void> response = restTemplate.postForEntity(url, request, null);
         if(response.getStatusCode().isError()) {
             log.error("Failed to send event to linkservice: " + response.getStatusCode());
             throw new IOException("Failed to send event to linkservice: " + response.getStatusCode()); 
