@@ -35,8 +35,8 @@ public class HttpUtils {
     private String clientSecret;
     @Value("${keycloak.base.url}")
     private String keycloakBase;
-
-    private String tokenAccessUri = "/realms/slinkylinky/protocol/openid-connect/token";
+    @Value("${keycloak.clientcredentials.token.uri}")
+    private String tokenAccessUri;
 
     private ObjectMapper mapper = new ObjectMapper();
 
