@@ -27,9 +27,6 @@ pipeline {
                     withFolderProperties() {
                         // Create Git tag
                         def tagName = ${env.VERSION}
-                        
-                        // print the tag name for debugging
-                        echo "Creating tag: ${tagName}"
 
                         sh "git tag -a ${tagName} -m 'Release ${tagName}'"
                         sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
@@ -60,14 +57,9 @@ pipeline {
             steps {
                 /* This builds the actual image; synonymous to
                 * docker build on the command line */
-                node {
-                    // print the image name for debugging
-                    echo "Building Docker image for version: ${env.VERSION}"
-                }
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
                         // Use the Dockerfile in the root of the repository
-                        
                         def image = docker.image("rdomloge/slinky-linky-linkservice:${env.VERSION}")
                         sh "docker buildx create --use --name multiarch"
                         sh """
