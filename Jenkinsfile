@@ -28,7 +28,7 @@ pipeline {
                         // Create Git tag
                         def tagName = "${env.VERSION}"
 
-                        // sh "git tag -a ${tagName} -m 'Release ${tagName}'"
+                        sh "git tag -a ${tagName} -m 'Release ${tagName}'"
                         // sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
                         
                         // // Create GitHub release (optional)
