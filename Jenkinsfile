@@ -57,25 +57,25 @@ pipeline {
             }
         }
         
-        // stage('Build image') {
-        //     steps {
-        //         /* This builds the actual image; synonymous to
-        //         * docker build on the command line */
-        //         script {
-        //             docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-        //                 // Use the Dockerfile in the root of the repository
-        //                 def image = docker.image("rdomloge/slinky-linky-linkservice:${env.VERSION}")
-        //                 sh "docker buildx create --use --name multiarch"
-        //                 sh """
-        //                 docker buildx build \
-        //                     --platform linux/amd64,linux/arm64 \
-        //                     -t ${image.imageName()} \
-        //                     --push .
-        //                 """
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Build image') {
+            steps {
+                /* This builds the actual image; synonymous to
+                * docker build on the command line */
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        // Use the Dockerfile in the root of the repository
+                        def image = docker.image("rdomloge/slinky-linky-linkservice:${env.VERSION}")
+                        sh "docker buildx create --use --name multiarch"
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${image.imageName()} \
+                            --push .
+                        """
+                    }
+                }
+            }
+        }
         
         
         
