@@ -29,7 +29,7 @@ pipeline {
                         def tagName = "${env.VERSION}"
                         sh "echo 'Tagging with ${tagName}'"
 
-                        git tag ${tagName} -m 'Jenkins CI automated tag'
+                        git tag ${tagName}
 
                         // sh "git tag -a ${tagName} -m 'Release test'"
                         // sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
