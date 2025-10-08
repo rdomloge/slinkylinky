@@ -4,13 +4,15 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
+        VERSION = "${SEMVER_BUILD_NUM}-CI-${env.BUILD_ID}"
+        PROJECT = 'audit'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 withFolderProperties() {
-                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/audit.git"
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/${env.PROJECT}.git"
                 }
             }
         }
@@ -19,31 +21,22 @@ pipeline {
                 sh 'mvn -Dmaven.test.skip=true clean package'
             }
         }
-        stage('Build image') {
-            steps {
-                /* This builds the actual image; synonymous to
-                * docker build on the command line */
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        // Use the Dockerfile in the root of the repository
 
-                        def image = docker.image("rdomloge/slinky-linky-audit:${SEMVER_BUILD_NUM}-CI-${env.BUILD_ID}")
-                        sh "docker buildx create --use --name multiarch"
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${image.imageName()} \
-                            --push .
-                        """
+        stage('Tag and Release') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        // Create Git tag
+                        sh "echo 'Tagging with ${env.VERSION}'"
+
+                        sh "git config user.email 'you@example.com'"
+                        sh "git config user.name 'Your Name'"
+
+                        sh "git tag -a ${env.VERSION} -m 'Jenkins CI automated tag'"
+                        sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/${env.PROJECT}.git ${env.VERSION}"
                     }
                 }
             }
         }
-        
     }
-    // post {
-    //     always {
-    //         cleanWs()
-    //     }
-    // }
 }
