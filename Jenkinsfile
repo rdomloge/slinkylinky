@@ -33,7 +33,7 @@ pipeline {
                         sh "git config user.name 'Your Name'"
 
                         sh "git tag -a ${tagName} -m 'Jenkins CI automated tag'"
-                        // sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
+                        sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
                         
                         // // Create GitHub release (optional)
                         // withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
