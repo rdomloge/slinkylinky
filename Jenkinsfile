@@ -28,26 +28,26 @@ pipeline {
                         // Create Git tag
                         def tagName = "${env.VERSION}"
 
-                        sh "git tag -a ${tagName} -m 'Release ${tagName}'"
-                        sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
+                        // sh "git tag -a ${tagName} -m 'Release ${tagName}'"
+                        // sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
                         
-                        // Create GitHub release (optional)
-                        withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-                            sh """
-                            curl -X POST \
-                                -H "Authorization: token ${GITHUB_TOKEN}" \
-                                -H "Accept: application/vnd.github.v3+json" \
-                                https://api.github.com/repos/rdomloge/linkservice/releases \
-                                -d '{
-                                    "tag_name": "${tagName}",
-                                    "target_commitish": "main",
-                                    "name": "Release ${tagName}",
-                                    "body": "Automated release from Jenkins build #${env.BUILD_ID}",
-                                    "draft": false,
-                                    "prerelease": false
-                                }'
-                            """
-                        }
+                        // // Create GitHub release (optional)
+                        // withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                        //     sh """
+                        //     curl -X POST \
+                        //         -H "Authorization: token ${GITHUB_TOKEN}" \
+                        //         -H "Accept: application/vnd.github.v3+json" \
+                        //         https://api.github.com/repos/rdomloge/linkservice/releases \
+                        //         -d '{
+                        //             "tag_name": "${tagName}",
+                        //             "target_commitish": "main",
+                        //             "name": "Release ${tagName}",
+                        //             "body": "Automated release from Jenkins build #${env.BUILD_ID}",
+                        //             "draft": false,
+                        //             "prerelease": false
+                        //         }'
+                        //     """
+                        // }
                     }
                 }
             }
