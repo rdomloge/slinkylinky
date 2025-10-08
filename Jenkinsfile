@@ -26,7 +26,7 @@ pipeline {
                 script {
                     withFolderProperties() {
                         // Create Git tag
-                        def tagName = ${env.VERSION}
+                        def tagName = "${env.VERSION}"
 
                         sh "git tag -a ${tagName} -m 'Release ${tagName}'"
                         sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
@@ -53,32 +53,27 @@ pipeline {
             }
         }
         
-        stage('Build image') {
-            steps {
-                /* This builds the actual image; synonymous to
-                * docker build on the command line */
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        // Use the Dockerfile in the root of the repository
-                        def image = docker.image("rdomloge/slinky-linky-linkservice:${env.VERSION}")
-                        sh "docker buildx create --use --name multiarch"
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${image.imageName()} \
-                            --push .
-                        """
-                    }
-                }
-            }
-        }
+        // stage('Build image') {
+        //     steps {
+        //         /* This builds the actual image; synonymous to
+        //         * docker build on the command line */
+        //         script {
+        //             docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        //                 // Use the Dockerfile in the root of the repository
+        //                 def image = docker.image("rdomloge/slinky-linky-linkservice:${env.VERSION}")
+        //                 sh "docker buildx create --use --name multiarch"
+        //                 sh """
+        //                 docker buildx build \
+        //                     --platform linux/amd64,linux/arm64 \
+        //                     -t ${image.imageName()} \
+        //                     --push .
+        //                 """
+        //             }
+        //         }
+        //     }
+        // }
         
         
         
     }
-    // post {
-    //     always {
-    //         cleanWs()
-    //     }
-    // }
 }
