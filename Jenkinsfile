@@ -26,7 +26,7 @@ pipeline {
                 script {
                     withFolderProperties() {
                         // Create Git tag
-                        def tagName = 6.0.4
+                        def tagName = '6.0.4'
 
                         sh "git tag -a ${tagName} -m 'Release ${tagName}'"
                         sh "git push https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/linkservice.git ${tagName}"
