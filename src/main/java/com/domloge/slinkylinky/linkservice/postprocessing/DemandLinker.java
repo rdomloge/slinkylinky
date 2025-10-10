@@ -6,15 +6,20 @@ import java.util.LinkedList;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.linkservice.Util;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.repo.DemandSiteRepo;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 @RepositoryEventHandler(Demand.class)
 public class DemandLinker {
     
@@ -23,6 +28,19 @@ public class DemandLinker {
 
     @Autowired
     private AmqpTemplate auditRabbitTemplate;
+
+
+    // method to handle demand being updated to parse the demand domain and set it in the domain field
+    @HandleBeforeSave
+    public void handleBeforeSave(Demand demand) {
+        
+        if( ! demand.getDomain().equals(Util.stripDomain(demand.getUrl()))) {
+            log.warn("Demand domain {} does not match URL domain {} for demand id {}. Aligning them.",
+                demand.getDomain(), Util.stripDomain(demand.getUrl()), demand.getId());
+            demand.setDomain(Util.stripDomain(demand.getUrl()));
+        }
+        
+    }
 
     @HandleAfterCreate
     public void handleAfterCreate(Demand demand) {
