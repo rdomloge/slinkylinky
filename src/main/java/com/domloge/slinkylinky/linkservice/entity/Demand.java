@@ -69,7 +69,7 @@ public class Demand {
     }
 
     public void setUrl(String url) {
-        this.domain = Util.stripDomain(url);
+        setDomain(url);
         this.url = url;
     }
 }
