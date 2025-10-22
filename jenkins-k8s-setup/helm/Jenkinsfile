@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
-        FOLDER = "${WORKSPACE}/jenkins-k8s-setup"
+        FOLDER = "${WORKSPACE}/jenkins-k8s-setup/helm"
     }
 
     stages {
@@ -23,7 +23,7 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
-                            sh 'helm install ${TENANT} ${FOLDER}/helm --set tenant=${TENANT}'
+                            sh 'helm install ${TENANT} ${FOLDER} --set tenant=${TENANT}'
                         }
                     }
                 }
