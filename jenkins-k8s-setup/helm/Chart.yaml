@@ -1,11 +1,10 @@
 apiVersion: v2
-name: tenant-namespace
-description: A Helm chart for creating namespaces based on tenant environment variable
+name: slinky-linky
+description: A Helm chart for creating a new tenant of SlinkyLinky
 type: application
 version: 0.1.0
 appVersion: "1.0"
 keywords:
-  - namespace
   - tenant
   - multi-tenancy
 maintainers:
