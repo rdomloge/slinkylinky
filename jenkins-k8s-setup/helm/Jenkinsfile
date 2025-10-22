@@ -23,8 +23,7 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
-                            sh 'helm repo add slinkylinky ${FOLDER}'
-                            sh 'helm install ${TENANT} slinkylinky --set tenant=${TENANT}'
+                            sh 'helm install ${TENANT} ${FOLDER} --set tenant=${TENANT}'
                         }
                     }
                 }
