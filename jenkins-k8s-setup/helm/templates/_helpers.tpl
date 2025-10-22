@@ -57,7 +57,7 @@ Generate the tenant namespace name
 {{- if .Values.tenant.name }}
 {{- .Values.tenant.name }}
 {{- else if .Values.tenant.useEnvironmentVariable }}
-{{- required "TENANT environment variable must be set when tenant.useEnvironmentVariable is true" (env "TENANT") }}
+{{- required "TENANT environment variable must be set when tenant.useEnvironmentVariable is true" .Values.tenant }}
 {{- else }}
 {{- required "Either tenant.name or tenant.useEnvironmentVariable must be set" "" }}
 {{- end }}
