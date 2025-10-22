@@ -1,26 +1,3 @@
-# Tenant configuration
-tenant:
-  # If useEnvironmentVariable is true, the TENANT environment variable will be used
-  # Otherwise, use the name field below
-  useEnvironmentVariable: true
-  
-  # Static tenant name (used only if useEnvironmentVariable is false)
-  # name: "default-tenant"
-  
-  # Additional labels to apply to the namespace
-  labels: {}
-    # environment: production
-    # team: platform
-  
-  # Additional annotations to apply to the namespace  
-  annotations: {}
-    # description: "Tenant namespace created by Helm"
-    # contact: "admin@example.com"
-  
-  # Finalizers for the namespace
-  finalizers: []
-    # - kubernetes
-
 # Secrets configuration
 secrets:
   - name: keycloak-credentials
