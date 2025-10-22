@@ -1,0 +1,14 @@
+apiVersion: v2
+name: tenant-namespace
+description: A Helm chart for creating namespaces based on tenant environment variable
+type: application
+version: 0.1.0
+appVersion: "1.0"
+keywords:
+  - namespace
+  - tenant
+  - multi-tenancy
+maintainers:
+  - name: Developer
+sources:
+  - https://github.com/rdomloge/sl-k8s-scripts

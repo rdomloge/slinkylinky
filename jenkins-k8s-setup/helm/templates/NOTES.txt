@@ -1,0 +1,22 @@
+🎉 Successfully created namespace: {{ include "tenant-namespace.tenantName" . }}
+
+Namespace Details:
+- Name: {{ include "tenant-namespace.tenantName" . }}
+- Labels: {{ include "tenant-namespace.labels" . | nindent 2 }}
+{{- if .Values.tenant.labels }}
+- Custom Labels: {{ toYaml .Values.tenant.labels | nindent 2 }}
+{{- end }}
+{{- if .Values.tenant.annotations }}
+- Annotations: {{ toYaml .Values.tenant.annotations | nindent 2 }}
+{{- end }}
+
+To verify the namespace was created:
+  kubectl get namespace {{ include "tenant-namespace.tenantName" . }}
+
+To describe the namespace:
+  kubectl describe namespace {{ include "tenant-namespace.tenantName" . }}
+
+To use this namespace in your deployments:
+  kubectl config set-context --current --namespace={{ include "tenant-namespace.tenantName" . }}
+
+Happy deploying! 🚀

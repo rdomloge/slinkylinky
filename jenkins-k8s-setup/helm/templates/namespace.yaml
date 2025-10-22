@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "tenant-namespace.tenantName" . }}
+  labels:
+    {{- include "tenant-namespace.labels" . | nindent 4 }}
+    tenant: {{ include "tenant-namespace.tenantName" . | quote }}
+    {{- with .Values.tenant.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.tenant.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.tenant.finalizers }}
+  finalizers:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
