@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
-        FOLDER = "${WORKSPACE}/jenkins-k8s-setup/helm"
+        FOLDER = "${WORKSPACE}/jenkins-k8s-setup"
     }
 
     stages {
@@ -16,14 +16,14 @@ pipeline {
             }
         }
 
-        stage('Deploy microservices') {
+        stage('Deploy platform via Helm') {
             steps {
                 script {
                     withFolderProperties() {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
-                            sh 'helm install ${TENANT} . --set tenant=${TENANT}'
+                            sh 'helm install ${TENANT} ${FOLDER}/helm --set tenant=${TENANT}'
                         }
                     }
                 }
