@@ -60,8 +60,11 @@ spec:
                   key: KC_DB_USERNAME
           resources:
             requests:
-              cpu: "500m"
+              cpu: "100m"
               memory: "1700Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2048Mi"
           ports:
             - containerPort: 8080
           startupProbe:

@@ -32,10 +32,10 @@ spec:
               value: CHANGEME
           resources:
             requests:
-              cpu: "1000m"
+              cpu: "100m"
               memory: "600Mi"
             limits:
-              cpu: "1500m"
+              cpu: "1000m"
               memory: "750Mi"
           ports:
             - containerPort: 5432
