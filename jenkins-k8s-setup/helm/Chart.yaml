@@ -9,6 +9,6 @@ keywords:
   - tenant
   - multi-tenancy
 maintainers:
-  - name: Developer
+  - name: Ramsay Domloge
 sources:
   - https://github.com/rdomloge/sl-k8s-scripts
