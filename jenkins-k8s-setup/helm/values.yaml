@@ -21,6 +21,14 @@ tenant:
   finalizers: []
     # - kubernetes
 
+# Secrets configuration
+secrets:
+  - name: keycloak-credentials
+    type: Opaque
+    data:
+      # Keycloak database credentials
+      KC_DB_USERNAME: "keycloak"
+      KC_DB_PASSWORD: "change-me-in-production"
 # Chart overrides
 nameOverride: ""
 fullnameOverride: ""
