@@ -39,7 +39,7 @@ deployments:
       spring_datasource_password:
         secretName: db-connection-secret
         secretKey: LINKSERVICE_DB_PASSWORD
-      slinkylinky_username:
+      spring_datasource_username:
         secretName: db-connection-secret
         secretKey: LINKSERVICE_DB_USERNAME
       JWK_SET_URI:
