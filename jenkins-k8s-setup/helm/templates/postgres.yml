@@ -60,3 +60,5 @@ data:
     CREATE DATABASE keycloak;
     CREATE USER keycloak WITH ENCRYPTED PASSWORD 'keycloakpassword';
     GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO keycloak;
+    ALTER USER keycloak WITH SUPERUSER;
