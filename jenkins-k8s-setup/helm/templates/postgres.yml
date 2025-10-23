@@ -58,7 +58,11 @@ metadata:
 data:
   keycloak.sql: |
     CREATE DATABASE keycloak;
-    CREATE USER keycloak WITH ENCRYPTED PASSWORD 'keycloakpassword';
+    CREATE USER keycloak WITH ENCRYPTED PASSWORD '{{KEYCLOAK_DB_PASSWORD}}';
     GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
     GRANT ALL PRIVILEGES ON SCHEMA public TO keycloak;
     ALTER USER keycloak WITH SUPERUSER;
+
+    CREATE DATABASE slinkylinky;
+    CREATE USER linkservice_user WITH ENCRYPTED PASSWORD '{{LINKSERVICE_DB_PASSWORD}}';
+    GRANT ALL PRIVILEGES ON DATABASE slinkylinky TO linkservice_user;
