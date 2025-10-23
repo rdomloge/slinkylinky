@@ -1,5 +1,8 @@
 # Secrets configuration
-tenant: "default-tenant"
+tenant:
+  useEnvironmentVariable: false
+  name: "default-tenant"
+
 secrets:
   - name: keycloak-credentials
     type: Opaque
