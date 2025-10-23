@@ -14,9 +14,15 @@ secrets:
     data:
       # Database connection URL for Linkservice
       LINKSERVICE_DATABASE_URL: "jdbc:postgresql://postgres-service:5432/linkservice_db?user=linkservice_user&password=linkservice_password"
+# ConfigMaps configuration
+configMaps:
+  - name: rabbitmq-config
+    data:
+      RABBITMQ_HOST: "rabbit-service"
 # Chart overrides
 nameOverride: ""
 fullnameOverride: ""
+# ConfigMaps configuration
 deployments:
   - name: linkservice
     image: "rdomloge/slinky-linky-linkservice:6.0.3-CI-8"
