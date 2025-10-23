@@ -13,7 +13,7 @@ secrets:
     type: Opaque
     data:
       # Database connection URL for Linkservice
-      LINKSERVICE_DATABASE_URL: "jdbc:postgresql://postgres-service:5432/linkservice_db?user=linkservice_user&password={{ .Values.LINKSERVICE_DB_PASSWORD }}"
+      LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/linkservice_db?user=linkservice_user&password={{ .Values.LINKSERVICE_DB_PASSWORD }}'
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config
