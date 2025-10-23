@@ -56,9 +56,9 @@ spec:
           startupProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: 15
+            initialDelaySeconds: 30
             failureThreshold: 30
-            periodSeconds: 2
+            periodSeconds: 5
             timeoutSeconds: 2
           livenessProbe:
             httpGet:
