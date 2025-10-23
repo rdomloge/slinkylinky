@@ -2,7 +2,6 @@
 secrets:
   - name: keycloak-credentials
     type: Opaque
-    namespace: {{ .Values.tenant }}
     data:
       # Keycloak database credentials
       KC_DB_USERNAME: "keycloak"
