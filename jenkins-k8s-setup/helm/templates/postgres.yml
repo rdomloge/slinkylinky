@@ -23,6 +23,8 @@ spec:
           volumeMounts: 
             - name: sl-postgres-data
               mountPath: /var/lib/postgresql/data
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
           env:
             # This is needed to make PG put it's data in a subdirectory under the mounted volume, since Linode puts a 
             # lost+found directory at the root of the volume which PG doesn't like.
@@ -43,3 +45,18 @@ spec:
         - name: sl-postgres-data
           persistentVolumeClaim:
             claimName: sl-postgres-data-{{ .Values.tenant }}
+        - name: init-sql
+          configMap:
+            name: init-sql
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-sql
+  namespace: {{ .Values.tenant }}
+data:
+  keycloak.sql: |
+    CREATE DATABASE keycloak;
+    CREATE USER keycloak WITH ENCRYPTED PASSWORD 'keycloakpassword';
+    GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
