@@ -8,7 +8,7 @@ metadata:
   namespace: {{ $root.Values.tenant }}
 spec:
   selector:
-    app: {{ $service.selector-app-name }}
+    app: {{ $service.selectorAppName }}
   ports:
     - protocol: TCP
       port: {{ $service.port }}

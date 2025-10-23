@@ -13,39 +13,39 @@ fullnameOverride: ""
 services:
   - name: postgres-service
     port: 5432
-    selector-app-name: postgres
+    selectorAppName: postgres
   - name: linkservice-service
     port: 8090
     targetPort: 8080
-    selector-app-name: linkservice
+    selectorAppName: linkservice
   - name: supplierengagement-service
     port: 8091
     targetPort: 8080
-    selector-app-name: supplierengagement
+    selectorAppName: supplierengagement
   - name: audit-service
     port: 8092
     targetPort: 8080
-    selector-app-name: audit
+    selectorAppName: audit
   - name: stats-service
     port: 8093
     targetPort: 8080
-    selector-app-name: stats
+    selectorAppName: stats
   - name: woo-service
     port: 8094
     targetPort: 8080
-    selector-app-name: woo
+    selectorAppName: woo
   - name: adminwebsite-service
     port: 3000
     targetPort: 8080
-    selector-app-name: adminwebsite
+    selectorAppName: adminwebsite
   - name: rabbit-service
     port: 5672
     targetPort: 5672
-    selector-app-name: rabbit
+    selectorAppName: rabbit
   - name: rabbit-mgmt-service
     port: 15672
     targetPort: 15672
-    selector-app-name: rabbit
+    selectorAppName: rabbit
   - name: keycloak-service
     port: 8080
-    selector-app-name: keycloak
+    selectorAppName: keycloak
