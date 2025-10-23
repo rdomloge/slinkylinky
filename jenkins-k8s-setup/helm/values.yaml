@@ -10,3 +10,42 @@ secrets:
 # Chart overrides
 nameOverride: ""
 fullnameOverride: ""
+services:
+  - name: postgres-service
+    port: 5432
+    selector-app-name: postgres
+  - name: linkservice-service
+    port: 8090
+    targetPort: 8080
+    selector-app-name: linkservice
+  - name: supplierengagement-service
+    port: 8091
+    targetPort: 8080
+    selector-app-name: supplierengagement
+  - name: audit-service
+    port: 8092
+    targetPort: 8080
+    selector-app-name: audit
+  - name: stats-service
+    port: 8093
+    targetPort: 8080
+    selector-app-name: stats
+  - name: woo-service
+    port: 8094
+    targetPort: 8080
+    selector-app-name: woo
+  - name: adminwebsite-service
+    port: 3000
+    targetPort: 8080
+    selector-app-name: adminwebsite
+  - name: rabbit-service
+    port: 5672
+    targetPort: 5672
+    selector-app-name: rabbit
+  - name: rabbit-mgmt-service
+    port: 15672
+    targetPort: 15672
+    selector-app-name: rabbit
+  - name: keycloak-service
+    port: 8080
+    selector-app-name: keycloak
