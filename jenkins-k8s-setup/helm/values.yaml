@@ -9,13 +9,13 @@ secrets:
       KC_DB_PASSWORD: changeme
       JWK_SET_URI: "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/certs"
       ISSUER_URI: "https://keycloak.example.com/realms/myrealm"
-  # - name: db-connection-secret
-  #   type: Opaque
-  #   data:
-  #     # Database connection URL for Linkservice
-  #     LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/linkservice_db'
-  #     LINKSERVICE_DB_PASSWORD: changeme
-  #     LINKSERVICE_DB_USERNAME: linkservice_user
+  - name: db-connection-secret
+    type: Opaque
+    data:
+      # Database connection URL for Linkservice
+      LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/linkservice_db'
+      LINKSERVICE_DB_PASSWORD: changeme
+      LINKSERVICE_DB_USERNAME: linkservice_user
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config
