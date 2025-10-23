@@ -28,7 +28,12 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
-                            sh 'helm install --generate-name ${FOLDER} --set tenant=${TENANT} --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD}'
+                            sh '''helm install 
+                                --generate-name 
+                                ${FOLDER} 
+                                --set tenant=${TENANT} 
+                                --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} 
+                                --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD}'''
                         }
                     }
                 }
