@@ -11,12 +11,26 @@ secrets:
 nameOverride: ""
 fullnameOverride: ""
 deployments:
-  - name: rabbit
-    image: "rabbitmq:3-management"
+  - name: linkservice
+    image: "rdomloge/slinky-linky-linkservice:6.0.3-CI-8"
     explicitEnv:
-      RABBITMQ_DEFAULT_USER: "CHANGEME"
-      RABBITMQ_DEFAULT_PASS: "CHANGEME"
-      RABBITMQ_DEFAULT_VHOST: "slinkylinky"
+      chatgpt_model: "gpt-3.5-turbo"
+      chatgpt_api_key: "<SPECIFY>"
+      slinkylinky_vhost: "slinkylinky"
+    secretEnv:
+      spring_datasource_url: 
+        secretName: db-connection-secret
+        secretKey: LINKSERVICE_DATABASE_URL
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: ISSUER_URI
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
     ports:
       - 5672
       - 15672
