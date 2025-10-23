@@ -5,6 +5,7 @@ pipeline {
     parameters {
         password ( name: 'LINKSERVICE_DB_PASSWORD' )
         password ( name: 'KEYCLOAK_DB_PASSWORD' )
+        string ( name: 'TENANT' )
     }
 
     environment {
