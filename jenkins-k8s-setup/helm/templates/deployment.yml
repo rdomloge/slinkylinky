@@ -28,8 +28,10 @@ spec:
             limits:
               cpu: {{ $deployment.cpuLimit | default "250m" }}
               memory: {{ $deployment.memoryLimit | default "256Mi" }}
+          {{- range $port := $deployment.ports }}
           ports:
-            - containerPort: {{ $deployment.port }}
+            - containerPort: {{ $port }}
+          {{- end }}
           env:
           {{- range $key, $value := $deployment.explicitEnv }}
             - name: {{ $key }}

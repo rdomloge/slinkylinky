@@ -10,6 +10,16 @@ secrets:
 # Chart overrides
 nameOverride: ""
 fullnameOverride: ""
+deployments:
+  - name: rabbit
+    image: "rabbitmq:3-management"
+    explicitEnv:
+      RABBITMQ_DEFAULT_USER: "CHANGEME"
+      RABBITMQ_DEFAULT_PASS: "CHANGEME"
+      RABBITMQ_DEFAULT_VHOST: "slinkylinky"
+    ports:
+      - 5672
+      - 15672
 services:
   - name: postgres-service
     port: 5432
