@@ -3,8 +3,8 @@ pipeline {
     agent { label "helm-worker" }
 
     parameters {
-        password ( name: 'LINKSERVICE_DB_PASSWORD' )
-        password ( name: 'KEYCLOAK_DB_PASSWORD' )
+        password ( name: 'LINKSERVICE_DB_PASSWORD' generatedPassword: true )
+        password ( name: 'KEYCLOAK_DB_PASSWORD' generatedPassword: true )
         string ( name: 'TENANT' )
     }
 
