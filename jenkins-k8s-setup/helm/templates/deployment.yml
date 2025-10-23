@@ -1,10 +1,11 @@
+{{- $root := . }}
 {{- range $deployment := .Values.deployments }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $deployment.name }}
-  namespace: {{ .Values.tenant }}
+  namespace: {{ $root.Values.tenant }}
 spec:
   replicas: 1
   selector:
