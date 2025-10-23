@@ -6,14 +6,14 @@ secrets:
     data:
       # Keycloak database credentials
       KC_DB_USERNAME: "keycloak"
-      KC_DB_PASSWORD: "keycloakpassword"
+      KC_DB_PASSWORD: "{{ .Values.KEYCLOAK_DB_PASSWORD }}"
       JWK_SET_URI: "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/certs"
       ISSUER_URI: "https://keycloak.example.com/realms/myrealm"
   - name: db-connection-secret
     type: Opaque
     data:
       # Database connection URL for Linkservice
-      LINKSERVICE_DATABASE_URL: "jdbc:postgresql://postgres-service:5432/linkservice_db?user=linkservice_user&password={{LINKSERVICE_DB_PASSWORD}}"
+      LINKSERVICE_DATABASE_URL: "jdbc:postgresql://postgres-service:5432/linkservice_db?user=linkservice_user&password={{ .Values.LINKSERVICE_DB_PASSWORD }}"
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config
