@@ -114,7 +114,9 @@ pipeline {
         }
 
         stage('Create tunnel in Cloudflare') {
-            
+            // In this stage, we create a Cloudflare tunnel using the TENANT variable as the sub-domain of slinkylinky.uk
+            // This stage runs on the cloudflared-worker agent to ensure cloudflared is available
+            // Running the commands results in a JSON credentials file being created in the worker's home directory 
             agent { label "cloudflared-worker" }
 
             steps {
@@ -133,6 +135,90 @@ pipeline {
                             # Start the tunnel (this may need to be run as a background process or service)
                             cloudflared tunnel run ${TENANT}-tunnel &
                             '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Load the cloudflared tunnel secret into Kubernetes') {
+            // In this stage, we read the TunnelSecret from the cloudflared credentials file
+            agent { label "cloudflared-worker" }
+
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            // Assuming the tunnel credentials file is located at ~/.cloudflared/<tunnel-id>.json
+                            sh '''
+                            TUNNEL_ID=$(cloudflared tunnel list | grep ${TENANT}-tunnel | awk '{print $1}')
+                            CLOUD_FLARED_CREDENTIALS_FILE="$HOME/.cloudflared/${TUNNEL_ID}.json"
+                            // Read the TunnelSecret from the credentials file into a variable
+                            TUNNEL_SECRET=$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Load the cloudflared tunnel secret into Kubernetes') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Create or update the cloudflared-tunnel-secret in Kubernetes
+                            kubectl -n ${TENANT} create secret generic cloudflared-tunnel-secret \\
+                              --from-literal=token="${TUNNEL_SECRET}" \\
+                              --dry-run=client -o yaml | kubectl apply -f -
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Run cloudflared tunnel as a deployment') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh """
+                            # Create a Kubernetes deployment for cloudflared tunnel
+                            kubectl -n ${TENANT} apply -f - <<EOF
+                            apiVersion: apps/v1
+                            kind: Deployment
+                            metadata:
+                              name: cloudflared-tunnel
+                            spec:
+                              replicas: 1
+                              selector:
+                                matchLabels:
+                                  app: cloudflared-tunnel
+                              template:
+                                metadata:
+                                  labels:
+                                    app: cloudflared-tunnel
+                                spec:
+                                  containers:
+                                  - name: cloudflared
+                                    image: cloudflare/cloudflared:latest
+                                    args: ["tunnel", "run", "${TENANT}-tunnel"]
+                                    env:
+                                    - name: TUNNEL_TOKEN
+                                      valueFrom:
+                                        secretKeyRef:
+                                          name: cloudflared-tunnel-secret
+                                          key: token
+                            EOF
+                            """
                         }
                     }
                 }
