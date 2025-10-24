@@ -158,6 +158,18 @@ pipeline {
                             // Read the TunnelSecret from the credentials file into a variable
                             TUNNEL_SECRET=$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})
                             '''
+
+                            // Print the tunnel secret for verification (in real scenarios, avoid printing sensitive info)
+                            sh '''  
+                            echo "TUNNEL_SECRET=${TUNNEL_SECRET}"
+                            '''
+
+                            // Export the TUNNEL_SECRET to be used in the next stage
+                            env.TUNNEL_SECRET = sh(
+                                script: '''
+                                echo "TUNNEL_SECRET=${TUNNEL_SECRET}"
+                                '''
+                            ).trim()
                         }
                     }
                 }
