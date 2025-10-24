@@ -63,7 +63,7 @@ spec:
           livenessProbe:
             httpGet:
               path: {{ $deployment.livenessPath | default "/actuator/health/liveness" }}
-              port: 8080
+              port: {{ $deployment.livenessPort | default 8080 }}
             initialDelaySeconds: 10
             failureThreshold: 2
             periodSeconds: 10
@@ -71,7 +71,7 @@ spec:
           readinessProbe:
             httpGet:
               path: {{ $deployment.readinessPath | default "/actuator/health/readiness" }}
-              port: 8080
+              port: {{ $deployment.readinessPort | default 8080 }}
             initialDelaySeconds: 10
             failureThreshold: 2
             periodSeconds: 10
