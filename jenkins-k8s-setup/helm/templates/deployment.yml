@@ -56,9 +56,8 @@ spec:
           startupProbe:
             tcpSocket:
               port: 8080
-            initialDelaySeconds: {{ $deployment.startupDelay | default 10 }}
-            failureThreshold: 30
-            periodSeconds: 10
+            failureThreshold: {{ $deployment.startupFailureThreshold | default 30 }}
+            periodSeconds: {{ $deployment.startupPeriod | default 10 }}
             timeoutSeconds: 2
           livenessProbe:
             httpGet:
