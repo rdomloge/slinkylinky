@@ -23,6 +23,10 @@ configMaps:
   - name: rabbitmq-config
     data:
       RABBITMQ_HOST: "rabbit-service"
+  - name: admin-website-config
+    data:
+      NEXTAUTH_URL: "https://change-me"
+      NEXTAUTH_URL_INTERNAL: "http://adminwebsite-service:3000"
 # Chart overrides
 nameOverride: ""
 fullnameOverride: ""
