@@ -193,7 +193,7 @@ pipeline {
 
                             sh """
                             # Create a Kubernetes deployment for cloudflared tunnel
-                            kubectl -n ${TENANT} apply -f - <<EOF
+                            cat <<EOF | kubectl -n ${TENANT} apply -f -
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
