@@ -145,17 +145,24 @@ pipeline {
                             TUNNEL_SECRET=$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})
                             '''
 
-                            // Print the tunnel secret for verification (in real scenarios, avoid printing sensitive info)
-                            sh '''  
-                            echo "TUNNEL_SECRET=${TUNNEL_SECRET}"
-                            '''
+                            
 
                             // Export the TUNNEL_SECRET to be used in the next stage
                             env.TUNNEL_SECRET = sh(
                                 script: '''
-                                echo "TUNNEL_SECRET=${TUNNEL_SECRET}"
+                                echo "$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})"
                                 '''
                             ).trim()
+
+                            // Print the tunnel secret for verification (in real scenarios, avoid printing sensitive info)
+                            sh '''  
+                            echo "${TUNNEL_SECRET}"
+                            '''
+
+                            // Delete the JSON credentials file from the worker for security
+                            sh '''
+                            rm -f ${CLOUD_FLARED_CREDENTIALS_FILE}
+                             '''
                         }
                     }
                 }
