@@ -141,7 +141,7 @@ pipeline {
             }
         }
 
-        stage('Load the cloudflared tunnel secret into Kubernetes') {
+        stage('Load the cloudflared tunnel secret into a variable') {
             // In this stage, we read the TunnelSecret from the cloudflared credentials file
             agent { label "cloudflared-worker" }
 
@@ -164,7 +164,7 @@ pipeline {
             }
         }
 
-        stage('Load the cloudflared tunnel secret into Kubernetes') {
+        stage('Store the cloudflared tunnel secret as a Kubernetes secret') {
             steps {
                 script {
                     withFolderProperties() {
