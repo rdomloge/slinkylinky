@@ -221,7 +221,7 @@ spec:
             - --metrics
             - 0.0.0.0:2000
             - run
-          args: ["--token", "$(token-value)"]
+          args: ["--token", "\$(token-value)"]
           livenessProbe:
             httpGet:
               path: /ready
