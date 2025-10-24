@@ -36,6 +36,7 @@ spec:
           volumeMounts:
             - name: cloudflared-certificate
               mountPath: /etc/cloudflared/
+              readOnly: false
           resources:
             requests:
               cpu: "100m"
