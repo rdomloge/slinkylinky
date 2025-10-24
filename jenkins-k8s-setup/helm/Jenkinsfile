@@ -114,6 +114,9 @@ pipeline {
         }
 
         stage('Create tunnel in Cloudflare, using TENANT variable as sub-domain of slinkylinky.uk') {
+            
+            agent { label "cloudflared-worker" }
+
             steps {
                 script {
                     withFolderProperties() {
