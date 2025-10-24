@@ -91,6 +91,11 @@ deployments:
         configMapName: admin-website-config
         configMapKey: NEXTAUTH_URL_INTERNAL
     startupPort: 3000
+    livenessPort: 3000
+    livenessPath: /demand
+    readinessPort: 3000
+    readinessPath: /demand
+
 
 services:
   - name: postgres-service
