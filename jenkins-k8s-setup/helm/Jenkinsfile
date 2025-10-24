@@ -149,9 +149,10 @@ pipeline {
 
                             env.TUNNEL_SECRET = sh(
                                 script: '''
-                                CLOUD_FLARED_CREDENTIALS_FILE="/etc/cloudflared/${TUNNEL_ID}.json"
-                                echo "$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})"
-                                '''
+                                CLOUDFLARED_CREDENTIALS_FILE="/etc/cloudflared/${TUNNEL_ID}.json"
+                                echo "$(jq -r '.TunnelSecret' ${CLOUDFLARED_CREDENTIALS_FILE})"
+                                ''',
+                                returnStdout: true
                             ).trim()
 
                             // Delete the JSON credentials file from the worker for security
