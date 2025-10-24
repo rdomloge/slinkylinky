@@ -114,6 +114,7 @@ deployments:
     explicitEnv:
       server_port: "8080"
       slinkylinky_vhost: "slinkylinky"
+      linkservice_url: "http://linkservice-service:8090"
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
