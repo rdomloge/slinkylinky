@@ -35,7 +35,7 @@ spec:
               value: /home/jenkins
           volumeMounts:
             - name: cloudflared-certificate
-              mountPath: /etc/cloudflared/
+              mountPath: /etc/cloudflared/cert.pem
               readOnly: true
               subPath: cert.pem
           resources:
