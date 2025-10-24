@@ -3,8 +3,6 @@ pipeline {
     agent { label "helm-worker" }
 
     parameters {
-        password ( name: 'LINKSERVICE_DB_PASSWORD' )
-        password ( name: 'KEYCLOAK_DB_PASSWORD' )
         string ( name: 'TENANT' )
     }
 
@@ -18,6 +16,29 @@ pipeline {
             steps {
                 withFolderProperties() {
                     git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+                }
+            }
+        }
+
+        stage('Generate Password') {
+            steps {
+                script {
+                    // Generate a 24-character base64 password (strong and URL-safe)
+                    env.LINKSERVICE_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    env.KEYCLOAK_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    // Optional: verify variable exists but don't echo it
+                    echo "Password generated and stored in env var (not printing it for security)"
+                    
+                    echo "LINKSERVICE_DB_PASSWORD: ${env.LINKSERVICE_DB_PASSWORD}"
+                    echo "KEYCLOAK_DB_PASSWORD: ${env.KEYCLOAK_DB_PASSWORD}"
                 }
             }
         }
