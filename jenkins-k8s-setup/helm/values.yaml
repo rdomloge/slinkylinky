@@ -113,6 +113,10 @@ deployments:
       - 8080
     explicitEnv:
       server_port: "8080"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
     secretEnv:
       spring_datasource_url:
         secretName: db-connection-secret
