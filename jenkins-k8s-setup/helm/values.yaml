@@ -55,7 +55,7 @@ deployments:
       JWK_SET_URI:
         secretName: keycloak-credentials
         secretKey: JWK_SET_URI
-      KEYCLOAK_ISSUER:
+      ISSUER_URI: # named differently to match app config - is this the same value as KEYCLOAK_ISSUER in adminwebsite?
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
     configMapEnv:
