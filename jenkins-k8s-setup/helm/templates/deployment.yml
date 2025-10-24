@@ -55,7 +55,7 @@ spec:
             
           startupProbe:
             tcpSocket:
-              port: 8080
+              port: {{ $deployment.startupPort | default 8080 }}
             # The official guides do not recommend setting initialDelaySeconds for startupProbes
             failureThreshold: {{ $deployment.startupFailureThreshold | default 30 }}
             periodSeconds: {{ $deployment.startupPeriod | default 10 }}
