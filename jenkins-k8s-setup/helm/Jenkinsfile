@@ -193,32 +193,32 @@ pipeline {
 
                             sh """
                             # Create a Kubernetes deployment for cloudflared tunnel
-                            kubectl -n ${TENANT} apply -f - <<EOF
-                            apiVersion: apps/v1
-                            kind: Deployment
-                            metadata:
-                              name: cloudflared-tunnel
-                            spec:
-                              replicas: 1
-                              selector:
-                                matchLabels:
-                                  app: cloudflared-tunnel
-                              template:
-                                metadata:
-                                  labels:
-                                    app: cloudflared-tunnel
-                                spec:
-                                  containers:
-                                  - name: cloudflared
-                                    image: cloudflare/cloudflared:latest
-                                    args: ["tunnel", "run", "${TENANT}-tunnel"]
-                                    env:
-                                    - name: TUNNEL_TOKEN
-                                      valueFrom:
-                                        secretKeyRef:
-                                          name: cloudflared-tunnel-secret
-                                          key: token
-                            EOF
+                            kubectl -n \${TENANT} apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudflared-tunnel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared-tunnel
+  template:
+    metadata:
+      labels:
+        app: cloudflared-tunnel
+    spec:
+      containers:
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
+        args: ["tunnel", "run", "\${TENANT}-tunnel"]
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflared-tunnel-secret
+              key: token
+EOF
                             """
                         }
                     }
