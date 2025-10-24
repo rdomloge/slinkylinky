@@ -9,6 +9,8 @@ secrets:
       KC_DB_PASSWORD: "changeme"
       JWK_SET_URI: "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/certs"
       ISSUER_URI: "https://keycloak.example.com/realms/myrealm"
+      KEYCLOAK_ID: "sl-webapp"
+      KEYCLOAK_SECRET: "changeme"
   - name: db-connection-secret
     type: Opaque
     data:
