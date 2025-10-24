@@ -28,10 +28,10 @@ fullnameOverride: ""
 deployments:
   - name: linkservice
     image: "rdomloge/slinky-linky-linkservice:6.0.6-CI-34"
-    cpuLimits: "1000m"
+    cpuLimit: "500m"
     memoryLimit: "512Mi"
     startupFailureThreshold: 15
-    startupPeriod: 10
+    startupPeriod: 5
     explicitEnv:
       chatgpt_model: "gpt-3.5-turbo"
       chatgpt_api_key: "<SPECIFY>"
