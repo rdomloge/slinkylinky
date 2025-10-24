@@ -192,8 +192,7 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh """
-                            # Create a Kubernetes deployment for cloudflared tunnel
-                            cat <<EOFYAML | kubectl -n ${TENANT} apply -f -
+                            cat <<EOF | kubectl -n ${TENANT} apply -f -
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -243,7 +242,7 @@ spec:
             limits:
               cpu: "500m"
               memory: "500Mi"
-EOFYAML
+EOF
                             """
                         }
                     }
