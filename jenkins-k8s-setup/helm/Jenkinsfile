@@ -193,12 +193,12 @@ pipeline {
 
                             sh """
                             # Create a Kubernetes deployment for cloudflared tunnel
-                            kubectl -n \${TENANT} apply -f - <<EOF
+                            kubectl -n ${TENANT} apply -f - <<EOF
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: cloudflared-\${TENANT}-tunnel
-  namespace: \${TENANT}
+  name: cloudflared-tunnel
+  namespace: ${TENANT}
 spec:
   serviceName: cloudflared
   replicas: 1
