@@ -91,5 +91,23 @@ pipeline {
                 }
             }
         }
+
+        stage('Update external URI in adminwebsite configmap') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Update the admin-website-config ConfigMap with the external URL
+                            kubectl -n ${TENANT} patch configmap admin-website-config \\
+                              --type='merge' \\
+                              -p='{"data":{"NEXTAUTH_URL":"https://${TENANT}.slinkylinky.uk"}}'
+                            '''
+                        }
+                    }
+                }
+            }
     }
 }
