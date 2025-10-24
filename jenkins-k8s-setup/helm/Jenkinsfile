@@ -124,6 +124,7 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh '''
+                            cloudflared access login
                             # Create Cloudflare tunnel for the tenant
                             cloudflared tunnel create ${TENANT}-tunnel
 
