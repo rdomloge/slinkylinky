@@ -65,12 +65,12 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh '''
-                            helm install 
-                            --generate-name 
-                            ${FOLDER} 
-                            --set tenant=${TENANT} 
-                            --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} 
-                            --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD}
+                            helm install \ 
+                            --generate-name \ 
+                            ${FOLDER} \ 
+                            --set tenant=${TENANT} \ 
+                            --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \ 
+                            --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \ 
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD}
                             '''
                         }
