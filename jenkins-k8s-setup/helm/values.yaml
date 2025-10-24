@@ -59,6 +59,33 @@ deployments:
     ports:
       - 5672
       - 15672
+  - name: adminwebsite
+    image: "rdomloge/slinky-linky-adminwebsite:6.0.11-CI-27"
+    ports:
+      - 3000
+    cpuLimit: "250m"
+    secretEnv:
+      NEXTAUTH_SECRET:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_SECRET
+      KEYCLOAK_ID:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ID
+      KEYCLOAK_SECRET:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_SECRET
+      KEYCLOAK_ISSUER:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+    configMapEnv:
+      NEXTAUTH_URL:
+        configMapName: admin-website-config
+        configMapKey: NEXTAUTH_URL
+      NEXTAUTH_URL_INTERNAL:
+        configMapName: admin-website-config
+        configMapKey: NEXTAUTH_URL_INTERNAL
+    startupPort: 3000
+
 services:
   - name: postgres-service
     port: 5432
