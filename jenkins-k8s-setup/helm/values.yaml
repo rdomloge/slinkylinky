@@ -111,6 +111,8 @@ deployments:
     memoryLimit: "512Mi"
     ports:
       - 8080
+    explicitEnv:
+      server_port: "8080"
     secretEnv:
       spring_datasource_url:
         secretName: db-connection-secret
