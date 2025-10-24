@@ -51,9 +51,9 @@ deployments:
       JWK_SET_URI:
         secretName: keycloak-credentials
         secretKey: JWK_SET_URI
-      ISSUER_URI:
+      KEYCLOAK_ISSUER:
         secretName: keycloak-credentials
-        secretKey: ISSUER_URI
+        secretKey: KEYCLOAK_ISSUER
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
