@@ -18,6 +18,14 @@ secrets:
       LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/slinkylinky'
       LINKSERVICE_DB_PASSWORD: "changeme"
       LINKSERVICE_DB_USERNAME: linkservice_user
+      STATS_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/stats'
+      STATS_DB_PASSWORD: "changeme"
+      STATS_DB_USERNAME: "stats_user"
+  - name: stats-secret
+    type: Opaque
+    data:
+      MOZ_SECRET: "changeme"
+      SEMRUSH_KEY: "changeme"
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config

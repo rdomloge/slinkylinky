@@ -43,6 +43,11 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.STATS_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
                     // Optional: verify variable exists but don't echo it
                     echo "Password generated and stored in env var (not printing it for security)"
                     
