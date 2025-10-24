@@ -30,7 +30,7 @@ deployments:
     image: "rdomloge/slinky-linky-linkservice:6.0.6-CI-34"
     cpuLimits: "2000m"
     memoryLimits: "512Mi"
-    startupDelay: 30
+    startupDelay: 60
     explicitEnv:
       chatgpt_model: "gpt-3.5-turbo"
       chatgpt_api_key: "<SPECIFY>"
