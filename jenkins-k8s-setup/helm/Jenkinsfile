@@ -136,32 +136,27 @@ pipeline {
                             cloudflared tunnel run ${TENANT}-tunnel &
                             '''
 
-                            // Assuming the tunnel credentials file is located at ~/.cloudflared/<tunnel-id>.json
+                            // store the TUNNEL_ID in an environment variable for later use
+                            env.TUNNEL_ID = sh(
+                                script: '''
+                                cloudflared tunnel list | grep ${TENANT}-tunnel | awk '{print $1}'
+                                ''',
+                                returnStdout: true
+                            ).trim()
+
+                            // Assuming the tunnel credentials file is located at /etc/cloudflared/<tunnel-id>.json
                             // Load the cloudflared tunnel secret into a variable
-                            sh '''
-                            TUNNEL_ID=$(cloudflared tunnel list | grep ${TENANT}-tunnel | awk '{print $1}')
-                            CLOUD_FLARED_CREDENTIALS_FILE="/etc/cloudflared/${TUNNEL_ID}.json"
-                            # Read the TunnelSecret from the credentials file into a variable
-                            TUNNEL_SECRET=$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})
-                            '''
 
-                            
-
-                            // Export the TUNNEL_SECRET to be used in the next stage
                             env.TUNNEL_SECRET = sh(
                                 script: '''
+                                CLOUD_FLARED_CREDENTIALS_FILE="/etc/cloudflared/${TUNNEL_ID}.json"
                                 echo "$(jq -r '.TunnelSecret' ${CLOUD_FLARED_CREDENTIALS_FILE})"
                                 '''
                             ).trim()
 
-                            // Print the tunnel secret for verification (in real scenarios, avoid printing sensitive info)
-                            sh '''  
-                            echo "${TUNNEL_SECRET}"
-                            '''
-
                             // Delete the JSON credentials file from the worker for security
                             sh '''
-                            rm -f ${CLOUD_FLARED_CREDENTIALS_FILE}
+                            rm -f "/etc/cloudflared/${TUNNEL_ID}.json"
                              '''
                         }
                     }
