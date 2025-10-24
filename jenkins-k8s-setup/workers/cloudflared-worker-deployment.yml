@@ -45,5 +45,5 @@ spec:
               memory: "256Mi"
       volumes:
         - name: cloudflared-certificate
-          secret:
-            secretName: cloudflared-certificate
+          configMap:
+            name: cloudflared-certificate
