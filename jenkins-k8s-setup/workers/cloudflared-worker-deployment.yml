@@ -36,7 +36,6 @@ spec:
           volumeMounts:
             - name: cloudflared-certificate
               mountPath: /etc/cloudflared/
-              subPath: cert.pem
           resources:
             requests:
               cpu: "100m"
