@@ -3,6 +3,6 @@
 docker buildx build \
 --builder mybuilder \
 --platform linux/amd64,linux/arm64 \
--t rdomloge/jenkins-worker-maven-jdk21-latest:1.0.14 \
--f maven-jdk21-latest.dockerfile  . \
+-t rdomloge/jenkins-worker-cloudflared:1.0.0 \
+-f cloudflare.dockerfile  . \
 --push
