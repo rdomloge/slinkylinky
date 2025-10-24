@@ -90,8 +90,10 @@ pipeline {
                             # Update the existing db-connection-secret created by Helm
                             kubectl -n ${TENANT} patch secret db-connection-secret \\
                               --type='merge' \\
-                              -p='{"data":{"LINKSERVICE_DB_PASSWORD":"'$(echo -n "${LINKSERVICE_DB_PASSWORD}" | base64 -w 0)'","KC_DB_PASSWORD":"'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'"}}'
-                            
+                              -p='{"data":{"LINKSERVICE_DB_PASSWORD":"'$(echo -n "${LINKSERVICE_DB_PASSWORD}" | base64 -w 0)'", \\
+                              "KC_DB_PASSWORD":"'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",\\
+                              "STATS_DB_PASSWORD":"'$(echo -n "${STATS_DB_PASSWORD}" | base64 -w 0)'"}}'
+
                             # Also update keycloak-credentials secret if it exists
                             if kubectl -n ${TENANT} get secret keycloak-credentials >/dev/null 2>&1; then
                                 kubectl -n ${TENANT} patch secret keycloak-credentials \\
