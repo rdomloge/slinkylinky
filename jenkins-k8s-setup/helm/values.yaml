@@ -13,7 +13,7 @@ secrets:
     type: Opaque
     data:
       # Database connection URL for Linkservice
-      LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/linkservice_db'
+      LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/slinkylinky'
       LINKSERVICE_DB_PASSWORD: "changeme"
       LINKSERVICE_DB_USERNAME: linkservice_user
 # ConfigMaps configuration
