@@ -156,9 +156,9 @@ pipeline {
                             ).trim()
 
                             // Delete the JSON credentials file from the worker for security
-                            sh '''
-                            rm -f "/etc/cloudflared/${TUNNEL_ID}.json"
-                             '''
+                            // sh '''
+                            // rm -f "/etc/cloudflared/${TUNNEL_ID}.json"
+                            //  '''
                         }
                     }
                 }
