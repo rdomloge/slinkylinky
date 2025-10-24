@@ -197,8 +197,8 @@ pipeline {
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: cloudflared-${TENANT}-tunnel
-  namespace: ${TENANT}
+  name: cloudflared-\${TENANT}-tunnel
+  namespace: \${TENANT}
 spec:
   serviceName: cloudflared
   replicas: 1
