@@ -65,6 +65,7 @@ deployments:
     ports:
       - 5672
       - 15672
+
   - name: adminwebsite
     image: "rdomloge/slinky-linky-adminwebsite:6.0.11-CI-27"
     ports:
@@ -96,6 +97,34 @@ deployments:
     readinessPort: 3000
     readinessPath: /demand
 
+  - name: stats
+    image: "rdomloge/slinky-linky-stats:6.0.2-CI-9"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    secretEnv:
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: STATS_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: STATS_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: STATS_DB_USERNAME
+      moz_secret:
+        secretName: stats-secret
+        secretKey: MOZ_SECRET
+      semrush_key:
+        secretName: stats-secret
+        secretKey: SEMRUSH_KEY
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
 
 services:
   - name: postgres-service

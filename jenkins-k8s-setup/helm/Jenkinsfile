@@ -92,6 +92,29 @@ pipeline {
             }
         }
 
+        // stage('Create tunnel in Cloudflare, using TENANT variable as sub-domain of slinkylinky.uk') {
+        //     steps {
+        //         script {
+        //             withFolderProperties() {
+        //                 withKubeConfig(credentialsId: 'prod-k8s', 
+        //                                 serverUrl: "${env.K8S_SERVER_URL}") {
+
+        //                     sh '''
+        //                     # Create Cloudflare tunnel for the tenant
+        //                     cloudflared tunnel create ${TENANT}-tunnel
+
+        //                     # Configure the tunnel (assuming config file is pre-defined)
+        //                     cloudflared tunnel route dns ${TENANT}-tunnel ${TENANT}.slinkylinky.uk
+
+        //                     # Start the tunnel (this may need to be run as a background process or service)
+        //                     cloudflared tunnel run ${TENANT}-tunnel &
+        //                     '''
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
         stage('Update external URI in adminwebsite configmap') {
             steps {
                 script {
