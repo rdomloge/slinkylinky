@@ -35,7 +35,7 @@ spec:
               value: /home/jenkins
           volumeMounts:
             - name: cloudflared-certificate
-              mountPath: /home/jenkins/.cloudflared/cert.pem
+              mountPath: /etc/cloudflared/cert.pem
           resources:
             requests:
               cpu: "100m"

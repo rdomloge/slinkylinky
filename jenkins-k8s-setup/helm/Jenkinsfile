@@ -113,7 +113,7 @@ pipeline {
             }
         }
 
-        stage('Create tunnel in Cloudflare, using TENANT variable as sub-domain of slinkylinky.uk') {
+        stage('Create tunnel in Cloudflare') {
             
             agent { label "cloudflared-worker" }
 
