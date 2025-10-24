@@ -21,7 +21,7 @@ pipeline {
                 script {
                     // Generate a unique tenant name using 3 chars followed by 5 numbers
                     env.TENANT = sh(
-                        script: "cat /dev/urandom | tr -dc 'a-z' | head -c3; echo -n '-'; cat /dev/urandom | tr -dc '0-9' | head -c5",
+                        script: "cat /dev/urandom | tr -dc 'a-z' | head -c3; cat /dev/urandom | tr -dc '0-9' | head -c5",
                         returnStdout: true
                     ).trim()
                     echo "Generated tenant name: ${env.TENANT}"
