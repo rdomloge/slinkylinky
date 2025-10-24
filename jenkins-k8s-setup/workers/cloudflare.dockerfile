@@ -3,7 +3,7 @@ FROM jenkins/inbound-agent:latest-jdk21
 USER root
 
 # Install vim for debian
-RUN apt-get update && apt-get install -y vim
+RUN apt-get update && apt-get install -y jq vim
 
 # Install cloudflared (Cloudflare CLI)
 RUN mkdir -p --mode=0755 /usr/share/keyrings
@@ -11,6 +11,7 @@ RUN curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | tee /usr/share/k
 RUN echo "deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main" | tee /etc/apt/sources.list.d/cloudflared.list
 RUN apt-get update && apt-get install cloudflared -y
 RUN mkdir /etc/cloudflared
+RUN chown jenkins:jenkins /etc/cloudflared
 # End install cloudflared
 
 
