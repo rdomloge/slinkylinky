@@ -135,23 +135,9 @@ pipeline {
                             # Start the tunnel (this may need to be run as a background process or service)
                             cloudflared tunnel run ${TENANT}-tunnel &
                             '''
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Load the cloudflared tunnel secret into a variable') {
-            // In this stage, we read the TunnelSecret from the cloudflared credentials file
-            agent { label "cloudflared-worker" }
-
-            steps {
-                script {
-                    withFolderProperties() {
-                        withKubeConfig(credentialsId: 'prod-k8s', 
-                                        serverUrl: "${env.K8S_SERVER_URL}") {
 
                             // Assuming the tunnel credentials file is located at ~/.cloudflared/<tunnel-id>.json
+                            // Load the cloudflared tunnel secret into a variable
                             sh '''
                             TUNNEL_ID=$(cloudflared tunnel list | grep ${TENANT}-tunnel | awk '{print $1}')
                             CLOUD_FLARED_CREDENTIALS_FILE="$HOME/.cloudflared/${TUNNEL_ID}.json"
