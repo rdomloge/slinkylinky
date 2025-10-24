@@ -33,6 +33,9 @@ spec:
               value: /home/jenkins/agent
             - name: JENKINS_AGENT_WORKDIR_ROOT
               value: /home/jenkins
+          volumeMounts:
+            - name: cloudflared-certificate
+              mountPath: /home/jenkins/.cloudflared/cert.pem
           resources:
             requests:
               cpu: "100m"
@@ -40,3 +43,7 @@ spec:
             limits:
               cpu: "1000m"
               memory: "256Mi"
+          volumes:
+            - name: cloudflared-certificate
+              secret:
+                secretName: cloudflared-certificate
