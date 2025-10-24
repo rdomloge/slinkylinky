@@ -193,7 +193,7 @@ pipeline {
 
                             sh """
                             # Create a Kubernetes deployment for cloudflared tunnel
-                            cat <<EOF | kubectl -n ${TENANT} apply -f -
+                            cat <<EOFYAML | kubectl -n ${TENANT} apply -f -
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -243,7 +243,7 @@ spec:
             limits:
               cpu: "500m"
               memory: "500Mi"
-EOF
+EOFYAML
                             """
                         }
                     }
