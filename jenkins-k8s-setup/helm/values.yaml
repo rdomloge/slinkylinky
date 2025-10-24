@@ -29,7 +29,7 @@ deployments:
   - name: linkservice
     image: "rdomloge/slinky-linky-linkservice:6.0.6-CI-34"
     cpuLimits: "1000m"
-    memoryLimits: "1024Mi"
+    memoryLimit: "512Mi"
     startupFailureThreshold: 15
     startupPeriod: 10
     explicitEnv:
