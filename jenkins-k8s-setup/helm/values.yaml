@@ -113,6 +113,7 @@ deployments:
       - 8080
     explicitEnv:
       server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
