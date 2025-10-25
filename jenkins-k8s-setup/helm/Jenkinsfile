@@ -144,7 +144,21 @@ pipeline {
                             script: "jq -r '.result.token' response.json",
                             returnStdout: true
                         ).trim()
+                        // delete response.json to clean up
+                        sh 'rm -f response.json'
                     }
+                }
+            }
+        }
+
+        stage('Setup tunnel routes') {
+            steps {
+                script {
+                    sh '''
+                    echo "TUNNEL SECRET: ${TUNNEL_SECRET}"
+                    echo "TUNNEL ID: ${TUNNEL_ID}"
+                    echo "TUNNEL TOKEN: ${TUNNEL_TOKEN}"
+                    '''
                 }
             }
         }
