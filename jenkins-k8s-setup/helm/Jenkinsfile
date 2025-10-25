@@ -114,52 +114,15 @@ pipeline {
         }
 
         stage('Create tunnel in Cloudflare') {
-            // In this stage, we create a Cloudflare tunnel using the TENANT variable as the sub-domain of slinkylinky.uk
-            // This stage runs on the cloudflared-worker agent to ensure cloudflared is available
-            // Running the commands results in a JSON credentials file being created in the worker's home directory 
-            agent { label "cloudflared-worker" }
-
-            steps {
-                script {
-                    withFolderProperties() {
-                        withKubeConfig(credentialsId: 'prod-k8s', 
-                                        serverUrl: "${env.K8S_SERVER_URL}") {
-
-                            sh '''
-                            # Create Cloudflare tunnel for the tenant
-                            cloudflared tunnel create ${TENANT}-tunnel
-
-                            # Configure the tunnel (assuming config file is pre-defined)
-                            cloudflared tunnel route dns ${TENANT}-tunnel ${TENANT}.slinkylinky.uk
-
-                            # Start the tunnel (this may need to be run as a background process or service)
-                            cloudflared tunnel run ${TENANT}-tunnel &
-                            '''
-
-                            // store the TUNNEL_ID in an environment variable for later use
-                            env.TUNNEL_ID = sh(
-                                script: '''
-                                cloudflared tunnel list | grep ${TENANT}-tunnel | awk '{print $1}'
-                                ''',
-                                returnStdout: true
-                            ).trim()
-
-                            // Assuming the tunnel credentials file is located at /etc/cloudflared/<tunnel-id>.json
-                            // Load the cloudflared tunnel secret into a variable
-
-                            env.TUNNEL_SECRET = sh(
-                                script: '''
-                                CLOUDFLARED_CREDENTIALS_FILE="/etc/cloudflared/${TUNNEL_ID}.json"
-                                echo "$(jq -r '.TunnelSecret' ${CLOUDFLARED_CREDENTIALS_FILE})"
-                                ''',
-                                returnStdout: true
-                            ).trim()
-
-                            // Delete the JSON credentials file from the worker for security
-                            // sh '''
-                            // rm -f "/etc/cloudflared/${TUNNEL_ID}.json"
-                            //  '''
-                        }
+            withFolderProperties() {
+                steps {
+                    script {
+                        sh '''
+                        curl \
+                        -X GET \
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+                        https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/tokens/verify
+                        '''
                     }
                 }
             }
@@ -183,6 +146,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Run cloudflared tunnel as a deployment') {
             steps {
