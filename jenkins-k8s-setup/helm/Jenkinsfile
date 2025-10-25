@@ -154,11 +154,30 @@ pipeline {
         stage('Setup tunnel routes') {
             steps {
                 script {
-                    sh '''
-                    echo "TUNNEL SECRET: ${TUNNEL_SECRET}"
-                    echo "TUNNEL ID: ${TUNNEL_ID}"
-                    echo "TUNNEL TOKEN: ${TUNNEL_TOKEN}"
-                    '''
+                    withFolderProperties() {
+                        sh """
+                            curl -s \\
+                            -X PUT \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            -d '{
+                                "config": {
+                                    "ingress": [
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "service": "http://adminsite-service:3000",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "service": "http_status:404"
+                                        }
+                                    ]
+                                }
+                            }' \\
+                            https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/${TUNNEL_ID}/configurations \\
+                            > response.json
+                        """
+                    }
                 }
             }
         }
