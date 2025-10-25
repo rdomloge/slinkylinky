@@ -182,7 +182,7 @@ pipeline {
             }
         }
 
-        stage('Store the cloudflared tunnel secret as a Kubernetes secret') {
+        stage('Store the tunnel token as a K8S secret') {
             steps {
                 script {
                     withFolderProperties() {
@@ -202,7 +202,7 @@ pipeline {
         }
 
 
-        stage('Run cloudflared tunnel as a deployment') {
+        stage('Run cloudflare tunnel') {
             steps {
                 script {
                     withFolderProperties() {
