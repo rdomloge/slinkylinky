@@ -192,7 +192,7 @@ pipeline {
                             sh '''
                             # Create or update the cloudflared-tunnel-secret in Kubernetes
                             kubectl -n ${TENANT} create secret generic cloudflared-tunnel-secret \\
-                              --from-literal=token="${TUNNEL_SECRET}" \\
+                              --from-literal=token="${TUNNEL_TOKEN}" \\
                               --dry-run=client -o yaml | kubectl apply -f -
                             '''
                         }
