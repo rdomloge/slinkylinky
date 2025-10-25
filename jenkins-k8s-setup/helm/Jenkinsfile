@@ -118,7 +118,7 @@ pipeline {
                 script {
                     withFolderProperties() {
                         sh """
-                        curl \\
+                        curl -s \\
                         -X POST \\
                         -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                         -H "Content-Type: application/json" \\
@@ -126,8 +126,24 @@ pipeline {
                           "name": "${TENANT}",
                           "config_src": "cloudflare"
                         }' \\
-                        https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel
+                        https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel \\
+                         > response.json
                         """
+                        // Extract the tunnel secret from the credentials file
+                        env.TUNNEL_SECRET = sh(
+                            script: "jq -r '.result.credentials_file.TunnelSecret' response.json",
+                            returnStdout: true
+                        ).trim()
+                        // Extract the tunnel ID from the credentials file
+                        env.TUNNEL_ID = sh(
+                            script: "jq -r '.result.credentials_file.TunnelID' response.json",
+                            returnStdout: true
+                        ).trim()
+                        // Extract the token from the credentials file
+                        env.TUNNEL_TOKEN = sh(
+                            script: "jq -r '.result.token' response.json",
+                            returnStdout: true
+                        ).trim()
                     }
                 }
             }
