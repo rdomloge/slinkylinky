@@ -117,17 +117,17 @@ pipeline {
             steps {
                 script {
                     withFolderProperties() {
-                        sh '''
-                        curl \
-                        -X POST \
-                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-                        -H "Content-Type: application/json" \
+                        sh """
+                        curl \\
+                        -X POST \\
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                        -H "Content-Type: application/json" \\
                         -d '{
-                          "name": \"${TENANT}\",
+                          "name": "${TENANT}",
                           "config_src": "cloudflare"
-                        }' \
+                        }' \\
                         https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel
-                        '''
+                        """
                     }
                 }
             }
