@@ -145,7 +145,7 @@ pipeline {
                             returnStdout: true
                         ).trim()
                         // delete response.json to clean up
-                        sh 'rm -f response.json'
+                        sh 'rm -f create-tunnel-response.json'
                     }
                 }
             }
@@ -175,7 +175,7 @@ pipeline {
                                 }
                             }' \\
                             https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/${TUNNEL_ID}/configurations \\
-                            > response.json
+                            > tunnel-routes-response.json
                         """
                     }
                 }
