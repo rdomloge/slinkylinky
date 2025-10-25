@@ -114,9 +114,9 @@ pipeline {
         }
 
         stage('Create tunnel in Cloudflare') {
-            withFolderProperties() {
-                steps {
-                    script {
+            steps {
+                script {
+                    withFolderProperties() {
                         sh '''
                         curl \
                         -X GET \
