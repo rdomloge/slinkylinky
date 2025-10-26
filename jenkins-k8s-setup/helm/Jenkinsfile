@@ -324,7 +324,7 @@ EOF
                             sh """
                                 kubectl -n ${TENANT} patch secret keycloak-credentials \\
                                   --type='merge' \\
-                                  -p='{"data": {"KEYCLOAK_ISSUER": "test-placeholder-value"}}'
+                                  -p='{"data": {"KEYCLOAK_ISSUER": "'$(echo -n "farts" | base64 -w 0)'"}}'
                             """
                             // sh """
                             // # Update the keycloak-credentials with the correct URLs
