@@ -323,7 +323,7 @@ EOF
 
                             sh """
                             # Update the keycloak-credentials with the correct URLs
-                            kubectl -n ${TENANT} patch secret keycloak-credentials \\
+                            kubectl -n \${TENANT} patch secret keycloak-credentials \\
                               --type='merge' \\
                               -p='{
                                 "data": {
