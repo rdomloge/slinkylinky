@@ -362,6 +362,11 @@ EOF
                             kubectl -n ${TENANT} port-forward svc/keycloak-service 8080:8080 &
                             KUBE_PID=$!
 
+                            # Wait for Keycloak to be ready
+                            until curl -s https://localhost:8080/auth/realms/master >/dev/null 2>&1; do
+                                echo "Waiting for Keycloak to be ready..."
+                                sleep 5
+                            done
 
                             # Fetch admin access token
                             ADMIN_TOKEN=$(curl -X POST "https://localhost:8080/realms/master/protocol/openid-connect/token" \\
