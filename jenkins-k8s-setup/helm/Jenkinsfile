@@ -336,54 +336,54 @@ EOF
                                     \\"KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI\\": \\"\$KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI_B64\\"}}"
                             """
 
-                            // sh """
-                            // # Update the keycloak-credentials with the correct URLs
-                            // kubectl -n ${TENANT} patch secret keycloak-credentials \\
-                            //   --type='merge' \\
-                            //   -p='{
-                            //     "data": {
-                            //       "KEYCLOAK_ISSUER": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)'",
-                            //       "JWK_SET_URI": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}/protocol/openid-connect/certs" | base64 -w 0)'",
-                            //       "KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI": "'$(echo -n "/realms/${TENANT}/protocol/openid-connect/token" | base64 -w 0)'"
-                            //     }
-                            //   }'
-                            // """
+                            
                         }
                     }
 
-                    // // The CLIENTCREDENTIALS stuff is for server-to-server auth
-                    // // Connect to the Keycloak API and create the TENANT realm if it doesn't exist
-                    // withFolderProperties() {
-                    //     withKubeConfig(credentialsId: 'prod-k8s', 
-                    //                     serverUrl: "${env.K8S_SERVER_URL}") {
+                    // Restart the adminwebsite deployment to pick up config changes
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
 
-                    //         sh '''
-                    //         # Create a port-forward to Keycloak service
-                    //         kubectl -n ${TENANT} port-forward svc/keycloak-service 8080:8080 &
-                    //         KUBE_PID=$!
+                            sh '''
+                            kubectl -n ${TENANT} rollout restart deployment/adminwebsite-deployment
+                            '''
+                        }
+                    }
+
+                    // The CLIENTCREDENTIALS stuff is for server-to-server auth
+                    // Connect to the Keycloak API and create the TENANT realm if it doesn't exist
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Create a port-forward to Keycloak service
+                            kubectl -n ${TENANT} port-forward svc/keycloak-service 8080:8080 &
+                            KUBE_PID=$!
 
 
-                    //         # Fetch admin access token
-                    //         ADMIN_TOKEN=$(curl -s -X POST "https://localhost:8080/realms/master/protocol/openid-connect/token" \\
-                    //         -H "Content-Type: application/x-www-form-urlencoded" \\
-                    //         -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
+                            # Fetch admin access token
+                            ADMIN_TOKEN=$(curl -s -X POST "https://localhost:8080/realms/master/protocol/openid-connect/token" \\
+                            -H "Content-Type: application/x-www-form-urlencoded" \\
+                            -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
 
-                    //         # Create realm
-                    //         curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                    //         -d '{"realm": "'${TENANT}'", "enabled": true}' \\
-                    //         "https://localhost:8080/admin/realms"
+                            # Create realm
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"realm": "'${TENANT}'", "enabled": true}' \\
+                            "https://localhost:8080/admin/realms"
 
-                    //         # Create client credentials client
-                    //         curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                    //         -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "client-secret"}' \\
-                    //         "https://localhost:8080/admin/realms/${TENANT}/clients"
+                            # Create client credentials client
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "client-secret"}' \\
+                            "https://localhost:8080/admin/realms/${TENANT}/clients"
 
-                    //         # Kill the port-forward
-                    //         kill $KUBE_PID
+                            # Kill the port-forward
+                            kill $KUBE_PID
 
-                    //         '''
-                    //     }
-                    // }
+                            '''
+                        }
+                    }
                 }
             }
         }
