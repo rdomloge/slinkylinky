@@ -359,12 +359,13 @@ EOF
 
                             sh '''
                             # Create a port-forward to Keycloak service
-                            kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8080 &
+                            kubectl -n ${TENANT} port-forward keycloak-0 9090:8080 &
                             KUBE_PID=$!
 
                             # Wait for Keycloak to be ready, for a maximum of 10 seconds
                             for i in {1..10}; do
                                 if curl -s https://localhost:9090/auth/realms/master >/dev/null 2>&1; then
+                                    echo "Port forward to Keycloak is ready"
                                     break
                                 fi
                                 echo "Waiting for Keycloak to be ready..."
