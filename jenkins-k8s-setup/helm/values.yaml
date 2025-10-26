@@ -168,7 +168,7 @@ services:
     selectorAppName: woo
   - name: adminwebsite-service
     port: 3000
-    targetPort: 8080
+    targetPort: 3000
     selectorAppName: adminwebsite
   - name: rabbit-service
     port: 5672

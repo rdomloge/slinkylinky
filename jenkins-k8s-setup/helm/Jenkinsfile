@@ -188,7 +188,7 @@ pipeline {
                                     "type": "CNAME",
                                     "proxied": true,
                                     "name": "${TENANT}.slinkylinky.uk",
-                                    "content": "${TUNNEL_ID}.slinkylinky.uk"
+                                    "content": "${TUNNEL_ID}.cfargotunnel.com"
                                 }' \\
                             https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records \\
                             > tunnel-dns-response.json
