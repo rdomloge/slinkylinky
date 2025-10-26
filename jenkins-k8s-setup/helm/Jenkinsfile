@@ -346,7 +346,7 @@ EOF
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh '''
-                            kubectl -n ${TENANT} rollout restart deployment/adminwebsite-deployment
+                            kubectl -n ${TENANT} rollout restart deployment/adminwebsite
                             '''
                         }
                     }
