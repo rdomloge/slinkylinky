@@ -322,9 +322,13 @@ EOF
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh """
+                                # Create the base64 encoded values first
+                                KEYCLOAK_ISSUER_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)
+                                
+                                # Update the keycloak-credentials with the correct URLs
                                 kubectl -n ${TENANT} patch secret keycloak-credentials \\
                                   --type='merge' \\
-                                  -p='{"data": {"KEYCLOAK_ISSUER": "test"}}'
+                                  -p="{\\"data\\": {\\"KEYCLOAK_ISSUER\\": \\"\$KEYCLOAK_ISSUER_B64\\"}}"
                             """
                             //"KC_DB_PASSWORD": "'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",
 
