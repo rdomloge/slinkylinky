@@ -317,24 +317,24 @@ EOF
                         }
                     }
 
-                    // withFolderProperties() {
-                    //     withKubeConfig(credentialsId: 'prod-k8s', 
-                    //                     serverUrl: "${env.K8S_SERVER_URL}") {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
 
-                    //         sh """
-                    //         # Update the keycloak-credentials with the correct URLs
-                    //         kubectl -n ${TENANT} patch secret keycloak-credentials \\
-                    //           --type='merge' \\
-                    //           -p='{
-                    //             "data": {
-                    //               "KEYCLOAK_ISSUER": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)'",
-                    //               "JWK_SET_URI": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}/protocol/openid-connect/certs" | base64 -w 0)'",
-                    //               "KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI": "'$(echo -n "/realms/${TENANT}/protocol/openid-connect/token" | base64 -w 0)'"
-                    //             }
-                    //           }'
-                    //         """
-                    //     }
-                    // }
+                            sh """
+                            # Update the keycloak-credentials with the correct URLs
+                            kubectl -n ${TENANT} patch secret keycloak-credentials \\
+                              --type='merge' \\
+                              -p='{
+                                "data": {
+                                  "KEYCLOAK_ISSUER": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)'",
+                                  "JWK_SET_URI": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}/protocol/openid-connect/certs" | base64 -w 0)'",
+                                  "KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI": "'$(echo -n "/realms/${TENANT}/protocol/openid-connect/token" | base64 -w 0)'"
+                                }
+                              }'
+                            """
+                        }
+                    }
 
                     // // The CLIENTCREDENTIALS stuff is for server-to-server auth
                     // // Connect to the Keycloak API and create the TENANT realm if it doesn't exist
