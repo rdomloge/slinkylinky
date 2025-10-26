@@ -324,7 +324,7 @@ EOF
                             sh """
                                 kubectl -n ${TENANT} patch secret keycloak-credentials \\
                                   --type='merge' \\
-                                  -p='{"data": {"KEYCLOAK_ISSUER": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/" | base64 -w 0)'"}}'
+                                  -p='{"data": {"KEYCLOAK_ISSUER": "'$(echo -n "https://.slinkylinky.uk/realms/" | base64 -w 0)'"}}'
                             """
                             //"KC_DB_PASSWORD": "'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",
 
