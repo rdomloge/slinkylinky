@@ -166,7 +166,7 @@ pipeline {
                                     "ingress": [
                                         {
                                             "hostname": "${TENANT}.slinkylinky.uk",
-                                            "service": "http://adminsite-service:3000",
+                                            "service": "http://adminwebsite-service:3000",
                                             "originRequest": {}
                                         },
                                         {
