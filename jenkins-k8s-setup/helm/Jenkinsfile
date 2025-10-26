@@ -364,7 +364,7 @@ EOF
 
 
                             # Fetch admin access token
-                            ADMIN_TOKEN=$(curl -s -X POST "https://localhost:8080/realms/master/protocol/openid-connect/token" \\
+                            ADMIN_TOKEN=$(curl -X POST "https://localhost:8080/realms/master/protocol/openid-connect/token" \\
                             -H "Content-Type: application/x-www-form-urlencoded" \\
                             -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
 
