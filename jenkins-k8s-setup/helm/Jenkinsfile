@@ -326,6 +326,7 @@ EOF
                                   --type='merge' \\
                                   -p='{
                                     "data": {
+                                        "KEYCLOAK_ISSUER": "'$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)'"
                                     }
                                   }'
                             """
