@@ -359,11 +359,11 @@ EOF
 
                             sh '''
                             # Create a port-forward to Keycloak service
-                            kubectl -n ${TENANT} port-forward keycloak-0 9090:8080 &
+                            kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 &
                             KUBE_PID=$!
 
-                            # Wait for Keycloak to be ready, for a maximum of 10 seconds
-                            sleep 10
+                            # Wait for Keycloak to be ready, for a maximum of 5 seconds
+                            sleep 5
 
                             # Fetch admin access token
                             ADMIN_TOKEN=$(curl -X POST "https://localhost:9090/realms/master/protocol/openid-connect/token" \\
