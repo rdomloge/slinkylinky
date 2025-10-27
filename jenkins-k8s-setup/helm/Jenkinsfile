@@ -365,7 +365,6 @@ EOF
                                 if [ "${GREP_RESULT:-0}" -ne 0 ]; then
                                     echo "Keycloak pod is not yet ready. Waiting."
                                     sleep 5
-                                    GREP_RESULT=1  # Reset for next iteration
                                 else
                                     echo "Keycloak pod is ready!"
                                     break
