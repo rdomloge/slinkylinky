@@ -362,8 +362,21 @@ EOF
                             kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 &
                             KUBE_PID=$!
 
-                            # Wait for Keycloak to be ready, for a maximum of 5 seconds
-                            sleep 5
+                            # Wait for the Keycloak statefulset to be in a ready state
+                            kubectl -n ${TENANT} get pods -l app=keycloak -o jsonpath="{.items[0].status.phase}" | grep -q "Running"
+                            for i in {1..10}; do
+                                if [ $? -ne 0 ]; then
+                                    echo "Keycloak pod is not yet ready. Waiting."
+                                    sleep 5
+                                fi
+                            done
+                            if [ $? -ne 0 ]; then
+                                echo "Keycloak pod did not become ready in time. Exiting."
+                                kill $KUBE_PID
+                                exit 1
+                            else
+                                echo "Keycloak pod is ready."
+                            fi
 
                             # Fetch admin access token
                             ADMIN_TOKEN=$(curl -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
