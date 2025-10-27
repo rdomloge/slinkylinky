@@ -358,12 +358,9 @@ EOF
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh '''
-                            # Create a port-forward to Keycloak service
-                            kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 &
-                            KUBE_PID=$!
-
                             # Wait for the Keycloak statefulset to be in a ready state
                             for i in {1..10}; do
+                                echo "Checking if Keycloak pod is ready..."
                                 kubectl -n ${TENANT} get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" | grep -q "true"
                                 if [ $? -ne 0 ]; then
                                     echo "Keycloak pod is not yet ready. Waiting."
@@ -372,12 +369,14 @@ EOF
                             done
                             if [ $? -ne 0 ]; then
                                 echo "Keycloak pod did not become ready in time. Exiting."
-                                kill $KUBE_PID
                                 exit 1
                             else
                                 echo "Keycloak pod is ready."
-                                sleep 10
                             fi
+
+                            # Create a port-forward to Keycloak service
+                            kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 &
+                            KUBE_PID=$!
 
                             # Fetch admin access token
                             ADMIN_TOKEN=$(curl -s -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
