@@ -358,13 +358,6 @@ EOF
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh """
-                            # Print a message 5 times
-                            for i in \$(seq 1 5); do
-                                echo "Waiting for Keycloak to be ready... (\$i/5)"
-                                sleep 1
-                            done
-
-
                             # Wait for the Keycloak statefulset to be in a ready state
                             for i in {1..10}; do
                                 kubectl -n ${TENANT} get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" > /tmp/keycloak-ready-status
@@ -389,28 +382,7 @@ EOF
 
                             rm -f /tmp/keycloak-ready-status
 
-                            # Create a port-forward to Keycloak service
-                            kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 &
-                            KUBE_PID=$!
-
-                            # Fetch admin access token
-                            ADMIN_TOKEN=$(curl -s -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
-                            -H "Content-Type: application/x-www-form-urlencoded" \\
-                            -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
-
-                            # Create realm
-                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"realm": "'${TENANT}'", "enabled": true}' \\
-                            "http://localhost:9090/admin/realms"
-
-                            # Create client credentials client
-                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "client-secret"}' \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients"
-
-                            # Kill the port-forward
-                            kill \$KUBE_PID
-
+                            
                             """
                         }
                     }
