@@ -48,11 +48,13 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.KC_CLIENT_SECRET = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
                     // Optional: verify variable exists but don't echo it
                     echo "Password generated and stored in env var (not printing it for security)"
-                    
-                    echo "LINKSERVICE_DB_PASSWORD: ${env.LINKSERVICE_DB_PASSWORD}"
-                    echo "KEYCLOAK_DB_PASSWORD: ${env.KEYCLOAK_DB_PASSWORD}"
                 }
             }
         }
@@ -405,11 +407,18 @@ EOF
 
                             # Create client credentials client
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "client-secret"}' \\
+                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "'${env.KC_CLIENT_SECRET}'"}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
                             # Kill the port-forward
                             kill $KUBE_PID
+                            '''
+
+                            // Update the secret with the client secret
+                            sh '''
+                            kubectl -n ${TENANT} patch secret keycloak-credentials \\
+                              --type='merge' \\
+                              -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "${KC_CLIENT_SECRET}" | base64 -w 0)'"}}'
                             '''
                         }
                     }
