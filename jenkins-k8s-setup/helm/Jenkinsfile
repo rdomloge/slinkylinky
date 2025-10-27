@@ -383,6 +383,12 @@ EOF
 
                             rm -f /tmp/keycloak-ready-status
                             """
+                        }
+                    }
+
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh """
                             # Create Keycloak realm and Auth0 client setup \\
@@ -409,7 +415,7 @@ EOF
                             #kill $KUBE_PID
                             """
                         }
-                    }
+                    }   
                 }
             }
         }
