@@ -388,10 +388,10 @@ EOF
                             rm -f /tmp/keycloak-ready-status
                             '''
 
-                            sh """
+                            sh '''
                             # Create Keycloak realm and Auth0 client setup \\
                             # Create a port-forward to Keycloak service \\
-                            kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 & \\
+                            kubectl -n '''+"${TENANT}"+''' port-forward svc/keycloak-service 9090:8100 & \\
                             KUBE_PID=$!
 
                             # Fetch admin access token
@@ -401,7 +401,7 @@ EOF
 
                             # Create realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"realm": "'${TENANT}'", "enabled": true}' \\
+                            -d '{"realm": "'''+"${TENANT}"+'''", "enabled": true}' \\
                             "http://localhost:9090/admin/realms"
 
                             # Create client credentials client
@@ -411,7 +411,7 @@ EOF
 
                             # Kill the port-forward
                             kill $KUBE_PID
-                            """
+                            '''
                         }
                     }
 
