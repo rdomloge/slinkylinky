@@ -407,7 +407,7 @@ EOF
 
                             # Create client credentials client
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "'${env.KC_CLIENT_SECRET}'"}' \\
+                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_SECRET}"+'''"}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
                             # Kill the port-forward
@@ -418,7 +418,7 @@ EOF
                             sh '''
                             kubectl -n ${TENANT} patch secret keycloak-credentials \\
                               --type='merge' \\
-                              -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "'${env.KC_CLIENT_SECRET}'" | base64 -w 0)'"}}'
+                              -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "'''+"${KC_CLIENT_SECRET}"+'''" | base64 -w 0)'"}}'
                             '''
                         }
                     }
