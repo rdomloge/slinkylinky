@@ -418,7 +418,7 @@ EOF
                             sh '''
                             kubectl -n ${TENANT} patch secret keycloak-credentials \\
                               --type='merge' \\
-                              -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "${KC_CLIENT_SECRET}" | base64 -w 0)'"}}'
+                              -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "'${env.KC_CLIENT_SECRET}'" | base64 -w 0)'"}}'
                             '''
                         }
                     }
