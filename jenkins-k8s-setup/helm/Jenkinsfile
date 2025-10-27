@@ -363,6 +363,9 @@ EOF
                                 echo "Checking if Keycloak pod is ready..."
                                 kubectl -n ${TENANT} get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" > /tmp/keycloak-ready-status
                                 grep -q "true" /tmp/keycloak-ready-status
+                                echo contents of /tmp/keycloak-ready-status:
+                                cat /tmp/keycloak-ready-status
+                                echo Grep command result: $?
                                 if [ $? -ne 0 ]; then
                                     echo "Keycloak pod is not yet ready. Waiting."
                                     sleep 5
