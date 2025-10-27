@@ -369,20 +369,15 @@ EOF
                                     GREP_RESULT=0
                                     break
                                 else
-                                    echo "Keycloak pod is not yet ready. Waiting..."
                                     GREP_RESULT=1
                                     sleep 5
                                 fi
                                 i=$((i + 1))
                             done
 
-                            echo "Final check for Keycloak pod readiness..."
-
                             if [ $GREP_RESULT -ne 0 ]; then
                                 echo "Keycloak pod did not become ready in time. Exiting."
                                 exit 1
-                            else
-                                echo "Keycloak pod is ready."
                             fi
 
                             rm -f /tmp/keycloak-ready-status
@@ -397,9 +392,11 @@ EOF
                             sleep 3  # Wait for port-forward to establish
 
                             # Fetch admin access token
-                            ADMIN_TOKEN=$(curl -s -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
+                            RESPONSE=$(curl -s -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
                             -H "Content-Type: application/x-www-form-urlencoded" \\
                             -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
+
+                            ADMIN_TOKEN=$(echo $RESPONSE | jq -r '.access_token')
 
                             # Create realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
