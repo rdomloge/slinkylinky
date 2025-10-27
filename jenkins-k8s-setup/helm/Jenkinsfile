@@ -357,11 +357,11 @@ EOF
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
-                            sh '''
+                            sh """
                             # Print a message 5 times
-                            for i in {1..5}; do
-                                echo "Waiting for Keycloak to be ready... ($i/5)"
-                                sleep 10
+                            for i in \$(seq 1 5); do
+                                echo "Waiting for Keycloak to be ready... (\$i/5)"
+                                sleep 1
                             done
 
 
@@ -409,9 +409,9 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
                             # Kill the port-forward
-                            kill $KUBE_PID
+                            kill \$KUBE_PID
 
-                            '''
+                            """
                         }
                     }
                 }
