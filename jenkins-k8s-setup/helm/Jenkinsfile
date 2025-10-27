@@ -385,8 +385,8 @@ EOF
                             """
 
                             sh """
-                            # Create Keycloak realm and Auth0 client setup
-                            # Create a port-forward to Keycloak service
+                            # Create Keycloak realm and Auth0 client setup \\
+                            # Create a port-forward to Keycloak service \\
                             # kubectl -n ${TENANT} port-forward svc/keycloak-service 9090:8100 & \\
                             # KUBE_PID=$!
 
