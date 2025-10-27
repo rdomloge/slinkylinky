@@ -357,17 +357,17 @@ EOF
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
-                            sh '''
+                            sh """
                             # Wait for the Keycloak statefulset to be in a ready state
                             for i in {1..10}; do
                                 echo "Checking if Keycloak pod is ready..."
-                                kubectl -n ${TENANT} get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" \| grep -q "true"
-                                if [ $? -ne 0 ]; then
+                                kubectl -n ${TENANT} get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" | grep -q "true"
+                                if [ \$? -ne 0 ]; then
                                     echo "Keycloak pod is not yet ready. Waiting."
                                     sleep 5
                                 fi
                             done
-                            if [ $? -ne 0 ]; then
+                            if [ \$? -ne 0 ]; then
                                 echo "Keycloak pod did not become ready in time. Exiting."
                                 exit 1
                             else
@@ -394,9 +394,9 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
                             # Kill the port-forward
-                            kill $KUBE_PID
+                            kill \$KUBE_PID
 
-                            '''
+                            """
                         }
                     }
                 }
