@@ -366,19 +366,19 @@ EOF
                             sleep 5
 
                             # Fetch admin access token
-                            ADMIN_TOKEN=$(curl -X POST "https://localhost:9090/realms/master/protocol/openid-connect/token" \\
+                            ADMIN_TOKEN=$(curl -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
                             -H "Content-Type: application/x-www-form-urlencoded" \\
                             -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
 
                             # Create realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"realm": "'${TENANT}'", "enabled": true}' \\
-                            "https://localhost:9090/admin/realms"
+                            "http://localhost:9090/admin/realms"
 
                             # Create client credentials client
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "client-secret"}' \\
-                            "https://localhost:9090/admin/realms/${TENANT}/clients"
+                            "http://localhost:9090/admin/realms/${TENANT}/clients"
 
                             # Kill the port-forward
                             kill $KUBE_PID
