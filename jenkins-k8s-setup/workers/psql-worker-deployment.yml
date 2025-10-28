@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: plsql-worker
+  name: psql-worker
   namespace: slinkylinky
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: plsql-worker
+      app: psql-worker
       version: v1
   template:
     metadata:
       labels:
-        app: plsql-worker
+        app: psql-worker
         version: v1
     spec:
       containers:
-        - name: plsql-worker
+        - name: psql-worker
           image: rdomloge/jenkins-worker-psql:1.0.0
           imagePullPolicy: IfNotPresent
           env:
