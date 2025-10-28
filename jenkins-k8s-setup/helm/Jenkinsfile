@@ -158,6 +158,9 @@ pipeline {
                 script {
                     withFolderProperties() {
                         // ROUTES
+                        // ${TENANT}.slinkylinky.uk/realms/* => http://keycloak-service:8100
+                        // ${TENANT}.slinkylinky.uk/resources/* => http://keycloak-service:8100
+                        // ${TENANT}.slinkylinky.uk => http://adminwebsite-service:3000
                         sh """
                             curl -s \\
                             -X PUT \\
@@ -169,6 +172,16 @@ pipeline {
                                         {
                                             "hostname": "${TENANT}.slinkylinky.uk",
                                             "service": "http://adminwebsite-service:3000",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk/realms/*",
+                                            "service": "http://keycloak-service:8100",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk/resources/*",
+                                            "service": "http://keycloak-service:8100",
                                             "originRequest": {}
                                         },
                                         {
