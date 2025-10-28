@@ -434,6 +434,8 @@ EOF
                         }
                     }
 
+                    
+
                     // Restart the adminwebsite deployment to pick up config changes
                     withFolderProperties() {
                         withKubeConfig(credentialsId: 'prod-k8s', 
@@ -441,6 +443,37 @@ EOF
 
                             sh '''
                             kubectl -n ${TENANT} rollout restart deployment/adminwebsite
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Load Database Schema') {
+
+            agent { label "psql-worker" }
+
+            steps {
+                script {
+                    // Load schema into LinkService database, from schema-backup.sql and fpa-tables-backup.sql
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Create a port-forward to LinkService database
+                            kubectl -n ${TENANT} port-forward svc/linkservice-db 5432:5432 & 
+                            KUBE_PID=$!
+
+                            sleep 3  # Wait for port-forward to establish
+
+                            # Load the schema SQL files
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d linkservice_db -f /schemas/schema-backup.sql
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d linkservice_db -f /schemas/fpa-tables-backup.sql
+
+                            # Kill the port-forward
+                            kill $KUBE_PID
                             '''
                         }
                     }
