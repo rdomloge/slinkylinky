@@ -49,9 +49,9 @@ async function refreshAccessToken(token) {
 // Log NextAuth configuration on startup
 console.log("=== NextAuth Keycloak Configuration (Startup) ===");
 console.log("KEYCLOAK_ID:", process.env.KEYCLOAK_ID);
-console.log("KEYCLOAK_SECRET:", process.env.KEYCLOAK_SECRET ? "[REDACTED]" : "NOT SET");
+console.log("KEYCLOAK_SECRET:", process.env.KEYCLOAK_SECRET ? process.env.KEYCLOAK_SECRET : "NOT SET");
 console.log("KEYCLOAK_ISSUER:", process.env.KEYCLOAK_ISSUER);
-console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? "[REDACTED]" : "NOT SET");
+console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? process.env.NEXTAUTH_SECRET : "NOT SET");
 console.log("===============================================");
 
 export default NextAuth({
