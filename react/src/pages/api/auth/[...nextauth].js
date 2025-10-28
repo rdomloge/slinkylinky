@@ -6,13 +6,6 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 async function refreshAccessToken(token) {
   try {
-    // Log Keycloak configuration when refreshing tokens
-    console.log("=== NextAuth Keycloak Configuration (Token Refresh) ===");
-    console.log("KEYCLOAK_ID:", process.env.KEYCLOAK_ID);
-    console.log("KEYCLOAK_SECRET:", process.env.KEYCLOAK_SECRET ? process.env.KEYCLOAK_SECRET : "NOT SET");
-    console.log("KEYCLOAK_ISSUER:", process.env.KEYCLOAK_ISSUER);
-    console.log("======================================================");
-    
     const url = `${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`;
     const params = new URLSearchParams({
       client_id: process.env.KEYCLOAK_ID,
@@ -46,13 +39,6 @@ async function refreshAccessToken(token) {
   }
 }
 
-// Log NextAuth configuration on startup
-console.log("=== NextAuth Keycloak Configuration (Startup) ===");
-console.log("KEYCLOAK_ID:", process.env.KEYCLOAK_ID);
-console.log("KEYCLOAK_SECRET:", process.env.KEYCLOAK_SECRET ? process.env.KEYCLOAK_SECRET : "NOT SET");
-console.log("KEYCLOAK_ISSUER:", process.env.KEYCLOAK_ISSUER);
-console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? process.env.NEXTAUTH_SECRET : "NOT SET");
-console.log("===============================================");
 
 export default NextAuth({
   // Configure one or more authentication providers
