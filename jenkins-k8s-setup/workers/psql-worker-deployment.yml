@@ -20,11 +20,11 @@ spec:
           image: rdomloge/jenkins-worker-psql:1.0.0
           imagePullPolicy: IfNotPresent
           env:
-            - name: jenkins_URL
+            - name: JENKINS_URL
               value: http://jenkins-service:8080
-            - name: jenkins_SECRET
+            - name: JENKINS_SECRET
               value: CHANGEME
-            - name: jenkins_AGENT_NAME
+            - name: JENKINS_AGENT_NAME
               value: psql-worker
           resources:
             requests:
