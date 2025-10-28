@@ -357,16 +357,7 @@ EOF
                         }
                     }
 
-                    // Restart the adminwebsite deployment to pick up config changes
-                    withFolderProperties() {
-                        withKubeConfig(credentialsId: 'prod-k8s', 
-                                        serverUrl: "${env.K8S_SERVER_URL}") {
-
-                            sh '''
-                            kubectl -n ${TENANT} rollout restart deployment/adminwebsite
-                            '''
-                        }
-                    }
+                    
 
                     // The CLIENTCREDENTIALS stuff is for server-to-server auth
                     // Connect to the Keycloak API and create the TENANT realm if it doesn't exist
@@ -425,6 +416,11 @@ EOF
                             -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_SECRET}"+'''", "redirectUris": ["https://'''+"${TENANT}"+'''.slinkylinky.uk/*"], "webOrigins": ["https://'''+"${TENANT}"+'''.slinkylinky.uk"]}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
+                            # Create default user for the realm
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"username": "user", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["admin"]}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users"
+
                             # Kill the port-forward
                             kill $KUBE_PID
                             '''
@@ -438,7 +434,16 @@ EOF
                         }
                     }
 
-                     
+                    // Restart the adminwebsite deployment to pick up config changes
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            kubectl -n ${TENANT} rollout restart deployment/adminwebsite
+                            '''
+                        }
+                    }
                 }
             }
         }
