@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: plsql-worker
-          image: rdomloge/jenkins-worker-plsql:1.0.0
+          image: rdomloge/jenkins-worker-psql:1.0.0
           imagePullPolicy: IfNotPresent
           env:
             - name: jenkins_URL
@@ -25,7 +25,7 @@ spec:
             - name: jenkins_SECRET
               value: CHANGEME
             - name: jenkins_AGENT_NAME
-              value: plsql-worker
+              value: psql-worker
           resources:
             requests:
               cpu: "100m"
@@ -34,8 +34,8 @@ spec:
               cpu: "500m"
               memory: "512Mi"
           volumeMounts:
-            - name: plsql-worker-home
+            - name: psql-worker-home
               mountPath: /home/jenkins
       volumes:
-        - name: plsql-worker-home
+        - name: psql-worker-home
           emptyDir: {}
