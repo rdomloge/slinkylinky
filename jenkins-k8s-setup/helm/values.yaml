@@ -47,6 +47,7 @@ deployments:
     startupFailureThreshold: 15
     startupPeriod: 5
     explicitEnv:
+      logging.level.ROOT: "DEBUG"
       chatgpt_model: "gpt-3.5-turbo"
       chatgpt_api_key: "<SPECIFY>"
       slinkylinky_vhost: "slinkylinky"
