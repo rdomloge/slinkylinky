@@ -171,17 +171,19 @@ pipeline {
                                     "ingress": [
                                         {
                                             "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/realms/*",
+                                            "service": "http://keycloak-service:8100",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/resources/*",
+                                            "service": "http://keycloak-service:8100",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
                                             "service": "http://adminwebsite-service:3000",
-                                            "originRequest": {}
-                                        },
-                                        {
-                                            "hostname": "${TENANT}.slinkylinky.uk/realms/*",
-                                            "service": "http://keycloak-service:8100",
-                                            "originRequest": {}
-                                        },
-                                        {
-                                            "hostname": "${TENANT}.slinkylinky.uk/resources/*",
-                                            "service": "http://keycloak-service:8100",
                                             "originRequest": {}
                                         },
                                         {
