@@ -21,14 +21,14 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.3.4
           imagePullPolicy: Always
-          args: ["start", "--hostname", "https://{{ .Values.tenant }}.slinkylinky.uk", "--hostname-admin", "http://localhost:8100"]
+          args: ["start"]
           env:
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"
             - name: KC_HOSTNAME_STRICT
               value: "false"
             - name: KC_PROXY_HEADERS
-              value: "forwarded"
+              value: "xforwarded"
             - name: 'KC_CACHE'
               value: 'ispn'
             - name: KC_HEALTH_ENABLED
