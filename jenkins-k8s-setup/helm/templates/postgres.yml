@@ -65,9 +65,12 @@ data:
 
     CREATE DATABASE slinkylinky;
     CREATE USER linkservice_user WITH ENCRYPTED PASSWORD '{{ .Values.LINKSERVICE_DB_PASSWORD }}';
+    ALTER DATABASE slinkylinky OWNER TO linkservice_user;
     GRANT ALL PRIVILEGES ON DATABASE slinkylinky TO linkservice_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO linkservice_user;
 
     CREATE DATABASE stats;
     CREATE USER stats_user WITH ENCRYPTED PASSWORD '{{ .Values.STATS_DB_PASSWORD }}';
+    ALTER DATABASE stats OWNER TO stats_user;
     GRANT ALL PRIVILEGES ON DATABASE stats TO stats_user;
     GRANT ALL PRIVILEGES ON SCHEMA public TO stats_user;
