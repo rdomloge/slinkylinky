@@ -286,6 +286,9 @@ deployments:
       keycloak_clientcredentials_token_uri:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
+      keycloak_base_url:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_BASE_URL
 
 services:
   - name: postgres-service
