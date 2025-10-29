@@ -525,6 +525,7 @@ EOF
                 CORE_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/core-tables-backup.sql"
                 STATS_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/stats-tables-backup.sql"
                 AUDIT_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/audit-schema-backup.sql"
+                SUPPLIERENGAGEMENT_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/supplierengagement-schema-backup.sql"
             }
 
             steps {
@@ -546,6 +547,7 @@ EOF
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${CORE_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${STATS_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${AUDIT_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${SUPPLIERENGAGEMENT_DB_PASSWORD}"+''' psql -h localhost -U supplierengagement_user -d supplierengagement -f '''+"${SUPPLIERENGAGEMENT_TABLES_FILE}"+'''
 
                             # Kill the port-forward
                             kill $KUBE_PID
