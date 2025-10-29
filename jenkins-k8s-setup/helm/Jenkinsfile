@@ -452,14 +452,14 @@ EOF
 
         stage('Scale down') {
             steps {
-                // scale all deployments and statefulsets to 0 replicas to disconnect them from the database
+                // scale all (except the DB) deployments and statefulsets to 0 replicas to disconnect them from the database
                 withFolderProperties() {
                     withKubeConfig(credentialsId: 'prod-k8s', 
                                     serverUrl: "${env.K8S_SERVER_URL}") {
 
                         sh '''
                         kubectl -n ${TENANT} scale --replicas=0 deployment --all
-                        kubectl -n ${TENANT} scale --replicas=0 statefulset --all
+                        kubectl -n ${TENANT} scale --replicas=0 statefulset keycloak
                         '''
                     }
                 }
