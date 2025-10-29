@@ -183,6 +183,42 @@ pipeline {
                                         },
                                         {
                                             "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/stats*",
+                                            "service": "http://stats-service:8093",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/mozsupport",
+                                            "service": "http://stats-service:8093",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/semrush",
+                                            "service": "http://stats-service:8093",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/auditrecords",
+                                            "service": "http://audit-service:8092",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/engagements/*",
+                                            "service": "http://supplierengagement-service:8091",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/*",
+                                            "service": "http://linkservice-service:8090",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
                                             "service": "http://adminwebsite-service:3000",
                                             "originRequest": {}
                                         },
