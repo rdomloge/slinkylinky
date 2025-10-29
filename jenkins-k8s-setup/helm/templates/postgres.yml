@@ -80,3 +80,9 @@ data:
     ALTER DATABASE audit OWNER TO audit_user;
     GRANT ALL PRIVILEGES ON DATABASE audit TO audit_user;
     GRANT ALL PRIVILEGES ON SCHEMA public TO audit_user;
+
+    CREATE DATABASE supplierengagement;
+    CREATE USER supplierengagement_user WITH ENCRYPTED PASSWORD '{{ .Values.SUPPLIERENGAGEMENT_DB_PASSWORD }}';
+    ALTER DATABASE supplierengagement OWNER TO supplierengagement_user;
+    GRANT ALL PRIVILEGES ON DATABASE supplierengagement TO supplierengagement_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO supplierengagement_user;

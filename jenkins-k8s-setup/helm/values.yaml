@@ -145,6 +145,7 @@ deployments:
       ISSUER_URI:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+  
   - name: audit
     image: "rdomloge/slinky-linky-audit:6.0.1-CI-5"
     cpuLimit: "250m"
@@ -174,6 +175,86 @@ deployments:
       ISSUER_URI:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+
+  - name: supplierengagement
+    image: "slinky-linky-supplierengagement:6.0.5-CI-14"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    explicitEnv:
+      server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
+      linkservice_baseurl: "http://linkservice-service:8090/.rest"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+      slinkylinky_domain:
+        configMapName: common-config
+        configMapKey: SLINKYLINKY_DOMAIN
+      slinkylinky_vhost:
+        configMapName: common-config
+        configMapKey: SLINKYLINKY_VHOST
+      spring_mail_testing:
+        configMapName: supplierengagement-config
+        configMapKey: SPRING_MAIL_TESTING
+      mail_from:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_FROM
+      mail_declineEmailRecipientName:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_DECLINE_EMAIL_RECIPIENT_NAME
+      mail_declined_warning_email_addresses:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_DECLINED_WARNING_ADDRESSES
+      mail_bccRecipients:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_BCCRECIPIENTS
+      mail_expiredWarningAddresses:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_EXPIRED_WARNING_ADDRESSES
+      mail_requestsignoff:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_REQUESTSIGNOFF
+      mail_requestcontact:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_REQUESTCONTACT
+      
+    secretEnv:
+      mail_username:
+        secretName: mail-secret
+        secretKey: SUPPLIERENGAGEMENT_MAIL_USERNAME
+      mail_password:
+        secretName: mail-secret
+        secretKey: SUPPLIERENGAGEMENT_MAIL_PASSWORD
+      mail_host:
+        secretName: mail-secret
+        secretKey: SUPPLIERENGAGEMENT_MAIL_HOST
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: SUPPLIERENGAGEMENT_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: SUPPLIERENGAGEMENT_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: SUPPLIERENGAGEMENT_DB_USERNAME
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+      keycloak_clientcredentials_client_id:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID
+      keycloak_clientcredentials_client_secret:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET
+      keycloak_clientcredentials_token_uri:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
 
 services:
   - name: postgres-service

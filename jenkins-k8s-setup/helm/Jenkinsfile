@@ -53,13 +53,18 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.SUPPLIERENGAGEMENT_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
                     env.KC_CLIENT_SECRET = sh(
                         script: "openssl rand -base64 24 | tr -d '\\n'",
                         returnStdout: true
                     ).trim()
 
                     // Optional: verify variable exists but don't echo it
-                    echo "Password generated and stored in env var (not printing it for security)"
+                    echo "Passwords generated and stored in env var (not printing it for security)"
                 }
             }
         }
@@ -79,7 +84,8 @@ pipeline {
                             --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
                             --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
-                            --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} 
+                            --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} \\
+                            --set SUPPLIERENGAGEMENT_DB_PASSWORD=${SUPPLIERENGAGEMENT_DB_PASSWORD}
                             '''
                         }
                     }
@@ -103,7 +109,8 @@ pipeline {
                                   "LINKSERVICE_DB_PASSWORD": "'$(echo -n "${LINKSERVICE_DB_PASSWORD}" | base64 -w 0)'",
                                   "KC_DB_PASSWORD": "'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",
                                   "STATS_DB_PASSWORD": "'$(echo -n "${STATS_DB_PASSWORD}" | base64 -w 0)'",
-                                  "AUDIT_DB_PASSWORD": "'$(echo -n "${AUDIT_DB_PASSWORD}" | base64 -w 0)'"
+                                  "AUDIT_DB_PASSWORD": "'$(echo -n "${AUDIT_DB_PASSWORD}" | base64 -w 0)'",
+                                  "SUPPLIERENGAGEMENT_DB_PASSWORD": "'$(echo -n "${SUPPLIERENGAGEMENT_DB_PASSWORD}" | base64 -w 0)'"
                                 }
                               }'
                             
