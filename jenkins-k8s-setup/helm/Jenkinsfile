@@ -454,9 +454,13 @@ EOF
 
             agent { label "psql-worker" }
 
+            environment {
+                MAIN_SCHEMA_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/slinkylinky-schema-backup.sql"
+            }
+
             steps {
                 script {
-                    // Load schema into LinkService database, from schema-backup.sql and fpa-tables-backup.sql
+                    // Load schema into Postgres database, from schema-backup.sql and fpa-tables-backup.sql
                     withFolderProperties() {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
@@ -469,7 +473,7 @@ EOF
                             sleep 3  # Wait for port-forward to establish
 
                             # Load the schema SQL files
-                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${FOLDER}"+'''/slinkylinky-schema-backup.sql
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MAIN_SCHEMA_FILE}"+'''
 
                             # Kill the port-forward
                             kill $KUBE_PID
