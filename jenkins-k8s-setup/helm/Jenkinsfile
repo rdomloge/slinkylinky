@@ -451,15 +451,17 @@ EOF
         }
 
         stage('Scale down') {
-            // scale all deployments and statefulsets to 0 replicas to disconnect them from the database
-            withFolderProperties() {
-                withKubeConfig(credentialsId: 'prod-k8s', 
-                                serverUrl: "${env.K8S_SERVER_URL}") {
+            steps {
+                // scale all deployments and statefulsets to 0 replicas to disconnect them from the database
+                withFolderProperties() {
+                    withKubeConfig(credentialsId: 'prod-k8s', 
+                                    serverUrl: "${env.K8S_SERVER_URL}") {
 
-                    sh '''
-                    kubectl -n ${TENANT} scale --replicas=0 deployment --all
-                    kubectl -n ${TENANT} scale --replicas=0 statefulset --all
-                    '''
+                        sh '''
+                        kubectl -n ${TENANT} scale --replicas=0 deployment --all
+                        kubectl -n ${TENANT} scale --replicas=0 statefulset --all
+                        '''
+                    }
                 }
             }
         }
@@ -499,15 +501,17 @@ EOF
         }
 
         stage('Scale up') {
-            // scale all deployments and statefulsets back to 1 replica
-            withFolderProperties() {
-                withKubeConfig(credentialsId: 'prod-k8s', 
-                                serverUrl: "${env.K8S_SERVER_URL}") {
+            steps {
+                // scale all deployments and statefulsets back to 1 replica
+                withFolderProperties() {
+                    withKubeConfig(credentialsId: 'prod-k8s', 
+                                    serverUrl: "${env.K8S_SERVER_URL}") {
 
-                    sh '''
-                    kubectl -n ${TENANT} scale --replicas=1 deployment --all
-                    kubectl -n ${TENANT} scale --replicas=1 statefulset --all
-                    '''
+                        sh '''
+                        kubectl -n ${TENANT} scale --replicas=1 deployment --all
+                        kubectl -n ${TENANT} scale --replicas=1 statefulset --all
+                        '''
+                    }
                 }
             }
         }
