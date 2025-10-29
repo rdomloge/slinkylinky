@@ -55,7 +55,7 @@ configMaps:
       NEXTAUTH_URL_INTERNAL: "http://adminwebsite-service:3000"
   - name: common-config
     data:
-      SLINKYLINKY_DOMAIN: "example.com"
+      SLINKYLINKY_DOMAIN: "changeme.slinkylinky.uk"
       SLINKYLINKY_VHOST: "slinkylinky"
       SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
       SLINKYLINKY_RABBITMQ_PORT: "5672"

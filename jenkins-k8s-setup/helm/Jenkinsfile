@@ -122,7 +122,14 @@ pipeline {
                                   --type='merge' \\
                                   -p='{"data":{"KC_DB_PASSWORD":"'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'"}}'
                             fi
+                            
+                            # Update the SLINKYLINKY_DOMAIN in common-config ConfigMap
+                            kubectl -n ${TENANT} patch configmap common-config \\
+                              --type='merge' \\
+                              -p='{"data":{"SLINKYLINKY_DOMAIN":"'"${TENANT}.slinkylinky.uk"'"}}'
                             '''
+
+                            
                         }
                     }
                 }
