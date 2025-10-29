@@ -145,6 +145,35 @@ deployments:
       ISSUER_URI:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+  - name: audit
+    image: "rdomloge/slinky-linky-audit:6.0.1-CI-5"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    explicitEnv:
+      server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+    secretEnv:
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: AUDIT_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: AUDIT_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: AUDIT_DB_USERNAME
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
 
 services:
   - name: postgres-service
