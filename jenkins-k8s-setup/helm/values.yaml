@@ -47,7 +47,7 @@ deployments:
     startupFailureThreshold: 15
     startupPeriod: 5
     explicitEnv:
-      _JAVA_OPTIONS:-Dlogging.level.ROOT\: "DEBUG"
+      _JAVA_OPTIONS: "-Dlogging.level.ROOT=DEBUG"
       chatgpt_model: "gpt-3.5-turbo"
       chatgpt_api_key: "<SPECIFY>"
       slinkylinky_vhost: "slinkylinky"
