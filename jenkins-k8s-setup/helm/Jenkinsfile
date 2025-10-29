@@ -509,6 +509,7 @@ EOF
             environment {
                 MAIN_SCHEMA_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/slinkylinky-schema-backup.sql"
                 CORE_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/core-tables-backup.sql"
+                STATS_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/stats-tables-backup.sql"
             }
 
             steps {
@@ -528,6 +529,7 @@ EOF
                             # Load the schema SQL files
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MAIN_SCHEMA_FILE}"+'''
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${CORE_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${STATS_TABLES_FILE}"+'''
 
                             # Kill the port-forward
                             kill $KUBE_PID
