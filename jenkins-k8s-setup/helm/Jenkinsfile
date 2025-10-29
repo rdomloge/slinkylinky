@@ -462,15 +462,14 @@ EOF
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh '''
-                            # Create a port-forward to LinkService database
-                            kubectl -n ${TENANT} port-forward svc/linkservice-db 5432:5432 & 
+                            # Create a port-forward to Postgres database
+                            kubectl -n ${TENANT} port-forward svc/postgres-service 5432:5432 & 
                             KUBE_PID=$!
 
                             sleep 3  # Wait for port-forward to establish
 
                             # Load the schema SQL files
-                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d linkservice_db -f /schemas/schema-backup.sql
-                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d linkservice_db -f /schemas/fpa-tables-backup.sql
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f /schemas/slinkylinky-schema-backup.sql
 
                             # Kill the port-forward
                             kill $KUBE_PID
