@@ -237,7 +237,7 @@ deployments:
       mail_declineEmailRecipientName:
         configMapName: supplierengagement-config
         configMapKey: MAIL_DECLINE_EMAIL_RECIPIENT_NAME
-      mail_declined_warning_email_addresses:
+      mail_declined_warning_addresses:
         configMapName: supplierengagement-config
         configMapKey: MAIL_DECLINED_WARNING_ADDRESSES
       mail_bccRecipients:
