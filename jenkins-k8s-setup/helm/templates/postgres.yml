@@ -74,3 +74,9 @@ data:
     ALTER DATABASE stats OWNER TO stats_user;
     GRANT ALL PRIVILEGES ON DATABASE stats TO stats_user;
     GRANT ALL PRIVILEGES ON SCHEMA public TO stats_user;
+
+    CREATE DATABASE audit;
+    CREATE USER audit_user WITH ENCRYPTED PASSWORD '{{ .Values.AUDIT_DB_PASSWORD }}';
+    ALTER DATABASE audit OWNER TO audit_user;
+    GRANT ALL PRIVILEGES ON DATABASE audit TO audit_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO audit_user;

@@ -21,6 +21,9 @@ secrets:
       STATS_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/stats'
       STATS_DB_PASSWORD: "changeme"
       STATS_DB_USERNAME: "stats_user"
+      AUDIT_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/audit'
+      AUDIT_DB_PASSWORD: "changeme"
+      AUDIT_DB_USERNAME: "audit_user"
   - name: stats-secret
     type: Opaque
     data:

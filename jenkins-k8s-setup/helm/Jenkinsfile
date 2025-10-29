@@ -48,6 +48,11 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.AUDIT_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
                     env.KC_CLIENT_SECRET = sh(
                         script: "openssl rand -base64 24 | tr -d '\\n'",
                         returnStdout: true
@@ -74,6 +79,7 @@ pipeline {
                             --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
                             --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD}
+                            --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} \\
                             '''
                         }
                     }
@@ -96,7 +102,8 @@ pipeline {
                                 "data": {
                                   "LINKSERVICE_DB_PASSWORD": "'$(echo -n "${LINKSERVICE_DB_PASSWORD}" | base64 -w 0)'",
                                   "KC_DB_PASSWORD": "'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",
-                                  "STATS_DB_PASSWORD": "'$(echo -n "${STATS_DB_PASSWORD}" | base64 -w 0)'"
+                                  "STATS_DB_PASSWORD": "'$(echo -n "${STATS_DB_PASSWORD}" | base64 -w 0)'",
+                                  "AUDIT_DB_PASSWORD": "'$(echo -n "${AUDIT_DB_PASSWORD}" | base64 -w 0)'"
                                 }
                               }'
                             
@@ -510,6 +517,7 @@ EOF
                 MAIN_SCHEMA_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/slinkylinky-schema-backup.sql"
                 CORE_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/core-tables-backup.sql"
                 STATS_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/stats-tables-backup.sql"
+                AUDIT_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/audit-schema-backup.sql"
             }
 
             steps {
@@ -530,6 +538,7 @@ EOF
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MAIN_SCHEMA_FILE}"+'''
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${CORE_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${STATS_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${AUDIT_TABLES_FILE}"+'''
 
                             # Kill the port-forward
                             kill $KUBE_PID
