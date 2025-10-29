@@ -11,6 +11,12 @@ secrets:
       KEYCLOAK_ISSUER: "https://keycloak.example.com/realms/myrealm"
       KEYCLOAK_ID: "sl-webapp"
       KEYCLOAK_SECRET: "changeme"
+      # Keycloak client credentials for client credentials
+      KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID: "sl-server"
+      KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET: "changeme"
+      KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI: "http://keycloak-service:8100/realms/myrealm/protocol/openid-connect/token"
+      KEYCLOAK_BASE_URL: "http://keycloak-service:8100"
+
   - name: db-connection-secret
     type: Opaque
     data:
@@ -38,6 +44,24 @@ configMaps:
     data:
       NEXTAUTH_URL: "https://change-me"
       NEXTAUTH_URL_INTERNAL: "http://adminwebsite-service:3000"
+  - name: common-config
+    data:
+      SLINKYLINKY_DOMAIN: "example.com"
+      SLINKYLINKY_VHOST: "slinkylinky"
+      SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
+      SLINKYLINKY_RABBITMQ_PORT: "5672"
+  - name: supplierengagement-config
+    data:
+      SPRING_MAIL_TESTING: "true"
+      MAIL_FROM: "no-reply@slinkylinky.uk"
+      MAIL_SMTP_HOST: "smtp.example.com"
+      MAIL_DECLINE_EMAIL_RECIPIENT_NAME: "Support Team"
+      MAIL_DECLINED_WARNING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
+      MAIL_BCCRECIPIENTS: "rdomloge@gmail.com"
+      MAIL_EXPIRED_WARNING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
+      MAIL_REQUESTSIGNOFF: "Your team at SlinkyLinky"
+      MAIL_REQUESTCONTACT: "support@slinkylinky.uk"
+
 # Chart overrides
 nameOverride: ""
 fullnameOverride: ""
@@ -177,7 +201,7 @@ deployments:
         secretKey: KEYCLOAK_ISSUER
 
   - name: supplierengagement
-    image: "slinky-linky-supplierengagement:6.0.5-CI-14"
+    image: "rdomloge/slinky-linky-supplierengagement:6.0.6-CI-15"
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
@@ -220,7 +244,6 @@ deployments:
       mail_requestcontact:
         configMapName: supplierengagement-config
         configMapKey: MAIL_REQUESTCONTACT
-      
     secretEnv:
       mail_username:
         secretName: mail-secret
