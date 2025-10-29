@@ -35,6 +35,12 @@ secrets:
     data:
       MOZ_SECRET: "changeme"
       SEMRUSH_KEY: "changeme"
+  - name: mail-secret
+    type: Opaque
+    data:
+      SUPPLIERENGAGEMENT_MAIL_USERNAME: "changeme"
+      SUPPLIERENGAGEMENT_MAIL_PASSWORD: "changeme"
+      SUPPLIERENGAGEMENT_MAIL_HOST: "smtp.example.com"
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config
@@ -54,7 +60,6 @@ configMaps:
     data:
       SPRING_MAIL_TESTING: "true"
       MAIL_FROM: "no-reply@slinkylinky.uk"
-      MAIL_SMTP_HOST: "smtp.example.com"
       MAIL_DECLINE_EMAIL_RECIPIENT_NAME: "Support Team"
       MAIL_DECLINED_WARNING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
       MAIL_BCCRECIPIENTS: "rdomloge@gmail.com"
