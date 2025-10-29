@@ -78,8 +78,8 @@ pipeline {
                             --set tenant=${TENANT} \\
                             --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
                             --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
-                            --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD}
-                            --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} \\
+                            --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
+                            --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} 
                             '''
                         }
                     }
