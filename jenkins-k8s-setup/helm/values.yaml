@@ -30,6 +30,9 @@ secrets:
       AUDIT_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/audit'
       AUDIT_DB_PASSWORD: "changeme"
       AUDIT_DB_USERNAME: "audit_user"
+      SUPPLIERENGAGEMENT_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/supplierengagement'
+      SUPPLIERENGAGEMENT_DB_PASSWORD: "changeme"
+      SUPPLIERENGAGEMENT_DB_USERNAME: "supplierengagement_user"
   - name: stats-secret
     type: Opaque
     data:
