@@ -21,7 +21,7 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:26.3.4
           imagePullPolicy: Always
-          args: ["start"]
+          args: ["start", "--hostname", "https://{{ .Values.tenant }}.slinkylinky.uk"]
           env:
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"
