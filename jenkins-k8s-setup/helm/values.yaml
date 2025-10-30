@@ -15,7 +15,8 @@ secrets:
       KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID: "sl-server"
       KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET: "changeme"
       KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI: "http://keycloak-service:8100/realms/myrealm/protocol/openid-connect/token"
-      KEYCLOAK_BASE_URL: "http://keycloak-service:8100"
+      # This has to be the external URL otherwise the ISS in the token does not match
+      KEYCLOAK_BASE_URL: "changeme"
 
   - name: db-connection-secret
     type: Opaque
