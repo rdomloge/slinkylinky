@@ -430,7 +430,7 @@ EOF
                             USERNAME="'''+"${env.SUPPLIERENGAGEMENT_MAIL_USERNAME}"+'''"
                             PASSWORD="'''+"${env.SUPPLIERENGAGEMENT_MAIL_PASSWORD}"+'''"
                             HOST="'''+"${env.SUPPLIERENGAGEMENT_MAIL_HOST}"+'''"
-                            
+
                             kubectl -n ${TENANT} patch secret mail-secret \\
                               --type='merge' \\
                               -p='{"data":{
@@ -507,6 +507,20 @@ EOF
                             # Create default user for the realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"username": "user", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["admin"]}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users"
+
+                            # create the realm roles 'tenant_admin' and 'global_admin' 
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "tenant_admin"}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/roles"
+
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "global_admin"}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/roles"
+
+                            # Create an admin user with the username admin and with the tenant_admin and global_admin realm roles
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"]}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users"
 
                             # Kill the port-forward
