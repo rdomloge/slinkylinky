@@ -396,6 +396,7 @@ EOF
                         }
                     }
 
+                    // Update the keycloak-credentials secret with the correct URLs
                     withFolderProperties() {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
@@ -417,12 +418,25 @@ EOF
                                     \\"KEYCLOAK_BASE_URL\\": \\"\$KEYCLOAK_BASE_URL_B64\\"
                                   }}"
                             """
-
-                            
                         }
                     }
 
-                    
+                    // Patch the mail-secret with the values from the folder properties
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            
+                            sh """
+                            kubectl -n ${TENANT} patch secret mail-secret \\
+                              --type='merge' \\
+                              -p='{"data":{
+                                "SUPPLIERENGAGEMENT_MAIL_USERNAME":"'$(echo -n "${env.SUPPLIERENGAGEMENT_MAIL_USERNAME}" | base64 -w 0)'",
+                                "SUPPLIERENGAGEMENT_MAIL_PASSWORD":"'$(echo -n "${env.SUPPLIERENGAGEMENT_MAIL_PASSWORD}" | base64 -w 0)'",
+                                "SUPPLIERENGAGEMENT_MAIL_HOST":"'$(echo -n "${env.SUPPLIERENGAGEMENT_MAIL_HOST}" | base64 -w 0)'"
+                              }}'
+                            """
+                        }
+                    }                    
 
                     // The CLIENTCREDENTIALS stuff is for server-to-server auth
                     // Connect to the Keycloak API and create the TENANT realm if it doesn't exist
