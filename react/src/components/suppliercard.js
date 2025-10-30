@@ -46,7 +46,9 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
             :
                 null
             }
-            <div id={"supplier-name"} className={"text-xl my-2 "+(supplier.disabled?"text-gray-300":"")}>{supplier.name}</div>
+            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                <div id={"supplier-name"} className={"text-xl my-2 "+(supplier.disabled?"text-gray-300":"")}>{supplier.name}</div>
+            </AuthorizedAccess>
             
             <div className='grid grid-cols-12'>
                 {linkable ?
@@ -55,17 +57,21 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         <Link href={addProtocol(supplier.website)} className='col-span-11' target='_blank' rel='nofollow'>
                             <span className='align-middle truncate'>{supplier.website}</span>
                         </Link>
-                        <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
-                        <Link href={"mailto:"+supplier.email} className='col-span-11' rel='nofollow'>
-                            <span id='supplier-email' className='align-middle truncate'>{supplier.email}</span>
-                        </Link>
+                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                            <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
+                                <Link href={"mailto:"+supplier.email} className='col-span-11' rel='nofollow'>
+                                <span id='supplier-email' className='align-middle truncate'>{supplier.email}</span>
+                            </Link>
+                        </AuthorizedAccess>
                     </>
                 :
                     <>
                         <Image className='col-span-1 ' src={LinkIcon} alt="link" width={20} height={20}/>
                         <span className='col-span-11 align-middle truncate'>{supplier.website}</span>
-                        <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
-                        <span id='supplier-email' className='col-span-11 align-middle truncate'>{supplier.email}</span>
+                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                            <Image className='col-span-1 ' src={EmailIcon} alt="email" width={20} height={20}/>
+                            <span id='supplier-email' className='col-span-11 align-middle truncate'>{supplier.email}</span>
+                        </AuthorizedAccess>
                     </>
                 }
                 <Image className='col-span-1 ' src={DaIcon} alt="da" width={20} height="auto"/>
@@ -74,8 +80,10 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 <Image className='col-span-1' src={MoneyIcon} alt="money" width={25} height="auto"/> 
                 <span id='supplier-fee' className='col-span-11 align-middle'>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
 
-                <Image className='col-span-1' src={EnterIcon} alt="money" width={30} height="auto"/> 
-                <span id="supplier-source" className='col-span-11 align-middle'>{supplier.source}</span>
+                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                    <Image className='col-span-1' src={EnterIcon} alt="money" width={30} height="auto"/>
+                    <span id="supplier-source" className='col-span-11 align-middle'>{supplier.source}</span>
+                </AuthorizedAccess>
 
             </div>
             
