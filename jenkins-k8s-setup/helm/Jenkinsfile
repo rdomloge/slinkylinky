@@ -518,10 +518,22 @@ EOF
                             -d '{"name": "global_admin"}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/roles"
 
-                            # Create an admin user with the username admin and with the tenant_admin and global_admin realm roles
+                            # Create an admin user with the username admin
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"]}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users"
+
+                            # Give the admin user the realm the tenant_admin and global_admin realm roles
+                            # First, get the user ID of the admin user
+                            USER_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users?username=admin" | jq -r '.[0].id')
+                            # Next, get the role representations for tenant_admin and global_admin
+                            ROLE_REPRESENTATIONS=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/roles" | jq '[.[] | select(.name=="tenant_admin" or .name=="global_admin")]')
+                            # Finally, assign the roles to the user 
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "$ROLE_REPRESENTATIONS" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID/role-mappings/realm"
 
                             # Kill the port-forward
                             kill $KUBE_PID
