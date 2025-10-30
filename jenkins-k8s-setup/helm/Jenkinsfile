@@ -59,12 +59,12 @@ pipeline {
                     ).trim()
 
                     env.KC_CLIENT_SECRET = sh(
-                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        script: "tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 10",
                         returnStdout: true
                     ).trim()
 
                     env.KC_CLIENT_CREDENTIALS_SECRET = sh(
-                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        script: "tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 10",
                         returnStdout: true
                     ).trim()
 
