@@ -112,7 +112,7 @@ deployments:
       - 15672
 
   - name: adminwebsite
-    image: "rdomloge/slinky-linky-adminwebsite:6.0.13-CI-29"
+    image: "rdomloge/slinky-linky-adminwebsite:6.0.15-CI-32"
     ports:
       - 3000
     cpuLimit: "250m"
