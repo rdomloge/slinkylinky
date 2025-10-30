@@ -1,0 +1,83 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: {{ .Values.tenant }}
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: backup
+              image: postgres
+              command: ["/bin/sh"]
+              args: ["-c", "pg_dumpall --clean --if-exists --exclude-database=keycloak -h postgres-service -U ${POSTGRES_BACKUP_USER} --no-role-passwords -f /backup/backup.sql"]
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-connection-secret
+                      key: POSTGRES_BACKUP_PASSWORD
+                - name: POSTGRES_BACKUP_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-connection-secret
+                      key: POSTGRES_BACKUP_USER
+                
+            - name: compress
+              image: rdomloge/utils:1.0
+              command: ["/bin/sh"]
+              args: ["-c", "cd /backup && 7z a backup.7z backup.sql"]
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+
+            - name: scp-offite
+              image: rdomloge/utils:1.0
+              command: ["/bin/sh"]
+              args: ["-c", "scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.7z $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-topclick-postgres-backups/$(FILENAME)-backup.7z"]
+              imagePullPolicy: Always
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+                - name: sshdir
+                  mountPath: /home/appuser/.ssh
+                  readOnly: true
+              env:
+                - name: FILENAME
+                  value: $(date +"%Y-%m-%d_%H%M")
+                - name: RSYNC_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_USER
+                - name: RSYNC_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: rsync-credentials
+                      key: RSYNC_HOST
+
+          containers:
+            - name: job-done
+              image: busybox
+              command: ['sh', '-c', 'echo "Backup and rsync completed"']
+          restartPolicy: Never
+          volumes:
+            - name: temp-backup-volume
+              emptyDir: {}
+            - name: sshdir
+              secret:
+                secretName: secret-ssh-auth
+                #defaultMode: 0400
+                items:
+                  - key: ssh-privatekey
+                    path: id_rsa
+          
+            
