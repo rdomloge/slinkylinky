@@ -55,7 +55,15 @@ secrets:
     data:
       RSYNC_USER: "changeme"
       RSYNC_HOST: "changeme"
-      
+
+  - name: secret-ssh-auth
+    type: ssh-auth
+    data:
+      ssh-privatekey: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        ...
+        -----END OPENSSH PRIVATE KEY-----
+
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config
