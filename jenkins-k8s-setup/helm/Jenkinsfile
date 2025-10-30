@@ -405,6 +405,7 @@ EOF
                                 KEYCLOAK_ISSUER_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)
                                 JWK_SET_URI_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}/protocol/openid-connect/certs" | base64 -w 0)
                                 KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI_B64=\$(echo -n "/realms/${TENANT}/protocol/openid-connect/token" | base64 -w 0)
+                                KEYCLOAK_BASE_URL_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk" | base64 -w 0)
                                 
                                 # Update the keycloak-credentials with the correct URLs
                                 kubectl -n ${TENANT} patch secret keycloak-credentials \\
@@ -412,7 +413,9 @@ EOF
                                   -p="{\\"data\\": {
                                     \\"KEYCLOAK_ISSUER\\": \\"\$KEYCLOAK_ISSUER_B64\\", 
                                     \\"JWK_SET_URI\\": \\"\$JWK_SET_URI_B64\\", 
-                                    \\"KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI\\": \\"\$KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI_B64\\"}}"
+                                    \\"KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI\\": \\"\$KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI_B64\\",
+                                    \\"KEYCLOAK_BASE_URL\\": \\"\$KEYCLOAK_BASE_URL_B64\\"
+                                  }}"
                             """
 
                             
