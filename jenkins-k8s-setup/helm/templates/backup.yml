@@ -42,7 +42,7 @@ spec:
             - name: scp-offite
               image: rdomloge/utils:1.0
               command: ["/bin/sh"]
-              args: ["-c", "scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.7z $(RSYNC_USER)@${RSYNC_HOST}:/volume1/sl-postgres-backups/$(TENANT)/$(FILENAME)-backup.7z"]
+              args: ["-c", "scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.7z $(SSH_USER)@${SSH_HOST}:/volume1/sl-postgres-backups/$(TENANT)/$(FILENAME)-backup.7z"]
               imagePullPolicy: Always
               volumeMounts:
                 - name: temp-backup-volume
@@ -53,16 +53,16 @@ spec:
               env:
                 - name: FILENAME
                   value: $(date +"%Y-%m-%d_%H%M")
-                - name: RSYNC_USER
+                - name: SSH_USER
                   valueFrom:
                     secretKeyRef:
-                      name: rsync-credentials
-                      key: RSYNC_USER
-                - name: RSYNC_HOST
+                      name: backup-ssh-credentials
+                      key: BACKUP_USER
+                - name: SSH_HOST
                   valueFrom:
                     secretKeyRef:
-                      name: rsync-credentials
-                      key: RSYNC_HOST
+                      name: backup-ssh-credentials
+                      key: BACKUP_HOST
 
           containers:
             - name: job-done

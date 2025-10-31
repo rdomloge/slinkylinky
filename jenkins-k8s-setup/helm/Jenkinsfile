@@ -547,20 +547,20 @@ EOF
                                       "KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET":"'$(echo -n "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''" | base64 -w 0)'"}}'
                             '''
 
-                            // Update the rsync-credentials secret with the rsync user from the RSYNC_USERNAME env var
+                            // Update the backup-ssh-credentials secret with the rsync user from the BACKUP_SSH_USERNAME env var
                             sh '''
                             RSYNC_USERNAME="'''+"${env.BACKUP_SSH_USERNAME}"+'''"
-                            kubectl -n ${TENANT} patch secret rsync-credentials \\
+                            kubectl -n ${TENANT} patch secret backup-ssh-credentials \\
                               --type='merge' \\
                               -p='{"data":{
-                                "RSYNC_USERNAME":"'$(echo -n "$RSYNC_USERNAME" | base64 -w 0)'"
+                                "BACKUP_USERNAME":"'$(echo -n "$BACKUP_USERNAME" | base64 -w 0)'"
                               }}'
                             '''
 
-                            // Update the secret-ssh-auth secret with the SSH private key from the SSH_PRIVATE_KEY env var
+                            // Update the backup-ssh-key secret with the SSH private key from the SSH_PRIVATE_KEY env var
                             sh '''
                             SSH_PRIVATE_KEY="'''+"${env.BACKUP_SSH_PRIVATE_KEY}"+'''"
-                            kubectl -n ${TENANT} patch secret secret-ssh-auth \\
+                            kubectl -n ${TENANT} patch secret backup-ssh-key \\
                               --type='merge' \\
                               -p='{"data":{
                                 "ssh-privatekey":"'$(echo -n "$SSH_PRIVATE_KEY" | base64 -w 0)'"
