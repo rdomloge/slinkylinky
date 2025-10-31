@@ -553,7 +553,7 @@ EOF
                             kubectl -n ${TENANT} patch secret backup-ssh-credentials \\
                               --type='merge' \\
                               -p='{"data":{
-                                "BACKUP_USERNAME":"'$(echo -n "$BACKUP_USERNAME" | base64 -w 0)'"
+                                "BACKUP_USERNAME":"'$(echo -n "$BACKUP_SSH_USERNAME" | base64 -w 0)'"
                               }}'
                             '''
 
