@@ -74,7 +74,7 @@ spec:
               emptyDir: {}
             - name: sshdir
               secret:
-                secretName: secret-ssh-auth
+                secretName: backup-ssh-key
                 #defaultMode: 0400
                 items:
                   - key: ssh-privatekey
