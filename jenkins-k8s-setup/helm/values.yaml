@@ -53,7 +53,7 @@ secrets:
   - name: backup-ssh-credentials
     type: Opaque
     data:
-      BACKUP_USER: "changeme"
+      BACKUP_USERNAME: "changeme"
       BACKUP_HOST: "rdomloge.synology.me"
 
   - name: backup-ssh-key
