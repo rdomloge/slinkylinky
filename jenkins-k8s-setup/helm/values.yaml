@@ -35,7 +35,7 @@ secrets:
       SUPPLIERENGAGEMENT_DB_PASSWORD: "changeme"
       SUPPLIERENGAGEMENT_DB_USERNAME: "supplierengagement_user"
       POSTGRES_BACKUP_USER: "postgres"
-      POSTGRES_BACKUP_PASSWORD: "changeme"
+      POSTGRES_BACKUP_PASSWORD: "CHANGEME"
 
   - name: stats-secret
     type: Opaque
