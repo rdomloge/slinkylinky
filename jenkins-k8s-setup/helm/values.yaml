@@ -50,13 +50,13 @@ secrets:
       SUPPLIERENGAGEMENT_MAIL_PASSWORD: "changeme"
       SUPPLIERENGAGEMENT_MAIL_HOST: "smtp.example.com"
 
-  - name: rsync-credentials
+  - name: backup-ssh-credentials
     type: Opaque
     data:
       RSYNC_USER: "changeme"
       RSYNC_HOST: "rdomloge.synology.me"
 
-  - name: secret-ssh-auth
+  - name: backup-ssh-key
     type: ssh-auth
     data:
       ssh-privatekey: |

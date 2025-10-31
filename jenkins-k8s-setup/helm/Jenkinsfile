@@ -549,11 +549,21 @@ EOF
 
                             // Update the rsync-credentials secret with the rsync user from the RSYNC_USERNAME env var
                             sh '''
-                            RSYNC_USERNAME="'''+"${env.RSYNC_USERNAME}"+'''"
+                            RSYNC_USERNAME="'''+"${env.BACKUP_SSH_USERNAME}"+'''"
                             kubectl -n ${TENANT} patch secret rsync-credentials \\
                               --type='merge' \\
                               -p='{"data":{
                                 "RSYNC_USERNAME":"'$(echo -n "$RSYNC_USERNAME" | base64 -w 0)'"
+                              }}'
+                            '''
+
+                            // Update the secret-ssh-auth secret with the SSH private key from the SSH_PRIVATE_KEY env var
+                            sh '''
+                            SSH_PRIVATE_KEY="'''+"${env.BACKUP_SSH_PRIVATE_KEY}"+'''"
+                            kubectl -n ${TENANT} patch secret secret-ssh-auth \\
+                              --type='merge' \\
+                              -p='{"data":{
+                                "ssh-privatekey":"'$(echo -n "$SSH_PRIVATE_KEY" | base64 -w 0)'"
                               }}'
                             '''
                         }
