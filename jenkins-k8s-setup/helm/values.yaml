@@ -54,7 +54,7 @@ secrets:
     type: Opaque
     data:
       RSYNC_USER: "changeme"
-      RSYNC_HOST: "changeme"
+      RSYNC_HOST: "rdomloge.synology.me"
 
   - name: secret-ssh-auth
     type: ssh-auth

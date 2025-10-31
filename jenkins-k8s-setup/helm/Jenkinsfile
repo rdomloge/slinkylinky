@@ -546,6 +546,16 @@ EOF
                               -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "'''+"${KC_CLIENT_SECRET}"+'''" | base64 -w 0)'",
                                       "KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET":"'$(echo -n "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''" | base64 -w 0)'"}}'
                             '''
+
+                            // Update the rsync-credentials secret with the rsync user from the RSYNC_USERNAME env var
+                            sh '''
+                            RSYNC_USERNAME="'''+"${env.RSYNC_USERNAME}"+'''"
+                            kubectl -n ${TENANT} patch secret rsync-credentials \\
+                              --type='merge' \\
+                              -p='{"data":{
+                                "RSYNC_USERNAME":"'$(echo -n "$RSYNC_USERNAME" | base64 -w 0)'"
+                              }}'
+                            '''
                         }
                     }
 
