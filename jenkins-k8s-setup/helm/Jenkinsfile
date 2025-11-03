@@ -146,7 +146,7 @@ pipeline {
                 script {
                     withFolderProperties() {
                         sh """
-                        curl -s \\
+                        curl -sS \\
                         -X POST \\
                         -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                         -H "Content-Type: application/json" \\
@@ -188,7 +188,7 @@ pipeline {
                         // ${TENANT}.slinkylinky.uk/resources/* => http://keycloak-service:8100
                         // ${TENANT}.slinkylinky.uk => http://adminwebsite-service:3000
                         sh """
-                            curl -s \\
+                            curl -sS \\
                             -X PUT \\
                             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                             -H "Content-Type: application/json" \\
@@ -259,7 +259,7 @@ pipeline {
                         """
                         // DNS
                         sh """
-                            curl -s \\
+                            curl -sS \\
                             -X POST \\
                             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                             -H "Content-Type: application/json" \\
