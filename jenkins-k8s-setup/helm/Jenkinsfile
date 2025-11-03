@@ -155,21 +155,21 @@ pipeline {
                           "config_src": "cloudflare"
                         }' \\
                         https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel \\
-                         > response.json
+                         > create-tunnel-response.json
                         """
                         // Extract the tunnel secret from the credentials file
                         env.TUNNEL_SECRET = sh(
-                            script: "jq -r '.result.credentials_file.TunnelSecret' response.json",
+                            script: "jq -r '.result.credentials_file.TunnelSecret' create-tunnel-response.json",
                             returnStdout: true
                         ).trim()
                         // Extract the tunnel ID from the credentials file
                         env.TUNNEL_ID = sh(
-                            script: "jq -r '.result.credentials_file.TunnelID' response.json",
+                            script: "jq -r '.result.credentials_file.TunnelID' create-tunnel-response.json",
                             returnStdout: true
                         ).trim()
                         // Extract the token from the credentials file
                         env.TUNNEL_TOKEN = sh(
-                            script: "jq -r '.result.token' response.json",
+                            script: "jq -r '.result.token' create-tunnel-response.json",
                             returnStdout: true
                         ).trim()
                         // delete response.json to clean up
