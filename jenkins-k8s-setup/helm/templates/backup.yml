@@ -39,6 +39,28 @@ spec:
                 - name: temp-backup-volume
                   mountPath: /backup
 
+            - name: create-dir
+              image: rdomloge/utils:1.0
+              command: ["/bin/sh"]
+              args: ["-c", "ssh -o 'StrictHostKeyChecking=no' -p 1478 $(SSH_USER)@$(SSH_HOST) 'mkdir -p /volume1/sl-postgres-backups/$(TENANT)'"]
+              volumeMounts:
+                - name: sshdir
+                  mountPath: /home/appuser/.ssh
+                  readOnly: true
+              env:
+                - name: TENANT
+                  value: {{ .Values.tenant }} 
+                - name: SSH_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-ssh-credentials
+                      key: BACKUP_USERNAME
+                - name: SSH_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-ssh-credentials
+                      key: BACKUP_HOST
+
             - name: scp-offite
               image: rdomloge/utils:1.0
               command: ["/bin/sh"]
