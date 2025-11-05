@@ -510,21 +510,15 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-webapp" | jq -r '.[0].id')
                             
                             # Create a user attribute mapper for avatar_uri
-                            curl -sS -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{
-                                "name": "avatar_uri_mapper",
-                                "protocol": "openid-connect",
-                                "protocolMapper": "oidc-usermodel-attribute-mapper",
-                                "config": {
-                                    "user.attribute": "avatar_uri",
-                                    "claim.name": "avatar_uri",
-                                    "jsonType.label": "String",
-                                    "id.token.claim": "true",
-                                    "access.token.claim": "true",
-                                    "userinfo.token.claim": "true"
-                                }
-                            }' \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients/$CLIENT_ID/protocol-mappers/models"
+                            #First need to get the current model
+                            MODEL=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/profile"
+                            # Now add a new attribute to the model
+                            UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "avatar_uri", "displayName": "Avatar URI", "required": false, "readOnly": false, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}}]')
+                            # Update the user profile with the new model
+                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "$UPDATED_MODEL" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/profile"
 
                             # Create default user for the realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
