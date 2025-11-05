@@ -504,10 +504,27 @@ EOF
                             -d '{"clientId": "sl-server", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''", "serviceAccountsEnabled": true}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
-                            # Create Avatar URI user profile attribute
-                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"name": "avatar_uri", "type": "String", "realmId": "'''+"${TENANT}"+'''", "protocol": "openid-connect"}' \\
-                            "http://localhost:9090/admin/realms/${TENANT}/user-profile/attributes"
+                            # Create Avatar URI user attribute (using client mappers instead of user-profile)
+                            # Get the sl-webapp client ID first
+                            CLIENT_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-webapp" | jq -r '.[0].id')
+                            
+                            # Create a user attribute mapper for avatar_uri
+                            curl -sS -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{
+                                "name": "avatar_uri_mapper",
+                                "protocol": "openid-connect",
+                                "protocolMapper": "oidc-usermodel-attribute-mapper",
+                                "config": {
+                                    "user.attribute": "avatar_uri",
+                                    "claim.name": "avatar_uri",
+                                    "jsonType.label": "String",
+                                    "id.token.claim": "true",
+                                    "access.token.claim": "true",
+                                    "userinfo.token.claim": "true"
+                                }
+                            }' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/$CLIENT_ID/protocol-mappers/models"
 
                             # Create default user for the realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
