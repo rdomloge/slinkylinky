@@ -510,12 +510,13 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-webapp" | jq -r '.[0].id')
                             
                             # Create a user attribute mapper for avatar_uri
-                            #First need to get the current model
+                            ##   First need to get the current model
                             MODEL=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/users/profile"
-                            # Now add a new attribute to the model
+                            "http://localhost:9090/admin/realms/${TENANT}/users/profile")
+                            
+                            ##   Now add a new attribute to the model
                             UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "avatar_uri", "displayName": "Avatar URI", "required": false, "readOnly": false, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}}]')
-                            # Update the user profile with the new model
+                            ##   Update the user profile with the new model
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d "$UPDATED_MODEL" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/profile"
