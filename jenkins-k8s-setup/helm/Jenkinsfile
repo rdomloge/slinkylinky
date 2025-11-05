@@ -483,7 +483,7 @@ EOF
                             sleep 3  # Wait for port-forward to establish
 
                             # Fetch admin access token
-                            RESPONSE=$(curl -s -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
+                            RESPONSE=$(curl -sS -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
                             -H "Content-Type: application/x-www-form-urlencoded" \\
                             -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
 
@@ -503,6 +503,11 @@ EOF
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"clientId": "sl-server", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''", "serviceAccountsEnabled": true}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
+
+                            # Create Avatar URI user profile attribute
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "avatar_uri", "type": "String", "realmId": "'''+"${TENANT}"+'''", "protocol": "openid-connect"}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/user-profile/attributes"
 
                             # Create default user for the realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
