@@ -515,7 +515,8 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/users/profile")
                             
                             ##   Now add a new attribute to the model
-                            UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "avatar_uri", "displayName": "Avatar URI", "required": false, "readOnly": false, "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}}]')
+                            UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "avatar_uri", "displayName": "Avatar URI", "required": {}, \\
+                            "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}, "multivalued": false}]')
                             ##   Update the user profile with the new model
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d "$UPDATED_MODEL" \\
