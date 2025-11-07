@@ -54,13 +54,11 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s', 
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             sh """
-                            zoneId = "93230fb6cec6bbe6ca142e2d20c945c9"
-
                             curl -sS \\
                             -X GET \\
                             -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                             -H "Content-Type: application/json" \\
-                            "https://api.cloudflare.com/client/v4/zones/$zoneId/dns_records?name=${TENANT}.slinkylinky.uk" > dns-response.json
+                            "https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records?name=${TENANT}.slinkylinky.uk" > dns-response.json
 
                             dnsRecordId = \$(jq -r '.result[0].id' dns-response.json)
                             echo dnsRecordId
