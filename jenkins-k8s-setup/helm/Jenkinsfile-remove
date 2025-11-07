@@ -8,7 +8,7 @@ pipeline {
     }
 
     parameters {
-        string(name: 'TENANT', defaultValue: 'tenant1', description: 'Tenant to remove')
+        string(name: 'TENANT', description: 'Tenant to remove')
     }
 
     stages {
@@ -49,7 +49,7 @@ pipeline {
             steps {
                 script {
                     def zoneId = "93230fb6cec6bbe6ca142e2d20c945c9"
-                    # Find the DNS record ID for the tenant
+                    // Find the DNS record ID for the tenant
                     def dnsRecordId = sh (
                         script: """
                         curl -sS \\
