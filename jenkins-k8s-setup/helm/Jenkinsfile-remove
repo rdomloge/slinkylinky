@@ -49,7 +49,7 @@ pipeline {
                         -X GET \\
                         -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                         -H "Content-Type: application/json" \\
-                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/tunnels?name=\${TENANT}" | jq -r '.result[0].id')
+                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel?name=\${TENANT}" | jq -r '.result[0].id')
 
                         curl -sS \\
                         -X DELETE \\
