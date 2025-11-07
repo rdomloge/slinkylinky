@@ -41,26 +41,29 @@ pipeline {
             steps {
                 script {
                     withFolderProperties() {
-                        sh '''
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            sh '''
 
-                        # Wait for the cloudflared pod to be deleted
-                        kubectl wait --for=condition=deleted pod -l app=cloudflared -n ${TENANT}
+                            # Wait for the cloudflared pod to be deleted
+                            kubectl wait --for=condition=deleted pod -l app=cloudflared -n ${TENANT}
 
-                        echo "Removing tunnel for tenant ${TENANT}"
+                            echo "Removing tunnel for tenant ${TENANT}"
 
-                        # First, get the tunnel ID
-                        TUNNEL_ID=\$(curl -sS \\
-                        -X GET \\
-                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
-                        -H "Content-Type: application/json" \\
-                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel?name=\${TENANT}" | jq -r '.result[0].id')
+                            # First, get the tunnel ID
+                            TUNNEL_ID=\$(curl -sS \\
+                            -X GET \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel?name=\${TENANT}" | jq -r '.result[0].id')
 
-                        curl -sS \\
-                        -X DELETE \\
-                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
-                        -H "Content-Type: application/json" \\
-                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/\$TUNNEL_ID"
-                        '''
+                            curl -sS \\
+                            -X DELETE \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/\$TUNNEL_ID"
+                            '''
+                        }
                     }
                 }
             }
