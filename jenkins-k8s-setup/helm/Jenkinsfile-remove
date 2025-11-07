@@ -48,7 +48,7 @@ pipeline {
         stage('Remove DNS records from Cloudflare') {
             steps {
                 script {
-                    def zoneId = "93230fb6cec6bbe6ca142e2d20c945c9"
+                    def zoneId = "93230fb6cec6bbe6ca142e2d20c945c9";
                     // Find the DNS record ID for the tenant
                     def dnsRecordId = sh (
                         script: """
