@@ -40,7 +40,9 @@ pipeline {
         stage('Remove tunnel from Cloudflare') {
             steps {
                 script {
-                    
+                    sh '''
+                      echo "Removing tunnel for tenant ${TENANT}"
+                    '''
                 }
             }
         }
