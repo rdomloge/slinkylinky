@@ -83,7 +83,7 @@ pipeline {
 
                             sh '''
                             helm install \\
-                            --generate-name \\
+                            helm-${TENANT} \\
                             ${FOLDER} \\
                             --set tenant=${TENANT} \\
                             --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
