@@ -36,5 +36,33 @@ pipeline {
                 }
             }
         }
+
+        stage('Remove tunnel from Cloudflare') {
+            steps {
+                script {
+                    
+                }
+            }
+        }
+
+        stage('Remove DNS records from Cloudflare') {
+            steps {
+                script {
+                    def zoneId = "93230fb6cec6bbe6ca142e2d20c945c9"
+                    # Find the DNS record ID for the tenant
+                    def dnsRecordId = sh (
+                        script: """
+                        curl -sS \\
+                        -X GET \\
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                        -H "Content-Type: application/json" \\
+                        "https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records?name=${TENANT}.slinkylinky.uk" \\
+                    """
+                    dnsRecordId = readJSON(file: 'dns-response.json').result[0].id
+                    echo dnsRecordId
+                    
+                }
+            }
+        }
     }
 }
