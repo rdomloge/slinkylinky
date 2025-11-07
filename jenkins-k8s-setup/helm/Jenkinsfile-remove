@@ -46,7 +46,7 @@ pipeline {
                             sh '''
 
                             # Wait for the cloudflared pod to be deleted
-                            kubectl wait --for=condition=deleted pod -l app=cloudflared -n ${TENANT}
+                            kubectl wait --for=condition=delete pod -l app=cloudflared -n ${TENANT}
 
                             echo "Removing tunnel for tenant ${TENANT}"
 
