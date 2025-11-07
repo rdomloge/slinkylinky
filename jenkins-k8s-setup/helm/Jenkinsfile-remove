@@ -46,7 +46,7 @@ pipeline {
                             sh '''
 
                             # Wait for the namespace to be deleted
-                            kubectl wait --for=condition=delete namespace ${TENANT}
+                            kubectl wait --for=condition=delete namespace ${TENANT} --timeout=60s
 
                             echo "Removing tunnel for tenant ${TENANT}"
 
