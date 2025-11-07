@@ -42,6 +42,9 @@ pipeline {
                 script {
                     sh '''
                       echo "Removing tunnel for tenant ${TENANT}"
+                      curl -X DELETE "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/tunnels/${TENANT}" \\
+                      -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                      -H "Content-Type: application/json"
                     '''
                 }
             }
@@ -61,7 +64,13 @@ pipeline {
                             "https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records?name=${TENANT}.slinkylinky.uk" > dns-response.json
 
                             dnsRecordId = \$(jq -r '.result[0].id' dns-response.json)
-                            echo dnsRecordId
+                            echo "DNS Record ID: \${dnsRecordId}"
+
+                            curl -sS \\
+                            -X DELETE \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            "https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records/\${dnsRecordId}"
                             """
                         }
                     }
