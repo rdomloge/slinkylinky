@@ -43,11 +43,19 @@ pipeline {
                     withFolderProperties() {
                         sh '''
                         echo "Removing tunnel for tenant ${TENANT}"
+
+                        # First, get the tunnel ID
+                        TUNNEL_ID=\$(curl -sS \\
+                        -X GET \\
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                        -H "Content-Type: application/json" \\
+                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/tunnels?name=\${TENANT}" | jq -r '.result[0].id')
+
                         curl -sS \\
                         -X DELETE \\
                         -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
                         -H "Content-Type: application/json" \\
-                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/tunnels/${TENANT}"
+                        "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/tunnels/\$TUNNEL_ID"
                         '''
                     }
                 }
@@ -66,7 +74,6 @@ pipeline {
                         "https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records?name=${TENANT}.slinkylinky.uk" > dns-response.json
 
                         DNS_RECORD_ID=\$(jq -r '.result[0].id' dns-response.json)
-                        echo "DNS Record ID: \$DNS_RECORD_ID"
 
                         curl -sS \\
                         -X DELETE \\
