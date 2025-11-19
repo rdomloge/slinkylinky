@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict 5ZbVPODfU1bGRsazYycYzswjxyecjfJgpTcdmBpbRvAycBVeFwZheU3eyYSNDIT
+\restrict y8sVMzxgFa1abp7LlySv7mx6YVFD6B17VT73J0edH4XeXMZuotlFAW0EKaIA5zM
 
--- Dumped from database version 17.6 (Debian 17.6-1.pgdg13+1)
+-- Dumped from database version 16.6 (Debian 16.6-1.pgdg120+1)
 -- Dumped by pg_dump version 17.6 (Debian 17.6-1.pgdg13+1)
 
 SET statement_timeout = 0;
@@ -880,5 +880,5 @@ GRANT ALL ON SCHEMA public TO slinkylinky;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 5ZbVPODfU1bGRsazYycYzswjxyecjfJgpTcdmBpbRvAycBVeFwZheU3eyYSNDIT
+\unrestrict y8sVMzxgFa1abp7LlySv7mx6YVFD6B17VT73J0edH4XeXMZuotlFAW0EKaIA5zM
 

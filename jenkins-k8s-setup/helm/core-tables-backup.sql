@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict GkJhjTFAFnSxHd6X4bWNbP8t0DoDxbAPMRftMTcf5uSPooIwKhvtmpeV2HJiqsy
+\restrict bbLUnxxji6QLsk1gg6mtnpAWMPtxWfyV6BxAX2I2gwKiyq8a2xRDrhyMQ3e9QJ4
 
--- Dumped from database version 17.6 (Debian 17.6-1.pgdg13+1)
+-- Dumped from database version 16.6 (Debian 16.6-1.pgdg120+1)
 -- Dumped by pg_dump version 17.6 (Debian 17.6-1.pgdg13+1)
 
 SET statement_timeout = 0;
@@ -766,7 +766,6 @@ COPY public.category (id, name, created_by, disabled, updated_by, version) FROM 
 83	Tech	historical	f	\N	0
 84	Travel	historical	f	\N	0
 85	Weddings	historical	f	\N	0
-102	Test	rdomloge@gmail.com	t	rdomloge@gmail.com	1
 \.
 
 
@@ -809,8 +808,6 @@ COPY public.category_aud (id, rev, revtype, created_by, disabled, name, updated_
 83	1	0	historical	f	Tech	\N
 84	1	0	historical	f	Travel	\N
 85	1	0	historical	f	Weddings	\N
-102	14202	0	rdomloge@gmail.com	f	Test	\N
-102	14203	1	rdomloge@gmail.com	t	Test	rdomloge@gmail.com
 \.
 
 
@@ -826,10 +823,10 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 786	chris.p@frontpageadvantage.com	60	t	stylesrant.com	infopediapros@gmail.com	Ricardo	f	chris.p@frontpageadvantage.com	45	£	https://www.stylesrant.com/	inbound	1709035655140	1718366953398	2
 785	chris.p@frontpageadvantage.com	58	t	theassistant.io	infopediapros@gmail.com	Ricardo	f	chris.p@frontpageadvantage.com	45	£	theassistant.io	inbound	1709035573894	1718366956751	3
 1111	sam.b@frontpageadvantage.com	59	t	paisley.org.uk	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	112	£	https://www.paisley.org.uk/	Inbound	1719408626312	1722930102541	2
-1425	frontpage.ga@gmail.com	31	f	lobsterdigitalmarketing.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	106	£	lobsterdigitalmarketing.co.uk	inbound	1730297780739	1740798003872	4
 1112	sam.b@frontpageadvantage.com	41	t	atidymind.co.uk	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	160	£	https://www.atidymind.co.uk/	Inbound	1719408687174	1722930108850	4
+1612	millie.t@frontpageadvantage.com	41	f	hearthomemag.co.uk	advertise@mintymarketing.co.uk	Minty	f	system	100	£	https://hearthomemag.co.uk/	Tanya	1754379974064	1754379977355	1
+1613	millie.t@frontpageadvantage.com	0	f	\N	\N	Click Intelligence	t	\N	0	\N	\N	\N	1754383774862	1754383774862	0
 436	historical	65	t	scoopearth.com	minalkh124@gmail.com	Maryam bibi	f	michael.l@frontpageadvantage.com	20	£	https://www.scoopearth.com/	Inbound email	0	1710248464364	2
-771	chris.p@frontpageadvantage.com	42	f	finehomesandliving.com	info@fine-magazine.com	Fine Home Team	f	system	100	£	https://www.finehomesandliving.com/	outbound	1709027801990	1740798010215	6
 783	chris.p@frontpageadvantage.com	45	t	corporatelivewire.com	sukhenseoconsultant@gmail.com	Sukhen	f	james.p@frontpageadvantage.com	150	£	https://corporatelivewire.com/	inbound	1709034374081	1745919824559	6
 1153	james.p@frontpageadvantage.com	35	t	forbesradar.co.uk	teamforbesradar@gmail.com	Forbes Radar	f	james.p@frontpageadvantage.com	62	£	https://forbesradar.co.uk/	James	1723644250691	1745919838482	5
 323	historical	27	t	clairemorandesigns.co.uk	hello@clairemorandesigns.co.uk	Claire	f	james.p@frontpageadvantage.com	80	£	clairemorandesigns.co.uk	Fatjoe	0	1745919987779	8
@@ -837,22 +834,23 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1082	sam.b@frontpageadvantage.com	29	t	theowlet.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	james.p@frontpageadvantage.com	100	£	theowlet.co.uk	Inbound	1719319867176	1745920611176	7
 803	chris.p@frontpageadvantage.com	48	t	smihub.co.uk	sophiadaniel.co.uk@gmail.com	Sophia	f	chris.p@frontpageadvantage.com	60	£	https://smihub.co.uk/	Inbound	1709123162304	1741259620949	7
 752	chris.p@frontpageadvantage.com	59	t	outdoorproject.com	sophiadaniel.co.uk@gmail.com	sophia daniel	f	chris.p@frontpageadvantage.com	50	£	https://www.outdoorproject.com/	Inbound	1708082585011	1741259639331	12
-1055	michael.l@frontpageadvantage.com	21	f	lindyloves.co.uk	Hello@lindyloves.co.uk	Lindy	f	system	50	£	https://www.lindyloves.co.uk/	Outbound Facebook	1716452047818	1748746802046	6
+1254	frontpage.ga@gmail.com	24	f	laurenyloves.co.uk	lauren@laurenyloves.co.uk	Laureny Loves	f	system	50	£	https://www.laurenyloves.co.uk/category/money/	Hannah	1726736911853	1761966002970	5
 491	historical	54	t	theexeterdaily.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	168	£	www.theexeterdaily.co.uk	Inbound Sam	0	1745921471026	5
 534	historical	42	t	saddind.co.uk	natalilacanario@gmail.com	Natalila	f	james.p@frontpageadvantage.com	175	£	saddind.co.uk	Inbound Sam	0	1745921478834	6
-1254	frontpage.ga@gmail.com	27	f	laurenyloves.co.uk	lauren@laurenyloves.co.uk	Laureny Loves	f	system	50	£	https://www.laurenyloves.co.uk/category/money/	Hannah	1726736911853	1738378820829	2
 471	historical	22	t	realparent.co.uk	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	60	£	https://www.realparent.co.uk	inbound email	0	1745921804498	7
 1302	rdomloge@gmail.com	98	t	whatsapp.com	ramsay.domloge@bca.com	Ramsay test	f	james.p@frontpageadvantage.com	10	£	www.whatsapp.com	Testing	1727196482040	1745923307185	6
-1156	james.p@frontpageadvantage.com	29	f	cuddlefairy.com	hello@cuddlefairy.com	Becky	f	system	45	£	https://www.cuddlefairy.com/	James	1725624962664	1738378821655	4
-483	historical	31	f	packthepjs.com	tracey@packthepjs.com	Tracey	f	james.p@frontpageadvantage.com	80	£	http://www.packthepjs.com/	Fatjoe	0	1745925109621	8
-1090	sam.b@frontpageadvantage.com	69	f	markmeets.com	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	markmeets.com	Inbound	1719320639079	1748746811717	5
+1092	sam.b@frontpageadvantage.com	41	f	fabukmagazine.com	katherine@orangeoutreach.com	Katherine Williams	f	system	120	£	fabukmagazine.com	Inbound	1719320789605	1751338815399	4
+1055	michael.l@frontpageadvantage.com	20	f	lindyloves.co.uk	Hello@lindyloves.co.uk	Lindy	f	system	50	£	https://www.lindyloves.co.uk/	Outbound Facebook	1716452047818	1761966003576	9
 1169	james.p@frontpageadvantage.com	57	f	knowledgewap.org	sofiakahn06@gmail.com	Sofia	f	system	60	$	knowledgewap.org	James	1726065501892	1726065504953	1
 1252	frontpage.ga@gmail.com	55	f	thelifestylebloggeruk.com	thelifestylebloggeruk@aol.com	The Lifestyle blogger UK	f	system	85	£	https://thelifestylebloggeruk.com/category/money/	Hannah	1726736545268	1726736548655	1
+1156	james.p@frontpageadvantage.com	30	f	cuddlefairy.com	hello@cuddlefairy.com	Becky	f	system	45	£	https://www.cuddlefairy.com/	James	1725624962664	1761966004374	5
 1002	michael.l@frontpageadvantage.com	46	f	todaynews.co.uk	david@todaynews.co.uk	David	f	system	65	£	https://todaynews.co.uk/	Inbound Michael	1713341748907	1743476413661	9
-652	chris.p@frontpageadvantage.com	31	f	gemmalouise.co.uk	gemma@gemmalouise.co.uk	Gemma	f	system	80	£	https://gemmalouise.co.uk/	inbound email	0	1743476417727	7
+1089	sam.b@frontpageadvantage.com	33	f	crummymummy.co.uk	crummymummy@live.co.uk	Natalie	f	system	60	£	crummymummy.co.uk	James	1719320544130	1761966013567	7
 316	historical	31	f	newvalleynews.co.uk	karl@newvalleynews.co.uk	Karl	f	system	50	£	www.newvalleynews.co.uk	Fatjoe	0	1746154801153	11
-1092	sam.b@frontpageadvantage.com	42	f	fabukmagazine.com	katherine@orangeoutreach.com	Katherine Williams	f	system	120	£	fabukmagazine.com	Inbound	1719320789605	1733022008033	3
-1089	sam.b@frontpageadvantage.com	34	f	crummymummy.co.uk	crummymummy@live.co.uk	Natalie	f	system	60	£	crummymummy.co.uk	James	1719320544130	1748746806972	6
+1425	frontpage.ga@gmail.com	32	f	lobsterdigitalmarketing.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	106	£	lobsterdigitalmarketing.co.uk	inbound	1730297780739	1751338801369	5
+483	historical	30	f	packthepjs.com	tracey@packthepjs.com	Tracey	f	system	80	£	http://www.packthepjs.com/	Fatjoe	0	1751338806740	9
+1090	sam.b@frontpageadvantage.com	70	f	markmeets.com	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	markmeets.com	Inbound	1719320639079	1754017204165	6
+652	chris.p@frontpageadvantage.com	30	f	gemmalouise.co.uk	gemma@gemmalouise.co.uk	Gemma	f	system	80	£	https://gemmalouise.co.uk/	inbound email	0	1754017211069	8
 1157	james.p@frontpageadvantage.com	33	t	englishlush.com	david.linkedbuilders@gmail.com	David	f	chris.p@frontpageadvantage.com	10	$	http://englishlush.com/	James	1725966904913	1727789891750	2
 356	historical	45	t	sorry-about-the-mess.co.uk	chloebridge@gmail.com	Chloe Bridge	f	chris.p@frontpageadvantage.com	60	£	https://sorry-about-the-mess.co.uk	Fatjoe	0	1708424380177	2
 439	historical	66	t	timebusinessnews.com	minalkh124@gmail.com	Maryam bibi	f	michael.l@frontpageadvantage.com	25	£	timebusinessnews.com	Inbound email	0	1708596721953	2
@@ -867,26 +865,26 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 754	michael.l@frontpageadvantage.com	63	t	techsslash.com	sophiadaniel.co.uk@gmail.com	Sophia Daniel 	f	chris.p@frontpageadvantage.com	150	£	https://techsslash.com	Inbound Email	1708084929950	1718366942750	2
 787	sam.b@frontpageadvantage.com	39	t	netizensreport.com	premium@rabbiitfirm.com	Mojammel	f	james.p@frontpageadvantage.com	120	£	netizensreport.com	Inbound	1709041586393	1745919320554	7
 1152	james.p@frontpageadvantage.com	19	t	rosemaryhelenxo.com	info@rosemaryhelenxo.com	Rose	f	james.p@frontpageadvantage.com	20	£	www.RosemaryHelenXO.com	Contact Form	1721314820107	1745919405796	6
-1074	sam.b@frontpageadvantage.com	37	f	fivelittledoves.com	katherine@orangeoutreach.com	Katherine Williams	f	system	150	£	fivelittledoves.com	Inbound	1719318261939	1738378835712	3
 1064	chris.p@frontpageadvantage.com	31	t	enterpriseleague.com	info@enterpriseleague.com	Irina	f	james.p@frontpageadvantage.com	280	£	https://enterpriseleague.com/	outbound	1717491149032	1745919841088	2
 1421	frontpage.ga@gmail.com	34	t	propertydivision.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	131	£	propertydivision.co.uk	inbound	1730297627872	1745919865863	2
 653	chris.p@frontpageadvantage.com	40	t	thatdrop.com	info@morningbusinesschat.com	Brett Napoli	f	james.p@frontpageadvantage.com	83	£	https://thatdrop.com/	Inbound	0	1745920605845	3
 355	historical	36	t	ialwaysbelievedinfutures.com	rebeccajlsk@gmail.com	Rebecca	f	james.p@frontpageadvantage.com	100	£	www.ialwaysbelievedinfutures.com	Fatjoe	0	1745921769108	4
 359	historical	28	t	beccafarrelly.co.uk	hello@beccafarrelly.co.uk	Becca	f	james.p@frontpageadvantage.com	100	£	beccafarrelly.co.uk	Fatjoe	0	1745921771549	3
+324	historical	14	f	itsmechrissyj.co.uk	Mrscjones1985@gmail.com	Chrissy	f	system	20	£	itsmechrissyj.co.uk	Fatjoe	0	1759287621697	13
 1093	sam.b@frontpageadvantage.com	56	f	westwaleschronicle.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	westwaleschronicle.co.uk	Inbound	1719320939526	1719320942505	1
-1170	james.p@frontpageadvantage.com	50	f	nerdbot.com	sofiakahn06@gmail.com	Sofia	f	system	150	$	nerdbot.com	James	1726065836927	1726065839768	1
 952	michael.l@frontpageadvantage.com	53	t	kemotech.co.uk	sophiadaniel.co.uk@gmail.com	sophia daniel 	f	chris.p@frontpageadvantage.com	250	£	https://kemotech.co.uk/	Inbound Michael	1710423264423	1741259529593	2
 496	historical	28	t	enjoytheadventure.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	144	£	enjoytheadventure.co.uk	Inbound Sam	0	1745921811253	7
 1303	chris.p@frontpageadvantage.com	37	t	nyweekly.co.uk	sophiadaniel.co.uk@gmail.com	sophia daniel 	f	chris.p@frontpageadvantage.com	55	£	https://nyweekly.co.uk/	inbound	1727252702565	1741259546236	3
+1170	james.p@frontpageadvantage.com	51	f	nerdbot.com	sofiakahn06@gmail.com	Sofia	f	system	150	$	nerdbot.com	James	1726065836927	1761966020021	6
 1053	michael.l@frontpageadvantage.com	29	t	emmareed.net	admin@emmareed.net	Emma Reed	f	james.p@frontpageadvantage.com	100	£	https://emmareed.net/	Outbound Facebook	1716451545373	1745921818989	8
+1076	sam.b@frontpageadvantage.com	32	f	wellbeingmagazine.com	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	wellbeingmagazine.com	Inbound	1719318364944	1761966020510	6
 1077	sam.b@frontpageadvantage.com	50	t	algarvedailynews.com	katherine@orangeoutreach.com	Katherine Williams	f	james.p@frontpageadvantage.com	175	£	algarvedailynews.com	Inbound	1719318416922	1745923141215	4
 852	sam.b@frontpageadvantage.com	37	t	golfnews.co.uk	kenditoys.com@gmail.com	David warner	f	james.p@frontpageadvantage.com	125	£	https://golfnews.co.uk/	Outbound	1709645596330	1745923529030	2
-1076	sam.b@frontpageadvantage.com	32	f	wellbeingmagazine.com	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	wellbeingmagazine.com	Inbound	1719318364944	1743476426399	3
-324	historical	13	f	itsmechrissyj.co.uk	Mrscjones1985@gmail.com	Chrissy	f	system	20	£	itsmechrissyj.co.uk	Fatjoe	0	1746068414208	12
-1069	sam.b@frontpageadvantage.com	32	f	caranalytics.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	150	£	caranalytics.co.uk	Inbound	1719317784130	1746068415523	6
 1154	james.p@frontpageadvantage.com	33	f	fabcelebbio.com	support@linksposting.com	Links Posting	f	system	40	$	https://fabcelebbio.com/	James	1723728287666	1746068418457	4
-1054	michael.l@frontpageadvantage.com	28	f	flydriveexplore.com	Hello@flydrivexexplore.com	Marcus Williams 	f	system	80	£	https://www.flydriveexplore.com/	Outbound Facebook	1716451807667	1748746815851	5
 1075	sam.b@frontpageadvantage.com	37	f	tobyandroo.com	katherine@orangeoutreach.com	Katherine Williams	f	system	150	£	tobyandroo.com	Inbound	1719318317308	1748746818193	4
+1074	sam.b@frontpageadvantage.com	38	f	fivelittledoves.com	katherine@orangeoutreach.com	Katherine Williams	f	system	150	£	fivelittledoves.com	Inbound	1719318261939	1751338816814	4
+1054	michael.l@frontpageadvantage.com	27	f	flydriveexplore.com	Hello@flydrivexexplore.com	Marcus Williams 	f	system	80	£	https://www.flydriveexplore.com/	Outbound Facebook	1716451807667	1751338821127	6
+1069	sam.b@frontpageadvantage.com	32	f	caranalytics.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	150	£	caranalytics.co.uk	Inbound	1719317784130	1754017219912	8
 1115	sam.b@frontpageadvantage.com	71	t	voice-online.co.uk	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	140	£	https://www.voice-online.co.uk/	Inbound	1719409732096	1722930126980	2
 802	chris.p@frontpageadvantage.com	53	t	wegmans.co.uk	sophiadaniel.co.uk@gmail.com	Sophia	f	chris.p@frontpageadvantage.com	80	£	https://wegmans.co.uk/	outbound	1709122990978	1715245661562	2
 1171	james.p@frontpageadvantage.com	41	t	shibleysmiles.com	sofiakahn06@gmail.com	Sofia	f	james.p@frontpageadvantage.com	150	$	shibleysmiles.com	James	1726066685680	1745919317781	4
@@ -900,27 +898,27 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1452	james.p@frontpageadvantage.com	31	f	lifeloveanddirtydishes.com	claire_ruan@hotmail.com	Claire	f	james.p@frontpageadvantage.com	55	£	https://lifeloveanddirtydishes.com/	James	1738749807697	1738840177899	2
 1066	chris.p@frontpageadvantage.com	28	f	timesinternational.net	\N	Fatjoe	t	chris.p@frontpageadvantage.com	130	£	https://timesinternational.net	\N	1718109368739	1718356477146	1
 1307	james.p@frontpageadvantage.com	42	f	b31.org.uk	\N	Click Intelligence	t	james.p@frontpageadvantage.com	180	£	https://b31.org.uk	\N	1727789991606	1728378370976	1
+1523	frontpage.ga@gmail.com	36	f	ventstimes.co.uk	ventstimesofficial@gmail.com	Vents Times	f	system	80	£	Ventstimes.co.uk	inboud	1742853030124	1759287631122	3
 1305	james.p@frontpageadvantage.com	56	f	budgetsavvydiva.com	\N	Rhino Rank	t	james.p@frontpageadvantage.com	0	\N	https://www.budgetsavvydiva.com	\N	1727789968431	1728563534667	3
 1354	frontpage.ga@gmail.com	55	t	couponfollow.co.uk	arianne@timewomenflag.com	Arianna Volkova	f	chris.p@frontpageadvantage.com	25	£	https://couponfollow.co.uk/	inbound	1729769295496	1729855125410	2
 1353	frontpage.ga@gmail.com	63	t	uvenco.co.uk	arianne@timewomenflag.com	Arianna Volkova	f	chris.p@frontpageadvantage.com	25	£	uvenco.co.uk	inbound	1729768339748	1729855146460	2
 1422	frontpage.ga@gmail.com	30	t	taketotheroad.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	139	£	taketotheroad.co.uk	inbound	1730297665873	1745923325473	4
-1416	frontpage.ga@gmail.com	34	f	smallcapnews.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	158	£	Smallcapnews.co.uk	inbound	1730297416645	1740798041337	2
+1614	millie.t@frontpageadvantage.com	74	f	manilatimes.net	advertise@mintymarketing.co.uk	Minty	f	system	80	$	https://www.manilatimes.net/	Tanya	1754479907265	1761966025596	2
+1512	frontpage.ga@gmail.com	33	f	techranker.co.uk	 agencystarseo@gmail.com	TRK	f	system	80	£	TechRanker.co.uk	inbound	1742851181353	1761966027318	2
+1427	frontpage.ga@gmail.com	26	f	shelllouise.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	106	£	shelllouise.co.uk	inbound	1730297857266	1761966028530	6
+1256	frontpage.ga@gmail.com	34	f	theeverydayman.co.uk	mail@theeverydayman.co.uk	The Everyday Man	f	system	150	£	https://theeverydayman.co.uk/	Hannah	1726827443560	1761966028869	5
 1155	james.p@frontpageadvantage.com	38	t	forbesnetwork.co.uk	sophiadaniel.co.uk@gmail.com	Forbes Network	f	chris.p@frontpageadvantage.com	70	£	https://forbesnetwork.co.uk/	James	1724849151681	1741259564248	4
+1416	frontpage.ga@gmail.com	33	f	smallcapnews.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	158	£	Smallcapnews.co.uk	inbound	1730297416645	1754017221567	3
 1417	frontpage.ga@gmail.com	33	t	journaloftradingstandards.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	103	£	journaloftradingstandards.co.uk	inbound	1730297448496	1749133969274	4
 764	sam.b@frontpageadvantage.com	94	t	yahoo.com	ela690000@gmail.com	Ella	f	james.p@frontpageadvantage.com	125	£	https://news.yahoo.com/	Inbound	1708616228406	1727187207276	2
-1512	frontpage.ga@gmail.com	34	f	techranker.co.uk	 agencystarseo@gmail.com	TRK	f	system	80	£	TechRanker.co.uk	inbound	1742851181353	1742851184377	1
 1520	frontpage.ga@gmail.com	33	f	exclusivetoday.co.uk	onikawallerson.ot@gmail.com	Exclusive Today	f	system	80	£	exclusivetoday.co.uk	inboud	1742852390702	1748746821350	2
-1427	frontpage.ga@gmail.com	27	f	shelllouise.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	106	£	shelllouise.co.uk	inbound	1730297857266	1748746823293	5
-1523	frontpage.ga@gmail.com	36	f	ventstimes.co.uk	ventstimesofficial@gmail.com	Vents Times	f	system	80	£	Ventstimes.co.uk	inboud	1742853030124	1742853033192	1
 1426	frontpage.ga@gmail.com	31	t	joannedewberry.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	122	£	joannedewberry.co.uk	inbound	1730297811663	1745923331524	3
 903	sam.b@frontpageadvantage.com	52	t	therugbypaper.co.uk	backlinsprovider@gmail.com	David Smith 	f	james.p@frontpageadvantage.com	115	£	www.therugbypaper.co.uk	Inbound	1709718136681	1745923533754	6
-1256	frontpage.ga@gmail.com	35	f	theeverydayman.co.uk	mail@theeverydayman.co.uk	The Everyday Man	f	james.p@frontpageadvantage.com	150	£	https://theeverydayman.co.uk/	Hannah	1726827443560	1745925143261	4
 1057	michael.l@frontpageadvantage.com	49	f	eccentricengland.co.uk	Ewilson1066@gmail.com 	Elaine Wilson 	f	system	150	£	https://eccentricengland.co.uk/	Outbound Facebook	1716452525532	1746068419097	3
-1158	james.p@frontpageadvantage.com	35	f	toptechsinfo.com	david.linkedbuilders@gmail.com	David	f	system	10	$	http://toptechsinfo.com/	James	1725966960853	1746068422246	6
 1087	sam.b@frontpageadvantage.com	48	f	dailybusinessgroup.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	140	£	dailybusinessgroup.co.uk	Inbound	1719320401710	1748746823745	5
-1518	frontpage.ga@gmail.com	31	f	guestmagazines.co.uk	megazines04@gmail.com	guest magazines	f	system	80	£	Guestmagazines.co.uk	inbound	1742852067954	1748746824875	3
 1507	frontpage.ga@gmail.com	40	t	interview-coach.co.uk	margaret@interview-coach.co.uk	MargaretBUJ	f	james.p@frontpageadvantage.com	75	£	interview-coach.co.uk	inbound	1741271187248	1749133907234	2
 1506	frontpage.ga@gmail.com	51	f	techktimes.co.uk	Techktimes.official@gmail.com	Teck k times	f	james.p@frontpageadvantage.com	75	£	techktimes.co.uk	inbound	1741271054422	1749198395339	2
+1518	frontpage.ga@gmail.com	30	f	guestmagazines.co.uk	megazines04@gmail.com	guest magazines	f	system	80	£	Guestmagazines.co.uk	inbound	1742852067954	1754017226855	4
 1067	chris.p@frontpageadvantage.com	0	f	\N	\N	test	t	\N	0	\N	\N	\N	1718272062687	1718272062687	0
 1097	sam.b@frontpageadvantage.com	31	t	strikeapose.co.uk	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	160	£	https://www.strikeapose.co.uk/	Inbound	1719396496757	1722930132941	2
 1306	james.p@frontpageadvantage.com	47	f	phoenixfm.com	\N	Click Intelligence	t	james.p@frontpageadvantage.com	180	£	https://www.phoenixfm.com	\N	1727789980135	1728378333390	1
@@ -946,20 +944,21 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1524	frontpage.ga@gmail.com	57	t	starmusiq.audio	Contact@guestpost.cc	Star Musiq	f	james.p@frontpageadvantage.com	30	£	https://starmusiq.audio/	inboud	1744278617976	1745920608470	2
 956	michael.l@frontpageadvantage.com	25	t	racingahead.net	sam.emery@greenwayspublishing.com	Sam	f	james.p@frontpageadvantage.com	100	£	https://www.racingahead.net/	Outbound Chris	1711013035726	1745922871688	6
 1424	frontpage.ga@gmail.com	35	t	mummyinatutu.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	98	£	mummyinatutu.co.uk	inbound	1730297739559	1745923328810	4
-1070	sam.b@frontpageadvantage.com	21	f	theautoexperts.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	125	£	theautoexperts.co.uk	Inbound	1719317894569	1740798055695	7
 1257	frontpage.ga@gmail.com	40	t	vevivos.com	vickywelton@hotmail.com	Verily Victoria Vocalises	f	james.p@frontpageadvantage.com	175	£	vevivos.com	Hannah	1727080175363	1745924336605	3
-1056	michael.l@frontpageadvantage.com	26	f	flyingfluskey.com	rosie@flyingfluskey.com	Rosie Fluskey 	f	system	250	£	https://www.flyingfluskey.com	Outbound Facebook	1716452285003	1743476447708	8
+1616	millie.t@frontpageadvantage.com	84	f	zerohedge.com	calahlane3@gmail.com	Zero Hedge	f	system	90	£	https://www.zerohedge.com/	Millie	1754566343999	1754566346960	1
+357	historical	56	f	spiritedpuddlejumper.com	spiritedpuddlejumper@yahoo.com	Becky Freeman	f	system	50	£	www.spiritedpuddlejumper.com	Fatjoe	0	1759287634708	5
 362	historical	38	f	hausmanmarketingletter.com	angie@hausmanmarketingletter.com	Angela Hausman	f	system	150	£	https://hausmanmarketingletter.com	Fatjoe	0	1738378880937	5
-357	historical	57	f	spiritedpuddlejumper.com	spiritedpuddlejumper@yahoo.com	Becky Freeman	f	james.p@frontpageadvantage.com	50	£	www.spiritedpuddlejumper.com	Fatjoe	0	1745925162329	4
-1060	michael.l@frontpageadvantage.com	43	f	safarisafricana.com	jacquiehale75@gmail.com	Jacquie Hale	f	system	200	£	https://safarisafricana.com/	Outbound Facebook	1716452913891	1733022046994	4
-1161	james.p@frontpageadvantage.com	76	f	oddee.com	sofiakahn06@gmail.com	Sofia	f	james.p@frontpageadvantage.com	150	$	oddee.com	James	1726058268387	1749198341471	3
-959	chris.p@frontpageadvantage.com	48	f	talk-business.co.uk	backlinsprovider@gmail.com	David Smith	f	james.p@frontpageadvantage.com	115	£	https://www.talk-business.co.uk/	Inbound	1711533031802	1749198763360	8
+959	chris.p@frontpageadvantage.com	47	f	talk-business.co.uk	backlinsprovider@gmail.com	David Smith	f	system	115	£	https://www.talk-business.co.uk/	Inbound	1711533031802	1761966034819	11
+1161	james.p@frontpageadvantage.com	77	f	oddee.com	sofiakahn06@gmail.com	Sofia	f	system	150	$	oddee.com	James	1726058268387	1761966035501	4
+1056	michael.l@frontpageadvantage.com	27	f	flyingfluskey.com	rosie@flyingfluskey.com	Rosie Fluskey 	f	system	250	£	https://www.flyingfluskey.com	Outbound Facebook	1716452285003	1751338832057	9
+1070	sam.b@frontpageadvantage.com	21	f	theautoexperts.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	125	£	theautoexperts.co.uk	Inbound	1719317894569	1754017231372	9
 438	historical	76	t	merchantcircle.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	25	£	merchantcircle.com	Inbound email	0	1708096205767	1
 804	sam.b@frontpageadvantage.com	79	t	e-architect.com	isabelle@e-architect.com	Isabelle Lomholt	f	chris.p@frontpageadvantage.com	100	£	https://www.e-architect.com/	Outbound Sam	1709213279175	1727944328867	4
 1068	chris.p@frontpageadvantage.com	11	f	theuselessweb.com	\N	Fatjoe test	t	chris.p@frontpageadvantage.com	23	£	https://theuselessweb.com	\N	1718281427105	1718281490906	1
 776	chris.p@frontpageadvantage.com	60	t	petdogplanet.com	bhaiahsan799@gmail.com	Ashan	f	chris.p@frontpageadvantage.com	60	£	www.petdogplanet.com	inbound	1709032440217	1718282119986	4
 654	chris.p@frontpageadvantage.com	38	f	acraftedpassion.com	info@morningbusinesschat.com	Brett Napoli	f	system	100	£	https://acraftedpassion.com/	Inbound	0	1738378854588	7
-777	chris.p@frontpageadvantage.com	29	f	yourpetplanet.com	info@yourpetplanet.com	Your Pet Planet	f	system	42	£	https://yourpetplanet.com/	inbound	1709032527056	1727751748297	4
+1615	millie.t@frontpageadvantage.com	27	f	ucantwearthat.com	ucantwearthattoo@gmail.com	Lucia	f	system	60	£	http://www.ucantwearthat.com/	Millie	1754559255202	1754559258439	1
+777	chris.p@frontpageadvantage.com	31	f	yourpetplanet.com	info@yourpetplanet.com	Your Pet Planet	f	system	42	£	https://yourpetplanet.com/	inbound	1709032527056	1759287639387	6
 1117	sam.b@frontpageadvantage.com	50	t	neconnected.co.uk	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	88	£	https://neconnected.co.uk/	Inbound	1719496409778	1722930233297	3
 1079	sam.b@frontpageadvantage.com	42	t	bdcmagazine.com	katherine@orangeoutreach.com	Katherine Williams	f	system	280	£	bdcmagazine.com	Inbound	1719319485667	1719319488589	1
 778	chris.p@frontpageadvantage.com	25	t	suntrics.com	suntrics4u@gmail.com	Suntrics	f	james.p@frontpageadvantage.com	40	£	https://suntrics.com/	outbound	1709032760082	1745919829944	8
@@ -974,7 +973,6 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1160	james.p@frontpageadvantage.com	45	f	epodcastnetwork.com	sofiakahn06@gmail.com	Sofia	f	system	60	$	epodcastnetwork.com		1726058131710	1738378895448	4
 333	historical	15	t	learndeveloplive.com	chris@learndeveloplive.com	Chris Jaggs	f	james.p@frontpageadvantage.com	25	£	www.learndeveloplive.com	Fatjoe	0	1745919815881	5
 1078	sam.b@frontpageadvantage.com	22	t	redkitedays.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	james.p@frontpageadvantage.com	160	£	redkitedays.co.uk	Inbound	1719319469273	1745919993184	6
-369	historical	36	f	thediaryofajewellerylover.co.uk	Mrsw@flydriveexplore.com	Mellissa Williams	f	james.p@frontpageadvantage.com	60	£	https://www.thediaryofajewellerylover.co.uk/	Inbound email	0	1745925001454	4
 904	sam.b@frontpageadvantage.com	38	t	theleaguepaper.com	sam.emery@greenwayspublishing.com	Sam	f	james.p@frontpageadvantage.com	100	£	www.theleaguepaper.com	Outbound Chris	1709718289226	1745922866038	6
 1357	chris.p@frontpageadvantage.com	66	t	dailysquib.co.uk	arianna@timewomenflag.com	Arianna Volkova	f	james.p@frontpageadvantage.com	141	£	dailysquib.co.uk	inbound	1730196590897	1745918928355	2
 1453	james.p@frontpageadvantage.com	59	t	houzz.co.uk	sophiadaniel.co.uk@gmail.com	sophia	f	chris.p@frontpageadvantage.com	30	£	https://www.houzz.co.uk/	James	1739457701377	1741259580610	2
@@ -984,10 +982,10 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1525	frontpage.ga@gmail.com	37	t	hentai20.pro	 technexitspace@gmail.com	Hentai 20 	f	james.p@frontpageadvantage.com	30	£	hentai20.pro	inboud	1744278836662	1745923180890	2
 1534	frontpage.ga@gmail.com	37	t	dreamchaserhub.com	support@extremebacklink.com 	Dream Chaser Hub 	f	james.p@frontpageadvantage.com	40	£	dreamchaserhub.com	inboud	1744280863821	1745923336368	2
 1419	frontpage.ga@gmail.com	33	f	familyfriendlyworking.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	106	£	familyfriendlyworking.co.uk	inbound	1730297531326	1746068439307	3
-489	historical	71	f	abcmoney.co.uk	advertise@abcmoney.co.uk	Claire James	f	system	60	£	www.abcmoney.co.uk	Inbound Sam	0	1748746831324	7
-1159	james.p@frontpageadvantage.com	43	f	thistradinglife.com	sofiakahn06@gmail.com	Sofia	f	system	35	$	thistradinglife.com	James	1726057994078	1748746833452	6
 1203	james.p@frontpageadvantage.com	36	t	dollydowsie.com	fionanaughton.dollydowsie@gmail.com	Fiona	f	james.p@frontpageadvantage.com	70	£	http://www.dollydowsie.com/	James	1726241391467	1749134022625	3
 1162	james.p@frontpageadvantage.com	72	t	cyprus-mail.com	sofiakahn06@gmail.com	Sofia	f	chris.p@frontpageadvantage.com	270	$	cyprus-mail.com	James	1726058412889	1749198071570	2
+369	historical	36	f	thediaryofajewellerylover.co.uk	Mrsw@flydriveexplore.com	Mellissa Williams	f	system	60	£	https://www.thediaryofajewellerylover.co.uk/	Inbound email	0	1754017234190	6
+489	historical	70	f	abcmoney.co.uk	advertise@abcmoney.co.uk	Claire James	f	system	60	£	www.abcmoney.co.uk	Inbound Sam	0	1754017236080	8
 1527	frontpage.ga@gmail.com	56	t	ceocolumn.com	Support@gposting.com	Ceo Column	f	james.p@frontpageadvantage.com	40	£	CeoColumn.com	inboud	1744279699951	1745923189771	2
 336	historical	41	t	midwifeandlife.com	Jenny@midwifeandlife.com	Jenny Lord	f	chris.p@frontpageadvantage.com	70	£	midwifeandlife.com	Fatjoe	0	1708424366153	2
 302	historical	8	t	poocrazy.com	paul@moneytipsblog.co.uk	Paul	f	chris.p@frontpageadvantage.com	10	£	www.poocrazy.com	Inbound email	0	1708693689221	2
@@ -997,29 +995,30 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1109	sam.b@frontpageadvantage.com	48	t	thefightingcock.co.uk	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	160	£	https://thefightingcock.co.uk/	Inbound	1719408484683	1722930303141	2
 1110	sam.b@frontpageadvantage.com	44	t	londonforfree.net	jagdish.linkbuilder@gmail.com	Jagdish Patel	f	james.p@frontpageadvantage.com	160	£	https://www.londonforfree.net/	Inbound	1719408568561	1722930312708	2
 1062	sam.b@frontpageadvantage.com	36	t	thebraggingmommy.com	kirangupta.outreach@gmail.com	Kiran Gupta	f	james.p@frontpageadvantage.com	80	£	thebraggingmommy.com	Inbound	1716462238586	1745919392228	7
-1529	frontpage.ga@gmail.com	56	f	thebiographywala.com	support@linksposting.com 	The Biography Wala	f	system	40	£	Thebiographywala.com	inboud	1744279970120	1744279973180	1
+328	historical	21	f	beemoneysavvy.com	Emma@beemoneysavvy.com	Emma	f	system	70	£	www.beemoneysavvy.com	Fatjoe	0	1761966042625	12
 1352	frontpage.ga@gmail.com	63	t	twinsdrycleaners.co.uk	arianna@timewomenflag.com	Arianna Volkova	f	chris.p@frontpageadvantage.com	25	£	twinsdrycleaners.co.uk	inboud	1729768172025	1729855161244	2
 451	historical	74	t	marketbusinessnews.com	Imjustwebworld@gmail.com	Harshil	f	james.p@frontpageadvantage.com	99	£	marketbusinessnews.com	Inbound email	0	1745919294738	6
 1526	frontpage.ga@gmail.com	57	t	bronwinaurora.com	write@bronwinaurora.com	Bronwin Aurora	f	james.p@frontpageadvantage.com	40	£	bronwinaurora.com	inboud	1744279580858	1745923186998	2
+1617	millie.t@frontpageadvantage.com	71	f	hackmd.io	calahlane3@gmail.com	Hack MD	f	system	60	£	https://hackmd.io/	Millie	1754566382919	1759287641542	2
+957	chris.p@frontpageadvantage.com	45	f	north.wales	backlinsprovider@gmail.com	David Smith	f	system	95	£	https://north.wales/	Inbound	1711532679719	1759287646420	6
 1410	frontpage.ga@gmail.com	37	t	glitzandglamourmakeup.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	141	£	glitzandglamourmakeup.co.uk	inbound	1730296903193	1745919418160	4
 1413	frontpage.ga@gmail.com	40	t	businessfirstonline.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	134	£	businessfirstonline.co.uk	inbound	1730297027604	1745919852459	3
 1508	frontpage.ga@gmail.com	55	f	megalithic.co.uk	andy@megalithic.co.uk	The Megalithic Portal	f	james.p@frontpageadvantage.com	80	£	megalithic.co.uk	inbound	1741271505305	1749198362568	3
 486	historical	88	t	digitaljournal.com	sophiadaniel.co.uk@gmail.com	Sophia	f	james.p@frontpageadvantage.com	130	£	www.digitaljournal.com	Inbound Sam	0	1727187191791	2
 1509	james.p@frontpageadvantage.com	31	f	countingtoten.co.uk	countingtotenblog@gmail.com	Kate	f	system	75	£	https://www.countingtoten.co.uk/	James - NEW	1742476076536	1742476079406	1
+1529	frontpage.ga@gmail.com	57	f	thebiographywala.com	support@linksposting.com 	The Biography Wala	f	system	40	£	Thebiographywala.com	inboud	1744279970120	1759374002294	2
 1510	frontpage.ga@gmail.com	37	f	xatpes.co.uk	 xatpes.official@gmail.com	Xatapes	f	system	80	£	https://xatpes.co.uk/contact-us/	inbound	1742850929074	1742850932205	1
 1513	frontpage.ga@gmail.com	38	f	load2learn.org.uk	infopool13@gmail.com	LOAD2LEARN	f	system	80	£	load2learn.org.uk	inbound	1742851433859	1742851436852	1
 1411	frontpage.ga@gmail.com	38	t	businessvans.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	129	£	businessvans.co.uk	inbound	1730296950461	1745919855682	3
 1081	sam.b@frontpageadvantage.com	38	t	emmysmummy.com	katherine@orangeoutreach.com	Katherine Williams	f	james.p@frontpageadvantage.com	120	£	emmysmummy.com	Inbound	1719319784878	1745919995783	5
-957	chris.p@frontpageadvantage.com	45	f	north.wales	backlinsprovider@gmail.com	David Smith	f	system	95	£	https://north.wales/	Inbound	1711532679719	1743476471856	4
+1519	frontpage.ga@gmail.com	38	f	myflexbot.co.uk	myflexbot11@gmail.com	My Flex Bot	f	system	80	£	myflexbot.co.uk	inbound	1742852226231	1761966045856	3
 765	sam.b@frontpageadvantage.com	47	t	storymirror.com	ela690000@gmail.com	Ella	f	james.p@frontpageadvantage.com	96	£	https://storymirror.com/	Inbound	1708616408925	1745920616912	7
 1071	sam.b@frontpageadvantage.com	31	t	makemoneywithoutajob.com	katherine@orangeoutreach.com	Katherine Williams	f	james.p@frontpageadvantage.com	150	£	makemoneywithoutajob.com	Inbound	1719318047364	1745924333662	8
-1408	frontpage.ga@gmail.com	40	f	fionaoutdoors.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	134	£	fionaoutdoors.co.uk	inbound	1730296799161	1743476481550	4
-1519	frontpage.ga@gmail.com	39	f	myflexbot.co.uk	myflexbot11@gmail.com	My Flex Bot	f	system	80	£	myflexbot.co.uk	inbound	1742852226231	1743476485538	2
 339	historical	26	t	keralpatel.com	keralpatel@gmail.com	Keral Patel	f	james.p@frontpageadvantage.com	35	£	https://www.keralpatel.com	Fatjoe	0	1745923515928	6
 1503	frontpage.ga@gmail.com	35	t	latestdash.co.uk	alphaitteamofficial@gmail.com	Latest dash	f	james.p@frontpageadvantage.com	50	£	latestdash.co.uk	inbound	1741269787500	1745923173279	2
 905	sam.b@frontpageadvantage.com	50	t	luxurylifestylemag.co.uk	kenditoys.com@gmail.com	David warner 	f	james.p@frontpageadvantage.com	150	£	https://www.luxurylifestylemag.co.uk/	Inbound	1709718547266	1745923536067	6
 1409	frontpage.ga@gmail.com	40	t	britishicehockey.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	134	£	britishicehockey.co.uk	inbound	1730296845823	1745923543818	2
-328	historical	22	f	beemoneysavvy.com	Emma@beemoneysavvy.com	Emma	f	james.p@frontpageadvantage.com	70	£	www.beemoneysavvy.com	Fatjoe	0	1745925140038	9
+1408	frontpage.ga@gmail.com	38	f	fionaoutdoors.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	134	£	fionaoutdoors.co.uk	inbound	1730296799161	1754017240324	5
 1204	james.p@frontpageadvantage.com	37	f	ladyjaney.co.uk	Jane@ladyjaney.co.uk	Jane	f	system	125	£	https://ladyjaney.co.uk/	James contact form	1726564805504	1746068440967	3
 1403	frontpage.ga@gmail.com	51	t	aboutmanchester.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	146	£	aboutmanchester.co.uk	inbound	1730296526142	1749198404369	3
 306	historical	17	t	testingtimeblog.com	sam@testingtimeblog.com	Sam	f	chris.p@frontpageadvantage.com	75	£	www.testingtimeblog.com	Fatjoe	0	1708424045249	2
@@ -1027,20 +1026,23 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 350	historical	35	t	tacklingourdebt.com	vicki@tacklingourdebt.com	Vicki	f	chris.p@frontpageadvantage.com	45	£	Tacklingourdebt.com	Fatjoe	0	1708424369644	1
 478	historical	18	t	affectionatelypaws.com	hello@contentmother.com	Becky	f	chris.p@frontpageadvantage.com	45	£	http://affectionatelypaws.com	inbound email	0	1708424428227	2
 343	historical	54	t	workingdaddy.co.uk	tom@workingdaddy.co.uk	Thomaz	f	michael.l@frontpageadvantage.com	60	£	https://workingdaddy.co.uk	Fatjoe	0	1710248472725	2
-334	historical	23	f	lifeloving.co.uk	sally@lifeloving.co.uk	Sally Allsop	f	james.p@frontpageadvantage.com	100	£	www.lifeloving.co.uk	Fatjoe	0	1744801811180	9
+311	historical	16	f	alifeoflovely.com	alifeoflovely@gmail.com	Lu	f	system	25	£	alifeoflovely.com	Fatjoe	0	1759287650195	8
 1164	james.p@frontpageadvantage.com	56	t	celebrow.org	sofiakahn06@gmail.com	Sofia	f	james.p@frontpageadvantage.com	30	$	celebrow.org	James	1726063207724	1745919310438	4
 335	historical	24	t	lillaloves.com	lillaallahiary@gmail.com	Lilla	f	james.p@frontpageadvantage.com	20	£	Www.lillaloves.com	Fatjoe	0	1745919328923	7
 344	historical	11	t	hellowanderer.co.uk	hellowandereruk@gmail.com	Chloe	f	chris.p@frontpageadvantage.com	25	£	http://www.hellowanderer.co.uk	Fatjoe	0	0	0
+331	historical	32	f	hnmagazine.co.uk	angela@hnmagazine.co.uk	Angela Riches	f	system	40	£	www.hnmagazine.co.uk	Fatjoe	0	1759287652470	9
 307	historical	13	t	peterwynmosey.com	contact@peterwynmosey.com	Peter	f	james.p@frontpageadvantage.com	15	£	peterwynmosey.com	Fatjoe	0	1718283964819	3
 309	historical	15	t	annabelwrites.com	annabelwrites.blog@gmail.com	Annabel	f	james.p@frontpageadvantage.com	20	£	annabelwrites.com	Fatjoe	0	1718283984529	4
 341	historical	17	t	sashashantel.com	contactsashashantel@gmail.com	Sasha Shantel	f	james.p@frontpageadvantage.com	60	£	http://www.sashashantel.com	Fatjoe	0	1745919339703	9
+312	historical	30	f	mmbmagazine.co.uk	INFO@MMBMAGAZINE.CO.UK	Abbie	f	system	165	£	mmbmagazine.co.uk	Fatjoe	0	1761966047470	13
+314	historical	18	f	thejournalix.com	thejournalix@gmail.com	Thomas	f	system	15	£	thejournalix.com	Fatjoe	0	1761966049161	10
 346	historical	20	t	carouseldiary.com	Info@carouseldiary.com	Katrina	f	james.p@frontpageadvantage.com	40	£	Carouseldiary.com	Fatjoe	0	1745919342211	3
 358	historical	22	t	thisbrilliantday.com	thisbrilliantday@gmail.com	Sophie Harriet	f	james.p@frontpageadvantage.com	50	£	https://thisbrilliantday.com/	Fatjoe	0	1745919349176	10
 327	historical	26	t	startsmarter.co.uk	publishing@startsmarter.co.uk	Adam Niazi	f	james.p@frontpageadvantage.com	89	£	www.StartSmarter.co.uk	Fatjoe	0	1745919868182	9
 1502	michael.l@frontpageadvantage.com	57	t	londondaily.news	sophiadaniel.co.uk@gmail.com	Sophia Daniel	f	chris.p@frontpageadvantage.com	65	£	https://www.londondaily.news/	Inbound Michael	1740053738291	1741259596936	3
-326	historical	20	f	cybergeekgirl.co.uk	lisa_ventura@outlook.com	Lisa Ventura MBE	f	system	30	£	https://www.cybergeekgirl.co.uk	Fatjoe	0	1738378930669	8
+305	historical	21	f	thethriftybride.co.uk	hello@thethriftybride.co.uk	Thirfty Bride	f	system	40	£	https://www.thethriftybride.co.uk	Fatjoe	0	1761966051334	12
 351	historical	35	t	mycarheaven.com	Info@mycarheaven.com	Chris	f	james.p@frontpageadvantage.com	150	£	Www.mycarheaven.com	Fatjoe	0	1745921464059	4
-314	historical	21	f	thejournalix.com	thejournalix@gmail.com	Thomas	f	system	15	£	thejournalix.com	Fatjoe	0	1743476492136	9
+318	historical	37	f	luckyattitude.co.uk	tanya@luckyattitude.co.uk	Tanya	f	system	150	£	luckyattitude.co.uk	Fatjoe	0	1761966051976	8
 308	historical	13	t	felifamily.com	suzied@felifamily.com	Suzie	f	james.p@frontpageadvantage.com	25	£	felifamily.com	Fatjoe	0	1745921761209	4
 445	historical	61	t	networkustad.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	80	£	networkustad.com	Inbound email	0	1718366875618	2
 321	historical	23	t	peggymay.co.uk	Peggymayyarns@gmail.com	Peggy	f	chris.p@frontpageadvantage.com	20	£	peggymay.co.uk	Fatjoe	0	0	0
@@ -1051,28 +1053,25 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 337	historical	25	t	thepennypincher.co.uk	howdy@thepennypincher.co.uk	Al Baker	f	james.p@frontpageadvantage.com	40	£	www.thepennypincher.co.uk	Fatjoe	0	1745923750444	6
 342	historical	36	t	karlismyunkle.com	karlismyunkle@gmail.com	Nik Thakkar	f	james.p@frontpageadvantage.com	45	£	www.karlismyunkle.com	Fatjoe	0	1745924340021	6
 313	historical	19	t	slashercareer.com	tanya@slashercareer.com	Tanya	f	chris.p@frontpageadvantage.com	90	£	slashercareer.com	Fatjoe	0	1726056486057	3
-318	historical	37	f	luckyattitude.co.uk	tanya@luckyattitude.co.uk	Tanya	f	james.p@frontpageadvantage.com	150	£	luckyattitude.co.uk	Fatjoe	0	1745924957490	6
+338	historical	19	f	themammafairy.com	themammafairy@gmail.com	Laura Breslin	f	system	45	£	www.themammafairy.com	Fatjoe	0	1754017245787	9
 349	historical	24	f	icenimagazine.co.uk	vicki@icenimagazine.co.uk	Vicki	f	james.p@frontpageadvantage.com	60	£	Icenimagazine.co.uk	Fatjoe	0	1745924975093	7
-338	historical	20	f	themammafairy.com	themammafairy@gmail.com	Laura Breslin	f	james.p@frontpageadvantage.com	45	£	www.themammafairy.com	Fatjoe	0	1745924985719	8
-312	historical	30	f	mmbmagazine.co.uk	INFO@MMBMAGAZINE.CO.UK	Abbie	f	system	165	£	mmbmagazine.co.uk	Fatjoe	0	1748746845151	11
-305	historical	21	f	thethriftybride.co.uk	hello@thethriftybride.co.uk	Thirfty Bride	f	system	40	£	https://www.thethriftybride.co.uk	Fatjoe	0	1748746845673	10
-311	historical	18	f	alifeoflovely.com	alifeoflovely@gmail.com	Lu	f	system	25	£	alifeoflovely.com	Fatjoe	0	1746068450420	6
 1058	michael.l@frontpageadvantage.com	59	f	mybalancingact.co.uk	rowena@mybalancingact.co.uk	Rowena Becker	f	system	175	£	https://mybalancingact.co.uk/	Outbound Facebook	1716452780180	1748746841497	5
-331	historical	32	f	hnmagazine.co.uk	angela@hnmagazine.co.uk	Angela Riches	f	system	40	£	www.hnmagazine.co.uk	Fatjoe	0	1748746844456	7
+1609	millie.t@frontpageadvantage.com	40	f	voucherix.co.uk	\N	Click Intelligence	t	millie.t@frontpageadvantage.com	80	£	https://www.voucherix.co.uk	\N	1752139047012	1752742152434	1
+334	historical	23	f	lifeloving.co.uk	sally@lifeloving.co.uk	Sally Allsop	f	system	100	£	www.lifeloving.co.uk	Fatjoe	0	1754017248272	11
 410	historical	25	t	realgirlswobble.com	rohmankatrina@gmail.com	Katrina Rohman	f	james.p@frontpageadvantage.com	80	£	https://realgirlswobble.com/	Facebook	0	1740562668954	7
 370	historical	19	t	retro-vixen.com	hello@retro-vixen.com	Clare McDougall	f	chris.p@frontpageadvantage.com	100	£	https://retro-vixen.com	Inbound email	0	1708424384361	2
 376	historical	24	t	wood-create.com	ben@wood-create.com	Ben	f	chris.p@frontpageadvantage.com	180	£	https://www.wood-create.com	Inbound email	0	1708424389251	2
-382	historical	30	f	stressedmum.co.uk	sam@stressedmum.co.uk	Samantha Donnelly	f	system	80	£	https://stressedmum.co.uk	Inbound email	0	1748746851231	8
 366	historical	46	t	barbaraiweins.com	info@barbaraiweins.com	Jason	f	james.p@frontpageadvantage.com	37	£	Barbaraiweins.com	Inbound email	0	1745919355077	7
 363	historical	61	t	justwebworld.com	imjustwebworld@gmail.com	Harshil	f	chris.p@frontpageadvantage.com	99	£	https://justwebworld.com/	Fatjoe	0	1718282155681	2
 372	historical	37	t	fashion-mommy.com	fashionmommywm@gmail.com	emma iannarilli	f	james.p@frontpageadvantage.com	85	£	fashion-mommy.com	Inbound email	0	1745919357673	5
 456	historical	52	t	urbanmatter.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	110	£	urbanmatter.com	Inbound email	0	1718366893752	3
-368	historical	56	f	justeilidh.com	just.eilidhg@gmail.com	Eilidh	f	michael.l@frontpageadvantage.com	100	£	www.justeilidh.com	Inbound email	0	1718631499731	2
+389	historical	29	f	arthurwears.com	Arthurwears.email@gmail.com	Sarah	f	system	250	£	Https://www.arthurwears.com	Inbound email	0	1751338858860	8
 398	historical	25	t	mytunbridgewells.com	mytunbridgewells@gmail.com	Clare Lush-Mansell	f	james.p@frontpageadvantage.com	124	£	https://www.mytunbridgewells.com/	Inbound email	0	1745919710094	7
 401	historical	32	t	marketme.co.uk	christopher@marketme.co.uk	Christopher	f	james.p@frontpageadvantage.com	59	£	https://marketme.co.uk/	Inbound email	0	1745919714770	5
 360	historical	35	t	rachelbustin.com	rachel@rachelbustin.com	Rachel Bustin	f	james.p@frontpageadvantage.com	85	£	https://rachelbustin.com	Fatjoe	0	1745921773953	5
-380	historical	63	f	captainbobcat.com	Eva@captainbobcat.com	Eva Katona	f	system	180	£	Https://www.captainbobcat.com	Inbound email	0	1740798113493	8
+1634	millie.t@frontpageadvantage.com	21	f	thestrawberryfountain.com	thestrawberryfountain@hotmail.com	Terri Brown	f	system	100	£	http://www.thestrawberryfountain.com/	Millie	1755676747408	1755676750215	1
 379	historical	27	t	yeahlifestyle.com	info@yeahlifestyle.com	Asha Carlos	f	james.p@frontpageadvantage.com	120	£	https://www.yeahlifestyle.com	Inbound email	0	1745921782022	8
+383	historical	38	f	whingewhingewine.co.uk	fran@whingewhingewine.co.uk	Fran	f	system	75	£	www.whingewhingewine.co.uk	Inbound email	0	1759287655170	6
 388	historical	25	t	misstillyandme.co.uk	beingtillysmummy@gmail.com	vicky Hall-Newman	f	james.p@frontpageadvantage.com	75	£	www.misstillyandme.co.uk	Inbound email	0	1745921786727	9
 399	historical	33	t	suburban-mum.com	hello@suburban-mum.com	Maria	f	james.p@frontpageadvantage.com	100	£	www.suburban-mum.com	Inbound email	0	1745921792324	4
 378	historical	42	t	healthyvix.com	victoria@healthyvix.com	Victoria	f	james.p@frontpageadvantage.com	170	£	https://www.healthyvix.com	Inbound email	0	1745922807023	9
@@ -1082,31 +1081,35 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 906	sam.b@frontpageadvantage.com	46	t	liverpoolway.co.uk	kenditoys.com@gmail.com	David warner 	f	james.p@frontpageadvantage.com	142	£	https://www.liverpoolway.co.uk/	Inbound	1709718918993	1745923538797	5
 377	historical	43	t	travelvixta.com	victoria@travelvixta.com	Victoria	f	james.p@frontpageadvantage.com	170	£	https://www.travelvixta.com	Inbound email	0	1745924278639	8
 395	historical	25	t	missmanypennies.com	hello@missmanypennies.com	Hayley	f	james.p@frontpageadvantage.com	85	£	www.missmanypennies.com	Inbound email	0	1745924291203	6
-383	historical	37	f	whingewhingewine.co.uk	fran@whingewhingewine.co.uk	Fran	f	system	75	£	www.whingewhingewine.co.uk	Inbound email	0	1730430126357	5
+406	historical	27	f	rocknrollerbaby.co.uk	Rocknrollerbaby@hotmail.co.uk	Ruth Davies Knowles	f	system	116	£	Https://rocknrollerbaby.co.uk	Inbound email	0	1761966055083	9
+390	historical	30	f	bay-bee.co.uk	Stephi@bay-bee.co.uk	Steph Moore	f	system	115	£	https://blog.bay-bee.co.uk/	Inbound email	0	1761966058404	9
 394	historical	38	f	skinnedcartree.com	corinne@skinnedcartree.com	Corinne	f	system	75	£	https://skinnedcartree.com	Inbound email	0	1740798119517	6
 365	historical	40	f	letstalkmommy.com	jenny@letstalkmommy.com	Jenny	f	james.p@frontpageadvantage.com	100	£	https://www.Letstalkmommy.com	Fatjoe	0	1745924997519	9
 373	historical	32	f	kateonthinice.com	kateonthinice1@gmail.com	Kate Holmes	f	james.p@frontpageadvantage.com	75	£	kateonthinice.com	Inbound email	0	1745925007497	3
-347	historical	33	f	diydaddyblog.com	Diynige@yahoo.com	Nigel higgins	f	james.p@frontpageadvantage.com	45	£	https://www.diydaddyblog.com/	Fatjoe	0	1746798592948	11
-406	historical	28	f	rocknrollerbaby.co.uk	Rocknrollerbaby@hotmail.co.uk	Ruth Davies Knowles	f	system	116	£	Https://rocknrollerbaby.co.uk	Inbound email	0	1748746853321	6
 386	historical	52	f	intheplayroom.co.uk	Luciana@intheplayroom.co.uk	Anna marikar	f	james.p@frontpageadvantage.com	150	£	Intheplayroom.co.uk	Inbound email	0	1745925021805	6
-390	historical	31	f	bay-bee.co.uk	Stephi@bay-bee.co.uk	Steph Moore	f	james.p@frontpageadvantage.com	115	£	https://blog.bay-bee.co.uk/	Inbound email	0	1745925027740	8
 397	historical	59	f	emmaplusthree.com	emmaplusthree@gmail.com	Emma Easton	f	james.p@frontpageadvantage.com	100	£	www.emmaplusthree.com	Inbound email	0	1745925032381	5
-389	historical	30	f	arthurwears.com	Arthurwears.email@gmail.com	Sarah	f	system	250	£	Https://www.arthurwears.com	Inbound email	0	1746068458462	7
 408	historical	21	f	the-willowtree.com	Thewillowtreeblog@yahoo.com	Michelle O’Connor	f	system	75	£	Https://www.the-willowtree.com	Inbound email	0	1748746853843	10
-375	historical	28	f	clairemac.co.uk	clairemacblog@gmail.com	Claire Chircop	f	system	60	£	www.clairemac.co.uk	Inbound email	0	1748746854937	9
+1611	millie.t@frontpageadvantage.com	39	f	primmart.com	\N	Click intelligence	t	millie.t@frontpageadvantage.com	80	£	https://primmart.com	\N	1752139081370	1752743306163	1
+380	historical	62	f	captainbobcat.com	Eva@captainbobcat.com	Eva Katona	f	system	180	£	Https://www.captainbobcat.com	Inbound email	0	1754017250700	9
+347	historical	34	f	diydaddyblog.com	Diynige@yahoo.com	Nigel higgins	f	system	45	£	https://www.diydaddyblog.com/	Fatjoe	0	1754017255306	12
+375	historical	27	f	clairemac.co.uk	clairemacblog@gmail.com	Claire Chircop	f	system	60	£	www.clairemac.co.uk	Inbound email	0	1754017258541	10
+368	historical	56	f	justeilidh.com	just.eilidhg@gmail.com	Eilidh	f	system	100	£	www.justeilidh.com	Inbound email	0	1754017259138	4
 413	historical	24	t	lablogbeaute.co.uk	hello@lablogbeaute.do.uk	Beth Mahoney	f	chris.p@frontpageadvantage.com	100	£	https://lablogbeaute.co.uk/	Facebook	0	1708424393176	2
 429	historical	29	t	countryheartandhome.com	Debbie@countryheartandhome.com	Deborah Nicholas	f	chris.p@frontpageadvantage.com	75	£	https://countryheartandhome.com/	Facebook	0	1708424398360	1
 431	historical	53	t	lthornberry.co.uk	lauraa_x@hotmail.co.uk	Laura	f	chris.p@frontpageadvantage.com	55	£	www.lthornberry.co.uk	Facebook	0	1708424403270	2
 435	historical	46	t	psychtimes.com	info@psychtimes.com	THomas Hlubin	f	chris.p@frontpageadvantage.com	45	£	https://psychtimes.com/	Inbound email	0	1708424407436	1
 444	historical	56	t	tastefulspace.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	80	£	tastefulspace.com	Inbound email	0	1708424411450	2
 462	historical	65	t	azbigmedia.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	170	£	azbigmedia.com	Inbound email	0	1708424418236	2
+1428	frontpage.ga@gmail.com	31	f	feast-magazine.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	118	£	feast-magazine.co.uk	inbound	1730297891567	1759287665765	7
 419	historical	32	t	fadedspring.co.uk	analuisadejesus1993@hotmail.co.uk	Ana	f	james.p@frontpageadvantage.com	100	£	https://fadedspring.co.uk/	Facebook	0	1745919364996	4
 432	historical	47	t	lyliarose.com	victoria@lyliarose.com	Victoria	f	james.p@frontpageadvantage.com	170	£	https://www.lyliarose.com	Facebook	0	1745919717468	7
-453	historical	66	f	techbullion.com	angelascottbriggs@techbullion.com	Angela Scott-Briggs 	f	system	100	£	http://techbullion.com	Inbound email	0	1722481490846	5
+425	historical	30	f	tantrumstosmiles.co.uk	tantrumstosmiles@outlook.com	Jess Howliston	f	system	75	£	www.tantrumstosmiles.co.uk	Facebook	0	1761966064210	11
 441	historical	78	f	newsbreak.com	minalkh124@gmail.com	Maryam bibi	f	james.p@frontpageadvantage.com	55	£	original.newsbreak.com	Inbound email	0	1745925121465	10
 433	historical	36	t	bq-magazine.com	hello@contentmother.com	Lucy Clarke	f	james.p@frontpageadvantage.com	80	£	https://www.bq-magazine.com	Facebook	0	1745919719875	4
+460	historical	26	f	techacrobat.com	minalkh124@gmail.com	Maryam bibi	f	system	140	£	techacrobat.com	Inbound email	0	1761966065449	6
 443	historical	81	t	fooyoh.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	80	£	fooyoh.com	Inbound email	0	1718366870997	3
 440	historical	63	t	ventsmagazine.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	50	£	ventsmagazine.com	Inbound email	0	1739443665089	7
+453	historical	72	f	techbullion.com	angelascottbriggs@techbullion.com	Angela Scott-Briggs 	f	system	100	£	http://techbullion.com	Inbound email	0	1761966066069	7
 446	historical	63	t	filmdaily.co	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	80	£	filmdaily.co	Inbound email	0	1718366879421	3
 450	historical	54	t	zomgcandy.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	90	£	zomgcandy.com	Inbound email	0	1718366882905	2
 420	historical	30	t	dontcrampmystyle.co.uk	anna@dontcrampmystyle.co.uk	Anna	f	james.p@frontpageadvantage.com	150	£	https://www.dontcrampmystyle.co.uk	Facebook	0	1745919990544	6
@@ -1114,6 +1117,7 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 421	historical	48	t	glassofbubbly.com	christopher@marketme.co.uk	Christopher	f	james.p@frontpageadvantage.com	125	£	https://glassofbubbly.com/	Inbound email	0	1745921468883	5
 417	historical	41	t	globalmousetravels.com	hello@globalmousetravels.com	Nichola West	f	james.p@frontpageadvantage.com	250	£	https://globalmousetravels.com	Facebook	0	1745921799265	7
 454	historical	62	t	whatsnew2day.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	100	£	whatsnew2day.com	Inbound email	0	1718366886357	2
+416	historical	30	f	stylishlondonliving.co.uk	Micaelaburr@gmail.com	Micaela	f	system	100	£	https://www.stylishlondonliving.co.uk/	Facebook	0	1761966067290	12
 430	historical	26	t	bizzimummy.com	Bizzimummy@gmail.com	Eva Stretton	f	james.p@frontpageadvantage.com	55	£	https://bizzimummy.com	Facebook	0	1745921802233	5
 412	historical	30	t	laurakatelucas.com	laurakatelucas@hotmail.com	Laura Lucas	f	james.p@frontpageadvantage.com	100	£	www.laurakatelucas.com	Facebook	0	1745922007182	8
 427	historical	16	t	shalliespurplebeehive.com	Shalliespurplebeehive@gmail.com	Shallie	f	james.p@frontpageadvantage.com	75	£	Shalliespurplebeehive.com	Facebook	0	1745923524492	4
@@ -1124,34 +1128,32 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 448	historical	50	t	gisuser.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	80	£	Gisuser.com	Inbound email	0	1718975343762	1
 428	historical	55	t	modernguy.co.uk	modguyinfo@gmail.com	Modern Guy	f	chris.p@frontpageadvantage.com	103	£	Modernguy.co.uk	Facebook	0	1718975351183	3
 1404	frontpage.ga@gmail.com	43	t	pczone.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	114	£	pczone.co.uk	inbound	1730296573812	1745923703562	4
-416	historical	31	f	stylishlondonliving.co.uk	Micaelaburr@gmail.com	Micaela	f	system	75	£	https://www.stylishlondonliving.co.uk/	Facebook	0	1746068466502	8
-415	historical	31	f	aaublog.com	allaboutublog@gmail.com	Rebecca Urie	f	james.p@frontpageadvantage.com	35	£	https://www.AAUBlog.com	Facebook	0	1747900965658	8
-425	historical	31	f	tantrumstosmiles.co.uk	tantrumstosmiles@outlook.com	Jess Howliston	f	james.p@frontpageadvantage.com	75	£	www.tantrumstosmiles.co.uk	Facebook	0	1745925065577	10
 452	historical	66	f	bignewsnetwork.com	minalkh124@gmail.com	Maryam bibi	f	james.p@frontpageadvantage.com	100	£	bignewsnetwork.com	Inbound email	0	1745925093062	3
-1428	frontpage.ga@gmail.com	30	f	feast-magazine.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	118	£	feast-magazine.co.uk	inbound	1730297891567	1748746856776	4
-460	historical	27	f	techacrobat.com	minalkh124@gmail.com	Maryam bibi	f	system	140	£	techacrobat.com	Inbound email	0	1748746859874	5
-1530	frontpage.ga@gmail.com	52	f	sundarbantracking.com	baldriccada@gmail.com	Sundar Barn	f	system	40	£	sundarbantracking.com	inboud	1744280227571	1744280230393	1
+415	historical	31	f	aaublog.com	allaboutublog@gmail.com	Rebecca Urie	f	system	35	£	https://www.AAUBlog.com	Facebook	0	1754017262711	10
+1620	millie.t@frontpageadvantage.com	36	f	thedatascientist.com	calahlane3@gmail.com	Thedatascientist	f	system	120	£	https://thedatascientist.com/	Millie	1754566476971	1759287667143	2
 474	historical	22	t	lclarke.co.uk	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	50	£	https://lclarke.co.uk	inbound email	0	1745919371223	8
 477	historical	14	t	rocketandrelish.com	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	45	£	https://www.rocketandrelish.com	inbound email	0	1745919373584	7
 503	historical	57	t	newsfromwales.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	144	£	newsfromwales.co.uk	Inbound Sam	0	1745921473419	3
 475	historical	15	t	quick-house-sales.com	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	45	£	https://www.quick-house-sales.com	inbound email	0	1718284198908	2
-502	historical	31	f	explorersagainstextinction.co.uk	fazal.akbar@digitalczars.io	Fazal	f	system	108	£	explorersagainstextinction.co.uk	Inbound Sam	0	1740798140900	7
+481	historical	29	f	twinmummyanddaddy.com	twinmumanddad@yahoo.co.uk	Emily	f	system	75	£	https://www.twinmummyanddaddy.com/	another blogger	0	1759287669081	6
 499	historical	58	t	lifestyledaily.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	144	£	www.lifestyledaily.co.uk	Inbound Sam	0	1745919378603	5
 494	historical	53	t	mikemyers.co.uk	fazal.akbar@digitalczars.io	Fazal	f	chris.p@frontpageadvantage.com	168	£	mikemyers.co.uk	Inbound Sam	0	1718366918378	2
 442	historical	63	t	wheon.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	70	£	wheon.com	Inbound email	0	1718367478662	7
 509	historical	71	t	glasgowarchitecture.co.uk	fazal.akbar@digitalczars.io	Fazal	f	chris.p@frontpageadvantage.com	114	£	www.glasgowarchitecture.co.uk	Inbound Sam	0	1718367486663	3
 488	historical	59	t	computertechreviews.com	kamransharief@gmail.com	Sophia	f	chris.p@frontpageadvantage.com	100	£	computertechreviews.com	Inbound Sam	0	1718367496112	3
+1166	james.p@frontpageadvantage.com	40	f	costumeplayhub.com	sofiakahn06@gmail.com	Sofia	f	system	30	$	costumeplayhub.com	James	1726063406379	1759287671092	7
 758	chris.p@frontpageadvantage.com	49	t	beastbeauty.co.uk	falcobliek@gmail.com	Falco	f	chris.p@frontpageadvantage.com	120	£	https://www.beastbeauty.co.uk/	Inbound	1708604143276	1718367499476	4
 510	historical	30	t	powderrooms.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	120	£	powderrooms.co.uk	Inbound Sam	0	1745919381071	5
+1530	frontpage.ga@gmail.com	51	f	sundarbantracking.com	baldriccada@gmail.com	Sundar Barn	f	system	40	£	sundarbantracking.com	inboud	1744280227571	1761966067853	2
+1083	sam.b@frontpageadvantage.com	34	f	edinburgers.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	edinburgers.co.uk	Inbound	1719319963927	1761966069131	6
 484	historical	89	t	ibtimes.co.uk	i.perez@ibtmedia.co.uk	Inigo	f	james.p@frontpageadvantage.com	379	£	ibtimes.co.uk	inbound email	0	1745919794831	5
-1083	sam.b@frontpageadvantage.com	35	f	edinburgers.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	edinburgers.co.uk	Inbound	1719319963927	1730430152074	3
+505	historical	29	f	talk-retail.co.uk	backlinsprovider@gmail.com	David Smith	f	system	95	£	talk-retail.co.uk	Inbound Sam	0	1761966070792	7
 504	historical	29	t	westlondonliving.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	84	£	www.westlondonliving.co.uk	Inbound Sam	0	1745921475598	4
 414	historical	20	t	joannavictoria.co.uk	joannabayford@gmail.com	Joanna Bayford	f	james.p@frontpageadvantage.com	50	£	https://www.joannavictoria.co.uk	Facebook	0	1745921795283	6
 495	historical	63	t	welshmum.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	168	£	www.welshmum.co.uk	Inbound Sam	0	1745921808996	7
 507	historical	34	t	toddleabout.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	168	£	toddleabout.co.uk	Inbound Sam	0	1745921813636	3
 473	historical	24	t	earthlytaste.com	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	50	£	https://www.earthlytaste.com	inbound email	0	1745922813063	4
 387	historical	29	t	onyourjourney.co.uk	Luciana@intheplayroom.co.uk	Anna marikar	f	james.p@frontpageadvantage.com	150	£	Onyourjourney.co.uk	Inbound email	0	1745923519025	7
-505	historical	29	f	talk-retail.co.uk	backlinsprovider@gmail.com	David Smith	f	system	95	£	talk-retail.co.uk	Inbound Sam	0	1743476548505	5
 470	historical	22	t	realwedding.co.uk	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	80	£	https://www.realwedding.co.uk	inbound email	0	1745924301567	8
 501	historical	48	t	fashioncapital.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	132	£	www.fashioncapital.co.uk	Inbound Sam	0	1745924304457	3
 493	historical	38	t	greenunion.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	120	£	www.greenunion.co.uk	Inbound Sam	0	1745924308171	8
@@ -1164,9 +1166,7 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 492	historical	27	t	thedevondaily.co.uk	fazal.akbar@digitalczars.io	Fazal	f	chris.p@frontpageadvantage.com	120	£	www.thedevondaily.co.uk	Inbound Sam	0	1708424447248	2
 498	historical	17	t	gonetravelling.co.uk	fazal.akbar@digitalczars.io	Fazal	f	chris.p@frontpageadvantage.com	84	£	gonetravelling.co.uk	Inbound Sam	0	1708424450853	2
 506	historical	43	t	eagle.co.ug	fazal.akbar@digitalczars.io	Fazal	f	chris.p@frontpageadvantage.com	114	£	eagle.co.ug	Inbound Sam	0	1708424454491	2
-1166	james.p@frontpageadvantage.com	41	f	costumeplayhub.com	sofiakahn06@gmail.com	Sofia	f	system	30	$	costumeplayhub.com	James	1726063406379	1748746860396	4
-481	historical	33	f	twinmummyanddaddy.com	twinmumanddad@yahoo.co.uk	Emily	f	system	75	£	https://www.twinmummyanddaddy.com/	another blogger	0	1748746863674	5
-1168	james.p@frontpageadvantage.com	36	f	birdzpedia.com	sofiakahn06@gmail.com	Sofia	f	system	35	$	birdzpedia.com	James	1726065344402	1743476560168	6
+527	historical	59	f	ourculturemag.com	info@ourculturemag.com	Info	f	system	115	£	ourculturemag.com	Inbound Sam	0	1761966071387	11
 958	chris.p@frontpageadvantage.com	48	f	deeside.com	backlinsprovider@gmail.com	David Smith	f	system	95	£	https://www.deeside.com/	inbound	1711532781458	1743476563246	3
 531	historical	37	t	businessmanchester.co.uk	sophiadaniel.co.uk@gmail.com	Sophia Daniel	f	chris.p@frontpageadvantage.com	90	£	www.businessmanchester.co.uk	Inbound Sam	0	1727252122588	8
 808	sam.b@frontpageadvantage.com	19	t	myarchitecturesidea.com	travelworldwithfashion@gmail.com	Vijay Chauhan	f	james.p@frontpageadvantage.com	41	£	https://myarchitecturesidea.com/	Outbound	1709637089134	1745918968077	9
@@ -1192,21 +1192,26 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 465	historical	82	t	goodmenproject.com	minalkh124@gmail.com	Maryam bibi	f	james.p@frontpageadvantage.com	220	£	http://goodmenproject.com	Inbound email	0	1745923170715	4
 514	historical	21	t	tobecomemum.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	120	£	www.tobecomemum.co.uk	Inbound Sam	0	1745924310444	6
 515	historical	15	t	travel-bugs.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	120	£	www.travel-bugs.co.uk	Inbound Sam	0	1745924314997	7
-527	historical	58	f	ourculturemag.com	info@ourculturemag.com	Info	f	james.p@frontpageadvantage.com	115	£	ourculturemag.com	Inbound Sam	0	1745925147181	8
 518	historical	21	t	ukcaravanrental.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	168	£	www.ukcaravanrental.co.uk	Inbound Sam	0	1745924317472	4
 521	historical	19	t	izzydabbles.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	96	£	izzydabbles.co.uk	Inbound Sam	0	1745924319943	7
 524	historical	38	t	travelbeginsat40.com	backlinsprovider@gmail.com	David	f	james.p@frontpageadvantage.com	100	£	www.travelbeginsat40.com	Inbound Sam	0	1745924322601	7
 526	historical	46	t	puretravel.com	backlinsprovider@gmail.com	David	f	james.p@frontpageadvantage.com	160	£	www.puretravel.com	Inbound Sam	0	1745924325200	6
 532	historical	65	f	varsity.co.uk	backlinsprovider@gmail.com	David	f	james.p@frontpageadvantage.com	150	£	www.varsity.co.uk	Inbound Sam	0	1745925100532	3
+1168	james.p@frontpageadvantage.com	36	f	birdzpedia.com	sofiakahn06@gmail.com	Sofia	f	system	35	$	birdzpedia.com	James	1726065344402	1754017269626	8
 525	historical	59	f	traveldailynews.com	backlinsprovider@gmail.com	David	f	james.p@frontpageadvantage.com	91	£	www.traveldailynews.com	Inbound Sam	0	1745925154271	5
-409	historical	34	f	wannabeprincess.co.uk	Debzjs@hotmail.com	Debz	f	system	75	£	www.wannabeprincess.co.uk	Facebook	0	1746068475468	8
-1414	frontpage.ga@gmail.com	38	f	singleparentsonholiday.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	118	£	singleparentsonholiday.co.uk	inbound	1730297056465	1738379036197	2
+409	historical	33	f	wannabeprincess.co.uk	Debzjs@hotmail.com	Debz	f	system	75	£	www.wannabeprincess.co.uk	Facebook	0	1754017271673	9
+1635	millie.t@frontpageadvantage.com	35	f	thefrenchiemummy.com	cecile@thefrenchiemummy.com	Cecile 	f	system	107	£	https://thefrenchiemummy.com/	Millie	1755683084092	1755683087058	1
+303	historical	21	f	moneytipsblog.co.uk	paul@moneytipsblog.co.uk	This is Owned by Chris :-)	f	system	1	£	www.moneytipsblog.co.uk	Inbound email	0	1756695679387	18
+1414	frontpage.ga@gmail.com	38	f	singleparentsonholiday.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	system	118	£	singleparentsonholiday.co.uk	inbound	1730297056465	1759287680012	4
 404	historical	22	t	whererootsandwingsentwine.com	rootsandwingsentwine@gmail.com	Elizabeth Williams	f	chris.p@frontpageadvantage.com	80	£	www.whererootsandwingsentwine.com	Inbound email	0	1727877493262	4
 403	historical	54	f	sparklesandstretchmarks.com	Hayley@sparklesandstretchmarks.com	Hayley Mclean	f	system	100	£	Https://www.sparklesandstretchmarks.com	Inbound email	0	1722481606511	2
 467	historical	58	f	underconstructionpage.com	minalkh124@gmail.com	Maryam bibi	f	system	230	£	http://underconstructionpage.com	Inbound email	0	1717211201824	2
 437	historical	54	t	techbehindit.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	55	£	techbehindit.com	Inbound email	0	1718366857704	2
+418	historical	36	f	amumreviews.co.uk	contact@amumreviews.co.uk	Petra	f	system	100	£	https://amumreviews.co.uk/	Facebook	0	1759287681863	11
 497	historical	32	t	anythinggoeslifestyle.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	168	£	anythinggoeslifestyle.co.uk	Inbound Sam	0	1745919375611	9
+1629	millie.t@frontpageadvantage.com	30	f	rhianwestbury.co.uk	westburyrhian@gmail.com	Rhian	f	system	100	£	http://www.rhianwestbury.co.uk/	Millie	1755610853604	1759287702428	2
 1167	james.p@frontpageadvantage.com	60	t	stylesrant.org	sofiakahn06@gmail.com	Sofia	f	james.p@frontpageadvantage.com	30	$	stylesrant.org	James	1726063465343	1745919326196	3
+322	historical	35	f	5thingstodotoday.com	5thingstodotoday@gmail.com	David	f	system	45	£	5thingstodotoday.com	Fatjoe	0	1761966083088	7
 530	historical	36	t	tech-wonders.com	backlinsprovider@gmail.com	David	f	james.p@frontpageadvantage.com	100	£	www.tech-wonders.com	Inbound Sam	0	1745919810648	4
 458	historical	72	t	spacecoastdaily.com	minalkh124@gmail.com	Maryam bibi	f	james.p@frontpageadvantage.com	120	£	https://spacecoastdaily.com/	Inbound email	0	1745919818703	6
 517	historical	24	t	interestingfacts.org.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	156	£	www.interestingfacts.org.uk	Inbound Sam	0	1745920502937	9
@@ -1222,7 +1227,6 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 319	historical	33	t	morningbusinesschat.com	info@morningbusinesschat.com	Brett	f	chris.p@frontpageadvantage.com	83	£	morningbusinesschat.com	Fatjoe	0	1708424361755	1
 352	historical	22	t	beautiful-solutions.co.uk	staceykane@outlook.com	Stacey	f	chris.p@frontpageadvantage.com	40	£	https://www.beautiful-solutions.co.uk	Fatjoe	0	1708424373522	1
 447	historical	77	t	atlnightspots.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	80	£	atlnightspots.com	Inbound email	0	1708424414853	2
-407	historical	23	f	lukeosaurusandme.co.uk	lukeosaurusandme@gmail.com	Rachael Sheehan	f	james.p@frontpageadvantage.com	50	£	https://lukeosaurusandme.co.uk	Inbound email	0	1745925040527	8
 455	historical	57	t	programminginsider.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	100	£	programminginsider.com	Inbound email	0	1718366889849	2
 457	historical	54	t	techktimes.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	110	£	http://techktimes.com/	Inbound email	0	1718366898669	2
 909	sam.b@frontpageadvantage.com	58	t	blogstory.co.uk	kenditoys.com@gmail.com	David warner 	f	chris.p@frontpageadvantage.com	125	£	https://blogstory.co.uk/	Inbound	1709720316064	1726056501919	3
@@ -1230,9 +1234,7 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 449	historical	47	t	urbansplatter.com	minalkh124@gmail.com	Maryam bibi	f	chris.p@frontpageadvantage.com	85	£	https://www.urbansplatter.com/	Inbound email	0	1718367513245	3
 539	historical	58	t	tamilworlds.com	natalilacanario@gmail.com	Natalila	f	chris.p@frontpageadvantage.com	150	£	Tamilworlds.com	Inbound Sam	0	1718975358204	3
 508	historical	32	t	healthylifeessex.co.uk	fazal.akbar@digitalczars.io	Fazal	f	james.p@frontpageadvantage.com	120	£	healthylifeessex.co.uk	Inbound Sam	0	1745923531398	7
-322	historical	31	f	5thingstodotoday.com	5thingstodotoday@gmail.com	David	f	james.p@frontpageadvantage.com	45	£	5thingstodotoday.com	Fatjoe	0	1745925105493	5
-418	historical	37	f	amumreviews.co.uk	contact@amumreviews.co.uk	Petra	f	james.p@frontpageadvantage.com	100	£	https://amumreviews.co.uk/	Facebook	0	1745925172714	10
-303	historical	21	f	moneytipsblog.co.uk	paul@moneytipsblog.co.uk	This is Owned by Chris :-)	f	system	1	£	www.moneytipsblog.co.uk	Inbound email	0	1746068478995	16
+407	historical	23	f	lukeosaurusandme.co.uk	lukeosaurusandme@gmail.com	Rachael Sheehan	f	system	50	£	https://lukeosaurusandme.co.uk	Inbound email	0	1754017276388	10
 384	historical	36	f	chillingwithlucas.com	Chillingwithlucas@outlook.com	Jeni	f	system	150	£	Https://chillingwithlucas.com	Inbound email	0	1748746869206	8
 543	historical	28	f	magicalpenny.com	n/a	Fatjoe	t	\N	80	£	magicalpenny.com	\N	0	0	0
 544	historical	26	f	definecivil.com	n/a	Fatjoe	t	\N	60	£	definecivil.com	\N	0	0	0
@@ -1289,15 +1291,22 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1080	sam.b@frontpageadvantage.com	47	f	exposedmagazine.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	100	£	exposedmagazine.co.uk	Inbound	1719319694584	1740798075146	3
 910	chris.p@frontpageadvantage.com	0	f	\N	\N	FatJoe	t	\N	0	\N	\N	\N	1709904731384	1709904731384	0
 911	chris.p@frontpageadvantage.com	0	f	\N	\N	FatJoe	t	\N	0	\N	\N	\N	1709904777387	1709904777387	0
-330	historical	38	f	robinwaite.com	robin@robinwaite.com	Robin Waite	f	system	42	£	https://www.robinwaite.com	Fatjoe	0	1740798133033	6
-1511	frontpage.ga@gmail.com	35	f	msnpro.co.uk	ankit@zestfulloutreach.com	MSN PRO	f	system	80	£	https://msnpro.co.uk/contact-us/	inbound	1742851051403	1742851054412	1
+304	historical	33	f	uknewsgroup.co.uk	olly@uknewsgroup.co.uk	UKNEWS Group	f	system	50	£	https://www.uknewsgroup.co.uk/	Inbound email	0	1754103608770	10
+1546	frontpage.ga@gmail.com	45	f	talkssmartly.com	support@seolinkers.com	Talks Smartly	f	system	50	£	talkssmartly.com	inboud	1744287722025	1759287689298	5
+1539	frontpage.ga@gmail.com	70	f	anationofmoms.com	PR@anationofmoms.com	A Nation Of Moms	f	system	50	£	anationofmoms.com	inboud	1744282455391	1761966089891	6
+1625	millie.t@frontpageadvantage.com	55	f	insequiral.com	hello@insequiral.com	Fiona	f	system	100	£	http://www.insequiral.com/	Millie	1754664916120	1754664919130	1
 1514	frontpage.ga@gmail.com	38	f	dailywaffle.co.uk	sarah@dailywaffle.co.uk	DAILY WAFFLE	f	system	80	£	dailywaffle.co.uk	inbound	1742851604179	1742851607247	1
-1542	frontpage.ga@gmail.com	46	f	prophecynewswatch.com	 Info@ProphecyNewsWatch.com	PNW	f	system	50	£	prophecynewswatch.com	inboud	1744283598194	1744283601525	1
 1505	frontpage.ga@gmail.com	38	t	pixwox.co.uk	 pixwoxx@gmail.com	Pixwox	f	james.p@frontpageadvantage.com	75	£	pixwox.co.uk	inbound	1741270951520	1749133683619	2
-1521	frontpage.ga@gmail.com	37	f	grobuzz.co.uk	editorial@rankwc.com	GROBUZZ	f	system	80	£	grobuzz.co.uk	inboud	1742852543019	1742852546241	1
-1522	frontpage.ga@gmail.com	36	f	techimaging.co.uk	contact@techimaging.co.uk	Tech Imaging	f	system	80	£	techimaging.co.uk	inboud	1742852661569	1742852664127	1
+1623	millie.t@frontpageadvantage.com	34	f	mrsshilts.co.uk	emma.shilton@outlook.com	Emma Shilton	f	system	100	£	http://www.mrsshilts.co.uk/	Millie	1754570606930	1759287686244	2
+1706	millie.t@frontpageadvantage.com	42	f	uknewstap.co.uk	calahlane3@gmail.com	Uk News Tap	f	system	55	£	http://uknewstap.co.uk/	Calah	1760967354015	1760967356782	1
+1712	millie.t@frontpageadvantage.com	38	f	newsdipper.co.uk	calahlane3@gmail.com	News Dipper	f	system	50	£	https://newsdipper.co.uk/	Calah	1761816876951	1761816879724	1
+1517	frontpage.ga@gmail.com	58	f	ukjournal.co.uk	 Contact@ukjournal.co.uk	UK Journal	f	system	80	£	ukjournal.co.uk	inbound	1742852009295	1761966090745	5
+330	historical	38	f	robinwaite.com	robin@robinwaite.com	Robin Waite	f	system	42	£	https://www.robinwaite.com	Fatjoe	0	1761966094528	8
+1511	frontpage.ga@gmail.com	28	f	msnpro.co.uk	ankit@zestfulloutreach.com	MSN PRO	f	system	80	£	https://msnpro.co.uk/contact-us/	inbound	1742851051403	1761966095679	3
 1059	michael.l@frontpageadvantage.com	27	f	flashpackingfamily.com	flashpackingfamily@gmail.com	Jacquie Hale	f	system	150	£	https://flashpackingfamily.com/	Outbound Facebook	1716452853668	1748746873317	8
-1539	frontpage.ga@gmail.com	67	f	anationofmoms.com	PR@anationofmoms.com	A Nation Of Moms	f	system	50	£	anationofmoms.com	inboud	1744282455391	1746068498545	2
+1521	frontpage.ga@gmail.com	42	f	grobuzz.co.uk	editorial@rankwc.com	GROBUZZ	f	system	80	£	grobuzz.co.uk	inboud	1742852543019	1761966096326	3
+1542	frontpage.ga@gmail.com	47	f	prophecynewswatch.com	 Info@ProphecyNewsWatch.com	PNW	f	system	50	£	prophecynewswatch.com	inboud	1744283598194	1762052406585	2
+1715	millie.t@frontpageadvantage.com	37	f	whatkatysaid.com	katy@whatkatysaid.com	katy	f	system	75	£	http://www.whatkatysaid.com/	Millie	1762792457787	1762792460729	1
 1407	frontpage.ga@gmail.com	41	t	themarketingblog.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	129	£	themarketingblog.co.uk	inbound	1730296672141	1745919858760	3
 1543	frontpage.ga@gmail.com	45	t	ameyawdebrah.com	@ameyawdebrah.com. 	Ameyaw Debrah	f	james.p@frontpageadvantage.com	50	£	ameyawdebrah.com	inboud	1744287332432	1745923239296	2
 1544	frontpage.ga@gmail.com	44	t	famerize.com	support@seolinkers.com	Fame Rize	f	james.p@frontpageadvantage.com	50	£	famerize.com	inbound 	1744287545928	1745923296483	2
@@ -1316,18 +1325,42 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1516	frontpage.ga@gmail.com	28	t	thecwordmag.co.uk	info@thecwordmag.co.uk	thecwordmag	f	james.p@frontpageadvantage.com	80	£	thecwordmag.co.uk	inbound	1742851851548	1745923176023	3
 1541	frontpage.ga@gmail.com	54	t	pantheonuk.org	admin@pantheonuk.org	Pan the on UK	f	james.p@frontpageadvantage.com	50	£	pantheonuk.org	inboud	1744283499452	1745923178708	2
 529	historical	38	t	houseofcoco.net	backlinsprovider@gmail.com	David	f	james.p@frontpageadvantage.com	150	£	houseofcoco.net	Inbound Sam	0	1745924328485	5
-304	historical	33	f	uknewsgroup.co.uk	olly@uknewsgroup.co.uk	UKNEWS Group	f	james.p@frontpageadvantage.com	50	£	https://www.uknewsgroup.co.uk/	Inbound email	0	1747732580564	8
 1538	frontpage.ga@gmail.com	86	f	theodysseyonline.com	roy@theodysseyonline.com Create with us	Odyssey	f	james.p@frontpageadvantage.com	50	£	theodysseyonline.com	inboud	1744282332763	1749198328984	2
-1515	frontpage.ga@gmail.com	36	f	ranyy.com	aishwaryagaikwad313@gmail.com	Ranyy	f	system	80	£	ranyy.com	inbound	1742851725672	1746068494877	3
-1546	frontpage.ga@gmail.com	44	f	talkssmartly.com	support@seolinkers.com	Talks Smartly	f	system	50	£	talkssmartly.com	inboud	1744287722025	1746068499232	2
 1532	frontpage.ga@gmail.com	38	t	nameshype.com	 admin@rabbiitfirm.com	Names Hype 	f	james.p@frontpageadvantage.com	40	£	nameshype.com	inboud	1744280534970	1748445192929	2
-1517	frontpage.ga@gmail.com	61	f	ukjournal.co.uk	 Contact@ukjournal.co.uk	UK Journal	f	system	80	£	ukjournal.co.uk	inbound	1742852009295	1748746877646	2
+1522	frontpage.ga@gmail.com	35	f	techimaging.co.uk	contact@techimaging.co.uk	Tech Imaging	f	system	80	£	techimaging.co.uk	inboud	1742852661569	1754017284520	2
 702	michael.l@frontpageadvantage.com	38	t	frontpageadvantage.com	chris.p@frontpageadvantage.com	Front Page Advantage	f	james.p@frontpageadvantage.com	10	£	https://frontpageadvantage.com/	Email	1708008300694	1745918966021	7
 762	sam.b@frontpageadvantage.com	14	t	flatpackhouses.co.uk	falcobliek@gmail.com	Falco	f	james.p@frontpageadvantage.com	120	£	https://www.flatpackhouses.co.uk/	Inbound	1708615840028	1745918969943	4
 353	historical	16	t	lingermagazine.com	info@lingermagazine.com	Tiffany Tate	f	james.p@frontpageadvantage.com	82	£	https://www.lingermagazine.com/	Fatjoe	0	1745919345664	5
 769	chris.p@frontpageadvantage.com	60	t	livepositively.com	ela690000@gmail.com	ela	f	james.p@frontpageadvantage.com	1150	£	https://livepositively.com/	inbound	1709027357228	1745919352207	4
 405	historical	36	t	prettybigbutterflies.com	prettybigbutterflies@gmail.com	Hollie	f	james.p@frontpageadvantage.com	80	£	www.prettybigbutterflies.com	Inbound email	0	1745919361530	5
 472	historical	28	t	pleasureprinciple.net	hello@contentmother.com	Becky	f	james.p@frontpageadvantage.com	50	£	https://www.pleasureprinciple.net	inbound email	0	1745919368173	3
+1636	millie.t@frontpageadvantage.com	25	f	birdsandlilies.com	birdsandlilies@gmail.com	Louise	f	system	100	£	https://www.birdsandlilies.com/	Millie	1755848328859	1755848331794	1
+1639	millie.t@frontpageadvantage.com	72	f	thelondoneconomic.com	backlinsprovider@gmail.com	London economic	f	system	370	£	http://thelondoneconomic.com/	David Smith 	1757598163477	1757598166665	1
+1638	millie.t@frontpageadvantage.com	44	f	costaprices.co.uk	backlinsprovider@gmail.com	Costa Prices	f	system	85	$	https://costaprices.co.uk/	David Smith 	1757598029993	1759287697548	2
+1504	frontpage.ga@gmail.com	26	f	infinityelse.co.uk	 infinityelse1@gmail.com	Infinity else	f	system	65	£	infinityelse.co.uk	inbound	1741270738337	1759287703075	7
+1631	millie.t@frontpageadvantage.com	44	f	reelsmedia.co.uk	calahlane3@gmail.com	ReelsMedia	f	system	50	£	http://reelsmedia.co.uk/	Millie	1755675865921	1759287704339	2
+771	chris.p@frontpageadvantage.com	42	f	finehomesandliving.com	info@fine-magazine.com	Fine Home Team	f	system	100	£	https://www.finehomesandliving.com/	outbound	1709027801990	1759287704924	8
+1652	millie.t@frontpageadvantage.com	42	f	ukstartupmagazine.co.uk	jonathan@ukstartupmagazine.co.uk	Jonathon	f	system	300	£	https://www.ukstartupmagazine.co.uk/	Tanya	1759840271455	1759840274789	1
+1653	millie.t@frontpageadvantage.com	16	f	houseandhomeideas.co.uk	info@houseandhomeideas.co.uk	House & Homes	f	system	20	£	https://www.houseandhomeideas.co.uk/	Tanya	1759840429117	1759840432448	1
+1654	millie.t@frontpageadvantage.com	42	f	midlandsbusinessnews.co.uk	amlivemanagement@hotmail.co.uk	Midlands Business News	f	system	40	£	https://midlandsbusinessnews.co.uk/contact/	Tanya	1759841564720	1759841567689	1
+1703	millie.t@frontpageadvantage.com	33	f	buzblog.co.uk	backlinsprovider@gmail.com	Buzz BLOG	f	system	68	$	https://buzblog.co.uk/	David Smith 	1760711132182	1760711135384	1
+1705	millie.t@frontpageadvantage.com	53	f	boho-weddings.com	kelly@boho-weddings.com	Kelly	f	system	199	£	https://www.boho-weddings.com/	Tanya	1760948438416	1760948441367	1
+1707	millie.t@frontpageadvantage.com	32	f	imhentai.co.uk	calahlane3@gmail.com	Im hen Tai	f	system	50	£	http://imhentai.co.uk/	Calah	1760967404074	1760967407280	1
+1708	millie.t@frontpageadvantage.com	31	f	thestripesblog.co.uk	calahlane3@gmail.com	The Stripes Blog	f	system	55	£	thestripesblog.co.uk	Calah	1760967461561	1760967464189	1
+1713	millie.t@frontpageadvantage.com	30	f	accidentalhipstermum.com	accidentalhipstermum@gmail.com	Jenny	f	system	120	£	http://accidentalhipstermum.com/	Millie	1762252583668	1762252586859	1
+1710	millie.t@frontpageadvantage.com	51	f	invisioncommunity.co.uk	backlinsprovider@gmail.com	David Invision Community	f	system	65	£	https://invisioncommunity.co.uk/	David Smith 	1761039824470	1761039827326	1
+1711	millie.t@frontpageadvantage.com	40	f	racingbetter.co.uk	backlinsprovider@gmail.com	David Racing Better	f	system	60	£	https://racingbetter.co.uk/	David Smith 	1761039859361	1761039861995	1
+1624	millie.t@frontpageadvantage.com	37	f	deepinmummymatters.com	mummymatters@gmail.com	Sabina	f	system	130	£	https://deepinmummymatters.com/	Millie	1754660310525	1761966087205	2
+1626	millie.t@frontpageadvantage.com	61	f	lifeinabreakdown.com	sarah@lifeinabreakdown.com	Sarah	f	system	250	£	https://www.lifeinabreakdown.com/	Millie	1754665321436	1761966097842	2
+1702	millie.t@frontpageadvantage.com	39	f	captionbio.co.uk	backlinsprovider@gmail.com	Captin Bio 	f	system	75	$	https://captionbio.co.uk/	David Smith	1760429536786	1761966103187	2
+1622	millie.t@frontpageadvantage.com	35	f	webstosociety.co.uk	calahlane3@gmail.com	websstosociety	f	system	85	£	https://webstosociety.co.uk/	Millie	1754566562692	1761966103837	5
+1709	millie.t@frontpageadvantage.com	42	f	businesstask.co.uk	calahlane3@gmail.com	Business Task	f	system	50	£	https://businesstask.co.uk/	Calah	1760967514629	1761966107280	2
+422	historical	34	f	ukconstructionblog.co.uk	advertising@ukconstructionblog.co.uk	Tom	f	system	75	£	https://ukconstructionblog.co.uk/	Google Search	0	1761966123996	7
+1633	millie.t@frontpageadvantage.com	38	f	tubegalore.uk	calahlane3@gmail.com	Tube Galore	f	system	50	£	http://tubegalore.uk/	Millie	1755675994853	1761966125774	3
+326	historical	19	f	cybergeekgirl.co.uk	lisa_ventura@outlook.com	Lisa Ventura MBE	f	system	30	£	https://www.cybergeekgirl.co.uk	Fatjoe	0	1761966126366	11
+780	chris.p@frontpageadvantage.com	22	f	travelistia.com	travelistiausa@gmail.com	Ferona	f	system	27	£	https://www.travelistia.com/	outbound	1709033136922	1761966126969	14
+1714	millie.t@frontpageadvantage.com	24	f	thetraveldaily.co.uk	backlinsprovider@gmail.com	The Travel Daily David	f	system	85	£	https://www.thetraveldaily.co.uk/	David Smith 	1762790571756	1762790574863	1
+1704	millie.t@frontpageadvantage.com	20	f	staceyinthesticks.com	stacey@staceyinthesticks.com	Stacey	f	millie.t@frontpageadvantage.com	40	£	www.staceyinthesticks.com	Millie	1760947883867	1763479614095	2
 1202	james.p@frontpageadvantage.com	41	t	shemightbeloved.com	georgina@shemightbeloved.com	Georgina	f	james.p@frontpageadvantage.com	100	£	www.shemightbeloved.com	James	1726139288772	1745919307369	6
 1165	james.p@frontpageadvantage.com	57	t	filmik.blog	sofiakahn06@gmail.com	Sofia	f	james.p@frontpageadvantage.com	30	$	filmik.blog	James	1726063285389	1745919313961	4
 1063	sam.b@frontpageadvantage.com	38	t	grapevinebirmingham.com	kirangupta.outreach@gmail.com	Kiran Gupta	f	james.p@frontpageadvantage.com	80	£	grapevinebirmingham.com	Inbound	1716462449737	1745919403297	3
@@ -1349,22 +1382,41 @@ COPY public.supplier (id, created_by, da, disabled, domain, email, name, third_p
 1095	sam.b@frontpageadvantage.com	34	f	largerfamilylife.com	katherine@orangeoutreach.com	Katherine Williams	f	james.p@frontpageadvantage.com	100	£	largerfamilylife.com	Inbound	1719322290354	1745924967466	3
 361	historical	57	f	alittleluxuryfor.me	erica@alittleluxuryfor.me	Erica Hughes	f	james.p@frontpageadvantage.com	125	£	https://alittleluxuryfor.me/	Fatjoe	0	1745924993126	4
 392	historical	45	f	midlandstraveller.com	contact@midlandstraveller.com	Simone Ribeiro	f	james.p@frontpageadvantage.com	50	£	www.midlandstraveller.com	Inbound email	0	1745925114742	9
-1086	sam.b@frontpageadvantage.com	42	f	lovebelfast.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	120	£	lovebelfast.co.uk	Inbound	1719320331730	1746068476500	3
-422	historical	33	f	ukconstructionblog.co.uk	advertising@ukconstructionblog.co.uk	Tom	f	system	75	£	https://ukconstructionblog.co.uk/	Google Search	0	1746068483039	4
-1504	frontpage.ga@gmail.com	28	f	infinityelse.co.uk	 infinityelse1@gmail.com	Infinity else	f	system	65	£	infinityelse.co.uk	inbound	1741270738337	1748746888096	4
-434	historical	20	f	arewenearlythereyet.co.uk	Chelseamamma@gmail.com	Kara Guppy	f	system	75	£	https://arewenearlythereyet.co.uk/	Facebook	0	1748746889201	8
+1627	millie.t@frontpageadvantage.com	25	f	infullflavour.com	infullflavour@gmail.com	Sarah	f	system	65	£	http://infullflavour.com/	Millie	1754898182768	1754898185616	1
+1628	millie.t@frontpageadvantage.com	34	f	mummyvswork.co.uk	paula@mummyvswork.co.uk	Paula	f	system	150	£	https://mummyvswork.co.uk/	Millie	1755526189848	1755526193177	1
+1630	millie.t@frontpageadvantage.com	36	f	omgflix.co.uk	calahlane3@gmail.com	OmgFlix	f	system	50	£	https://www.omgflix.co.uk/author/sky-bloom-inc	Millie	1755675826171	1755675828961	1
+1060	michael.l@frontpageadvantage.com	43	f	safarisafricana.com	jacquiehale75@gmail.com	Jacquie Hale	f	system	200	£	https://safarisafricana.com/	Outbound Facebook	1716452913891	1756695632083	6
+502	historical	32	f	explorersagainstextinction.co.uk	fazal.akbar@digitalczars.io	Fazal	f	system	108	£	explorersagainstextinction.co.uk	Inbound Sam	0	1756695667173	10
+1621	millie.t@frontpageadvantage.com	70	f	portotheme.com	calahlane3@gmail.com	Portotheme	f	system	80	£	https://www.portotheme.com/	Millie	1754566514837	1756695668255	2
+1159	james.p@frontpageadvantage.com	43	t	thistradinglife.com	sofiakahn06@gmail.com	Sofia	f	millie.t@frontpageadvantage.com	35	$	thistradinglife.com	James	1726057994078	1756819944805	7
 1549	millie.t@frontpageadvantage.com	38	f	thefestivals.uk	sam@thefestivals.uk	Sam	f	system	90	£	https://thefestivals.uk/	Tanya	1747837129945	1747837133370	1
-426	historical	36	f	chelseamamma.co.uk	Chelseamamma@gmail.com	Kara Guppy	f	system	75	£	https://www.chelseamamma.co.uk/	Facebook	0	1748746881820	7
-780	chris.p@frontpageadvantage.com	23	f	travelistia.com	travelistiausa@gmail.com	Ferona	f	system	27	£	https://www.travelistia.com/	outbound	1709033136922	1748746882466	11
-1531	frontpage.ga@gmail.com	38	f	everymoviehasalesson.com	everymoviehasalesson@gmail.com	Every Movie Has A Lesson	f	system	40	£	everymoviehasalesson.com	inboud	1744280420962	1748746883778	3
-1536	frontpage.ga@gmail.com	19	f	factquotes.com	support@extremebacklink.com 	Fact Quotes	f	system	18	£	factquotes.com	inboud	1744281928677	1748746884789	3
+1536	frontpage.ga@gmail.com	18	f	factquotes.com	support@extremebacklink.com 	Fact Quotes	f	system	18	£	factquotes.com	inboud	1744281928677	1754103611856	4
+1607	millie.t@frontpageadvantage.com	70	f	homeandgardenlistings.co.uk	\N	Click intelligence	t	chris.p@frontpageadvantage.com	150	£	https://www.homeandgardenlistings.co.uk	\N	1752138697761	1754486250776	4
 1552	james.p@frontpageadvantage.com	60	t	blackbud.co.uk	blackbuduk@gmail.com	Black Bud	f	millie.t@frontpageadvantage.com	60	£	https://www.blackbud.co.uk/	Tanya	1748504396998	1748950834065	2
-1553	millie.t@frontpageadvantage.com	27	f	thecoachspace.com	gabrielle@thecoachspace.com	Gabrielle	f	system	82	£	https://thecoachspace.com/	Tanya	1749110988493	1749110991521	1
+426	historical	35	f	chelseamamma.co.uk	Chelseamamma@gmail.com	Kara Guppy	f	system	75	£	https://www.chelseamamma.co.uk/	Facebook	0	1761966115993	8
 1554	james.p@frontpageadvantage.com	54	f	ukfitness.pro	hello@ukfitness.pro	UK fitness pro	f	system	100	£	https://ukfitness.pro/write-for-us	Tanya	1749112026452	1749112029548	1
 1551	millie.t@frontpageadvantage.com	55	t	tweakyourbiz.com	editor@tweakyourbiz.com	Editors	f	james.p@frontpageadvantage.com	150	$	https://tweakyourbiz.com/	Tanya	1747837606638	1749117436084	2
-1550	millie.t@frontpageadvantage.com	33	f	lifeunexpected.co.uk	contact@mattbarltd.co.uk	Matt	f	james.p@frontpageadvantage.com	75	£	https://www.lifeunexpected.co.uk/	Tanya	1747837279774	1749117485063	2
 1406	frontpage.ga@gmail.com	42	t	madeinshoreditch.co.uk	arianne@timewomenflag.com	Arianne Volkova	f	james.p@frontpageadvantage.com	158	£	madeinshoreditch.co.uk	inbound	1730296630124	1749198378959	5
-1556	james.p@frontpageadvantage.com	65	f	placeholder.com	millie.t@frontpageadvantage.com	placeholder	f	system	100	£	placeholder.com	James	1749199373428	1749199376315	1
+1608	millie.t@frontpageadvantage.com	48	f	elevatedmagazines.com	\N	Click Intelligence	t	millie.t@frontpageadvantage.com	80	£	https://www.elevatedmagazines.com	\N	1752139005960	1752743511931	3
+1610	millie.t@frontpageadvantage.com	33	f	myuniquehome.co.uk	\N	Click Intelligence	t	millie.t@frontpageadvantage.com	80	£	https://www.myuniquehome.co.uk	\N	1752139070886	1752743736848	1
+1553	millie.t@frontpageadvantage.com	26	f	thecoachspace.com	gabrielle@thecoachspace.com	Gabrielle	f	system	82	£	https://thecoachspace.com/	Tanya	1749110988493	1759374014550	2
+1556	james.p@frontpageadvantage.com	65	t	placeholder.com	millie.t@frontpageadvantage.com	placeholder	f	millie.t@frontpageadvantage.com	100	£	placeholder.com	James	1749199373428	1750864554900	2
+1604	millie.t@frontpageadvantage.com	40	f	business-money.com	info@business-money.com	BusinessMoneyTeam	f	system	30	£	https://www.business-money.com/	Tanya	1751885774816	1751885777802	1
+1605	millie.t@frontpageadvantage.com	13	f	tibbingtonconsulting.co.uk	info@globelldigital.com	Tibbington Consulting	f	system	25	£	https://www.tibbingtonconsulting.co.uk/	Tanya	1751886706863	1751886709789	1
+1606	millie.t@frontpageadvantage.com	23	f	indowapblog.com	contactsiteseo@gmail.com	French Blogger	f	system	25	€	https://indowapblog.com/	contactsiteseo@gmail.com	1751973800624	1751973803623	1
+1531	frontpage.ga@gmail.com	38	f	everymoviehasalesson.com	everymoviehasalesson@gmail.com	Every Movie Has A Lesson	f	system	40	£	everymoviehasalesson.com	inboud	1744280420962	1761966116382	5
+1619	millie.t@frontpageadvantage.com	56	t	indibloghub.com	calahlane3@gmail.com	Indibloghub	f	millie.t@frontpageadvantage.com	50	£	https://indibloghub.com/	Millie	1754566452647	1756820383164	2
+1637	millie.t@frontpageadvantage.com	48	f	financial-news.co.uk	backlinsprovider@gmail.com	Financial News	f	system	110	£	http://financial-news.co.uk/	David Smith 	1757597977070	1757597980036	1
+1158	james.p@frontpageadvantage.com	33	f	toptechsinfo.com	david.linkedbuilders@gmail.com	David	f	system	10	$	http://toptechsinfo.com/	James	1725966960853	1759287628170	8
+1618	millie.t@frontpageadvantage.com	65	f	coda.io	calahlane3@gmail.com	Coda IO	f	system	90	£	https://coda.io/	Millie	1754566417149	1759287647875	2
+382	historical	31	f	stressedmum.co.uk	sam@stressedmum.co.uk	Samantha Donnelly	f	system	80	£	https://stressedmum.co.uk	Inbound email	0	1759287653745	9
+1086	sam.b@frontpageadvantage.com	43	f	lovebelfast.co.uk	katherine@orangeoutreach.com	Katherine Williams	f	system	120	£	lovebelfast.co.uk	Inbound	1719320331730	1759287699650	4
+434	historical	19	f	arewenearlythereyet.co.uk	Chelseamamma@gmail.com	Kara Guppy	f	system	75	£	https://arewenearlythereyet.co.uk/	Facebook	0	1759287701414	9
+1602	millie.t@frontpageadvantage.com	44	f	slummysinglemummy.com	jo@slummysinglemummy.com	Jo  	f	system	100	£	https://slummysinglemummy.com/	Millie	1750841059853	1759287709629	3
+1603	millie.t@frontpageadvantage.com	42	f	uknip.co.uk	uknewsinpictures@gmail.com	UKnip	f	system	90	£	https://uknip.co.uk/		1751012371517	1761966118048	2
+1550	millie.t@frontpageadvantage.com	33	f	lifeunexpected.co.uk	contact@mattbarltd.co.uk	Matt	f	system	75	£	https://www.lifeunexpected.co.uk/	Tanya	1747837279774	1761966119231	4
+1515	frontpage.ga@gmail.com	42	f	ranyy.com	aishwaryagaikwad313@gmail.com	Ranyy	f	system	80	£	ranyy.com	inbound	1742851725672	1761966122308	6
+1632	millie.t@frontpageadvantage.com	31	f	imagefap.uk	calahlane3@gmail.com	ImageFap	f	system	50	£	http://imagefap.uk/	Millie	1755675953072	1761966124533	3
 \.
 
 
@@ -3985,6 +4037,7 @@ COPY public.supplier_aud (id, rev, revtype, created_by, created_date, da, disabl
 305	13579	1	historical	0	21	f	thethriftybride.co.uk	hello@thethriftybride.co.uk	1748746845673	Thirfty Bride	Fatjoe	f	system	40	£	https://www.thethriftybride.co.uk
 382	13580	1	historical	0	30	f	stressedmum.co.uk	sam@stressedmum.co.uk	1748746851231	Samantha Donnelly	Inbound email	f	system	80	£	https://stressedmum.co.uk
 406	13581	1	historical	0	28	f	rocknrollerbaby.co.uk	Rocknrollerbaby@hotmail.co.uk	1748746853321	Ruth Davies Knowles	Inbound email	f	system	116	£	Https://rocknrollerbaby.co.uk
+331	15482	1	historical	0	31	f	hnmagazine.co.uk	angela@hnmagazine.co.uk	1754017247598	Angela Riches	Fatjoe	f	system	40	£	www.hnmagazine.co.uk
 408	13582	1	historical	0	21	f	the-willowtree.com	Thewillowtreeblog@yahoo.com	1748746853843	Michelle O’Connor	Inbound email	f	system	75	£	Https://www.the-willowtree.com
 375	13583	1	historical	0	28	f	clairemac.co.uk	clairemacblog@gmail.com	1748746854937	Claire Chircop	Inbound email	f	system	60	£	www.clairemac.co.uk
 1428	13584	1	frontpage.ga@gmail.com	1730297891567	30	f	feast-magazine.co.uk	arianne@timewomenflag.com	1748746856776	Arianne Volkova	inbound	f	system	118	£	feast-magazine.co.uk
@@ -4024,6 +4077,318 @@ COPY public.supplier_aud (id, rev, revtype, created_by, created_date, da, disabl
 959	13762	1	chris.p@frontpageadvantage.com	1711533031802	48	f	talk-business.co.uk	backlinsprovider@gmail.com	1749198763360	David Smith	Inbound	f	james.p@frontpageadvantage.com	115	£	https://www.talk-business.co.uk/
 1556	13763	0	james.p@frontpageadvantage.com	1749199373428	65	f	placeholder.com	millie.t@frontpageadvantage.com	1749199373428	placeholder	James	f	\N	100	£	placeholder.com
 1556	13764	1	james.p@frontpageadvantage.com	1749199373428	65	f	placeholder.com	millie.t@frontpageadvantage.com	1749199376315	placeholder	James	f	system	100	£	placeholder.com
+1602	14441	0	millie.t@frontpageadvantage.com	1750841059853	46	f	slummysinglemummy.com	jo@slummysinglemummy.com	1750841059853	Jo  	Millie	f	\N	100	£	https://slummysinglemummy.com/
+1602	14442	1	millie.t@frontpageadvantage.com	1750841059853	46	f	slummysinglemummy.com	jo@slummysinglemummy.com	1750841063560	Jo  	Millie	f	system	100	£	https://slummysinglemummy.com/
+1602	14510	1	millie.t@frontpageadvantage.com	1750841059853	46	f	slummysinglemummy.com	jo@slummysinglemummy.com	1750864077674	Jo  	Millie	f	millie.t@frontpageadvantage.com	100	£	https://slummysinglemummy.com/
+1556	14514	1	james.p@frontpageadvantage.com	1749199373428	65	t	placeholder.com	millie.t@frontpageadvantage.com	1750864554900	placeholder	James	f	millie.t@frontpageadvantage.com	100	£	placeholder.com
+1603	14589	0	millie.t@frontpageadvantage.com	1751012371517	43	f	uknip.co.uk	uknewsinpictures@gmail.com	1751012371517	UKnip		f	\N	90	£	https://uknip.co.uk/
+1603	14590	1	millie.t@frontpageadvantage.com	1751012371517	43	f	uknip.co.uk	uknewsinpictures@gmail.com	1751012374456	UKnip		f	system	90	£	https://uknip.co.uk/
+1425	14689	1	frontpage.ga@gmail.com	1730297780739	32	f	lobsterdigitalmarketing.co.uk	arianne@timewomenflag.com	1751338801369	Arianne Volkova	inbound	f	system	106	£	lobsterdigitalmarketing.co.uk
+483	14690	1	historical	0	30	f	packthepjs.com	tracey@packthepjs.com	1751338806740	Tracey	Fatjoe	f	system	80	£	http://www.packthepjs.com/
+1092	14691	1	sam.b@frontpageadvantage.com	1719320789605	41	f	fabukmagazine.com	katherine@orangeoutreach.com	1751338815399	Katherine Williams	Inbound	f	system	120	£	fabukmagazine.com
+1074	14692	1	sam.b@frontpageadvantage.com	1719318261939	38	f	fivelittledoves.com	katherine@orangeoutreach.com	1751338816814	Katherine Williams	Inbound	f	system	150	£	fivelittledoves.com
+1170	14693	1	james.p@frontpageadvantage.com	1726065836927	51	f	nerdbot.com	sofiakahn06@gmail.com	1751338818020	Sofia	James	f	system	150	$	nerdbot.com
+1076	14694	1	sam.b@frontpageadvantage.com	1719318364944	30	f	wellbeingmagazine.com	katherine@orangeoutreach.com	1751338818666	Katherine Williams	Inbound	f	system	100	£	wellbeingmagazine.com
+1069	14695	1	sam.b@frontpageadvantage.com	1719317784130	33	f	caranalytics.co.uk	katherine@orangeoutreach.com	1751338819920	Katherine Williams	Inbound	f	system	150	£	caranalytics.co.uk
+1054	14696	1	michael.l@frontpageadvantage.com	1716451807667	27	f	flydriveexplore.com	Hello@flydrivexexplore.com	1751338821127	Marcus Williams 	Outbound Facebook	f	system	80	£	https://www.flydriveexplore.com/
+1070	14697	1	sam.b@frontpageadvantage.com	1719317894569	20	f	theautoexperts.co.uk	katherine@orangeoutreach.com	1751338831455	Katherine Williams	Inbound	f	system	125	£	theautoexperts.co.uk
+1056	14698	1	michael.l@frontpageadvantage.com	1716452285003	27	f	flyingfluskey.com	rosie@flyingfluskey.com	1751338832057	Rosie Fluskey 	Outbound Facebook	f	system	250	£	https://www.flyingfluskey.com
+959	14699	1	chris.p@frontpageadvantage.com	1711533031802	47	f	talk-business.co.uk	backlinsprovider@gmail.com	1751338835181	David Smith	Inbound	f	system	115	£	https://www.talk-business.co.uk/
+369	14700	1	historical	0	35	f	thediaryofajewellerylover.co.uk	Mrsw@flydriveexplore.com	1751338837684	Mellissa Williams	Inbound email	f	system	60	£	https://www.thediaryofajewellerylover.co.uk/
+957	14701	1	chris.p@frontpageadvantage.com	1711532679719	46	f	north.wales	backlinsprovider@gmail.com	1751338842900	David Smith	Inbound	f	system	95	£	https://north.wales/
+334	14702	1	historical	0	24	f	lifeloving.co.uk	sally@lifeloving.co.uk	1751338845237	Sally Allsop	Fatjoe	f	system	100	£	www.lifeloving.co.uk
+312	14703	1	historical	0	31	f	mmbmagazine.co.uk	INFO@MMBMAGAZINE.CO.UK	1751338848608	Abbie	Fatjoe	f	system	165	£	mmbmagazine.co.uk
+305	14704	1	historical	0	20	f	thethriftybride.co.uk	hello@thethriftybride.co.uk	1751338849175	Thirfty Bride	Fatjoe	f	system	40	£	https://www.thethriftybride.co.uk
+368	14705	1	historical	0	57	f	justeilidh.com	just.eilidhg@gmail.com	1751338852391	Eilidh	Inbound email	f	system	100	£	www.justeilidh.com
+389	14706	1	historical	0	29	f	arthurwears.com	Arthurwears.email@gmail.com	1751338858860	Sarah	Inbound email	f	system	250	£	Https://www.arthurwears.com
+453	14707	1	historical	0	71	f	techbullion.com	angelascottbriggs@techbullion.com	1751338860698	Angela Scott-Briggs 	Inbound email	f	system	100	£	http://techbullion.com
+416	14708	1	historical	0	32	f	stylishlondonliving.co.uk	Micaelaburr@gmail.com	1751338862142	Micaela	Facebook	f	system	75	£	https://www.stylishlondonliving.co.uk/
+415	14709	1	historical	0	32	f	aaublog.com	allaboutublog@gmail.com	1751338863017	Rebecca Urie	Facebook	f	system	35	£	https://www.AAUBlog.com
+1428	14710	1	frontpage.ga@gmail.com	1730297891567	32	f	feast-magazine.co.uk	arianne@timewomenflag.com	1751338864925	Arianne Volkova	inbound	f	system	118	£	feast-magazine.co.uk
+502	14711	1	historical	0	32	f	explorersagainstextinction.co.uk	fazal.akbar@digitalczars.io	1751338866879	Fazal	Inbound Sam	f	system	108	£	explorersagainstextinction.co.uk
+1166	14712	1	james.p@frontpageadvantage.com	1726063406379	40	f	costumeplayhub.com	sofiakahn06@gmail.com	1751338869347	Sofia	James	f	system	30	$	costumeplayhub.com
+1168	14713	1	james.p@frontpageadvantage.com	1726065344402	37	f	birdzpedia.com	sofiakahn06@gmail.com	1751338870485	Sofia	James	f	system	35	$	birdzpedia.com
+407	14714	1	historical	0	24	f	lukeosaurusandme.co.uk	lukeosaurusandme@gmail.com	1751338877743	Rachael Sheehan	Inbound email	f	system	50	£	https://lukeosaurusandme.co.uk
+322	14715	1	historical	0	32	f	5thingstodotoday.com	5thingstodotoday@gmail.com	1751338878499	David	Fatjoe	f	system	45	£	5thingstodotoday.com
+303	14716	1	historical	0	20	f	moneytipsblog.co.uk	paul@moneytipsblog.co.uk	1751338880087	This is Owned by Chris :-)	Inbound email	f	system	1	£	www.moneytipsblog.co.uk
+1539	14717	1	frontpage.ga@gmail.com	1744282455391	66	f	anationofmoms.com	PR@anationofmoms.com	1751338887822	A Nation Of Moms	inboud	f	system	50	£	anationofmoms.com
+304	14718	1	historical	0	34	f	uknewsgroup.co.uk	olly@uknewsgroup.co.uk	1751338889344	UKNEWS Group	Inbound email	f	system	50	£	https://www.uknewsgroup.co.uk/
+422	14719	1	historical	0	34	f	ukconstructionblog.co.uk	advertising@ukconstructionblog.co.uk	1751338895977	Tom	Google Search	f	system	75	£	https://ukconstructionblog.co.uk/
+1504	14720	1	frontpage.ga@gmail.com	1741270738337	27	f	infinityelse.co.uk	 infinityelse1@gmail.com	1751338896535	Infinity else	inbound	f	system	65	£	infinityelse.co.uk
+328	14732	1	historical	0	21	f	beemoneysavvy.com	Emma@beemoneysavvy.com	1751425203728	Emma	Fatjoe	f	system	70	£	www.beemoneysavvy.com
+1604	14736	0	millie.t@frontpageadvantage.com	1751885774816	40	f	business-money.com	info@business-money.com	1751885774816	BusinessMoneyTeam	Tanya	f	\N	30	£	https://www.business-money.com/
+1604	14737	1	millie.t@frontpageadvantage.com	1751885774816	40	f	business-money.com	info@business-money.com	1751885777802	BusinessMoneyTeam	Tanya	f	system	30	£	https://www.business-money.com/
+1605	14740	0	millie.t@frontpageadvantage.com	1751886706863	13	f	tibbingtonconsulting.co.uk	info@globelldigital.com	1751886706863	Tibbington Consulting	Tanya	f	\N	25	£	https://www.tibbingtonconsulting.co.uk/
+1605	14741	1	millie.t@frontpageadvantage.com	1751886706863	13	f	tibbingtonconsulting.co.uk	info@globelldigital.com	1751886709789	Tibbington Consulting	Tanya	f	system	25	£	https://www.tibbingtonconsulting.co.uk/
+1606	14840	0	millie.t@frontpageadvantage.com	1751973800624	23	f	indowapblog.com	contactsiteseo@gmail.com	1751973800624	French Blogger	contactsiteseo@gmail.com	f	\N	25	€	https://indowapblog.com/
+1606	14841	1	millie.t@frontpageadvantage.com	1751973800624	23	f	indowapblog.com	contactsiteseo@gmail.com	1751973803623	French Blogger	contactsiteseo@gmail.com	f	system	25	€	https://indowapblog.com/
+1607	15099	0	millie.t@frontpageadvantage.com	1752138697761	0	f	\N	\N	1752138697761	Click intelligence	\N	t	\N	0	\N	\N
+1608	15101	0	millie.t@frontpageadvantage.com	1752139005960	0	f	\N	\N	1752139005960	Click Intelligence	\N	t	\N	0	\N	\N
+1609	15103	0	millie.t@frontpageadvantage.com	1752139047012	0	f	\N	\N	1752139047012	Click Intelligence	\N	t	\N	0	\N	\N
+1610	15106	0	millie.t@frontpageadvantage.com	1752139070886	0	f	\N	\N	1752139070886	Click Intelligence	\N	t	\N	0	\N	\N
+1611	15108	0	millie.t@frontpageadvantage.com	1752139081370	0	f	\N	\N	1752139081370	Click intelligence	\N	t	\N	0	\N	\N
+416	15238	1	historical	0	32	f	stylishlondonliving.co.uk	Micaelaburr@gmail.com	1752234283528	Micaela	Facebook	f	millie.t@frontpageadvantage.com	100	£	https://www.stylishlondonliving.co.uk/
+1608	15304	1	millie.t@frontpageadvantage.com	1752139005960	24	f	elevatedmagazines.com	\N	1752741913553	Click Intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://www.elevatedmagazines.com
+1607	15307	1	millie.t@frontpageadvantage.com	1752138697761	23	f	homeandgardenlistings.co.uk	\N	1752742009408	Click intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://www.homeandgardenlistings.co.uk
+1609	15310	1	millie.t@frontpageadvantage.com	1752139047012	40	f	voucherix.co.uk	\N	1752742152434	Click Intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://www.voucherix.co.uk
+1611	15317	1	millie.t@frontpageadvantage.com	1752139081370	39	f	primmart.com	\N	1752743306163	Click intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://primmart.com
+1607	15320	1	millie.t@frontpageadvantage.com	1752138697761	0	f	\N	\N	1752743327522	Click intelligence	\N	t	millie.t@frontpageadvantage.com	0	\N	\N
+1607	15322	1	millie.t@frontpageadvantage.com	1752138697761	70	f	homeandgardenlistings.co.uk	\N	1752743400626	Click intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://www.homeandgardenlistings.co.uk
+1608	15325	1	millie.t@frontpageadvantage.com	1752139005960	0	f	\N	\N	1752743436838	Click Intelligence	\N	t	millie.t@frontpageadvantage.com	0	\N	\N
+1608	15327	1	millie.t@frontpageadvantage.com	1752139005960	48	f	elevatedmagazines.com	\N	1752743511931	Click Intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://www.elevatedmagazines.com
+1610	15330	1	millie.t@frontpageadvantage.com	1752139070886	33	f	myuniquehome.co.uk	\N	1752743736848	Click Intelligence	\N	t	millie.t@frontpageadvantage.com	80	£	https://www.myuniquehome.co.uk
+1055	15463	1	michael.l@frontpageadvantage.com	1716452047818	20	f	lindyloves.co.uk	Hello@lindyloves.co.uk	1754017201517	Lindy	Outbound Facebook	f	system	50	£	https://www.lindyloves.co.uk/
+1090	15464	1	sam.b@frontpageadvantage.com	1719320639079	70	f	markmeets.com	katherine@orangeoutreach.com	1754017204165	Katherine Williams	Inbound	f	system	100	£	markmeets.com
+652	15465	1	chris.p@frontpageadvantage.com	0	30	f	gemmalouise.co.uk	gemma@gemmalouise.co.uk	1754017211069	Gemma	inbound email	f	system	80	£	https://gemmalouise.co.uk/
+1170	15466	1	james.p@frontpageadvantage.com	1726065836927	50	f	nerdbot.com	sofiakahn06@gmail.com	1754017219144	Sofia	James	f	system	150	$	nerdbot.com
+1069	15467	1	sam.b@frontpageadvantage.com	1719317784130	32	f	caranalytics.co.uk	katherine@orangeoutreach.com	1754017219912	Katherine Williams	Inbound	f	system	150	£	caranalytics.co.uk
+1416	15468	1	frontpage.ga@gmail.com	1730297416645	33	f	smallcapnews.co.uk	arianne@timewomenflag.com	1754017221567	Arianne Volkova	inbound	f	system	158	£	Smallcapnews.co.uk
+1523	15469	1	frontpage.ga@gmail.com	1742853030124	35	f	ventstimes.co.uk	ventstimesofficial@gmail.com	1754017223788	Vents Times	inboud	f	system	80	£	Ventstimes.co.uk
+1158	15470	1	james.p@frontpageadvantage.com	1725966960853	34	f	toptechsinfo.com	david.linkedbuilders@gmail.com	1754017225739	David	James	f	system	10	$	http://toptechsinfo.com/
+1518	15471	1	frontpage.ga@gmail.com	1742852067954	30	f	guestmagazines.co.uk	megazines04@gmail.com	1754017226855	guest magazines	inbound	f	system	80	£	Guestmagazines.co.uk
+1060	15472	1	michael.l@frontpageadvantage.com	1716452913891	44	f	safarisafricana.com	jacquiehale75@gmail.com	1754017230377	Jacquie Hale	Outbound Facebook	f	system	200	£	https://safarisafricana.com/
+1070	15473	1	sam.b@frontpageadvantage.com	1719317894569	21	f	theautoexperts.co.uk	katherine@orangeoutreach.com	1754017231372	Katherine Williams	Inbound	f	system	125	£	theautoexperts.co.uk
+777	15474	1	chris.p@frontpageadvantage.com	1709032527056	28	f	yourpetplanet.com	info@yourpetplanet.com	1754017233615	Your Pet Planet	inbound	f	system	42	£	https://yourpetplanet.com/
+369	15475	1	historical	0	36	f	thediaryofajewellerylover.co.uk	Mrsw@flydriveexplore.com	1754017234190	Mellissa Williams	Inbound email	f	system	60	£	https://www.thediaryofajewellerylover.co.uk/
+489	15476	1	historical	0	70	f	abcmoney.co.uk	advertise@abcmoney.co.uk	1754017236080	Claire James	Inbound Sam	f	system	60	£	www.abcmoney.co.uk
+1408	15477	1	frontpage.ga@gmail.com	1730296799161	38	f	fionaoutdoors.co.uk	arianne@timewomenflag.com	1754017240324	Arianne Volkova	inbound	f	system	134	£	fionaoutdoors.co.uk
+326	15478	1	historical	0	19	f	cybergeekgirl.co.uk	lisa_ventura@outlook.com	1754017243437	Lisa Ventura MBE	Fatjoe	f	system	30	£	https://www.cybergeekgirl.co.uk
+318	15479	1	historical	0	38	f	luckyattitude.co.uk	tanya@luckyattitude.co.uk	1754017244635	Tanya	Fatjoe	f	system	150	£	luckyattitude.co.uk
+338	15480	1	historical	0	19	f	themammafairy.com	themammafairy@gmail.com	1754017245787	Laura Breslin	Fatjoe	f	system	45	£	www.themammafairy.com
+311	15481	1	historical	0	17	f	alifeoflovely.com	alifeoflovely@gmail.com	1754017246336	Lu	Fatjoe	f	system	25	£	alifeoflovely.com
+334	15483	1	historical	0	23	f	lifeloving.co.uk	sally@lifeloving.co.uk	1754017248272	Sally Allsop	Fatjoe	f	system	100	£	www.lifeloving.co.uk
+380	15484	1	historical	0	62	f	captainbobcat.com	Eva@captainbobcat.com	1754017250700	Eva Katona	Inbound email	f	system	180	£	Https://www.captainbobcat.com
+347	15485	1	historical	0	34	f	diydaddyblog.com	Diynige@yahoo.com	1754017255306	Nigel higgins	Fatjoe	f	system	45	£	https://www.diydaddyblog.com/
+406	15486	1	historical	0	27	f	rocknrollerbaby.co.uk	Rocknrollerbaby@hotmail.co.uk	1754017255792	Ruth Davies Knowles	Inbound email	f	system	116	£	Https://rocknrollerbaby.co.uk
+375	15487	1	historical	0	27	f	clairemac.co.uk	clairemacblog@gmail.com	1754017258541	Claire Chircop	Inbound email	f	system	60	£	www.clairemac.co.uk
+368	15488	1	historical	0	56	f	justeilidh.com	just.eilidhg@gmail.com	1754017259138	Eilidh	Inbound email	f	system	100	£	www.justeilidh.com
+415	15489	1	historical	0	31	f	aaublog.com	allaboutublog@gmail.com	1754017262711	Rebecca Urie	Facebook	f	system	35	£	https://www.AAUBlog.com
+1428	15490	1	frontpage.ga@gmail.com	1730297891567	30	f	feast-magazine.co.uk	arianne@timewomenflag.com	1754017263216	Arianne Volkova	inbound	f	system	118	£	feast-magazine.co.uk
+416	15491	1	historical	0	31	f	stylishlondonliving.co.uk	Micaelaburr@gmail.com	1754017263804	Micaela	Facebook	f	system	100	£	https://www.stylishlondonliving.co.uk/
+1083	15492	1	sam.b@frontpageadvantage.com	1719319963927	34	f	edinburgers.co.uk	katherine@orangeoutreach.com	1754017265042	Katherine Williams	Inbound	f	system	100	£	edinburgers.co.uk
+505	15493	1	historical	0	28	f	talk-retail.co.uk	backlinsprovider@gmail.com	1754017265654	David Smith	Inbound Sam	f	system	95	£	talk-retail.co.uk
+502	15494	1	historical	0	31	f	explorersagainstextinction.co.uk	fazal.akbar@digitalczars.io	1754017267329	Fazal	Inbound Sam	f	system	108	£	explorersagainstextinction.co.uk
+1166	15495	1	james.p@frontpageadvantage.com	1726063406379	41	f	costumeplayhub.com	sofiakahn06@gmail.com	1754017267967	Sofia	James	f	system	30	$	costumeplayhub.com
+1168	15496	1	james.p@frontpageadvantage.com	1726065344402	36	f	birdzpedia.com	sofiakahn06@gmail.com	1754017269626	Sofia	James	f	system	35	$	birdzpedia.com
+409	15497	1	historical	0	33	f	wannabeprincess.co.uk	Debzjs@hotmail.com	1754017271673	Debz	Facebook	f	system	75	£	www.wannabeprincess.co.uk
+1414	15498	1	frontpage.ga@gmail.com	1730297056465	37	f	singleparentsonholiday.co.uk	arianne@timewomenflag.com	1754017272442	Arianne Volkova	inbound	f	system	118	£	singleparentsonholiday.co.uk
+407	15499	1	historical	0	23	f	lukeosaurusandme.co.uk	lukeosaurusandme@gmail.com	1754017276388	Rachael Sheehan	Inbound email	f	system	50	£	https://lukeosaurusandme.co.uk
+330	15500	1	historical	0	37	f	robinwaite.com	robin@robinwaite.com	1754017280616	Robin Waite	Fatjoe	f	system	42	£	https://www.robinwaite.com
+1539	15501	1	frontpage.ga@gmail.com	1744282455391	67	f	anationofmoms.com	PR@anationofmoms.com	1754017281241	A Nation Of Moms	inboud	f	system	50	£	anationofmoms.com
+1511	15502	1	frontpage.ga@gmail.com	1742851051403	34	f	msnpro.co.uk	ankit@zestfulloutreach.com	1754017282004	MSN PRO	inbound	f	system	80	£	https://msnpro.co.uk/contact-us/
+1521	15503	1	frontpage.ga@gmail.com	1742852543019	36	f	grobuzz.co.uk	editorial@rankwc.com	1754017283918	GROBUZZ	inboud	f	system	80	£	grobuzz.co.uk
+1522	15504	1	frontpage.ga@gmail.com	1742852661569	35	f	techimaging.co.uk	contact@techimaging.co.uk	1754017284520	Tech Imaging	inboud	f	system	80	£	techimaging.co.uk
+1515	15505	1	frontpage.ga@gmail.com	1742851725672	39	f	ranyy.com	aishwaryagaikwad313@gmail.com	1754017287290	Ranyy	inbound	f	system	80	£	ranyy.com
+1546	15506	1	frontpage.ga@gmail.com	1744287722025	45	f	talkssmartly.com	support@seolinkers.com	1754017287853	Talks Smartly	inboud	f	system	50	£	talkssmartly.com
+1504	15507	1	frontpage.ga@gmail.com	1741270738337	25	f	infinityelse.co.uk	 infinityelse1@gmail.com	1754017293009	Infinity else	inbound	f	system	65	£	infinityelse.co.uk
+780	15508	1	chris.p@frontpageadvantage.com	1709033136922	21	f	travelistia.com	travelistiausa@gmail.com	1754017295164	Ferona	outbound	f	system	27	£	https://www.travelistia.com/
+1550	15509	1	millie.t@frontpageadvantage.com	1747837279774	32	f	lifeunexpected.co.uk	contact@mattbarltd.co.uk	1754017298058	Matt	Tanya	f	system	75	£	https://www.lifeunexpected.co.uk/
+1254	15532	1	frontpage.ga@gmail.com	1726736911853	26	f	laurenyloves.co.uk	lauren@laurenyloves.co.uk	1754103602038	Laureny Loves	Hannah	f	system	50	£	https://www.laurenyloves.co.uk/category/money/
+304	15533	1	historical	0	33	f	uknewsgroup.co.uk	olly@uknewsgroup.co.uk	1754103608770	UKNEWS Group	Inbound email	f	system	50	£	https://www.uknewsgroup.co.uk/
+1536	15534	1	frontpage.ga@gmail.com	1744281928677	18	f	factquotes.com	support@extremebacklink.com 	1754103611856	Fact Quotes	inboud	f	system	18	£	factquotes.com
+1612	15621	0	millie.t@frontpageadvantage.com	1754379974064	41	f	hearthomemag.co.uk	advertise@mintymarketing.co.uk	1754379974064	Minty	Tanya	f	\N	100	£	https://hearthomemag.co.uk/
+1612	15622	1	millie.t@frontpageadvantage.com	1754379974064	41	f	hearthomemag.co.uk	advertise@mintymarketing.co.uk	1754379977355	Minty	Tanya	f	system	100	£	https://hearthomemag.co.uk/
+1613	15623	0	millie.t@frontpageadvantage.com	1754383774862	0	f	\N	\N	1754383774862	Click Intelligence	\N	t	\N	0	\N	\N
+1614	15930	0	millie.t@frontpageadvantage.com	1754479907265	78	f	manilatimes.net	advertise@mintymarketing.co.uk	1754479907265	Minty	Tanya	f	\N	80	$	https://www.manilatimes.net/
+1614	15931	1	millie.t@frontpageadvantage.com	1754479907265	78	f	manilatimes.net	advertise@mintymarketing.co.uk	1754479910059	Minty	Tanya	f	system	80	$	https://www.manilatimes.net/
+1607	15941	1	millie.t@frontpageadvantage.com	1752138697761	70	f	homeandgardenlistings.co.uk	\N	1754486250776	Click intelligence	\N	t	chris.p@frontpageadvantage.com	150	£	https://www.homeandgardenlistings.co.uk
+1615	16152	0	millie.t@frontpageadvantage.com	1754559255202	27	f	ucantwearthat.com	ucantwearthattoo@gmail.com	1754559255202	Lucia	Millie	f	\N	60	£	http://www.ucantwearthat.com/
+1615	16153	1	millie.t@frontpageadvantage.com	1754559255202	27	f	ucantwearthat.com	ucantwearthattoo@gmail.com	1754559258439	Lucia	Millie	f	system	60	£	http://www.ucantwearthat.com/
+1616	16154	0	millie.t@frontpageadvantage.com	1754566343999	84	f	zerohedge.com	calahlane3@gmail.com	1754566343999	Zero Hedge	Millie	f	\N	90	£	https://www.zerohedge.com/
+1616	16155	1	millie.t@frontpageadvantage.com	1754566343999	84	f	zerohedge.com	calahlane3@gmail.com	1754566346960	Zero Hedge	Millie	f	system	90	£	https://www.zerohedge.com/
+1617	16156	0	millie.t@frontpageadvantage.com	1754566382919	70	f	hackmd.io	calahlane3@gmail.com	1754566382919	Hack MD	Millie	f	\N	60	£	https://hackmd.io/
+1617	16157	1	millie.t@frontpageadvantage.com	1754566382919	70	f	hackmd.io	calahlane3@gmail.com	1754566385579	Hack MD	Millie	f	system	60	£	https://hackmd.io/
+1620	16162	0	millie.t@frontpageadvantage.com	1754566476971	38	f	thedatascientist.com	calahlane3@gmail.com	1754566476971	Thedatascientist	Millie	f	\N	120	£	https://thedatascientist.com/
+1620	16163	1	millie.t@frontpageadvantage.com	1754566476971	38	f	thedatascientist.com	calahlane3@gmail.com	1754566479730	Thedatascientist	Millie	f	system	120	£	https://thedatascientist.com/
+1621	16165	1	millie.t@frontpageadvantage.com	1754566514837	69	f	portotheme.com	calahlane3@gmail.com	1754566517482	Portotheme	Millie	f	system	80	£	https://www.portotheme.com/
+1618	16158	0	millie.t@frontpageadvantage.com	1754566417149	64	f	coda.io	calahlane3@gmail.com	1754566417149	Coda IO	Millie	f	\N	90	£	https://coda.io/
+1618	16159	1	millie.t@frontpageadvantage.com	1754566417149	64	f	coda.io	calahlane3@gmail.com	1754566420003	Coda IO	Millie	f	system	90	£	https://coda.io/
+1619	16160	0	millie.t@frontpageadvantage.com	1754566452647	56	f	indibloghub.com	calahlane3@gmail.com	1754566452647	Indibloghub	Millie	f	\N	50	£	https://indibloghub.com/
+1619	16161	1	millie.t@frontpageadvantage.com	1754566452647	56	f	indibloghub.com	calahlane3@gmail.com	1754566455466	Indibloghub	Millie	f	system	50	£	https://indibloghub.com/
+1621	16164	0	millie.t@frontpageadvantage.com	1754566514837	69	f	portotheme.com	calahlane3@gmail.com	1754566514837	Portotheme	Millie	f	\N	80	£	https://www.portotheme.com/
+1622	16166	0	millie.t@frontpageadvantage.com	1754566562692	33	f	webstosociety.co.uk	calahlane3@gmail.com	1754566562692	websstosociety	Millie	f	\N	30	£	https://webstosociety.co.uk/
+1622	16167	1	millie.t@frontpageadvantage.com	1754566562692	33	f	webstosociety.co.uk	calahlane3@gmail.com	1754566565727	websstosociety	Millie	f	system	30	£	https://webstosociety.co.uk/
+1623	16169	0	millie.t@frontpageadvantage.com	1754570606930	35	f	mrsshilts.co.uk	emma.shilton@outlook.com	1754570606930	Emma Shilton	Millie	f	\N	100	£	http://www.mrsshilts.co.uk/
+1623	16170	1	millie.t@frontpageadvantage.com	1754570606930	35	f	mrsshilts.co.uk	emma.shilton@outlook.com	1754570609695	Emma Shilton	Millie	f	system	100	£	http://www.mrsshilts.co.uk/
+1624	16190	0	millie.t@frontpageadvantage.com	1754660310525	38	f	deepinmummymatters.com	mummymatters@gmail.com	1754660310525	Sabina	Millie	f	\N	130	£	https://deepinmummymatters.com/
+1624	16191	1	millie.t@frontpageadvantage.com	1754660310525	38	f	deepinmummymatters.com	mummymatters@gmail.com	1754660313941	Sabina	Millie	f	system	130	£	https://deepinmummymatters.com/
+1625	16192	0	millie.t@frontpageadvantage.com	1754664916120	55	f	insequiral.com	hello@insequiral.com	1754664916120	Fiona	Millie	f	\N	100	£	http://www.insequiral.com/
+1625	16193	1	millie.t@frontpageadvantage.com	1754664916120	55	f	insequiral.com	hello@insequiral.com	1754664919130	Fiona	Millie	f	system	100	£	http://www.insequiral.com/
+1626	16194	0	millie.t@frontpageadvantage.com	1754665321436	60	f	lifeinabreakdown.com	sarah@lifeinabreakdown.com	1754665321436	Sarah	Millie	f	\N	250	£	https://www.lifeinabreakdown.com/
+1626	16195	1	millie.t@frontpageadvantage.com	1754665321436	60	f	lifeinabreakdown.com	sarah@lifeinabreakdown.com	1754665324554	Sarah	Millie	f	system	250	£	https://www.lifeinabreakdown.com/
+1627	16196	0	millie.t@frontpageadvantage.com	1754898182768	25	f	infullflavour.com	infullflavour@gmail.com	1754898182768	Sarah	Millie	f	\N	65	£	http://infullflavour.com/
+1627	16197	1	millie.t@frontpageadvantage.com	1754898182768	25	f	infullflavour.com	infullflavour@gmail.com	1754898185616	Sarah	Millie	f	system	65	£	http://infullflavour.com/
+1628	16382	0	millie.t@frontpageadvantage.com	1755526189848	34	f	mummyvswork.co.uk	paula@mummyvswork.co.uk	1755526189848	Paula	Millie	f	\N	150	£	https://mummyvswork.co.uk/
+1628	16383	1	millie.t@frontpageadvantage.com	1755526189848	34	f	mummyvswork.co.uk	paula@mummyvswork.co.uk	1755526193177	Paula	Millie	f	system	150	£	https://mummyvswork.co.uk/
+1629	16388	0	millie.t@frontpageadvantage.com	1755610853604	29	f	rhianwestbury.co.uk	westburyrhian@gmail.com	1755610853604	Rhian	Millie	f	\N	100	£	http://www.rhianwestbury.co.uk/
+1629	16389	1	millie.t@frontpageadvantage.com	1755610853604	29	f	rhianwestbury.co.uk	westburyrhian@gmail.com	1755610856887	Rhian	Millie	f	system	100	£	http://www.rhianwestbury.co.uk/
+1630	16390	0	millie.t@frontpageadvantage.com	1755675826171	36	f	omgflix.co.uk	calahlane3@gmail.com	1755675826171	OmgFlix	Millie	f	\N	50	£	https://www.omgflix.co.uk/author/sky-bloom-inc
+1630	16391	1	millie.t@frontpageadvantage.com	1755675826171	36	f	omgflix.co.uk	calahlane3@gmail.com	1755675828961	OmgFlix	Millie	f	system	50	£	https://www.omgflix.co.uk/author/sky-bloom-inc
+1631	16392	0	millie.t@frontpageadvantage.com	1755675865921	43	f	reelsmedia.co.uk	calahlane3@gmail.com	1755675865921	ReelsMedia	Millie	f	\N	50	£	http://reelsmedia.co.uk/
+1631	16393	1	millie.t@frontpageadvantage.com	1755675865921	43	f	reelsmedia.co.uk	calahlane3@gmail.com	1755675868881	ReelsMedia	Millie	f	system	50	£	http://reelsmedia.co.uk/
+1632	16394	0	millie.t@frontpageadvantage.com	1755675953072	32	f	imagefap.uk	calahlane3@gmail.com	1755675953072	ImageFap	Millie	f	\N	50	£	http://imagefap.uk/
+1632	16395	1	millie.t@frontpageadvantage.com	1755675953072	32	f	imagefap.uk	calahlane3@gmail.com	1755675955733	ImageFap	Millie	f	system	50	£	http://imagefap.uk/
+1633	16396	0	millie.t@frontpageadvantage.com	1755675994853	38	f	tubegalore.uk	calahlane3@gmail.com	1755675994853	Tube Galore	Millie	f	\N	50	£	http://tubegalore.uk/
+1633	16397	1	millie.t@frontpageadvantage.com	1755675994853	38	f	tubegalore.uk	calahlane3@gmail.com	1755675997722	Tube Galore	Millie	f	system	50	£	http://tubegalore.uk/
+1634	16398	0	millie.t@frontpageadvantage.com	1755676747408	21	f	thestrawberryfountain.com	thestrawberryfountain@hotmail.com	1755676747408	Terri Brown	Millie	f	\N	100	£	http://www.thestrawberryfountain.com/
+1634	16399	1	millie.t@frontpageadvantage.com	1755676747408	21	f	thestrawberryfountain.com	thestrawberryfountain@hotmail.com	1755676750215	Terri Brown	Millie	f	system	100	£	http://www.thestrawberryfountain.com/
+1635	16400	0	millie.t@frontpageadvantage.com	1755683084092	35	f	thefrenchiemummy.com	cecile@thefrenchiemummy.com	1755683084092	Cecile 	Millie	f	\N	107	£	https://thefrenchiemummy.com/
+1635	16401	1	millie.t@frontpageadvantage.com	1755683084092	35	f	thefrenchiemummy.com	cecile@thefrenchiemummy.com	1755683087058	Cecile 	Millie	f	system	107	£	https://thefrenchiemummy.com/
+1636	16404	0	millie.t@frontpageadvantage.com	1755848328859	25	f	birdsandlilies.com	birdsandlilies@gmail.com	1755848328859	Louise	Millie	f	\N	100	£	https://www.birdsandlilies.com/
+1636	16405	1	millie.t@frontpageadvantage.com	1755848328859	25	f	birdsandlilies.com	birdsandlilies@gmail.com	1755848331794	Louise	Millie	f	system	100	£	https://www.birdsandlilies.com/
+771	16406	1	chris.p@frontpageadvantage.com	1709027801990	44	f	finehomesandliving.com	info@fine-magazine.com	1756695602780	Fine Home Team	outbound	f	system	100	£	https://www.finehomesandliving.com/
+1170	16407	1	james.p@frontpageadvantage.com	1726065836927	51	f	nerdbot.com	sofiakahn06@gmail.com	1756695620614	Sofia	James	f	system	150	$	nerdbot.com
+1060	16408	1	michael.l@frontpageadvantage.com	1716452913891	43	f	safarisafricana.com	jacquiehale75@gmail.com	1756695632083	Jacquie Hale	Outbound Facebook	f	system	200	£	https://safarisafricana.com/
+502	16409	1	historical	0	32	f	explorersagainstextinction.co.uk	fazal.akbar@digitalczars.io	1756695667173	Fazal	Inbound Sam	f	system	108	£	explorersagainstextinction.co.uk
+1621	16410	1	millie.t@frontpageadvantage.com	1754566514837	70	f	portotheme.com	calahlane3@gmail.com	1756695668255	Portotheme	Millie	f	system	80	£	https://www.portotheme.com/
+527	16411	1	historical	0	59	f	ourculturemag.com	info@ourculturemag.com	1756695669536	Info	Inbound Sam	f	system	115	£	ourculturemag.com
+303	16412	1	historical	0	21	f	moneytipsblog.co.uk	paul@moneytipsblog.co.uk	1756695679387	This is Owned by Chris :-)	Inbound email	f	system	1	£	www.moneytipsblog.co.uk
+1517	16413	1	frontpage.ga@gmail.com	1742852009295	62	f	ukjournal.co.uk	 Contact@ukjournal.co.uk	1756695688645	UK Journal	inbound	f	system	80	£	ukjournal.co.uk
+1546	16414	1	frontpage.ga@gmail.com	1744287722025	44	f	talkssmartly.com	support@seolinkers.com	1756695692368	Talks Smartly	inboud	f	system	50	£	talkssmartly.com
+1159	16418	1	james.p@frontpageadvantage.com	1726057994078	43	t	thistradinglife.com	sofiakahn06@gmail.com	1756819944805	Sofia	James	f	millie.t@frontpageadvantage.com	35	$	thistradinglife.com
+1619	16426	1	millie.t@frontpageadvantage.com	1754566452647	56	t	indibloghub.com	calahlane3@gmail.com	1756820383164	Indibloghub	Millie	f	millie.t@frontpageadvantage.com	50	£	https://indibloghub.com/
+1622	16703	1	millie.t@frontpageadvantage.com	1754566562692	33	f	webstosociety.co.uk	calahlane3@gmail.com	1757062850911	websstosociety	Millie	f	millie.t@frontpageadvantage.com	42	£	https://webstosociety.co.uk/
+1637	17059	0	millie.t@frontpageadvantage.com	1757597977070	48	f	financial-news.co.uk	backlinsprovider@gmail.com	1757597977070	Financial News	David Smith 	f	\N	110	£	http://financial-news.co.uk/
+1637	17060	1	millie.t@frontpageadvantage.com	1757597977070	48	f	financial-news.co.uk	backlinsprovider@gmail.com	1757597980036	Financial News	David Smith 	f	system	110	£	http://financial-news.co.uk/
+1638	17061	0	millie.t@frontpageadvantage.com	1757598029993	42	f	costaprices.co.uk	backlinsprovider@gmail.com	1757598029993	Costa Prices	David Smith 	f	\N	85	$	https://costaprices.co.uk/
+1638	17062	1	millie.t@frontpageadvantage.com	1757598029993	42	f	costaprices.co.uk	backlinsprovider@gmail.com	1757598033137	Costa Prices	David Smith 	f	system	85	$	https://costaprices.co.uk/
+1639	17063	0	millie.t@frontpageadvantage.com	1757598163477	72	f	thelondoneconomic.com	backlinsprovider@gmail.com	1757598163477	London economic	David Smith 	f	\N	370	£	http://thelondoneconomic.com/
+1639	17064	1	millie.t@frontpageadvantage.com	1757598163477	72	f	thelondoneconomic.com	backlinsprovider@gmail.com	1757598166665	London economic	David Smith 	f	system	370	£	http://thelondoneconomic.com/
+1254	17231	1	frontpage.ga@gmail.com	1726736911853	25	f	laurenyloves.co.uk	lauren@laurenyloves.co.uk	1759287601657	Laureny Loves	Hannah	f	system	50	£	https://www.laurenyloves.co.uk/category/money/
+1055	17232	1	michael.l@frontpageadvantage.com	1716452047818	21	f	lindyloves.co.uk	Hello@lindyloves.co.uk	1759287617212	Lindy	Outbound Facebook	f	system	50	£	https://www.lindyloves.co.uk/
+1170	17233	1	james.p@frontpageadvantage.com	1726065836927	50	f	nerdbot.com	sofiakahn06@gmail.com	1759287619384	Sofia	James	f	system	150	$	nerdbot.com
+1076	17234	1	sam.b@frontpageadvantage.com	1719318364944	33	f	wellbeingmagazine.com	katherine@orangeoutreach.com	1759287620676	Katherine Williams	Inbound	f	system	100	£	wellbeingmagazine.com
+324	17235	1	historical	0	14	f	itsmechrissyj.co.uk	Mrscjones1985@gmail.com	1759287621697	Chrissy	Fatjoe	f	system	20	£	itsmechrissyj.co.uk
+1158	17236	1	james.p@frontpageadvantage.com	1725966960853	33	f	toptechsinfo.com	david.linkedbuilders@gmail.com	1759287628170	David	James	f	system	10	$	http://toptechsinfo.com/
+1523	17237	1	frontpage.ga@gmail.com	1742853030124	36	f	ventstimes.co.uk	ventstimesofficial@gmail.com	1759287631122	Vents Times	inboud	f	system	80	£	Ventstimes.co.uk
+357	17238	1	historical	0	56	f	spiritedpuddlejumper.com	spiritedpuddlejumper@yahoo.com	1759287634708	Becky Freeman	Fatjoe	f	system	50	£	www.spiritedpuddlejumper.com
+959	17239	1	chris.p@frontpageadvantage.com	1711533031802	46	f	talk-business.co.uk	backlinsprovider@gmail.com	1759287636303	David Smith	Inbound	f	system	115	£	https://www.talk-business.co.uk/
+777	17240	1	chris.p@frontpageadvantage.com	1709032527056	31	f	yourpetplanet.com	info@yourpetplanet.com	1759287639387	Your Pet Planet	inbound	f	system	42	£	https://yourpetplanet.com/
+1617	17241	1	millie.t@frontpageadvantage.com	1754566382919	71	f	hackmd.io	calahlane3@gmail.com	1759287641542	Hack MD	Millie	f	system	60	£	https://hackmd.io/
+957	17242	1	chris.p@frontpageadvantage.com	1711532679719	45	f	north.wales	backlinsprovider@gmail.com	1759287646420	David Smith	Inbound	f	system	95	£	https://north.wales/
+328	17243	1	historical	0	22	f	beemoneysavvy.com	Emma@beemoneysavvy.com	1759287647088	Emma	Fatjoe	f	system	70	£	www.beemoneysavvy.com
+1618	17244	1	millie.t@frontpageadvantage.com	1754566417149	65	f	coda.io	calahlane3@gmail.com	1759287647875	Coda IO	Millie	f	system	90	£	https://coda.io/
+311	17245	1	historical	0	16	f	alifeoflovely.com	alifeoflovely@gmail.com	1759287650195	Lu	Fatjoe	f	system	25	£	alifeoflovely.com
+331	17246	1	historical	0	32	f	hnmagazine.co.uk	angela@hnmagazine.co.uk	1759287652470	Angela Riches	Fatjoe	f	system	40	£	www.hnmagazine.co.uk
+382	17247	1	historical	0	31	f	stressedmum.co.uk	sam@stressedmum.co.uk	1759287653745	Samantha Donnelly	Inbound email	f	system	80	£	https://stressedmum.co.uk
+383	17248	1	historical	0	38	f	whingewhingewine.co.uk	fran@whingewhingewine.co.uk	1759287655170	Fran	Inbound email	f	system	75	£	www.whingewhingewine.co.uk
+406	17249	1	historical	0	28	f	rocknrollerbaby.co.uk	Rocknrollerbaby@hotmail.co.uk	1759287657442	Ruth Davies Knowles	Inbound email	f	system	116	£	Https://rocknrollerbaby.co.uk
+1428	17250	1	frontpage.ga@gmail.com	1730297891567	31	f	feast-magazine.co.uk	arianne@timewomenflag.com	1759287665765	Arianne Volkova	inbound	f	system	118	£	feast-magazine.co.uk
+1620	17251	1	millie.t@frontpageadvantage.com	1754566476971	36	f	thedatascientist.com	calahlane3@gmail.com	1759287667143	Thedatascientist	Millie	f	system	120	£	https://thedatascientist.com/
+481	17252	1	historical	0	29	f	twinmummyanddaddy.com	twinmumanddad@yahoo.co.uk	1759287669081	Emily	another blogger	f	system	75	£	https://www.twinmummyanddaddy.com/
+1083	17253	1	sam.b@frontpageadvantage.com	1719319963927	35	f	edinburgers.co.uk	katherine@orangeoutreach.com	1759287669538	Katherine Williams	Inbound	f	system	100	£	edinburgers.co.uk
+1166	17254	1	james.p@frontpageadvantage.com	1726063406379	40	f	costumeplayhub.com	sofiakahn06@gmail.com	1759287671092	Sofia	James	f	system	30	$	costumeplayhub.com
+527	17255	1	historical	0	58	f	ourculturemag.com	info@ourculturemag.com	1759287671694	Info	Inbound Sam	f	system	115	£	ourculturemag.com
+1622	17256	1	millie.t@frontpageadvantage.com	1754566562692	34	f	webstosociety.co.uk	calahlane3@gmail.com	1759287677734	websstosociety	Millie	f	system	42	£	https://webstosociety.co.uk/
+1414	17257	1	frontpage.ga@gmail.com	1730297056465	38	f	singleparentsonholiday.co.uk	arianne@timewomenflag.com	1759287680012	Arianne Volkova	inbound	f	system	118	£	singleparentsonholiday.co.uk
+418	17258	1	historical	0	36	f	amumreviews.co.uk	contact@amumreviews.co.uk	1759287681863	Petra	Facebook	f	system	100	£	https://amumreviews.co.uk/
+1623	17259	1	millie.t@frontpageadvantage.com	1754570606930	34	f	mrsshilts.co.uk	emma.shilton@outlook.com	1759287686244	Emma Shilton	Millie	f	system	100	£	http://www.mrsshilts.co.uk/
+1546	17260	1	frontpage.ga@gmail.com	1744287722025	45	f	talkssmartly.com	support@seolinkers.com	1759287689298	Talks Smartly	inboud	f	system	50	£	talkssmartly.com
+1539	17261	1	frontpage.ga@gmail.com	1744282455391	69	f	anationofmoms.com	PR@anationofmoms.com	1759287692925	A Nation Of Moms	inboud	f	system	50	£	anationofmoms.com
+1515	17262	1	frontpage.ga@gmail.com	1742851725672	41	f	ranyy.com	aishwaryagaikwad313@gmail.com	1759287695551	Ranyy	inbound	f	system	80	£	ranyy.com
+1638	17263	1	millie.t@frontpageadvantage.com	1757598029993	44	f	costaprices.co.uk	backlinsprovider@gmail.com	1759287697548	Costa Prices	David Smith 	f	system	85	$	https://costaprices.co.uk/
+1086	17264	1	sam.b@frontpageadvantage.com	1719320331730	43	f	lovebelfast.co.uk	katherine@orangeoutreach.com	1759287699650	Katherine Williams	Inbound	f	system	120	£	lovebelfast.co.uk
+434	17265	1	historical	0	19	f	arewenearlythereyet.co.uk	Chelseamamma@gmail.com	1759287701414	Kara Guppy	Facebook	f	system	75	£	https://arewenearlythereyet.co.uk/
+422	17266	1	historical	0	37	f	ukconstructionblog.co.uk	advertising@ukconstructionblog.co.uk	1759287702043	Tom	Google Search	f	system	75	£	https://ukconstructionblog.co.uk/
+1629	17267	1	millie.t@frontpageadvantage.com	1755610853604	30	f	rhianwestbury.co.uk	westburyrhian@gmail.com	1759287702428	Rhian	Millie	f	system	100	£	http://www.rhianwestbury.co.uk/
+1504	17268	1	frontpage.ga@gmail.com	1741270738337	26	f	infinityelse.co.uk	 infinityelse1@gmail.com	1759287703075	Infinity else	inbound	f	system	65	£	infinityelse.co.uk
+1631	17269	1	millie.t@frontpageadvantage.com	1755675865921	44	f	reelsmedia.co.uk	calahlane3@gmail.com	1759287704339	ReelsMedia	Millie	f	system	50	£	http://reelsmedia.co.uk/
+771	17270	1	chris.p@frontpageadvantage.com	1709027801990	42	f	finehomesandliving.com	info@fine-magazine.com	1759287704924	Fine Home Team	outbound	f	system	100	£	https://www.finehomesandliving.com/
+1632	17271	1	millie.t@frontpageadvantage.com	1755675953072	34	f	imagefap.uk	calahlane3@gmail.com	1759287708986	ImageFap	Millie	f	system	50	£	http://imagefap.uk/
+1602	17272	1	millie.t@frontpageadvantage.com	1750841059853	44	f	slummysinglemummy.com	jo@slummysinglemummy.com	1759287709629	Jo  	Millie	f	system	100	£	https://slummysinglemummy.com/
+1633	17273	1	millie.t@frontpageadvantage.com	1755675994853	39	f	tubegalore.uk	calahlane3@gmail.com	1759287712691	Tube Galore	Millie	f	system	50	£	http://tubegalore.uk/
+326	17274	1	historical	0	20	f	cybergeekgirl.co.uk	lisa_ventura@outlook.com	1759287713389	Lisa Ventura MBE	Fatjoe	f	system	30	£	https://www.cybergeekgirl.co.uk
+780	17275	1	chris.p@frontpageadvantage.com	1709033136922	20	f	travelistia.com	travelistiausa@gmail.com	1759287713977	Ferona	outbound	f	system	27	£	https://www.travelistia.com/
+1529	17293	1	frontpage.ga@gmail.com	1744279970120	57	f	thebiographywala.com	support@linksposting.com 	1759374002294	The Biography Wala	inboud	f	system	40	£	Thebiographywala.com
+1517	17294	1	frontpage.ga@gmail.com	1742852009295	61	f	ukjournal.co.uk	 Contact@ukjournal.co.uk	1759374005446	UK Journal	inbound	f	system	80	£	ukjournal.co.uk
+1531	17295	1	frontpage.ga@gmail.com	1744280420962	37	f	everymoviehasalesson.com	everymoviehasalesson@gmail.com	1759374008835	Every Movie Has A Lesson	inboud	f	system	40	£	everymoviehasalesson.com
+1553	17296	1	millie.t@frontpageadvantage.com	1749110988493	26	f	thecoachspace.com	gabrielle@thecoachspace.com	1759374014550	Gabrielle	Tanya	f	system	82	£	https://thecoachspace.com/
+1652	17394	0	millie.t@frontpageadvantage.com	1759840271455	42	f	ukstartupmagazine.co.uk	jonathan@ukstartupmagazine.co.uk	1759840271455	Jonathon	Tanya	f	\N	300	£	https://www.ukstartupmagazine.co.uk/
+1652	17395	1	millie.t@frontpageadvantage.com	1759840271455	42	f	ukstartupmagazine.co.uk	jonathan@ukstartupmagazine.co.uk	1759840274789	Jonathon	Tanya	f	system	300	£	https://www.ukstartupmagazine.co.uk/
+1653	17396	0	millie.t@frontpageadvantage.com	1759840429117	16	f	houseandhomeideas.co.uk	info@houseandhomeideas.co.uk	1759840429117	House & Homes	Tanya	f	\N	20	£	https://www.houseandhomeideas.co.uk/
+1653	17397	1	millie.t@frontpageadvantage.com	1759840429117	16	f	houseandhomeideas.co.uk	info@houseandhomeideas.co.uk	1759840432448	House & Homes	Tanya	f	system	20	£	https://www.houseandhomeideas.co.uk/
+1654	17398	0	millie.t@frontpageadvantage.com	1759841564720	42	f	midlandsbusinessnews.co.uk	amlivemanagement@hotmail.co.uk	1759841564720	Midlands Business News	Tanya	f	\N	40	£	https://midlandsbusinessnews.co.uk/contact/
+1654	17399	1	millie.t@frontpageadvantage.com	1759841564720	42	f	midlandsbusinessnews.co.uk	amlivemanagement@hotmail.co.uk	1759841567689	Midlands Business News	Tanya	f	system	40	£	https://midlandsbusinessnews.co.uk/contact/
+1702	17817	0	millie.t@frontpageadvantage.com	1760429536786	40	f	captionbio.co.uk	backlinsprovider@gmail.com	1760429536786	Captin Bio 	David Smith	f	\N	75	$	https://captionbio.co.uk/
+1702	17818	1	millie.t@frontpageadvantage.com	1760429536786	40	f	captionbio.co.uk	backlinsprovider@gmail.com	1760429539877	Captin Bio 	David Smith	f	system	75	$	https://captionbio.co.uk/
+1622	17912	1	millie.t@frontpageadvantage.com	1754566562692	34	f	webstosociety.co.uk	calahlane3@gmail.com	1760610506710	websstosociety	Millie	f	millie.t@frontpageadvantage.com	85	£	https://webstosociety.co.uk/
+1703	17925	0	millie.t@frontpageadvantage.com	1760711132182	33	f	buzblog.co.uk	backlinsprovider@gmail.com	1760711132182	Buzz BLOG	David Smith 	f	\N	68	$	https://buzblog.co.uk/
+1703	17926	1	millie.t@frontpageadvantage.com	1760711132182	33	f	buzblog.co.uk	backlinsprovider@gmail.com	1760711135384	Buzz BLOG	David Smith 	f	system	68	$	https://buzblog.co.uk/
+1704	17940	0	millie.t@frontpageadvantage.com	1760947883867	20	f	staceyinthesticks.com	stacey@staceyinthesticks.com	1760947883867	Stacey	Millie	f	\N	70	£	www.staceyinthesticks.com
+1704	17941	1	millie.t@frontpageadvantage.com	1760947883867	20	f	staceyinthesticks.com	stacey@staceyinthesticks.com	1760947887019	Stacey	Millie	f	system	70	£	www.staceyinthesticks.com
+1705	17943	0	millie.t@frontpageadvantage.com	1760948438416	53	f	boho-weddings.com	kelly@boho-weddings.com	1760948438416	Kelly	Tanya	f	\N	199	£	https://www.boho-weddings.com/
+1705	17944	1	millie.t@frontpageadvantage.com	1760948438416	53	f	boho-weddings.com	kelly@boho-weddings.com	1760948441367	Kelly	Tanya	f	system	199	£	https://www.boho-weddings.com/
+1706	17950	0	millie.t@frontpageadvantage.com	1760967354015	42	f	uknewstap.co.uk	calahlane3@gmail.com	1760967354015	Uk News Tap	Calah	f	\N	55	£	http://uknewstap.co.uk/
+1706	17951	1	millie.t@frontpageadvantage.com	1760967354015	42	f	uknewstap.co.uk	calahlane3@gmail.com	1760967356782	Uk News Tap	Calah	f	system	55	£	http://uknewstap.co.uk/
+1707	17952	0	millie.t@frontpageadvantage.com	1760967404074	32	f	imhentai.co.uk	calahlane3@gmail.com	1760967404074	Im hen Tai	Calah	f	\N	50	£	http://imhentai.co.uk/
+1707	17953	1	millie.t@frontpageadvantage.com	1760967404074	32	f	imhentai.co.uk	calahlane3@gmail.com	1760967407280	Im hen Tai	Calah	f	system	50	£	http://imhentai.co.uk/
+1708	17954	0	millie.t@frontpageadvantage.com	1760967461561	31	f	thestripesblog.co.uk	calahlane3@gmail.com	1760967461561	The Stripes Blog	Calah	f	\N	55	£	thestripesblog.co.uk
+1708	17955	1	millie.t@frontpageadvantage.com	1760967461561	31	f	thestripesblog.co.uk	calahlane3@gmail.com	1760967464189	The Stripes Blog	Calah	f	system	55	£	thestripesblog.co.uk
+1709	17956	0	millie.t@frontpageadvantage.com	1760967514629	41	f	businesstask.co.uk	calahlane3@gmail.com	1760967514629	Business Task	Calah	f	\N	50	£	https://businesstask.co.uk/
+1709	17957	1	millie.t@frontpageadvantage.com	1760967514629	41	f	businesstask.co.uk	calahlane3@gmail.com	1760967517812	Business Task	Calah	f	system	50	£	https://businesstask.co.uk/
+1710	17958	0	millie.t@frontpageadvantage.com	1761039824470	51	f	invisioncommunity.co.uk	backlinsprovider@gmail.com	1761039824470	David Invision Community	David Smith 	f	\N	65	£	https://invisioncommunity.co.uk/
+1710	17959	1	millie.t@frontpageadvantage.com	1761039824470	51	f	invisioncommunity.co.uk	backlinsprovider@gmail.com	1761039827326	David Invision Community	David Smith 	f	system	65	£	https://invisioncommunity.co.uk/
+1711	17960	0	millie.t@frontpageadvantage.com	1761039859361	40	f	racingbetter.co.uk	backlinsprovider@gmail.com	1761039859361	David Racing Better	David Smith 	f	\N	60	£	https://racingbetter.co.uk/
+1711	17961	1	millie.t@frontpageadvantage.com	1761039859361	40	f	racingbetter.co.uk	backlinsprovider@gmail.com	1761039861995	David Racing Better	David Smith 	f	system	60	£	https://racingbetter.co.uk/
+1712	17979	0	millie.t@frontpageadvantage.com	1761816876951	38	f	newsdipper.co.uk	calahlane3@gmail.com	1761816876951	News Dipper	Calah	f	\N	50	£	https://newsdipper.co.uk/
+1712	17980	1	millie.t@frontpageadvantage.com	1761816876951	38	f	newsdipper.co.uk	calahlane3@gmail.com	1761816879724	News Dipper	Calah	f	system	50	£	https://newsdipper.co.uk/
+1254	17981	1	frontpage.ga@gmail.com	1726736911853	24	f	laurenyloves.co.uk	lauren@laurenyloves.co.uk	1761966002970	Laureny Loves	Hannah	f	system	50	£	https://www.laurenyloves.co.uk/category/money/
+1055	17982	1	michael.l@frontpageadvantage.com	1716452047818	20	f	lindyloves.co.uk	Hello@lindyloves.co.uk	1761966003576	Lindy	Outbound Facebook	f	system	50	£	https://www.lindyloves.co.uk/
+1156	17983	1	james.p@frontpageadvantage.com	1725624962664	30	f	cuddlefairy.com	hello@cuddlefairy.com	1761966004374	Becky	James	f	system	45	£	https://www.cuddlefairy.com/
+1089	17984	1	sam.b@frontpageadvantage.com	1719320544130	33	f	crummymummy.co.uk	crummymummy@live.co.uk	1761966013567	Natalie	James	f	system	60	£	crummymummy.co.uk
+1170	17985	1	james.p@frontpageadvantage.com	1726065836927	51	f	nerdbot.com	sofiakahn06@gmail.com	1761966020021	Sofia	James	f	system	150	$	nerdbot.com
+1076	17986	1	sam.b@frontpageadvantage.com	1719318364944	32	f	wellbeingmagazine.com	katherine@orangeoutreach.com	1761966020510	Katherine Williams	Inbound	f	system	100	£	wellbeingmagazine.com
+1614	17987	1	millie.t@frontpageadvantage.com	1754479907265	74	f	manilatimes.net	advertise@mintymarketing.co.uk	1761966025596	Minty	Tanya	f	system	80	$	https://www.manilatimes.net/
+1512	17988	1	frontpage.ga@gmail.com	1742851181353	33	f	techranker.co.uk	 agencystarseo@gmail.com	1761966027318	TRK	inbound	f	system	80	£	TechRanker.co.uk
+1427	17989	1	frontpage.ga@gmail.com	1730297857266	26	f	shelllouise.co.uk	arianne@timewomenflag.com	1761966028530	Arianne Volkova	inbound	f	system	106	£	shelllouise.co.uk
+1256	17990	1	frontpage.ga@gmail.com	1726827443560	34	f	theeverydayman.co.uk	mail@theeverydayman.co.uk	1761966028869	The Everyday Man	Hannah	f	system	150	£	https://theeverydayman.co.uk/
+959	17991	1	chris.p@frontpageadvantage.com	1711533031802	47	f	talk-business.co.uk	backlinsprovider@gmail.com	1761966034819	David Smith	Inbound	f	system	115	£	https://www.talk-business.co.uk/
+1161	17992	1	james.p@frontpageadvantage.com	1726058268387	77	f	oddee.com	sofiakahn06@gmail.com	1761966035501	Sofia	James	f	system	150	$	oddee.com
+328	17993	1	historical	0	21	f	beemoneysavvy.com	Emma@beemoneysavvy.com	1761966042625	Emma	Fatjoe	f	system	70	£	www.beemoneysavvy.com
+1519	17994	1	frontpage.ga@gmail.com	1742852226231	38	f	myflexbot.co.uk	myflexbot11@gmail.com	1761966045856	My Flex Bot	inbound	f	system	80	£	myflexbot.co.uk
+312	17995	1	historical	0	30	f	mmbmagazine.co.uk	INFO@MMBMAGAZINE.CO.UK	1761966047470	Abbie	Fatjoe	f	system	165	£	mmbmagazine.co.uk
+314	17996	1	historical	0	18	f	thejournalix.com	thejournalix@gmail.com	1761966049161	Thomas	Fatjoe	f	system	15	£	thejournalix.com
+305	17997	1	historical	0	21	f	thethriftybride.co.uk	hello@thethriftybride.co.uk	1761966051334	Thirfty Bride	Fatjoe	f	system	40	£	https://www.thethriftybride.co.uk
+318	17998	1	historical	0	37	f	luckyattitude.co.uk	tanya@luckyattitude.co.uk	1761966051976	Tanya	Fatjoe	f	system	150	£	luckyattitude.co.uk
+406	17999	1	historical	0	27	f	rocknrollerbaby.co.uk	Rocknrollerbaby@hotmail.co.uk	1761966055083	Ruth Davies Knowles	Inbound email	f	system	116	£	Https://rocknrollerbaby.co.uk
+390	18000	1	historical	0	30	f	bay-bee.co.uk	Stephi@bay-bee.co.uk	1761966058404	Steph Moore	Inbound email	f	system	115	£	https://blog.bay-bee.co.uk/
+425	18001	1	historical	0	30	f	tantrumstosmiles.co.uk	tantrumstosmiles@outlook.com	1761966064210	Jess Howliston	Facebook	f	system	75	£	www.tantrumstosmiles.co.uk
+460	18002	1	historical	0	26	f	techacrobat.com	minalkh124@gmail.com	1761966065449	Maryam bibi	Inbound email	f	system	140	£	techacrobat.com
+453	18003	1	historical	0	72	f	techbullion.com	angelascottbriggs@techbullion.com	1761966066069	Angela Scott-Briggs 	Inbound email	f	system	100	£	http://techbullion.com
+416	18004	1	historical	0	30	f	stylishlondonliving.co.uk	Micaelaburr@gmail.com	1761966067290	Micaela	Facebook	f	system	100	£	https://www.stylishlondonliving.co.uk/
+1530	18005	1	frontpage.ga@gmail.com	1744280227571	51	f	sundarbantracking.com	baldriccada@gmail.com	1761966067853	Sundar Barn	inboud	f	system	40	£	sundarbantracking.com
+1083	18006	1	sam.b@frontpageadvantage.com	1719319963927	34	f	edinburgers.co.uk	katherine@orangeoutreach.com	1761966069131	Katherine Williams	Inbound	f	system	100	£	edinburgers.co.uk
+505	18007	1	historical	0	29	f	talk-retail.co.uk	backlinsprovider@gmail.com	1761966070792	David Smith	Inbound Sam	f	system	95	£	talk-retail.co.uk
+527	18008	1	historical	0	59	f	ourculturemag.com	info@ourculturemag.com	1761966071387	Info	Inbound Sam	f	system	115	£	ourculturemag.com
+322	18009	1	historical	0	35	f	5thingstodotoday.com	5thingstodotoday@gmail.com	1761966083088	David	Fatjoe	f	system	45	£	5thingstodotoday.com
+1624	18010	1	millie.t@frontpageadvantage.com	1754660310525	37	f	deepinmummymatters.com	mummymatters@gmail.com	1761966087205	Sabina	Millie	f	system	130	£	https://deepinmummymatters.com/
+1539	18011	1	frontpage.ga@gmail.com	1744282455391	70	f	anationofmoms.com	PR@anationofmoms.com	1761966089891	A Nation Of Moms	inboud	f	system	50	£	anationofmoms.com
+1517	18012	1	frontpage.ga@gmail.com	1742852009295	58	f	ukjournal.co.uk	 Contact@ukjournal.co.uk	1761966090745	UK Journal	inbound	f	system	80	£	ukjournal.co.uk
+330	18013	1	historical	0	38	f	robinwaite.com	robin@robinwaite.com	1761966094528	Robin Waite	Fatjoe	f	system	42	£	https://www.robinwaite.com
+1511	18014	1	frontpage.ga@gmail.com	1742851051403	28	f	msnpro.co.uk	ankit@zestfulloutreach.com	1761966095679	MSN PRO	inbound	f	system	80	£	https://msnpro.co.uk/contact-us/
+1521	18015	1	frontpage.ga@gmail.com	1742852543019	42	f	grobuzz.co.uk	editorial@rankwc.com	1761966096326	GROBUZZ	inboud	f	system	80	£	grobuzz.co.uk
+1626	18016	1	millie.t@frontpageadvantage.com	1754665321436	61	f	lifeinabreakdown.com	sarah@lifeinabreakdown.com	1761966097842	Sarah	Millie	f	system	250	£	https://www.lifeinabreakdown.com/
+1702	18017	1	millie.t@frontpageadvantage.com	1760429536786	39	f	captionbio.co.uk	backlinsprovider@gmail.com	1761966103187	Captin Bio 	David Smith	f	system	75	$	https://captionbio.co.uk/
+1622	18018	1	millie.t@frontpageadvantage.com	1754566562692	35	f	webstosociety.co.uk	calahlane3@gmail.com	1761966103837	websstosociety	Millie	f	system	85	£	https://webstosociety.co.uk/
+1709	18019	1	millie.t@frontpageadvantage.com	1760967514629	42	f	businesstask.co.uk	calahlane3@gmail.com	1761966107280	Business Task	Calah	f	system	50	£	https://businesstask.co.uk/
+426	18020	1	historical	0	35	f	chelseamamma.co.uk	Chelseamamma@gmail.com	1761966115993	Kara Guppy	Facebook	f	system	75	£	https://www.chelseamamma.co.uk/
+1531	18021	1	frontpage.ga@gmail.com	1744280420962	38	f	everymoviehasalesson.com	everymoviehasalesson@gmail.com	1761966116382	Every Movie Has A Lesson	inboud	f	system	40	£	everymoviehasalesson.com
+1603	18022	1	millie.t@frontpageadvantage.com	1751012371517	42	f	uknip.co.uk	uknewsinpictures@gmail.com	1761966118048	UKnip		f	system	90	£	https://uknip.co.uk/
+1550	18023	1	millie.t@frontpageadvantage.com	1747837279774	33	f	lifeunexpected.co.uk	contact@mattbarltd.co.uk	1761966119231	Matt	Tanya	f	system	75	£	https://www.lifeunexpected.co.uk/
+1515	18024	1	frontpage.ga@gmail.com	1742851725672	42	f	ranyy.com	aishwaryagaikwad313@gmail.com	1761966122308	Ranyy	inbound	f	system	80	£	ranyy.com
+422	18025	1	historical	0	34	f	ukconstructionblog.co.uk	advertising@ukconstructionblog.co.uk	1761966123996	Tom	Google Search	f	system	75	£	https://ukconstructionblog.co.uk/
+1632	18026	1	millie.t@frontpageadvantage.com	1755675953072	31	f	imagefap.uk	calahlane3@gmail.com	1761966124533	ImageFap	Millie	f	system	50	£	http://imagefap.uk/
+1633	18027	1	millie.t@frontpageadvantage.com	1755675994853	38	f	tubegalore.uk	calahlane3@gmail.com	1761966125774	Tube Galore	Millie	f	system	50	£	http://tubegalore.uk/
+326	18028	1	historical	0	19	f	cybergeekgirl.co.uk	lisa_ventura@outlook.com	1761966126366	Lisa Ventura MBE	Fatjoe	f	system	30	£	https://www.cybergeekgirl.co.uk
+780	18029	1	chris.p@frontpageadvantage.com	1709033136922	22	f	travelistia.com	travelistiausa@gmail.com	1761966126969	Ferona	outbound	f	system	27	£	https://www.travelistia.com/
+1542	18030	1	frontpage.ga@gmail.com	1744283598194	47	f	prophecynewswatch.com	 Info@ProphecyNewsWatch.com	1762052406585	PNW	inboud	f	system	50	£	prophecynewswatch.com
+1713	18031	0	millie.t@frontpageadvantage.com	1762252583668	30	f	accidentalhipstermum.com	accidentalhipstermum@gmail.com	1762252583668	Jenny	Millie	f	\N	120	£	http://accidentalhipstermum.com/
+1713	18032	1	millie.t@frontpageadvantage.com	1762252583668	30	f	accidentalhipstermum.com	accidentalhipstermum@gmail.com	1762252586859	Jenny	Millie	f	system	120	£	http://accidentalhipstermum.com/
+1714	18150	0	millie.t@frontpageadvantage.com	1762790571756	0	f	thetraveldaily.co.uk	backlinsprovider@gmail.com	1762790571756	The Travel Daily David	David Smith 	f	\N	85	£	https://www.thetraveldaily.co.uk/
+1714	18151	1	millie.t@frontpageadvantage.com	1762790571756	24	f	thetraveldaily.co.uk	backlinsprovider@gmail.com	1762790574863	The Travel Daily David	David Smith 	f	system	85	£	https://www.thetraveldaily.co.uk/
+1715	18161	0	millie.t@frontpageadvantage.com	1762792457787	37	f	whatkatysaid.com	katy@whatkatysaid.com	1762792457787	katy	Millie	f	\N	75	£	http://www.whatkatysaid.com/
+1715	18162	1	millie.t@frontpageadvantage.com	1762792457787	37	f	whatkatysaid.com	katy@whatkatysaid.com	1762792460729	katy	Millie	f	system	75	£	http://www.whatkatysaid.com/
+1704	18530	1	millie.t@frontpageadvantage.com	1760947883867	20	f	staceyinthesticks.com	stacey@staceyinthesticks.com	1763479614095	Stacey	Millie	f	millie.t@frontpageadvantage.com	40	£	www.staceyinthesticks.com
 \.
 
 
@@ -4129,6 +4494,7 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 702	59
 702	56
 453	57
+1654	66
 453	83
 453	55
 468	60
@@ -4152,17 +4518,6 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 363	83
 1110	84
 1110	71
-1159	55
-1159	56
-1159	66
-1159	67
-1159	68
-1159	69
-1159	70
-1159	73
-1159	78
-1159	81
-1159	83
 1170	84
 1170	53
 1170	55
@@ -4258,15 +4613,10 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 409	54
 409	81
 409	63
-416	70
-416	54
 389	76
 389	59
 389	70
 389	62
-416	63
-416	84
-416	66
 1076	84
 434	84
 434	81
@@ -5609,14 +5959,39 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 1505	83
 1538	66
 1161	66
+1602	66
+1605	55
+1605	66
+1605	77
+1605	78
+1605	83
+1606	66
+416	63
+416	54
+416	84
+416	66
+416	70
 1408	84
+1612	66
+1607	66
+1615	66
+1616	66
+1617	66
 1414	84
+1624	66
 1416	75
 1418	84
 1419	75
+1625	66
+1628	66
+1628	62
+1630	66
+1631	66
 1425	72
+1635	66
 1427	77
 1428	75
+1636	66
 1355	64
 1356	64
 1356	84
@@ -5625,12 +6000,19 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 1356	55
 451	83
 451	55
+1159	68
+1159	73
+1159	55
+1159	81
 451	53
 1258	67
 1258	66
 1258	53
 1258	64
 1258	83
+1159	67
+1159	66
+1159	83
 303	55
 303	53
 303	70
@@ -5686,6 +6068,9 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 1202	66
 1202	84
 1202	53
+1159	78
+1159	56
+1159	70
 1452	76
 1452	52
 1452	68
@@ -5774,6 +6159,9 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 1507	66
 1508	66
 1506	66
+1556	66
+1632	66
+1633	66
 1171	55
 1171	56
 1171	72
@@ -5784,6 +6172,7 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 787	67
 787	69
 787	53
+1159	69
 314	74
 314	78
 314	71
@@ -5945,7 +6334,20 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 959	73
 959	78
 959	53
-1556	66
+1634	66
+1619	66
+1637	66
+1652	66
+1622	66
+1703	66
+1706	66
+1710	66
+1712	66
+1713	66
+1713	70
+1714	66
+1714	84
+1704	66
 477	70
 477	84
 477	54
@@ -6068,6 +6470,21 @@ COPY public.supplier_categories (supplier_id, categories_id) FROM stdin;
 342	70
 342	63
 342	80
+1638	66
+1639	66
+1653	66
+1653	68
+1705	66
+1705	85
+1707	66
+1711	66
+1715	66
+1715	67
+1715	59
+1715	68
+1715	58
+1715	84
+1715	70
 \.
 
 
@@ -8120,6 +8537,58 @@ COPY public.supplier_categories_aud (rev, supplier_id, categories_id, revtype) F
 13760	1506	66	0
 13762	959	66	0
 13763	1556	66	0
+14510	1602	66	0
+14740	1605	83	0
+14740	1605	55	0
+14740	1605	77	0
+14740	1605	78	0
+14740	1605	66	0
+14840	1606	66	0
+15621	1612	66	0
+15941	1607	66	0
+16152	1615	66	0
+16154	1616	66	0
+16156	1617	66	0
+16160	1619	66	0
+16166	1622	66	0
+16190	1624	66	0
+16192	1625	66	0
+16382	1628	66	0
+16382	1628	62	0
+16390	1630	66	0
+16392	1631	66	0
+16394	1632	66	0
+16396	1633	66	0
+16398	1634	66	0
+16400	1635	66	0
+16404	1636	66	0
+17059	1637	66	0
+17061	1638	66	0
+17063	1639	66	0
+17394	1652	66	0
+17396	1653	66	0
+17396	1653	68	0
+17398	1654	66	0
+17925	1703	66	0
+17940	1704	66	0
+17943	1705	66	0
+17943	1705	85	0
+17950	1706	66	0
+17952	1707	66	0
+17958	1710	66	0
+17960	1711	66	0
+17979	1712	66	0
+18031	1713	66	0
+18031	1713	70	0
+18150	1714	66	0
+18150	1714	84	0
+18161	1715	84	0
+18161	1715	68	0
+18161	1715	70	0
+18161	1715	66	0
+18161	1715	59	0
+18161	1715	67	0
+18161	1715	58	0
 \.
 
 
@@ -8289,5 +8758,5 @@ ALTER TABLE ONLY public.supplier_categories
 -- PostgreSQL database dump complete
 --
 
-\unrestrict GkJhjTFAFnSxHd6X4bWNbP8t0DoDxbAPMRftMTcf5uSPooIwKhvtmpeV2HJiqsy
+\unrestrict bbLUnxxji6QLsk1gg6mtnpAWMPtxWfyV6BxAX2I2gwKiyq8a2xRDrhyMQ3e9QJ4
 

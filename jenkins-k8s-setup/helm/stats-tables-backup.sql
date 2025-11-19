@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 7sxLPXWSCmSYBaZhPPF1MdWihcF3MGmWEkrLTUXRKPTrMH9gPfGb77sBFOAId5N
+\restrict XZgrbLmUyoZLl8AQbDR5b8GBWEZxv2XVadebfE4YZQPW5HF82trXAHr6umHO6Yq
 
 -- Dumped from database version 16.6 (Debian 16.6-1.pgdg120+1)
 -- Dumped by pg_dump version 17.6 (Debian 17.6-1.pgdg13+1)
@@ -4764,6 +4764,203 @@ COPY public.da_monthly_data (id, date, domain, unique_year_month, da) FROM stdin
 880456	2025-09-01	businesstask.co.uk	2025-09	41
 880457	2025-09-01	invisioncommunity.co.uk	2025-09	51
 880458	2025-09-01	racingbetter.co.uk	2025-09	40
+880459	2025-09-01	newsdipper.co.uk	2025-09	38
+880460	2025-10-01	hearthomemag.co.uk	2025-10	41
+880461	2025-10-01	laurenyloves.co.uk	2025-10	24
+880462	2025-10-01	lindyloves.co.uk	2025-10	20
+880463	2025-10-01	cuddlefairy.com	2025-10	30
+880464	2025-10-01	fabukmagazine.com	2025-10	41
+880465	2025-10-01	knowledgewap.org	2025-10	57
+880466	2025-10-01	thelifestylebloggeruk.com	2025-10	55
+880467	2025-10-01	todaynews.co.uk	2025-10	46
+880468	2025-10-01	newvalleynews.co.uk	2025-10	31
+880469	2025-10-01	crummymummy.co.uk	2025-10	33
+880470	2025-10-01	lobsterdigitalmarketing.co.uk	2025-10	32
+880471	2025-10-01	packthepjs.com	2025-10	30
+880472	2025-10-01	markmeets.com	2025-10	70
+880473	2025-10-01	gemmalouise.co.uk	2025-10	30
+880474	2025-10-01	nerdbot.com	2025-10	51
+880475	2025-10-01	wellbeingmagazine.com	2025-10	32
+880476	2025-10-01	itsmechrissyj.co.uk	2025-10	14
+880477	2025-10-01	westwaleschronicle.co.uk	2025-10	56
+880478	2025-10-01	fabcelebbio.com	2025-10	33
+880479	2025-10-01	tobyandroo.com	2025-10	37
+880480	2025-10-01	fivelittledoves.com	2025-10	38
+880481	2025-10-01	flydriveexplore.com	2025-10	27
+880482	2025-10-01	caranalytics.co.uk	2025-10	32
+880483	2025-10-01	manilatimes.net	2025-10	74
+880484	2025-10-01	ventstimes.co.uk	2025-10	36
+880485	2025-10-01	smallcapnews.co.uk	2025-10	33
+880486	2025-10-01	techranker.co.uk	2025-10	33
+880487	2025-10-01	exclusivetoday.co.uk	2025-10	33
+880488	2025-10-01	shelllouise.co.uk	2025-10	26
+880489	2025-10-01	theeverydayman.co.uk	2025-10	34
+880490	2025-10-01	eccentricengland.co.uk	2025-10	49
+880491	2025-10-01	dailybusinessgroup.co.uk	2025-10	48
+880492	2025-10-01	techktimes.co.uk	2025-10	51
+880493	2025-10-01	guestmagazines.co.uk	2025-10	30
+880494	2025-10-01	thisisbrighton.co.uk	2025-10	34
+880495	2025-10-01	deadlinenews.co.uk	2025-10	76
+880496	2025-10-01	warrington-worldwide.co.uk	2025-10	45
+880497	2025-10-01	zerohedge.com	2025-10	84
+880498	2025-10-01	spiritedpuddlejumper.com	2025-10	56
+880499	2025-10-01	hausmanmarketingletter.com	2025-10	38
+880500	2025-10-01	talk-business.co.uk	2025-10	47
+880501	2025-10-01	oddee.com	2025-10	77
+880502	2025-10-01	flyingfluskey.com	2025-10	27
+880503	2025-10-01	theautoexperts.co.uk	2025-10	21
+880504	2025-10-01	acraftedpassion.com	2025-10	38
+880505	2025-10-01	ucantwearthat.com	2025-10	27
+880506	2025-10-01	yourpetplanet.com	2025-10	31
+880507	2025-10-01	epodcastnetwork.com	2025-10	45
+880508	2025-10-01	familyfriendlyworking.co.uk	2025-10	33
+880509	2025-10-01	thediaryofajewellerylover.co.uk	2025-10	36
+880510	2025-10-01	abcmoney.co.uk	2025-10	70
+880511	2025-10-01	hackmd.io	2025-10	71
+880512	2025-10-01	north.wales	2025-10	45
+880513	2025-10-01	beemoneysavvy.com	2025-10	21
+880514	2025-10-01	megalithic.co.uk	2025-10	55
+880515	2025-10-01	countingtoten.co.uk	2025-10	31
+880516	2025-10-01	thebiographywala.com	2025-10	57
+880517	2025-10-01	xatpes.co.uk	2025-10	37
+880518	2025-10-01	load2learn.org.uk	2025-10	38
+880519	2025-10-01	myflexbot.co.uk	2025-10	38
+880520	2025-10-01	fionaoutdoors.co.uk	2025-10	38
+880521	2025-10-01	ladyjaney.co.uk	2025-10	37
+880522	2025-10-01	mmbmagazine.co.uk	2025-10	30
+880523	2025-10-01	alifeoflovely.com	2025-10	16
+880524	2025-10-01	hnmagazine.co.uk	2025-10	32
+880525	2025-10-01	thejournalix.com	2025-10	18
+880526	2025-10-01	themammafairy.com	2025-10	19
+880527	2025-10-01	icenimagazine.co.uk	2025-10	24
+880528	2025-10-01	mybalancingact.co.uk	2025-10	59
+880529	2025-10-01	thethriftybride.co.uk	2025-10	21
+880530	2025-10-01	luckyattitude.co.uk	2025-10	37
+880531	2025-10-01	lifeloving.co.uk	2025-10	23
+880532	2025-10-01	arthurwears.com	2025-10	29
+880533	2025-10-01	thestrawberryfountain.com	2025-10	21
+880534	2025-10-01	whingewhingewine.co.uk	2025-10	38
+880535	2025-10-01	rocknrollerbaby.co.uk	2025-10	27
+880536	2025-10-01	motherhoodtherealdeal.com	2025-10	41
+880537	2025-10-01	skinnedcartree.com	2025-10	38
+880538	2025-10-01	letstalkmommy.com	2025-10	40
+880539	2025-10-01	kateonthinice.com	2025-10	32
+880540	2025-10-01	intheplayroom.co.uk	2025-10	52
+880541	2025-10-01	bay-bee.co.uk	2025-10	30
+880542	2025-10-01	emmaplusthree.com	2025-10	59
+880543	2025-10-01	the-willowtree.com	2025-10	21
+880544	2025-10-01	captainbobcat.com	2025-10	62
+880545	2025-10-01	diydaddyblog.com	2025-10	34
+880546	2025-10-01	clairemac.co.uk	2025-10	27
+880547	2025-10-01	justeilidh.com	2025-10	56
+880548	2025-10-01	feast-magazine.co.uk	2025-10	31
+880549	2025-10-01	newsbreak.com	2025-10	78
+880550	2025-10-01	tantrumstosmiles.co.uk	2025-10	30
+880551	2025-10-01	bignewsnetwork.com	2025-10	66
+880552	2025-10-01	techacrobat.com	2025-10	26
+880553	2025-10-01	techbullion.com	2025-10	72
+880554	2025-10-01	aaublog.com	2025-10	31
+880555	2025-10-01	stylishlondonliving.co.uk	2025-10	30
+880556	2025-10-01	sundarbantracking.com	2025-10	51
+880557	2025-10-01	thedatascientist.com	2025-10	36
+880558	2025-10-01	edinburgers.co.uk	2025-10	34
+880559	2025-10-01	costumeplayhub.com	2025-10	40
+880560	2025-10-01	pat.org.uk	2025-10	37
+880561	2025-10-01	talk-retail.co.uk	2025-10	29
+880562	2025-10-01	ourculturemag.com	2025-10	59
+880563	2025-10-01	deeside.com	2025-10	48
+880564	2025-10-01	varsity.co.uk	2025-10	65
+880565	2025-10-01	birdzpedia.com	2025-10	36
+880566	2025-10-01	traveldailynews.com	2025-10	59
+880567	2025-10-01	wannabeprincess.co.uk	2025-10	33
+880568	2025-10-01	thefrenchiemummy.com	2025-10	35
+880569	2025-10-01	moneytipsblog.co.uk	2025-10	21
+880570	2025-10-01	singleparentsonholiday.co.uk	2025-10	38
+880571	2025-10-01	sparklesandstretchmarks.com	2025-10	54
+880572	2025-10-01	underconstructionpage.com	2025-10	58
+880573	2025-10-01	amumreviews.co.uk	2025-10	36
+880574	2025-10-01	rhianwestbury.co.uk	2025-10	30
+880575	2025-10-01	lukeosaurusandme.co.uk	2025-10	23
+880576	2025-10-01	chillingwithlucas.com	2025-10	36
+880577	2025-10-01	5thingstodotoday.com	2025-10	35
+880578	2025-10-01	estateagentnetworking.co.uk	2025-10	31
+880579	2025-10-01	exposedmagazine.co.uk	2025-10	47
+880580	2025-10-01	uknewsgroup.co.uk	2025-10	33
+880581	2025-10-01	talkssmartly.com	2025-10	45
+880582	2025-10-01	deepinmummymatters.com	2025-10	37
+880583	2025-10-01	insequiral.com	2025-10	55
+880584	2025-10-01	dailywaffle.co.uk	2025-10	38
+880585	2025-10-01	mrsshilts.co.uk	2025-10	34
+880586	2025-10-01	anationofmoms.com	2025-10	70
+880587	2025-10-01	ukjournal.co.uk	2025-10	58
+880588	2025-10-01	uknewstap.co.uk	2025-10	42
+880589	2025-10-01	newsdipper.co.uk	2025-10	38
+880590	2025-10-01	flashpackingfamily.com	2025-10	27
+880591	2025-10-01	jennyinneverland.com	2025-10	32
+880592	2025-10-01	robinwaite.com	2025-10	38
+880593	2025-10-01	theodysseyonline.com	2025-10	86
+880594	2025-10-01	msnpro.co.uk	2025-10	28
+880595	2025-10-01	grobuzz.co.uk	2025-10	42
+880596	2025-10-01	techimaging.co.uk	2025-10	35
+880597	2025-10-01	lifeinabreakdown.com	2025-10	61
+880598	2025-10-01	birdsandlilies.com	2025-10	25
+880599	2025-10-01	thelondoneconomic.com	2025-10	72
+880600	2025-10-01	infinityelse.co.uk	2025-10	26
+880601	2025-10-01	reelsmedia.co.uk	2025-10	44
+880602	2025-10-01	finehomesandliving.com	2025-10	42
+880603	2025-10-01	ukstartupmagazine.co.uk	2025-10	42
+880604	2025-10-01	houseandhomeideas.co.uk	2025-10	16
+880605	2025-10-01	midlandsbusinessnews.co.uk	2025-10	42
+880606	2025-10-01	captionbio.co.uk	2025-10	39
+880607	2025-10-01	webstosociety.co.uk	2025-10	35
+880608	2025-10-01	buzblog.co.uk	2025-10	33
+880609	2025-10-01	staceyinthesticks.com	2025-10	20
+880610	2025-10-01	boho-weddings.com	2025-10	53
+880611	2025-10-01	imhentai.co.uk	2025-10	32
+880612	2025-10-01	thestripesblog.co.uk	2025-10	31
+880613	2025-10-01	businesstask.co.uk	2025-10	42
+880614	2025-10-01	invisioncommunity.co.uk	2025-10	51
+880615	2025-10-01	racingbetter.co.uk	2025-10	40
+880616	2025-10-01	largerfamilylife.com	2025-10	34
+880617	2025-10-01	alittleluxuryfor.me	2025-10	57
+880618	2025-10-01	midlandstraveller.com	2025-10	45
+880619	2025-10-01	infullflavour.com	2025-10	25
+880620	2025-10-01	mummyvswork.co.uk	2025-10	34
+880621	2025-10-01	omgflix.co.uk	2025-10	36
+880622	2025-10-01	safarisafricana.com	2025-10	43
+880623	2025-10-01	explorersagainstextinction.co.uk	2025-10	32
+880624	2025-10-01	portotheme.com	2025-10	70
+880625	2025-10-01	thefestivals.uk	2025-10	38
+880626	2025-10-01	factquotes.com	2025-10	18
+880627	2025-10-01	chelseamamma.co.uk	2025-10	35
+880628	2025-10-01	everymoviehasalesson.com	2025-10	38
+880629	2025-10-01	ukfitness.pro	2025-10	54
+880630	2025-10-01	thecoachspace.com	2025-10	26
+880631	2025-10-01	uknip.co.uk	2025-10	42
+880632	2025-10-01	indowapblog.com	2025-10	23
+880633	2025-10-01	lifeunexpected.co.uk	2025-10	33
+880634	2025-10-01	financial-news.co.uk	2025-10	48
+880635	2025-10-01	toptechsinfo.com	2025-10	33
+880636	2025-10-01	coda.io	2025-10	65
+880637	2025-10-01	stressedmum.co.uk	2025-10	31
+880638	2025-10-01	ranyy.com	2025-10	42
+880639	2025-10-01	lovebelfast.co.uk	2025-10	43
+880640	2025-10-01	arewenearlythereyet.co.uk	2025-10	19
+880641	2025-10-01	ukconstructionblog.co.uk	2025-10	34
+880642	2025-10-01	imagefap.uk	2025-10	31
+880643	2025-10-01	slummysinglemummy.com	2025-10	44
+880644	2025-10-01	tubegalore.uk	2025-10	38
+880645	2025-10-01	cybergeekgirl.co.uk	2025-10	19
+880646	2025-10-01	travelistia.com	2025-10	22
+880647	2025-10-01	lifeloveanddirtydishes.com	2025-10	31
+880648	2025-10-01	twinmummyanddaddy.com	2025-10	29
+880649	2025-10-01	prophecynewswatch.com	2025-10	47
+880650	2025-10-01	costaprices.co.uk	2025-10	44
+880651	2025-10-01	business-money.com	2025-10	40
+880652	2025-10-01	tibbingtonconsulting.co.uk	2025-10	13
+880653	2025-10-01	accidentalhipstermum.com	2025-10	30
+880654	2025-10-01	thetraveldaily.co.uk	2025-10	24
+880655	2025-10-01	whatkatysaid.com	2025-10	37
 \.
 
 
@@ -15957,6 +16154,247 @@ COPY public.sem_rush_monthly_data (id, date, domain, unique_year_month, srrank, 
 12051	2025-07-15	racingbetter.co.uk	2025-07	373947	697
 12052	2025-08-15	racingbetter.co.uk	2025-08	292001	1023
 12053	2025-09-15	racingbetter.co.uk	2025-09	362967	730
+12054	2024-10-15	newsdipper.co.uk	2024-10	38396	13101
+12055	2024-11-15	newsdipper.co.uk	2024-11	35362	14663
+12056	2024-12-15	newsdipper.co.uk	2024-12	28214	18492
+12057	2025-01-15	newsdipper.co.uk	2025-01	42408	11664
+12058	2025-02-15	newsdipper.co.uk	2025-02	37847	13322
+12059	2025-03-15	newsdipper.co.uk	2025-03	24105	22064
+12060	2025-04-15	newsdipper.co.uk	2025-04	16347	34020
+12061	2025-05-15	newsdipper.co.uk	2025-05	14420	39173
+12062	2025-06-15	newsdipper.co.uk	2025-06	15346	36251
+12063	2025-07-15	newsdipper.co.uk	2025-07	49594	9597
+12064	2025-08-15	newsdipper.co.uk	2025-08	58592	8105
+12065	2025-09-15	newsdipper.co.uk	2025-09	59304	7879
+12066	2025-10-15	hearthomemag.co.uk	2025-10	1309577	67
+12067	2025-10-15	laurenyloves.co.uk	2025-10	679408	260
+12068	2025-10-15	lindyloves.co.uk	2025-10	1190783	84
+12069	2025-10-15	cuddlefairy.com	2025-10	670774	266
+12070	2025-10-15	fabukmagazine.com	2025-10	516293	416
+12071	2025-10-15	knowledgewap.org	2025-10	1736137	30
+12072	2025-10-15	thelifestylebloggeruk.com	2025-10	1605960	37
+12073	2025-10-15	todaynews.co.uk	2025-10	32962	15410
+12074	2025-10-15	newvalleynews.co.uk	2025-10	301940	962
+12075	2025-10-15	crummymummy.co.uk	2025-10	227972	1438
+12076	2025-10-15	lobsterdigitalmarketing.co.uk	2025-10	246986	1286
+12077	2025-10-15	packthepjs.com	2025-10	529731	399
+12078	2025-10-15	markmeets.com	2025-10	253805	1237
+12079	2025-10-15	gemmalouise.co.uk	2025-10	113317	3615
+12080	2025-10-15	nerdbot.com	2025-10	318665	888
+12081	2025-10-15	wellbeingmagazine.com	2025-10	191193	1833
+12082	2025-10-15	itsmechrissyj.co.uk	2025-10	577530	345
+12083	2025-10-15	westwaleschronicle.co.uk	2025-10	3041773	4
+12084	2025-10-15	fabcelebbio.com	2025-10	4576619	0
+12085	2025-10-15	tobyandroo.com	2025-10	700365	247
+12086	2025-10-15	fivelittledoves.com	2025-10	327671	852
+12087	2025-10-15	flydriveexplore.com	2025-10	866498	165
+12088	2025-10-15	caranalytics.co.uk	2025-10	19617	27753
+12089	2025-10-15	manilatimes.net	2025-10	33305	15225
+12090	2025-10-15	ventstimes.co.uk	2025-10	535204	393
+12091	2025-10-15	smallcapnews.co.uk	2025-10	5167530	0
+12092	2025-10-15	techranker.co.uk	2025-10	0	0
+12093	2025-10-15	exclusivetoday.co.uk	2025-10	10918868	0
+12094	2025-10-15	shelllouise.co.uk	2025-10	241013	1330
+12095	2025-10-15	theeverydayman.co.uk	2025-10	1417213	53
+12096	2025-10-15	eccentricengland.co.uk	2025-10	374730	697
+12097	2025-10-15	dailybusinessgroup.co.uk	2025-10	156941	2389
+12098	2025-10-15	techktimes.co.uk	2025-10	303703	954
+12099	2025-10-15	guestmagazines.co.uk	2025-10	1310020	67
+12100	2025-10-15	thisisbrighton.co.uk	2025-10	1330237	64
+12101	2025-10-15	deadlinenews.co.uk	2025-10	120311	3358
+12102	2025-10-15	warrington-worldwide.co.uk	2025-10	47706	10107
+12103	2025-10-15	zerohedge.com	2025-10	19148	28547
+12104	2025-10-15	spiritedpuddlejumper.com	2025-10	220140	1511
+12105	2025-10-15	hausmanmarketingletter.com	2025-10	1213747	80
+12106	2025-10-15	talk-business.co.uk	2025-10	1707634	31
+12107	2025-10-15	oddee.com	2025-10	545513	381
+12108	2025-10-15	flyingfluskey.com	2025-10	165039	2236
+12109	2025-10-15	theautoexperts.co.uk	2025-10	3838035	1
+12110	2025-10-15	acraftedpassion.com	2025-10	1003917	121
+12111	2025-10-15	ucantwearthat.com	2025-10	3619268	2
+12112	2025-10-15	yourpetplanet.com	2025-10	4427728	0
+12113	2025-10-15	epodcastnetwork.com	2025-10	1256111	74
+12114	2025-10-15	familyfriendlyworking.co.uk	2025-10	622825	304
+12115	2025-10-15	thediaryofajewellerylover.co.uk	2025-10	1039109	113
+12116	2025-10-15	abcmoney.co.uk	2025-10	141807	2724
+12117	2025-10-15	hackmd.io	2025-10	108498	3811
+12118	2025-10-15	north.wales	2025-10	172790	2101
+12119	2025-10-15	beemoneysavvy.com	2025-10	251542	1253
+12120	2025-10-15	megalithic.co.uk	2025-10	33462	15139
+12121	2025-10-15	countingtoten.co.uk	2025-10	92508	4627
+12122	2025-10-15	thebiographywala.com	2025-10	2444154	10
+12123	2025-10-15	xatpes.co.uk	2025-10	3901289	1
+12124	2025-10-15	load2learn.org.uk	2025-10	1535538	42
+12125	2025-10-15	myflexbot.co.uk	2025-10	725585	231
+12126	2025-10-15	fionaoutdoors.co.uk	2025-10	134236	2921
+12127	2025-10-15	ladyjaney.co.uk	2025-10	196464	1766
+12128	2025-10-15	mmbmagazine.co.uk	2025-10	315768	900
+12129	2025-10-15	alifeoflovely.com	2025-10	2590612	8
+12130	2025-10-15	hnmagazine.co.uk	2025-10	107174	3871
+12131	2025-10-15	thejournalix.com	2025-10	1207818	81
+12132	2025-10-15	themammafairy.com	2025-10	1079957	104
+12133	2025-10-15	icenimagazine.co.uk	2025-10	1101284	99
+12134	2025-10-15	mybalancingact.co.uk	2025-10	214236	1568
+12135	2025-10-15	thethriftybride.co.uk	2025-10	324644	864
+12136	2025-10-15	luckyattitude.co.uk	2025-10	2584196	8
+12137	2025-10-15	lifeloving.co.uk	2025-10	387906	660
+12138	2025-10-15	arthurwears.com	2025-10	232860	1396
+12139	2025-10-15	thestrawberryfountain.com	2025-10	469856	486
+12140	2025-10-15	whingewhingewine.co.uk	2025-10	177954	2020
+12141	2025-10-15	rocknrollerbaby.co.uk	2025-10	121607	3313
+12142	2025-10-15	motherhoodtherealdeal.com	2025-10	1309840	67
+12143	2025-10-15	skinnedcartree.com	2025-10	343689	795
+12144	2025-10-15	letstalkmommy.com	2025-10	321592	876
+12145	2025-10-15	kateonthinice.com	2025-10	3491638	2
+12146	2025-10-15	intheplayroom.co.uk	2025-10	90541	4751
+12147	2025-10-15	bay-bee.co.uk	2025-10	205866	1655
+12148	2025-10-15	emmaplusthree.com	2025-10	944519	138
+12149	2025-10-15	the-willowtree.com	2025-10	573687	349
+12150	2025-10-15	captainbobcat.com	2025-10	314353	906
+12151	2025-10-15	diydaddyblog.com	2025-10	758240	213
+12152	2025-10-15	clairemac.co.uk	2025-10	329258	846
+12153	2025-10-15	justeilidh.com	2025-10	2255005	13
+12154	2025-10-15	feast-magazine.co.uk	2025-10	778347	203
+12155	2025-10-15	newsbreak.com	2025-10	5086	126395
+12156	2025-10-15	tantrumstosmiles.co.uk	2025-10	911528	148
+12157	2025-10-15	bignewsnetwork.com	2025-10	37605	13245
+12158	2025-10-15	techacrobat.com	2025-10	3506918	2
+12159	2025-10-15	techbullion.com	2025-10	274099	1106
+12160	2025-10-15	aaublog.com	2025-10	881734	159
+12161	2025-10-15	stylishlondonliving.co.uk	2025-10	914571	147
+12162	2025-10-15	sundarbantracking.com	2025-10	4009285	1
+12163	2025-10-15	thedatascientist.com	2025-10	73706	6071
+12164	2025-10-15	edinburgers.co.uk	2025-10	415339	593
+12165	2025-10-15	costumeplayhub.com	2025-10	5158702	0
+12166	2025-10-15	pat.org.uk	2025-10	878998	160
+12167	2025-10-15	talk-retail.co.uk	2025-10	2584081	8
+12168	2025-10-15	ourculturemag.com	2025-10	34310	14729
+12169	2025-10-15	deeside.com	2025-10	25650	20427
+12170	2025-10-15	varsity.co.uk	2025-10	28993	17839
+12171	2025-10-15	birdzpedia.com	2025-10	4427008	0
+12172	2025-10-15	traveldailynews.com	2025-10	972663	130
+12173	2025-10-15	wannabeprincess.co.uk	2025-10	819171	183
+12174	2025-10-15	thefrenchiemummy.com	2025-10	300876	967
+12175	2025-10-15	moneytipsblog.co.uk	2025-10	1791210	27
+12176	2025-10-15	singleparentsonholiday.co.uk	2025-10	169947	2150
+12177	2025-10-15	sparklesandstretchmarks.com	2025-10	222349	1490
+12178	2025-10-15	underconstructionpage.com	2025-10	1044157	112
+12179	2025-10-15	amumreviews.co.uk	2025-10	240565	1333
+12180	2025-10-15	rhianwestbury.co.uk	2025-10	326099	858
+12181	2025-10-15	lukeosaurusandme.co.uk	2025-10	503447	434
+12182	2025-10-15	chillingwithlucas.com	2025-10	1157625	89
+12183	2025-10-15	5thingstodotoday.com	2025-10	114743	3559
+12184	2025-10-15	estateagentnetworking.co.uk	2025-10	625016	302
+12185	2025-10-15	exposedmagazine.co.uk	2025-10	112678	3639
+12186	2025-10-15	uknewsgroup.co.uk	2025-10	698344	248
+12187	2025-10-15	talkssmartly.com	2025-10	7057268	0
+12188	2025-10-15	deepinmummymatters.com	2025-10	330336	842
+12189	2025-10-15	insequiral.com	2025-10	589007	334
+12190	2025-10-15	dailywaffle.co.uk	2025-10	1116023	96
+12191	2025-10-15	mrsshilts.co.uk	2025-10	322092	874
+12192	2025-10-15	anationofmoms.com	2025-10	1728014	30
+12193	2025-10-15	ukjournal.co.uk	2025-10	0	0
+12194	2025-10-15	uknewstap.co.uk	2025-10	32294	15762
+12195	2025-10-15	newsdipper.co.uk	2025-10	70502	6408
+12196	2025-10-15	flashpackingfamily.com	2025-10	173272	2093
+12197	2025-10-15	jennyinneverland.com	2025-10	927850	143
+12198	2025-10-15	robinwaite.com	2025-10	306202	942
+12199	2025-10-15	theodysseyonline.com	2025-10	426123	570
+12200	2025-10-15	msnpro.co.uk	2025-10	5521950	0
+12201	2025-10-15	grobuzz.co.uk	2025-10	2080053	17
+12202	2025-10-15	techimaging.co.uk	2025-10	1263698	73
+12203	2025-10-15	lifeinabreakdown.com	2025-10	358024	746
+12204	2025-10-15	birdsandlilies.com	2025-10	214429	1566
+12205	2025-10-15	thelondoneconomic.com	2025-10	62396	7396
+12206	2025-10-15	infinityelse.co.uk	2025-10	784528	200
+12207	2025-10-15	reelsmedia.co.uk	2025-10	430295	561
+12208	2025-10-15	finehomesandliving.com	2025-10	539944	387
+12209	2025-10-15	ukstartupmagazine.co.uk	2025-10	247079	1285
+12210	2025-10-15	houseandhomeideas.co.uk	2025-10	4429615	0
+12211	2025-10-15	midlandsbusinessnews.co.uk	2025-10	712328	239
+12212	2025-10-15	captionbio.co.uk	2025-10	603472	321
+12213	2025-10-15	webstosociety.co.uk	2025-10	181965	1961
+12214	2025-10-15	buzblog.co.uk	2025-10	6389	98283
+12215	2025-10-15	staceyinthesticks.com	2025-10	1000234	122
+12216	2025-10-15	boho-weddings.com	2025-10	240427	1334
+12217	2025-10-15	imhentai.co.uk	2025-10	512676	422
+12218	2025-10-15	thestripesblog.co.uk	2025-10	773925	206
+12219	2025-10-15	businesstask.co.uk	2025-10	597577	326
+12220	2025-10-15	invisioncommunity.co.uk	2025-10	585483	337
+12221	2025-10-15	racingbetter.co.uk	2025-10	248274	1277
+12222	2025-10-15	largerfamilylife.com	2025-10	199350	1730
+12223	2025-10-15	alittleluxuryfor.me	2025-10	1106307	98
+12224	2025-10-15	midlandstraveller.com	2025-10	1818784	26
+12225	2025-10-15	infullflavour.com	2025-10	979325	128
+12226	2025-10-15	mummyvswork.co.uk	2025-10	376104	693
+12227	2025-10-15	omgflix.co.uk	2025-10	512291	422
+12228	2025-10-15	safarisafricana.com	2025-10	161870	2294
+12229	2025-10-15	explorersagainstextinction.co.uk	2025-10	377191	690
+12230	2025-10-15	portotheme.com	2025-10	355315	755
+12231	2025-10-15	thefestivals.uk	2025-10	178022	2019
+12232	2025-10-15	factquotes.com	2025-10	4464699	0
+12233	2025-10-15	chelseamamma.co.uk	2025-10	1239970	76
+12234	2025-10-15	everymoviehasalesson.com	2025-10	481200	469
+12235	2025-10-15	ukfitness.pro	2025-10	414347	595
+12236	2025-10-15	thecoachspace.com	2025-10	653305	279
+12237	2025-10-15	uknip.co.uk	2025-10	39912	12349
+12238	2025-10-15	indowapblog.com	2025-10	4139000	1
+12239	2025-10-15	lifeunexpected.co.uk	2025-10	110337	3733
+12240	2025-10-15	financial-news.co.uk	2025-10	458708	505
+12241	2025-10-15	toptechsinfo.com	2025-10	0	0
+12242	2025-10-15	coda.io	2025-10	25759	20343
+12243	2025-10-15	stressedmum.co.uk	2025-10	349647	774
+12244	2025-10-15	ranyy.com	2025-10	1392460	56
+12245	2025-10-15	lovebelfast.co.uk	2025-10	158756	2354
+12246	2025-10-15	arewenearlythereyet.co.uk	2025-10	259866	1196
+12247	2025-10-15	ukconstructionblog.co.uk	2025-10	126251	3162
+12248	2025-10-15	imagefap.uk	2025-10	1348828	62
+12249	2025-10-15	slummysinglemummy.com	2025-10	232936	1395
+12250	2025-10-15	tubegalore.uk	2025-10	238210	1352
+12251	2025-10-15	cybergeekgirl.co.uk	2025-10	293730	1003
+12252	2025-10-15	travelistia.com	2025-10	2161009	15
+12253	2025-10-15	lifeloveanddirtydishes.com	2025-10	1007954	120
+12254	2025-10-15	twinmummyanddaddy.com	2025-10	688023	255
+12255	2025-10-15	prophecynewswatch.com	2025-10	686991	256
+12256	2025-10-15	costaprices.co.uk	2025-10	395091	641
+12257	2025-10-15	business-money.com	2025-10	219165	1520
+12258	2025-10-15	tibbingtonconsulting.co.uk	2025-10	1847665	25
+12259	2024-11-15	accidentalhipstermum.com	2024-11	641174	294
+12260	2024-12-15	accidentalhipstermum.com	2024-12	611796	319
+12261	2025-01-15	accidentalhipstermum.com	2025-01	717891	237
+12262	2025-02-15	accidentalhipstermum.com	2025-02	643949	291
+12263	2025-03-15	accidentalhipstermum.com	2025-03	749015	219
+12264	2025-04-15	accidentalhipstermum.com	2025-04	650141	281
+12265	2025-05-15	accidentalhipstermum.com	2025-05	1172054	87
+12266	2025-06-15	accidentalhipstermum.com	2025-06	914717	148
+12267	2025-07-15	accidentalhipstermum.com	2025-07	360201	737
+12268	2025-08-15	accidentalhipstermum.com	2025-08	447530	533
+12269	2025-09-15	accidentalhipstermum.com	2025-09	357526	747
+12270	2025-10-15	accidentalhipstermum.com	2025-10	384991	668
+12271	2024-11-15	thetraveldaily.co.uk	2024-11	372014	726
+12272	2024-12-15	thetraveldaily.co.uk	2024-12	527819	410
+12273	2025-01-15	thetraveldaily.co.uk	2025-01	480130	478
+12274	2025-02-15	thetraveldaily.co.uk	2025-02	542400	393
+12275	2025-03-15	thetraveldaily.co.uk	2025-03	554384	377
+12276	2025-04-15	thetraveldaily.co.uk	2025-04	413053	600
+12277	2025-05-15	thetraveldaily.co.uk	2025-05	520401	420
+12278	2025-06-15	thetraveldaily.co.uk	2025-06	431352	564
+12279	2025-07-15	thetraveldaily.co.uk	2025-07	375673	692
+12280	2025-08-15	thetraveldaily.co.uk	2025-08	393444	653
+12281	2025-09-15	thetraveldaily.co.uk	2025-09	335108	823
+12282	2025-10-15	thetraveldaily.co.uk	2025-10	356768	750
+12283	2024-11-15	whatkatysaid.com	2024-11	143810	2755
+12284	2024-12-15	whatkatysaid.com	2024-12	129975	3091
+12285	2025-01-15	whatkatysaid.com	2025-01	138653	2838
+12286	2025-02-15	whatkatysaid.com	2025-02	196100	1803
+12287	2025-03-15	whatkatysaid.com	2025-03	428216	576
+12288	2025-04-15	whatkatysaid.com	2025-04	383433	673
+12289	2025-05-15	whatkatysaid.com	2025-05	315796	916
+12290	2025-06-15	whatkatysaid.com	2025-06	223532	1477
+12291	2025-07-15	whatkatysaid.com	2025-07	133519	2903
+12292	2025-08-15	whatkatysaid.com	2025-08	95938	4475
+12293	2025-09-15	whatkatysaid.com	2025-09	99395	4244
+12294	2025-10-15	whatkatysaid.com	2025-10	106501	3901
 \.
 
 
@@ -20612,6 +21050,203 @@ COPY public.spam_monthly_data (id, date, domain, unique_year_month, spam_score) 
 5456	2025-09-20	businesstask.co.uk	2025-09	-1
 5457	2025-09-21	invisioncommunity.co.uk	2025-09	1
 5458	2025-09-21	racingbetter.co.uk	2025-09	1
+5459	2025-09-30	newsdipper.co.uk	2025-09	1
+5460	2025-10-01	hearthomemag.co.uk	2025-10	-1
+5461	2025-10-01	laurenyloves.co.uk	2025-10	3
+5462	2025-10-01	lindyloves.co.uk	2025-10	1
+5463	2025-10-01	cuddlefairy.com	2025-10	1
+5464	2025-10-01	fabukmagazine.com	2025-10	2
+5465	2025-10-01	knowledgewap.org	2025-10	1
+5466	2025-10-01	thelifestylebloggeruk.com	2025-10	16
+5467	2025-10-01	todaynews.co.uk	2025-10	1
+5468	2025-10-01	newvalleynews.co.uk	2025-10	-1
+5469	2025-10-01	crummymummy.co.uk	2025-10	3
+5470	2025-10-01	lobsterdigitalmarketing.co.uk	2025-10	1
+5471	2025-10-01	packthepjs.com	2025-10	1
+5472	2025-10-01	markmeets.com	2025-10	1
+5473	2025-10-01	gemmalouise.co.uk	2025-10	1
+5474	2025-10-01	nerdbot.com	2025-10	3
+5475	2025-10-01	wellbeingmagazine.com	2025-10	1
+5476	2025-10-01	itsmechrissyj.co.uk	2025-10	-1
+5477	2025-10-01	westwaleschronicle.co.uk	2025-10	1
+5478	2025-10-01	fabcelebbio.com	2025-10	6
+5479	2025-10-01	tobyandroo.com	2025-10	1
+5480	2025-10-01	fivelittledoves.com	2025-10	1
+5481	2025-10-01	flydriveexplore.com	2025-10	2
+5482	2025-10-01	caranalytics.co.uk	2025-10	1
+5483	2025-10-01	manilatimes.net	2025-10	1
+5484	2025-10-01	ventstimes.co.uk	2025-10	2
+5485	2025-10-01	smallcapnews.co.uk	2025-10	3
+5486	2025-10-01	techranker.co.uk	2025-10	3
+5487	2025-10-01	exclusivetoday.co.uk	2025-10	-1
+5488	2025-10-01	shelllouise.co.uk	2025-10	1
+5489	2025-10-01	theeverydayman.co.uk	2025-10	1
+5490	2025-10-01	eccentricengland.co.uk	2025-10	1
+5491	2025-10-01	dailybusinessgroup.co.uk	2025-10	1
+5492	2025-10-01	techktimes.co.uk	2025-10	12
+5493	2025-10-01	guestmagazines.co.uk	2025-10	-1
+5494	2025-10-01	thisisbrighton.co.uk	2025-10	2
+5495	2025-10-01	deadlinenews.co.uk	2025-10	3
+5496	2025-10-01	warrington-worldwide.co.uk	2025-10	-1
+5497	2025-10-01	zerohedge.com	2025-10	1
+5498	2025-10-01	spiritedpuddlejumper.com	2025-10	1
+5499	2025-10-01	hausmanmarketingletter.com	2025-10	1
+5500	2025-10-01	talk-business.co.uk	2025-10	1
+5501	2025-10-01	oddee.com	2025-10	5
+5502	2025-10-01	flyingfluskey.com	2025-10	1
+5503	2025-10-01	theautoexperts.co.uk	2025-10	2
+5504	2025-10-01	acraftedpassion.com	2025-10	23
+5505	2025-10-01	ucantwearthat.com	2025-10	2
+5506	2025-10-01	yourpetplanet.com	2025-10	1
+5507	2025-10-01	epodcastnetwork.com	2025-10	1
+5508	2025-10-01	familyfriendlyworking.co.uk	2025-10	1
+5509	2025-10-01	thediaryofajewellerylover.co.uk	2025-10	1
+5510	2025-10-01	abcmoney.co.uk	2025-10	1
+5511	2025-10-01	hackmd.io	2025-10	4
+5512	2025-10-01	north.wales	2025-10	1
+5513	2025-10-01	beemoneysavvy.com	2025-10	1
+5514	2025-10-01	megalithic.co.uk	2025-10	1
+5515	2025-10-01	countingtoten.co.uk	2025-10	3
+5516	2025-10-01	thebiographywala.com	2025-10	10
+5517	2025-10-01	xatpes.co.uk	2025-10	-1
+5518	2025-10-01	load2learn.org.uk	2025-10	7
+5519	2025-10-01	myflexbot.co.uk	2025-10	1
+5520	2025-10-01	fionaoutdoors.co.uk	2025-10	1
+5521	2025-10-01	ladyjaney.co.uk	2025-10	1
+5522	2025-10-01	mmbmagazine.co.uk	2025-10	1
+5523	2025-10-01	alifeoflovely.com	2025-10	1
+5524	2025-10-01	hnmagazine.co.uk	2025-10	1
+5525	2025-10-01	thejournalix.com	2025-10	1
+5526	2025-10-01	themammafairy.com	2025-10	1
+5527	2025-10-01	icenimagazine.co.uk	2025-10	1
+5528	2025-10-01	mybalancingact.co.uk	2025-10	-1
+5529	2025-10-01	thethriftybride.co.uk	2025-10	1
+5530	2025-10-01	luckyattitude.co.uk	2025-10	1
+5531	2025-10-01	lifeloving.co.uk	2025-10	1
+5532	2025-10-01	arthurwears.com	2025-10	1
+5533	2025-10-01	thestrawberryfountain.com	2025-10	2
+5534	2025-10-01	whingewhingewine.co.uk	2025-10	1
+5535	2025-10-01	rocknrollerbaby.co.uk	2025-10	1
+5536	2025-10-01	motherhoodtherealdeal.com	2025-10	1
+5537	2025-10-01	skinnedcartree.com	2025-10	1
+5538	2025-10-01	letstalkmommy.com	2025-10	2
+5539	2025-10-01	kateonthinice.com	2025-10	1
+5540	2025-10-01	intheplayroom.co.uk	2025-10	1
+5541	2025-10-01	bay-bee.co.uk	2025-10	2
+5542	2025-10-01	emmaplusthree.com	2025-10	1
+5543	2025-10-01	the-willowtree.com	2025-10	1
+5544	2025-10-01	captainbobcat.com	2025-10	1
+5545	2025-10-01	diydaddyblog.com	2025-10	2
+5546	2025-10-01	clairemac.co.uk	2025-10	3
+5547	2025-10-01	justeilidh.com	2025-10	-1
+5548	2025-10-01	feast-magazine.co.uk	2025-10	5
+5549	2025-10-01	newsbreak.com	2025-10	1
+5550	2025-10-01	tantrumstosmiles.co.uk	2025-10	1
+5551	2025-10-01	bignewsnetwork.com	2025-10	3
+5552	2025-10-01	techacrobat.com	2025-10	1
+5553	2025-10-01	techbullion.com	2025-10	1
+5554	2025-10-01	aaublog.com	2025-10	1
+5555	2025-10-01	stylishlondonliving.co.uk	2025-10	-1
+5556	2025-10-01	sundarbantracking.com	2025-10	4
+5557	2025-10-01	thedatascientist.com	2025-10	1
+5558	2025-10-01	edinburgers.co.uk	2025-10	2
+5559	2025-10-01	costumeplayhub.com	2025-10	1
+5560	2025-10-01	pat.org.uk	2025-10	6
+5561	2025-10-01	talk-retail.co.uk	2025-10	3
+5562	2025-10-01	ourculturemag.com	2025-10	1
+5563	2025-10-01	deeside.com	2025-10	4
+5564	2025-10-01	varsity.co.uk	2025-10	3
+5565	2025-10-01	birdzpedia.com	2025-10	8
+5566	2025-10-01	traveldailynews.com	2025-10	1
+5567	2025-10-01	wannabeprincess.co.uk	2025-10	1
+5568	2025-10-01	thefrenchiemummy.com	2025-10	1
+5569	2025-10-01	moneytipsblog.co.uk	2025-10	1
+5570	2025-10-01	singleparentsonholiday.co.uk	2025-10	2
+5571	2025-10-01	sparklesandstretchmarks.com	2025-10	2
+5572	2025-10-01	underconstructionpage.com	2025-10	1
+5573	2025-10-01	amumreviews.co.uk	2025-10	2
+5574	2025-10-01	rhianwestbury.co.uk	2025-10	4
+5575	2025-10-01	lukeosaurusandme.co.uk	2025-10	1
+5576	2025-10-01	chillingwithlucas.com	2025-10	1
+5577	2025-10-01	5thingstodotoday.com	2025-10	2
+5578	2025-10-01	estateagentnetworking.co.uk	2025-10	1
+5579	2025-10-01	exposedmagazine.co.uk	2025-10	1
+5580	2025-10-01	uknewsgroup.co.uk	2025-10	-1
+5581	2025-10-01	talkssmartly.com	2025-10	15
+5582	2025-10-01	deepinmummymatters.com	2025-10	1
+5583	2025-10-01	insequiral.com	2025-10	1
+5584	2025-10-01	dailywaffle.co.uk	2025-10	30
+5585	2025-10-01	mrsshilts.co.uk	2025-10	1
+5586	2025-10-01	anationofmoms.com	2025-10	1
+5587	2025-10-01	ukjournal.co.uk	2025-10	1
+5588	2025-10-01	uknewstap.co.uk	2025-10	-1
+5589	2025-10-01	newsdipper.co.uk	2025-10	1
+5590	2025-10-01	flashpackingfamily.com	2025-10	1
+5591	2025-10-01	jennyinneverland.com	2025-10	-1
+5592	2025-10-01	robinwaite.com	2025-10	3
+5593	2025-10-01	theodysseyonline.com	2025-10	1
+5594	2025-10-01	msnpro.co.uk	2025-10	9
+5595	2025-10-01	grobuzz.co.uk	2025-10	3
+5596	2025-10-01	techimaging.co.uk	2025-10	4
+5597	2025-10-01	lifeinabreakdown.com	2025-10	1
+5598	2025-10-01	birdsandlilies.com	2025-10	1
+5599	2025-10-01	thelondoneconomic.com	2025-10	1
+5600	2025-10-01	infinityelse.co.uk	2025-10	2
+5601	2025-10-01	reelsmedia.co.uk	2025-10	3
+5602	2025-10-01	finehomesandliving.com	2025-10	1
+5603	2025-10-01	ukstartupmagazine.co.uk	2025-10	-1
+5604	2025-10-01	houseandhomeideas.co.uk	2025-10	1
+5605	2025-10-01	midlandsbusinessnews.co.uk	2025-10	1
+5606	2025-10-01	captionbio.co.uk	2025-10	2
+5607	2025-10-01	webstosociety.co.uk	2025-10	-1
+5608	2025-10-01	buzblog.co.uk	2025-10	1
+5609	2025-10-01	staceyinthesticks.com	2025-10	1
+5610	2025-10-01	boho-weddings.com	2025-10	2
+5611	2025-10-01	imhentai.co.uk	2025-10	-1
+5612	2025-10-01	thestripesblog.co.uk	2025-10	2
+5613	2025-10-01	businesstask.co.uk	2025-10	-1
+5614	2025-10-01	invisioncommunity.co.uk	2025-10	1
+5615	2025-10-01	racingbetter.co.uk	2025-10	1
+5616	2025-10-01	largerfamilylife.com	2025-10	1
+5617	2025-10-01	alittleluxuryfor.me	2025-10	1
+5618	2025-10-01	midlandstraveller.com	2025-10	-1
+5619	2025-10-01	infullflavour.com	2025-10	5
+5620	2025-10-01	mummyvswork.co.uk	2025-10	1
+5621	2025-10-01	omgflix.co.uk	2025-10	1
+5622	2025-10-01	safarisafricana.com	2025-10	1
+5623	2025-10-01	explorersagainstextinction.co.uk	2025-10	1
+5624	2025-10-01	portotheme.com	2025-10	3
+5625	2025-10-01	thefestivals.uk	2025-10	4
+5626	2025-10-01	factquotes.com	2025-10	4
+5627	2025-10-01	chelseamamma.co.uk	2025-10	5
+5628	2025-10-01	everymoviehasalesson.com	2025-10	1
+5629	2025-10-01	ukfitness.pro	2025-10	4
+5630	2025-10-01	thecoachspace.com	2025-10	1
+5631	2025-10-01	uknip.co.uk	2025-10	3
+5632	2025-10-01	indowapblog.com	2025-10	4
+5633	2025-10-01	lifeunexpected.co.uk	2025-10	4
+5634	2025-10-01	financial-news.co.uk	2025-10	5
+5635	2025-10-01	toptechsinfo.com	2025-10	2
+5636	2025-10-01	coda.io	2025-10	1
+5637	2025-10-01	stressedmum.co.uk	2025-10	1
+5638	2025-10-01	ranyy.com	2025-10	2
+5639	2025-10-01	lovebelfast.co.uk	2025-10	1
+5640	2025-10-01	arewenearlythereyet.co.uk	2025-10	1
+5641	2025-10-01	ukconstructionblog.co.uk	2025-10	1
+5642	2025-10-01	imagefap.uk	2025-10	5
+5643	2025-10-01	slummysinglemummy.com	2025-10	1
+5644	2025-10-01	tubegalore.uk	2025-10	-1
+5645	2025-10-01	cybergeekgirl.co.uk	2025-10	1
+5646	2025-10-01	travelistia.com	2025-10	1
+5647	2025-10-02	lifeloveanddirtydishes.com	2025-10	1
+5648	2025-10-02	twinmummyanddaddy.com	2025-10	1
+5649	2025-10-02	prophecynewswatch.com	2025-10	3
+5650	2025-10-02	costaprices.co.uk	2025-10	1
+5651	2025-10-02	business-money.com	2025-10	1
+5652	2025-10-02	tibbingtonconsulting.co.uk	2025-10	1
+5653	2025-10-04	accidentalhipstermum.com	2025-10	3
+5654	2025-10-10	thetraveldaily.co.uk	2025-10	1
+5655	2025-10-10	whatkatysaid.com	2025-10	2
 \.
 
 
@@ -20619,21 +21254,21 @@ COPY public.spam_monthly_data (id, date, domain, unique_year_month, spam_score) 
 -- Name: da_monthly_data_seq; Type: SEQUENCE SET; Schema: public; Owner: slinkylinky
 --
 
-SELECT pg_catalog.setval('public.da_monthly_data_seq', 880501, true);
+SELECT pg_catalog.setval('public.da_monthly_data_seq', 880701, true);
 
 
 --
 -- Name: sem_rush_monthly_data_seq; Type: SEQUENCE SET; Schema: public; Owner: slinkylinky
 --
 
-SELECT pg_catalog.setval('public.sem_rush_monthly_data_seq', 12101, true);
+SELECT pg_catalog.setval('public.sem_rush_monthly_data_seq', 12301, true);
 
 
 --
 -- Name: spam_monthly_data_seq; Type: SEQUENCE SET; Schema: public; Owner: slinkylinky
 --
 
-SELECT pg_catalog.setval('public.spam_monthly_data_seq', 5501, true);
+SELECT pg_catalog.setval('public.spam_monthly_data_seq', 5701, true);
 
 
 --
@@ -20709,5 +21344,5 @@ CREATE INDEX idxrd91crsguk75xa5ehfwqjfg8t ON public.da_monthly_data USING btree 
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7sxLPXWSCmSYBaZhPPF1MdWihcF3MGmWEkrLTUXRKPTrMH9gPfGb77sBFOAId5N
+\unrestrict XZgrbLmUyoZLl8AQbDR5b8GBWEZxv2XVadebfE4YZQPW5HF82trXAHr6umHO6Yq
 
