@@ -452,8 +452,8 @@ EOF
                             # Wait for the Keycloak statefulset to be in a ready state
                             GREP_RESULT=1  # Initialize as "not ready"
                             i=1
-                            while [ $i -le 30 ]; do
-                                echo "Attempt $i/30: Checking if Keycloak pod is ready..."
+                            while [ $i -le 60 ]; do
+                                echo "Attempt $i/60: Checking if Keycloak pod is ready..."
                                 kubectl -n ''' + "${TENANT}" + ''' get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" > /tmp/keycloak-ready-status
                                 if grep -q "true" /tmp/keycloak-ready-status; then
                                     echo "Keycloak pod is ready!"
