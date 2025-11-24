@@ -22,6 +22,41 @@ pipeline {
             }
         }
 
+        stage('Build Events Dependency') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        // Extract events version from pom.xml - simplified approach
+                        def eventsVersion = sh(
+                            script: "grep -A 1 '<artifactId>events</artifactId>' pom.xml | grep '<version>' | sed 's/.*<version>\\(.*\\)<\\/version>.*/\\1/' | tr -d '[:space:]'",
+                            returnStdout: true
+                        ).trim()
+                        
+                        echo "Building events dependency version: ${eventsVersion}"
+                        
+                        // Create a temporary directory for events
+                        sh 'mkdir -p temp-events'
+                        dir('temp-events') {
+                            // Checkout events repository at the specific tag
+                            checkout([
+                                $class: 'GitSCM',
+                                branches: [[name: "refs/tags/${eventsVersion}"]],
+                                userRemoteConfigs: [[
+                                    url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/events.git"
+                                ]]
+                            ])
+                            
+                            // Build and install events to local Maven repository
+                            sh 'mvn clean install -DskipTests'
+                        }
+                        
+                        // Clean up temp directory
+                        sh 'rm -rf temp-events'
+                    }
+                }
+            }
+        }
+
         stage('Tag and Release') {
             steps {
                 script {
