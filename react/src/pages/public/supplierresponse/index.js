@@ -10,7 +10,6 @@ import Loading from "@/components/Loading";
 import Jumbotron from "@/components/Jumbotron";
 import StyledCheckbox from "@/components/atoms/Checkbox";
 import ErrorMessage, { InfoMessage } from "@/components/atoms/Messages";
-import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function SupplierResponse() {
 
@@ -33,7 +32,7 @@ export default function SupplierResponse() {
         if (router.isReady) {
             const id = router.query.id;
             const url = "/.rest/engagements/search/findByGuid?guid=" + id;
-            fetchWithAuth(url)
+            fetch(url)
                 .then((res) => res.json())
                 .then((e) => {
                     setEngagement(e);
@@ -47,7 +46,7 @@ export default function SupplierResponse() {
     const handleAccept = (event) => {
         setAcceptError(null);
         const id = router.query.id;
-        const response = fetchWithAuth("/.rest/engagements/accept?guid="+id, {
+        const response = fetch("/.rest/engagements/accept?guid="+id, {
             method: "PATCH", 
             headers: {
                 'Content-Type': 'application/json'
@@ -74,7 +73,7 @@ export default function SupplierResponse() {
 
     function handleDecline() {
         const id = router.query.id;
-        fetchWithAuth("/.rest/engagements/decline?guid="+id, {
+        fetch("/.rest/engagements/decline?guid="+id, {
             method: "PATCH", 
             headers: {
                 'Content-Type': 'application/json'
