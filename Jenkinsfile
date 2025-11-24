@@ -28,10 +28,6 @@ pipeline {
                             returnStdout: true
                         ).trim()
                         
-                        if (!eventsVersion) {
-                            eventsVersion = '6.0.1' // fallback to known version
-                        }
-                        
                         echo "Building events dependency version: ${eventsVersion}"
                         
                         // Create a temporary directory for events
