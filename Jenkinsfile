@@ -13,9 +13,44 @@ pipeline {
             steps {
                 withFolderProperties() {
                     git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/${env.PROJECT}.git"
+                    
                 }
             }
         }
+        
+        stage('Build Events Dependency') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        // Extract events version from pom.xml
+                        def eventsVersion = sh(
+                            script: "mvn help:evaluate -Dexpression=project.dependencies -q -DforceStdout | grep -A 3 'events' | grep '<version>' | sed -n 's/.*<version>\\(.*\\)<\\/version>.*/\\1/p'",
+                            returnStdout: true
+                        ).trim()
+                        
+                        if (!eventsVersion) {
+                            eventsVersion = '6.0.1' // fallback to known version
+                        }
+                        
+                        echo "Building events dependency version: ${eventsVersion}"
+                        
+                        // Create a temporary directory for events
+                        sh 'mkdir -p temp-events'
+                        dir('temp-events') {
+                            // Checkout events repository at the specific version
+                            git branch: eventsVersion, url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/events.git"
+                            
+                            // Build and install events to local Maven repository
+                            sh 'mvn clean install -DskipTests'
+                        }
+                        
+                        // Clean up temp directory
+                        sh 'rm -rf temp-events'
+                    }
+                }
+            }
+        }
+        
         stage('Build Maven Project') {
             steps {
                 sh 'mvn -Dmaven.test.skip=true clean package'
