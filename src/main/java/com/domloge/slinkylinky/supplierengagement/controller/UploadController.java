@@ -71,6 +71,7 @@ public class UploadController {
 
     @PatchMapping(path = "/decline", produces = "application/json")
     public ResponseEntity<Object> decline(@RequestParam("guid") String guid, @RequestBody Engagement engagement) throws IOException {
+        log.info("Received engagement decline for guid: " + guid);
         Engagement dbEngagement = engagementRepo.findByGuid(guid);
         if(null == dbEngagement) {
             log.warn("Attempted decline for unknown engagement: " + guid);
@@ -139,6 +140,7 @@ public class UploadController {
 
     @PatchMapping(path = "/accept", produces = "application/json")
     public ResponseEntity<Object> update(@RequestParam("guid") String guid, @RequestBody Engagement engagement) throws IOException {
+        log.info("Received engagement acceptance for guid: " + guid);
         Engagement dbEngagement = engagementRepo.findByGuid(guid);
         if(null == dbEngagement) {
             log.warn("Attempted blog details update for unknown engagement: " + guid);
@@ -159,6 +161,10 @@ public class UploadController {
         auditRecord.setWhat("Proposal accepted by supplier");
         auditRecord.setDetail("Blog title: " + dbEngagement.getBlogTitle() + ", Blog URL: " + dbEngagement.getBlogUrl());
         auditRabbitTemplate.convertAndSend(auditRecord);
+
+        /**
+         *  THIS REALLY SHOULD BE DONE BY RABBIT MESSAGE RATHER THAN DIRECT CALL
+         */
 
         SupplierEngagementEvent event = new SupplierEngagementEvent();
         event.buildForAccept(dbEngagement.getBlogTitle(), 
