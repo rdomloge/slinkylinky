@@ -4,7 +4,6 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
-        VERSION = "${SEMVER_BUILD_NUM}"
         PROJECT = 'events'
     }
 
@@ -18,6 +17,14 @@ pipeline {
         }
         stage('Build Maven Project') {
             steps {
+                script {
+                    // Extract version from POM file
+                    env.VERSION = sh(
+                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                        returnStdout: true
+                    ).trim()
+                    echo "Extracted version from POM: ${env.VERSION}"
+                }
                 sh 'mvn -Dmaven.test.skip=true clean package'
             }
         }
