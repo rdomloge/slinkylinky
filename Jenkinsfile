@@ -34,7 +34,7 @@ pipeline {
                         sh 'mkdir -p temp-events'
                         dir('temp-events') {
                             // Checkout events repository at the specific version
-                            git branch: eventsVersion, url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/events.git"
+                            git branch: "${eventsVersion}", url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/events.git"
                             
                             // Build and install events to local Maven repository
                             sh 'mvn clean install -DskipTests'
