@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         BUILDER = 'mybuilder'
-        VERSION = "${SEMVER_BUILD_NUM}-CI-${env.BUILD_ID}"
+        VERSION = "${SEMVER_BUILD_NUM}"
         PROJECT = 'events'
     }
 
