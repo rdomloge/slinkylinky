@@ -229,7 +229,7 @@ deployments:
         secretKey: KEYCLOAK_ISSUER
 
   - name: supplierengagement
-    image: "rdomloge/slinky-linky-supplierengagement:6.0.6-CI-15"
+    image: "rdomloge/slinky-linky-supplierengagement:6.0.7-CI-17"
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
