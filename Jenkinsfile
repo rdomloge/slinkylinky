@@ -22,19 +22,29 @@ pipeline {
             steps {
                 script {
                     withFolderProperties() {
-                        // Extract events version from pom.xml
+                        // Extract events version from pom.xml - simplified approach
                         def eventsVersion = sh(
-                            script: "mvn help:evaluate -Dexpression=project.dependencies -q -DforceStdout | grep -A 3 'events' | grep '<version>' | sed -n 's/.*<version>\\(.*\\)<\\/version>.*/\\1/p'",
+                            script: "grep -A 1 '<artifactId>events</artifactId>' pom.xml | grep '<version>' | sed 's/.*<version>\\(.*\\)<\\/version>.*/\\1/' | tr -d '[:space:]'",
                             returnStdout: true
                         ).trim()
+                        
+                        if (!eventsVersion) {
+                            eventsVersion = '6.1.0' // fallback to current known version
+                        }
                         
                         echo "Building events dependency version: ${eventsVersion}"
                         
                         // Create a temporary directory for events
                         sh 'mkdir -p temp-events'
                         dir('temp-events') {
-                            // Checkout events repository at the specific version
-                            git branch: "${eventsVersion}", url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/events.git"
+                            // Checkout events repository at the specific tag
+                            checkout([
+                                $class: 'GitSCM',
+                                branches: [[name: "refs/tags/${eventsVersion}"]],
+                                userRemoteConfigs: [[
+                                    url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/events.git"
+                                ]]
+                            ])
                             
                             // Build and install events to local Maven repository
                             sh 'mvn clean install -DskipTests'
