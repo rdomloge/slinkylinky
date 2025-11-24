@@ -96,7 +96,7 @@ fullnameOverride: ""
 # ConfigMaps configuration
 deployments:
   - name: linkservice
-    image: "rdomloge/slinky-linky-linkservice:6.0.6-CI-34"
+    image: "rdomloge/slinky-linky-linkservice:6.0.7-CI-41"
     cpuLimit: "500m"
     memoryLimit: "512Mi"
     startupFailureThreshold: 15
