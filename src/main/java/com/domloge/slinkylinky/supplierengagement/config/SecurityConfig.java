@@ -8,7 +8,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-    private static final String[] AUTH_WHITELIST = {"/actuator/**", "/.rest/engagements/accept", "/.rest/engagements/decline"};
+    private static final String[] AUTH_WHITELIST = {"/actuator/**", "/.rest/engagements/accept", "/.rest/engagements/decline", "/.rest/engagements/search/findByGuid"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
