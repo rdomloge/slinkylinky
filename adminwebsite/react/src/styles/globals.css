@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+body {
+  background-color: white;
+  
+}
+
+.colourOfBackground {
+  background-color: white;
+}
+
+.timelineDot {
+  inset-inline-start: -0.5rem;
+}
+
+@layer components {
+    .card {
+      background-color: #f3f3f6;
+      border-radius: theme(borderRadius.lg);
+      border-color: #dcdcdc;
+      border-width: 1px;
+      border-style: solid;
+      padding: theme(spacing.6);
+      box-shadow: theme(boxShadow.xl);
+    }
+}
+
+.third-party {
+  background-color: rgb(170, 220, 244);
+  border-radius: 90%;
+  padding: 3px;
+  right: -10px; 
+  top: -10px;
+  position: absolute;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(108, 108, 108);
+}
+
+.child-card {
+  margin: 0.6em;
+  display: flex;
+}
+
+.pageTitle {
+  font-size: 300%;
+}
+
+.list-card {
+  margin: 1em;
+}
+
+.lozenge {
+  background: rgb(198, 195, 250);
+  width: fit-content;
+  border-radius: 15px;
+  padding: 0.5em;
+  margin: 0.2em;
+}
+
+.in-pig-sd {
+  position: relative;
+  left: -23px;
+  top: 13px;
+  font-size: 83%;
+}
+
+.in-pig-dd {
+  position: relative;
+  left: -27px;
+  top: 13px;
+  font-size: 83%;
+}

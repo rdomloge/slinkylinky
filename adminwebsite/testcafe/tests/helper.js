@@ -1,0 +1,124 @@
+import { t } from "testcafe";
+import demandList from "./page-models/demandListModel";
+import addEditDemand from "./page-models/addEditDemand";
+import { gitHubUser } from './roles';
+import supplierListModel from "./page-models/supplierListModel";
+import addEditSupplier from "./page-models/addEditSupplier";
+import demandListModel from "./page-models/demandListModel";
+
+const demandData = require('./demand-data.json');
+const supplierData = require('./supplier-data.json');
+
+export async function gotoNewDemandPage() {
+    
+    if ( ! (await demandList.pageTitle.innerText).startsWith("Demand ")) {
+        await t.click(demandList.demandListMenuItem)
+            .expect(demandList.pageTitle.innerText).contains("Demand ");
+    }
+    
+    await t.useRole(gitHubUser)
+    await clickWhenReady(demandList.newButton)
+        .expect(addEditDemand.addPageTitle.innerText).contains("New demand");
+}
+
+export async function gotoNewSupplierPage() {
+    await t.useRole(gitHubUser)
+        .click(supplierListModel.supplierMenuItem)
+        .expect(supplierListModel.pageTitle.innerText).contains("Suppliers");
+    
+    await t.click(supplierListModel.newButton)
+        .expect(addEditSupplier.addPageTitle.innerText).contains("New supplier");
+}
+
+export async function createSupplierIfMissing(dataIndex) {
+    
+    if(null == dataIndex || dataIndex < 0 || dataIndex >= supplierData.length) {
+        throw new Error("Invalid dataIndex");
+    }
+
+    // check to see if the supplier already exists
+    await t.useRole(gitHubUser)
+        .click(supplierListModel.supplierMenuItem)
+        .expect(supplierListModel.pageTitle.innerText).contains("Suppliers");
+
+    await t.typeText(supplierListModel.textSearchField, supplierData[dataIndex].name);
+
+    //search through the list of suppliers to see if the supplier with matching name already exists
+    let supplierCardNames = supplierListModel.supplierCardNames.withExactText(supplierData[dataIndex].name);
+    let supplierExists = await supplierCardNames.exists;
+
+    
+    if (supplierExists) {
+        return;
+    } 
+
+    // the supplier does not exist - create it
+    await gotoNewSupplierPage();
+
+    await t.typeText(addEditSupplier.nameInput, supplierData[dataIndex].name);
+    await t.typeText(addEditSupplier.da, supplierData[dataIndex].da);
+    await t.typeText(addEditSupplier.website, supplierData[dataIndex].website);
+    await t.typeText(addEditSupplier.source, supplierData[dataIndex].source);
+    await t.typeText(addEditSupplier.email, supplierData[dataIndex].email);
+    await t.typeText(addEditSupplier.fee, supplierData[dataIndex].fee);
+    await t.typeText(addEditSupplier.categorySelectorInput, supplierData[dataIndex].categories[0]);
+    await t.pressKey('enter');
+    await t.click(addEditSupplier.submitButton)
+        .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
+}
+
+export async function createSupplier(dataIndex, randomWebsite = true) {
+    
+    if(null == dataIndex || dataIndex < 0 || dataIndex >= supplierData.length) {
+        throw new Error("Invalid dataIndex");
+    }
+
+    await gotoNewSupplierPage();
+
+    await t.typeText(addEditSupplier.nameInput, supplierData[dataIndex].name, {speed: 0.5});
+    await t.typeText(addEditSupplier.da, supplierData[dataIndex].da);
+    await t.typeText(addEditSupplier.website, (randomWebsite ? new Date().getTime() : "") + supplierData[dataIndex].website);
+    await t.typeText(addEditSupplier.source, supplierData[dataIndex].source);
+    await t.typeText(addEditSupplier.email, supplierData[dataIndex].email);
+    await t.typeText(addEditSupplier.fee, supplierData[dataIndex].fee);
+    await t.typeText(addEditSupplier.categorySelectorInput, supplierData[dataIndex].categories[0]);
+    await t.pressKey('enter');
+    await t.click(addEditSupplier.submitButton)
+        .expect(supplierListModel.pageTitle.innerText).contains('Suppliers');
+}
+
+export async function createNewDemand(dataIndex) {
+
+    if(null == dataIndex || dataIndex < 0 || dataIndex >= demandData.length) {
+        throw new Error("Invalid dataIndex");
+    }
+
+    // await t.debug()
+    await gotoNewDemandPage();
+
+    await t.useRole(gitHubUser)
+        .typeText(addEditDemand.nameInput, demandData[dataIndex].name, {speed: 0.5}) // has to be a little slow so each character search is completed before the next one;
+    const firstSearchResultSelectButton = addEditDemand.demandSiteSearchResults.nth(0).find('#select-demand-site-button');
+    await t.click(firstSearchResultSelectButton); // SELECT THE FIRST DEMAND SITE
+    await t.expect(addEditDemand.nameLabel.innerText).eql(demandData[dataIndex].demandSiteExcpectName);
+
+    // fill in the missing values
+    await t.typeText(addEditDemand.urlInput, demandData[dataIndex].url);
+    await t.typeText(addEditDemand.requestedInput, demandData[dataIndex].requested);
+    await t.typeText(addEditDemand.daNeededInput, demandData[dataIndex].daNeeded);
+    await t.typeText(addEditDemand.anchorTextInput, demandData[dataIndex].anchorText);
+
+    // submit the form
+    await t.click(addEditDemand.submitButton)
+        .expect(demandListModel.pageTitle.innerText).contains("Demand ");
+}
+
+export function clickWhenReady(selector) {
+
+    
+
+    return t.expect(selector.exists).ok()
+        .expect(selector.visible).ok()
+        .expect(selector.hasAttribute('disabled')).notOk()
+        .click(selector.filter(node => !node.hasAttribute('disabled')));
+}

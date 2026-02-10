@@ -1,0 +1,19 @@
+{
+    "screenshots": {
+        "takeOnFails": true,
+        "path": "/tests/screenshots/"
+    },
+
+    "videoPath": "/tests/videos/",
+
+    "videoOptions": {
+        "singleFile": false,
+        "failedOnly": true,
+        "ffmpegPath": "C:/apps/ffmpeg-5.1.2-full_build/bin"
+    },
+
+    "selectorTimeout": 30000,
+    "assertionTimeout": 30000,
+    "pageLoadTimeout": 30000,
+    "waitForTimeout": 30000
+}

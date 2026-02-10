@@ -1,0 +1,44 @@
+export default function NiceDate(props) {
+    if(null != props.isostring) {
+        return (
+            <>
+                <span className="align-middle">{new Date(props.isostring).toDateString()}</span>
+            </>
+        );
+    }
+    else {
+        return (
+            <>
+                <span>-</span>
+            </>
+        );
+    }
+}
+
+export function CompactDate(props) {
+    if(null != props.isostring) {
+        return (
+            <>
+                <span className="align-middle">{new Date(props.isostring).toLocaleDateString('en-GB', {hour12: false})}</span>
+            </>
+        );
+    }
+    else {
+        return (
+            <>
+                <span>-</span>
+            </>
+        );
+    }
+}
+
+export function NiceDateTime({isostring}) {
+    if(null == isostring) {
+        throw new Error("isostring is required");
+    }
+    return (
+        <>
+        <span className="align-middle">{new Date(isostring).toDateString()} {new Date(isostring).toLocaleTimeString()}</span>
+        </>
+    );
+}
