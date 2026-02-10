@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 
+    webpackDevMiddleware: config => {
+      config.watchOptions = {
+        poll: 5000,
+        aggregateTimeout: 20000,
+      }
+      return config
+    },
+
     webpack: (config, context) => {
       // Enable polling based on env variable being set
       if(process.env.NEXT_WEBPACK_USEPOLLING) {
