@@ -1,0 +1,107 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: {{ .Values.tenant }}
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "0 3 * * *" # Daily at 3am
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          initContainers:
+            - name: backup
+              image: postgres
+              command: ["/bin/sh"]
+              args: ["-c", "pg_dumpall --clean --if-exists --exclude-database=keycloak -h postgres-service -U ${POSTGRES_BACKUP_USER} --no-role-passwords -f /backup/backup.sql"]
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-connection-secret
+                      key: POSTGRES_BACKUP_PASSWORD
+                - name: POSTGRES_BACKUP_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-connection-secret
+                      key: POSTGRES_BACKUP_USER
+                
+            - name: compress
+              image: rdomloge/utils:1.0
+              command: ["/bin/sh"]
+              args: ["-c", "cd /backup && 7z a backup.7z backup.sql"]
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+
+            - name: create-dir
+              image: rdomloge/utils:1.0
+              command: ["/bin/sh"]
+              args: ["-c", "ssh -o 'StrictHostKeyChecking=no' -p 1478 $(SSH_USER)@$(SSH_HOST) 'mkdir -p /volume1/sl-postgres-backups/$(TENANT)'"]
+              volumeMounts:
+                - name: sshdir
+                  mountPath: /home/appuser/.ssh
+                  readOnly: true
+              env:
+                - name: TENANT
+                  value: {{ .Values.tenant }} 
+                - name: SSH_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-ssh-credentials
+                      key: BACKUP_USERNAME
+                - name: SSH_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-ssh-credentials
+                      key: BACKUP_HOST
+
+            - name: scp-offite
+              image: rdomloge/utils:1.0
+              command: ["/bin/sh"]
+              args: ["-c", "scp -v -o 'StrictHostKeyChecking=no' -O -P 1478 /backup/backup.7z $(SSH_USER)@$(SSH_HOST):/volume1/sl-postgres-backups/$(TENANT)/$(FILENAME)-backup.7z"]
+              imagePullPolicy: Always
+              volumeMounts:
+                - name: temp-backup-volume
+                  mountPath: /backup
+                - name: sshdir
+                  mountPath: /home/appuser/.ssh
+                  readOnly: true
+              env:
+                - name: FILENAME
+                  value: $(date +"%Y-%m-%d_%H%M")
+                - name: SSH_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-ssh-credentials
+                      key: BACKUP_USERNAME
+                - name: TENANT
+                  value: {{ .Values.tenant }} 
+                - name: SSH_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: backup-ssh-credentials
+                      key: BACKUP_HOST
+
+          containers:
+            - name: job-done
+              image: busybox
+              command: ['sh', '-c', 'echo "Backup and rsync completed"']
+          restartPolicy: Never
+          volumes:
+            - name: temp-backup-volume
+              emptyDir: {}
+            - name: sshdir
+              secret:
+                secretName: backup-ssh-key
+                #defaultMode: 0400
+                items:
+                  - key: ssh-privatekey
+                    path: id_rsa
+          
+            

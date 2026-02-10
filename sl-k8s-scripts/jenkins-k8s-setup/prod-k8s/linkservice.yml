@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkservice
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: linkservice
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: linkservice
+        version: v1
+    spec:
+      containers:
+        - name: linkservice
+          image: rdomloge/slinky-linky-linkservice:5.10.1-CI-3
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: LINKSERVICE_DATABASE_URL
+            - name: chatgpt_api_key
+              value: <SPECIFY>
+            - name: chatgpt_model
+              value: gpt-3.5-turbo
+            - name: slinkylinky_vhost
+              value: slinkylinky
+            - name: spring_security_oauth2_resourceserver_jwt_issuer_uri
+              value: setme
+            - name: jwt_required
+              value: "false"
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 1
+

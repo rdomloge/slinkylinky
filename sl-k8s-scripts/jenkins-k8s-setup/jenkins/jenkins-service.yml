@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-service
+  namespace: slinkylinky
+spec:
+  type: LoadBalancer
+  selector:
+    app: jenkins
+  ports:
+    - protocol: TCP
+      port: 8099
+      targetPort: 8080

@@ -1,0 +1,36 @@
+pipeline {
+    
+    agent { label "kubectl-worker" }
+
+    environment {
+        BUILDER = 'mybuilder'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                withFolderProperties() {
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+                }
+            }
+        }
+
+        stage('Deploy microservices') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/linkservice.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/adminsite.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/stats.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/audit.yml'
+                            sh 'kubectl apply -f ${WORKSPACE}/jenkins-k8s-setup/prod-k8s/woo.yml'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

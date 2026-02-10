@@ -1,0 +1,80 @@
+{{- $root := . }}
+{{- range $deployment := .Values.deployments }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $deployment.name }}
+  namespace: {{ $root.Values.tenant }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $deployment.name }}
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: {{ $deployment.name }}
+        version: v1
+    spec:
+      containers:
+        - name: {{ $deployment.name }}
+          image: {{ $deployment.image }}
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: {{ $deployment.cpuLimit | default "250m" }}
+              memory: {{ $deployment.memoryLimit | default "256Mi" }}
+          {{- range $port := $deployment.ports }}
+          ports:
+            - containerPort: {{ $port }}
+          {{- end }}
+          env:
+          {{- range $key, $value := $deployment.explicitEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- range $key, $value := $deployment.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $value.secretName }}
+                  key: {{ $value.secretKey }}
+          {{- end }}
+          {{- range $key, $value := $deployment.configMapEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $value.configMapName }}
+                  key: {{ $value.configMapKey }}
+          {{- end }}
+            
+          startupProbe:
+            tcpSocket:
+              port: {{ $deployment.startupPort | default 8080 }}
+            # The official guides do not recommend setting initialDelaySeconds for startupProbes
+            failureThreshold: {{ $deployment.startupFailureThreshold | default 30 }}
+            periodSeconds: {{ $deployment.startupPeriod | default 10 }}
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: {{ $deployment.livenessPath | default "/actuator/health/liveness" }}
+              port: {{ $deployment.livenessPort | default 8080 }}
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: {{ $deployment.readinessPath | default "/actuator/health/readiness" }}
+              port: {{ $deployment.readinessPort | default 8080 }}
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 10
+            timeoutSeconds: 1
+
+{{- end }}

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit
+  namespace: topclick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audit
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: audit
+        version: v1
+    spec:
+      containers:
+        - name: audit
+          image: rdomloge/slinky-linky-audit:6.0.1-CI-5
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "250m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: AUDIT_DATABASE_URL
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
+            - name: server_port
+              value: "8080"
+            - name: slinkylinky_vhost
+              value: slinkylinky
+            - name: JWK_SET_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: JWK_SET_URI
+            - name: ISSUER_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            failureThreshold: 30
+            periodSeconds: 5
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1

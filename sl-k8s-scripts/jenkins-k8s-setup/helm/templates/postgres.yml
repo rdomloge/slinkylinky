@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: {{ .Values.tenant }}
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: postgres
+        version: v1
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16.6
+          imagePullPolicy: Always
+          volumeMounts: 
+            - name: sl-postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+          env:
+            # This is needed to make PG put it's data in a subdirectory under the mounted volume, since Linode puts a 
+            # lost+found directory at the root of the volume which PG doesn't like.
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: POSTGRES_PASSWORD
+              value: CHANGEME
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "600Mi"
+            limits:
+              cpu: "1000m"
+              memory: "750Mi"
+          ports:
+            - containerPort: 5432
+      volumes:
+        - name: sl-postgres-data
+          persistentVolumeClaim:
+            claimName: sl-postgres-data-{{ .Values.tenant }}
+        - name: init-sql
+          configMap:
+            name: init-sql
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: init-sql
+  namespace: {{ .Values.tenant }}
+data:
+  keycloak.sql: |
+    CREATE DATABASE keycloak;
+    CREATE USER keycloak WITH ENCRYPTED PASSWORD '{{ .Values.KEYCLOAK_DB_PASSWORD }}';
+    GRANT ALL PRIVILEGES ON DATABASE keycloak TO keycloak;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO keycloak;
+    ALTER USER keycloak WITH SUPERUSER;
+
+    CREATE DATABASE slinkylinky;
+    CREATE USER linkservice_user WITH ENCRYPTED PASSWORD '{{ .Values.LINKSERVICE_DB_PASSWORD }}';
+    ALTER DATABASE slinkylinky OWNER TO linkservice_user;
+    GRANT ALL PRIVILEGES ON DATABASE slinkylinky TO linkservice_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO linkservice_user;
+
+    CREATE DATABASE stats;
+    CREATE USER stats_user WITH ENCRYPTED PASSWORD '{{ .Values.STATS_DB_PASSWORD }}';
+    ALTER DATABASE stats OWNER TO stats_user;
+    GRANT ALL PRIVILEGES ON DATABASE stats TO stats_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO stats_user;
+
+    CREATE DATABASE audit;
+    CREATE USER audit_user WITH ENCRYPTED PASSWORD '{{ .Values.AUDIT_DB_PASSWORD }}';
+    ALTER DATABASE audit OWNER TO audit_user;
+    GRANT ALL PRIVILEGES ON DATABASE audit TO audit_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO audit_user;
+
+    CREATE DATABASE supplierengagement;
+    CREATE USER supplierengagement_user WITH ENCRYPTED PASSWORD '{{ .Values.SUPPLIERENGAGEMENT_DB_PASSWORD }}';
+    ALTER DATABASE supplierengagement OWNER TO supplierengagement_user;
+    GRANT ALL PRIVILEGES ON DATABASE supplierengagement TO supplierengagement_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO supplierengagement_user;

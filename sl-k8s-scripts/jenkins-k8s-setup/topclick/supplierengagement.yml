@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supplierengagement
+  namespace: topclick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supplierengagement
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: supplierengagement
+        version: v1
+    spec:
+      containers:
+        - name: supplierengagement
+          image: rdomloge/slinky-linky-supplierengagement:6.0.5-CI-14
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: SUPPLIERENGAGEMENT_DATABASE_URL
+            - name: linkservice_baseurl
+              value: http://linkservice-service:8090/.rest
+            - name: server_port
+              value: "8080"
+            - name: slinkylinky_domain
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SLINKYLINKY_DOMAIN
+            - name: slinkylinky_vhost
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SLINKYLINKY_VHOST
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
+            - name: spring_mail_testing
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: SPRING_MAIL_TESTING
+            - name: mail_username
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: SUPPLIERENGAGEMENT_MAIL_USERNAME
+            - name: mail_password
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: SUPPLIERENGAGEMENT_MAIL_PASSWORD
+            - name: mail_host
+              valueFrom:
+                secretKeyRef:
+                  name: mail-secret
+                  key: SUPPLIERENGAGEMENT_MAIL_HOST
+            - name: mail_from
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_FROM
+            - name: mail_declineEmailRecipientName
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_DECLINE_EMAIL_RECIPIENT_NAME
+            - name: mail_declined_warning_addresses
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_DECLINED_WARNING_ADDRESSES
+            - name: mail_bccRecipients
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_BCCRECIPIENTS
+            - name: mail_expiredWarningAddresses
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_EXPIRED_WARNING_ADDRESSES
+            - name: mail_requestsignoff
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_REQUESTSIGNOFF
+            - name: mail_requestcontact
+              valueFrom:
+                configMapKeyRef:
+                  name: supplierengagement-config
+                  key: MAIL_REQUESTCONTACT
+            - name: JWK_SET_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: JWK_SET_URI
+            - name: ISSUER_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
+            - name: keycloak_clientcredentials_client_id
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID
+            - name: keycloak_clientcredentials_client_secret
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET
+            - name: keycloak_base_url
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_BASE_URL
+            - name: keycloak_clientcredentials_token_uri
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1

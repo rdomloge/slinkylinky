@@ -1,0 +1,28 @@
+# Use Alpine Linux as base image for a lightweight container
+FROM alpine:latest
+
+# Install required packages: openssh-client (provides scp), sshpass, and bash
+RUN apk update && \
+    apk add --no-cache \
+    openssl \
+    openssh \
+    sshpass \
+    bash \
+    p7zip \
+    && rm -rf /var/cache/apk/*
+
+# Set bash as the default shell
+SHELL ["/bin/bash", "-c"]
+
+# Create a non-root user for security
+RUN addgroup -g 1000 appuser && \
+    adduser -D -s /bin/bash -u 1000 -G appuser appuser
+
+# Switch to non-root user
+USER appuser
+
+# Set working directory
+WORKDIR /home/appuser
+
+# Default command
+CMD ["/bin/bash"]

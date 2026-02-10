@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbit
+  namespace: {{ .Values.tenant }}
+spec:
+  serviceName: rabbit
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbit
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: rabbit
+        version: v1
+    spec:
+      containers:
+        - name: rabbit
+          image: rabbitmq:3-management
+          imagePullPolicy: Always
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: CHANGEME
+            - name: RABBITMQ_DEFAULT_PASS
+              value: CHANGEME
+            - name: RABBITMQ_DEFAULT_VHOST
+              value: slinkylinky
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "150Mi"
+            limits:
+              cpu: "300m"
+              memory: "250Mi"
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672

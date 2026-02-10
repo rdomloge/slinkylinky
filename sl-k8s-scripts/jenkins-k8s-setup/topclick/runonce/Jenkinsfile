@@ -1,0 +1,39 @@
+pipeline {
+    
+    agent { label "kubectl-worker" }
+
+    environment {
+        BUILDER = 'mybuilder'
+        FOLDER = "${WORKSPACE}/jenkins-k8s-setup/topclick/runonce" 
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                withFolderProperties() {
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+                }
+            }
+        }
+
+        stage('Runonce stuff') {
+            steps {
+                withFolderProperties() {
+                    script {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            sh 'kubectl apply -f ${FOLDER}/namespace.yml'
+                            sh 'kubectl apply -f ${FOLDER}/cloudflare.yml'
+                            sh 'kubectl apply -f ${FOLDER}/pvc.yml'
+                            sh 'kubectl apply -f ${FOLDER}/postgres.yml'
+                            sh 'kubectl apply -f ${FOLDER}/services.yml'
+                            sh 'kubectl apply -f ${FOLDER}/rabbit.yml'
+                            sh 'kubectl apply -f ${FOLDER}/keycloak.yml'
+                            sh 'kubectl apply -f ${FOLDER}/backup.yml'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

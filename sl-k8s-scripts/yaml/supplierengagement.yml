@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: supplierengagement
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: supplierengagement
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: supplierengagement
+        version: v1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - linkservice
+                      - supplierengagement
+                      - adminwebsite
+                      - postgres
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: supplierengagement
+          image: rdomloge/slinky-linky-supplierengagement:5.7.2
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              value: <SPECIFY>
+            - name: server_port
+              value: "8080"
+            - name: mail_username
+              value: <SPECIFY>
+            - name: mail_password
+              value: <SPECIFY>
+            - name: mail_host
+              value: <SPECIFY>
+            - name: mail_from
+              value: <SPECIFY>
+            - name: slinkylinky_domain
+              value: https://slinkylinky.uk
+            - name: slinkylinky_vhost
+              value: slinkylinky
+            - name: mail_declineEmailRecipientName
+              value: James
+            - name: mail_declined_warning_addresses
+              value: rdomloge@gmail.com,james.p@frontpageadvantage.com
+            - name: linkservice_baseurl
+              value: http://linkservice-service:8090/.rest
+            - name: spring_mail_testing
+              value: "true"
+            - name: mail_bccRecipients
+              value: rdomloge@gmail.com,chris.p@frontpageadvantage.com,james.p@frontpageadvantage.com
+            - name: mail_expiredWarningAddresses
+              value: james.p@frontpageadvantage.com,rdomloge@gmail.com
+          startupProbe:
+            httpGet:
+              path: /.rest/profile
+              port: 8080
+            initialDelaySeconds: 60
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psql-worker
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: psql-worker
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: psql-worker
+        version: v1
+    spec:
+      containers:
+        - name: psql-worker
+          image: rdomloge/jenkins-worker-psql:1.0.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JENKINS_URL
+              value: http://jenkins-service:8080
+            - name: JENKINS_SECRET
+              value: CHANGEME
+            - name: JENKINS_AGENT_NAME
+              value: psql-worker
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: psql-worker-home
+              mountPath: /home/jenkins
+      volumes:
+        - name: psql-worker-home
+          emptyDir: {}

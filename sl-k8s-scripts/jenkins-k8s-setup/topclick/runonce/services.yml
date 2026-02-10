@@ -1,0 +1,157 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: topclick
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: linkservice-service
+  namespace: topclick
+spec:
+  selector:
+    app: linkservice
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: supplierengagement-service
+  namespace: topclick
+spec:
+  selector:
+    app: supplierengagement
+  ports:
+    - protocol: TCP
+      port: 8091
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+  namespace: topclick
+spec:
+  selector:
+    app: audit
+  ports:
+    - protocol: TCP
+      port: 8092
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: stats-service
+  namespace: topclick
+spec:
+  selector:
+    app: stats
+  ports:
+    - protocol: TCP
+      port: 8093
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: woo-service
+  namespace: topclick
+spec:
+  selector:
+    app: woo
+  ports:
+    - protocol: TCP
+      port: 8094
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: adminwebsite-service
+  namespace: topclick
+spec:
+  selector:
+    app: adminwebsite
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbit-service
+  namespace: topclick
+spec:
+  selector:
+    app: rabbit
+  ports:
+    - protocol: TCP
+      port: 5672
+      targetPort: 5672
+  type: ClusterIP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbit-mgmt-service
+  namespace: topclick
+spec:
+  selector:
+    app: rabbit
+  ports:
+    - protocol: TCP
+      port: 15672
+      targetPort: 15672
+  type: ClusterIP
+  
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak-service
+  namespace: topclick
+spec:
+  selector:
+    app: keycloak
+  ports:
+    - protocol: TCP
+      port: 8100
+      targetPort: 8080
+  type: ClusterIP

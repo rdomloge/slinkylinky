@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cloudflared-topclick
+  namespace: topclick
+spec:
+  serviceName: cloudflared
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+        version: v1
+    spec:
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:latest
+          imagePullPolicy: Always
+          command: 
+            - cloudflared
+            - tunnel
+            - --metrics
+            - 0.0.0.0:2000
+            - run
+          args: ["--token", "$(token-value)"]
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 2000
+            initialDelaySeconds: 10
+            failureThreshold: 3
+            periodSeconds: 10
+          env:
+            - name: token-value
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflare-tunnel-secret
+                  key: topclick-token
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "200Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"
+

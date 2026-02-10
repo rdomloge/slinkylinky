@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminwebsite
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminwebsite
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: adminwebsite
+        version: v1
+    spec:
+      containers:
+        - name: adminwebsite
+          image: rdomloge/slinky-linky-adminwebsite:5.11.3-CI-10
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "150Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXTAUTH_SECRET
+              value: "b7f8c2e4-4a1d-4e9a-9f3b-2d8e8a7c6f1e_!S3cure$Str0ng#SSL@2025"
+            - name: NEXTAUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-website-config
+                  key: NEXTAUTH_URL
+            - name: GITHUB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth-secret
+                  key: GITHUB_SECRET
+            - name: GITHUB_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth-secret
+                  key: GITHUB_ID
+          startupProbe:
+            httpGet:
+              path: /demand
+              port: 3000
+            initialDelaySeconds: 10
+            failureThreshold: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+

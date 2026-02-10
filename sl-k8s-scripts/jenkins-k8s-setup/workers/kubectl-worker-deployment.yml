@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubectl-worker
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubectl-worker
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: kubectl-worker
+        version: v1
+    spec:
+      # Only run on a node that has the image-builder role
+      nodeSelector:
+        node-role.kubernetes.io/image-builder: "true"
+      containers:
+        - name: kubectl-worker
+          image: rdomloge/jenkins-worker-kubectl:1.0.0
+          imagePullPolicy: Always
+          env:
+            - name: JENKINS_URL
+              value: http://jenkins-service:8099
+            - name: JENKINS_SECRET
+              value: '[get from Jenkins secret in web UI]'
+            - name: JENKINS_AGENT_NAME
+              value: kubectl-worker
+            - name: JENKINS_AGENT_WORKDIR
+              value: /home/jenkins/agent
+            - name: JENKINS_AGENT_WORKDIR_ROOT
+              value: /home/jenkins
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"

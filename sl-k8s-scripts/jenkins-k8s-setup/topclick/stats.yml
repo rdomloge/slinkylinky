@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats
+  namespace: topclick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stats
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: stats
+        version: v1
+    spec:
+      containers:
+        - name: stats
+          image: rdomloge/slinky-linky-stats:6.0.2-CI-9
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: spring_datasource_url
+              valueFrom:
+                secretKeyRef:
+                  name: db-connection-secret
+                  key: STATS_DATABASE_URL
+            - name: server_port
+              value: "8080"
+            - name: slinkylinky_vhost
+              value: slinkylinky
+            - name: moz_secret
+              valueFrom:
+                secretKeyRef:
+                  name: stats-secret
+                  key: MOZ_SECRET
+            - name: linkservice_url
+              value: http://linkservice-service:8090
+            - name: semrush_key
+              valueFrom:
+                secretKeyRef:
+                  name: stats-secret
+                  key: SEMRUSH_KEY
+            - name: slinkylinky_rabbitmq_host
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
+            - name: JWK_SET_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: JWK_SET_URI
+            - name: ISSUER_URI
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
+          startupProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            failureThreshold: 30
+            periodSeconds: 2
+            timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            failureThreshold: 2
+            periodSeconds: 60
+            timeoutSeconds: 1

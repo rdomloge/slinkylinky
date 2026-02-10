@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup-rotation
+  namespace: slinkylinky
+spec:
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "30 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup
+            image: rdomloge/backup-rotation
+            command: ["rotate-backups"]
+            args: ["-H", "168", "-d", "90", "-w", "24", "-m", "12", "/backup"]
+            volumeMounts:
+              - name: backup-volume
+                mountPath: /backup
+          restartPolicy: OnFailure
+          volumes:
+          - name: backup-volume
+            persistentVolumeClaim:
+              claimName: sl-postgres-backup

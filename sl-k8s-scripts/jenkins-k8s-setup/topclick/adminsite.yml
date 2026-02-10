@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adminwebsite
+  namespace: topclick
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adminwebsite
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: adminwebsite
+        version: v1
+    spec:
+      containers:
+        - name: adminwebsite
+          image: rdomloge/slinky-linky-adminwebsite:6.0.11-CI-27
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "150Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXTAUTH_SECRET
+              value: "b7f8c2e4-4a1d-4e9a-9f3b-2d8e8a7c6f1e_!S3cure$Str0ng#SSL@2025"
+            - name: KEYCLOAK_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ID
+            - name: KEYCLOAK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_SECRET
+            - name: KEYCLOAK_ISSUER
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-credentials
+                  key: KEYCLOAK_ISSUER
+            - name: NEXTAUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-website-config
+                  key: NEXTAUTH_URL
+            # This next value is needed for when the app is running in k8s - back channel comms to keycloak fails if you go out via cloudflare and back in again
+            # https://next-auth.js.org/configuration/options#nextauth_url_internal
+            - name: NEXTAUTH_URL_INTERNAL
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-website-config
+                  key: NEXTAUTH_URL_INTERNAL
+            - name: GITHUB_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth-secret
+                  key: GITHUB_SECRET
+            - name: GITHUB_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-oauth-secret
+                  key: GITHUB_ID
+          startupProbe:
+            httpGet:
+              path: /demand
+              port: 3000
+            initialDelaySeconds: 3
+            failureThreshold: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+

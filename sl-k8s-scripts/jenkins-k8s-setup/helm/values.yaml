@@ -1,0 +1,352 @@
+tenant: "default-tenant"
+# Secrets configuration
+secrets:
+  - name: keycloak-credentials
+    type: Opaque
+    data:
+      # Keycloak database credentials
+      KC_DB_USERNAME: "keycloak"
+      KC_DB_PASSWORD: "changeme"
+      JWK_SET_URI: "https://keycloak.example.com/realms/myrealm/protocol/openid-connect/certs"
+      KEYCLOAK_ISSUER: "https://keycloak.example.com/realms/myrealm"
+      KEYCLOAK_ID: "sl-webapp"
+      KEYCLOAK_SECRET: "changeme"
+      # Keycloak client credentials for client credentials
+      KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID: "sl-server"
+      KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET: "changeme"
+      KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI: "http://keycloak-service:8100/realms/myrealm/protocol/openid-connect/token"
+      # This has to be the external URL otherwise the ISS in the token does not match
+      KEYCLOAK_BASE_URL: "changeme"
+
+  - name: db-connection-secret
+    type: Opaque
+    data:
+      # Database connection URL for Linkservice
+      LINKSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/slinkylinky'
+      LINKSERVICE_DB_PASSWORD: "changeme"
+      LINKSERVICE_DB_USERNAME: linkservice_user
+      STATS_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/stats'
+      STATS_DB_PASSWORD: "changeme"
+      STATS_DB_USERNAME: "stats_user"
+      AUDIT_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/audit'
+      AUDIT_DB_PASSWORD: "changeme"
+      AUDIT_DB_USERNAME: "audit_user"
+      SUPPLIERENGAGEMENT_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/supplierengagement'
+      SUPPLIERENGAGEMENT_DB_PASSWORD: "changeme"
+      SUPPLIERENGAGEMENT_DB_USERNAME: "supplierengagement_user"
+      POSTGRES_BACKUP_USER: "postgres"
+      POSTGRES_BACKUP_PASSWORD: "CHANGEME"
+
+  - name: stats-secret
+    type: Opaque
+    data:
+      MOZ_SECRET: "changeme"
+      SEMRUSH_KEY: "changeme"
+  
+  - name: mail-secret
+    type: Opaque
+    data:
+      SUPPLIERENGAGEMENT_MAIL_USERNAME: "changeme"
+      SUPPLIERENGAGEMENT_MAIL_PASSWORD: "changeme"
+      SUPPLIERENGAGEMENT_MAIL_HOST: "smtp.example.com"
+
+  - name: backup-ssh-credentials
+    type: Opaque
+    data:
+      BACKUP_USERNAME: "changeme"
+      BACKUP_HOST: "rdomloge.synology.me"
+
+  - name: backup-ssh-key
+    type: ssh-auth
+    data:
+      ssh-privatekey: |
+        -----BEGIN OPENSSH PRIVATE KEY-----
+        ...
+        -----END OPENSSH PRIVATE KEY-----
+
+# ConfigMaps configuration
+configMaps:
+  - name: rabbitmq-config
+    data:
+      RABBITMQ_HOST: "rabbit-service"
+  - name: admin-website-config
+    data:
+      NEXTAUTH_URL: "https://change-me"
+      NEXTAUTH_URL_INTERNAL: "http://adminwebsite-service:3000"
+  - name: common-config
+    data:
+      SLINKYLINKY_DOMAIN: "changeme.slinkylinky.uk"
+      SLINKYLINKY_VHOST: "slinkylinky"
+      SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
+      SLINKYLINKY_RABBITMQ_PORT: "5672"
+  - name: supplierengagement-config
+    data:
+      SPRING_MAIL_TESTING: "false"
+      MAIL_FROM: "no-reply@slinkylinky.uk"
+      MAIL_DECLINE_EMAIL_RECIPIENT_NAME: "Support Team"
+      MAIL_DECLINED_WARNING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
+      MAIL_BCCRECIPIENTS: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
+      MAIL_EXPIRED_WARNING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
+      MAIL_REQUESTSIGNOFF: "Your team at SlinkyLinky"
+      MAIL_REQUESTCONTACT: "support@slinkylinky.uk"
+
+# Chart overrides
+nameOverride: ""
+fullnameOverride: ""
+# ConfigMaps configuration
+deployments:
+  - name: linkservice
+    image: "rdomloge/slinky-linky-linkservice:6.0.7-CI-41"
+    cpuLimit: "500m"
+    memoryLimit: "512Mi"
+    startupFailureThreshold: 15
+    startupPeriod: 5
+    explicitEnv:
+      _JAVA_OPTIONS: "-Dlogging.level.ROOT=INFO"
+      chatgpt_model: "gpt-3.5-turbo"
+      chatgpt_api_key: "<SPECIFY>"
+      slinkylinky_vhost: "slinkylinky"
+    secretEnv:
+      spring_datasource_url: 
+        secretName: db-connection-secret
+        secretKey: LINKSERVICE_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: LINKSERVICE_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: LINKSERVICE_DB_USERNAME
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI: # named differently to match app config - is this the same value as KEYCLOAK_ISSUER in adminwebsite?
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+    ports:
+      - 5672
+      - 15672
+
+  - name: adminwebsite
+    image: "rdomloge/slinky-linky-adminwebsite:6.0.17-CI-35"
+    ports:
+      - 3000
+    cpuLimit: "250m"
+    secretEnv:
+      NEXTAUTH_SECRET:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_SECRET
+      KEYCLOAK_ID:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ID
+      KEYCLOAK_SECRET:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_SECRET
+      KEYCLOAK_ISSUER:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+    configMapEnv:
+      NEXTAUTH_URL:
+        configMapName: admin-website-config
+        configMapKey: NEXTAUTH_URL
+      NEXTAUTH_URL_INTERNAL:
+        configMapName: admin-website-config
+        configMapKey: NEXTAUTH_URL_INTERNAL
+    startupPort: 3000
+    livenessPort: 3000
+    livenessPath: /demand
+    readinessPort: 3000
+    readinessPath: /demand
+
+  - name: stats
+    image: "rdomloge/slinky-linky-stats:6.0.2-CI-9"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    explicitEnv:
+      server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
+      linkservice_url: "http://linkservice-service:8090"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+    secretEnv:
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: STATS_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: STATS_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: STATS_DB_USERNAME
+      moz_secret:
+        secretName: stats-secret
+        secretKey: MOZ_SECRET
+      semrush_key:
+        secretName: stats-secret
+        secretKey: SEMRUSH_KEY
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+  
+  - name: audit
+    image: "rdomloge/slinky-linky-audit:6.0.1-CI-5"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    explicitEnv:
+      server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+    secretEnv:
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: AUDIT_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: AUDIT_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: AUDIT_DB_USERNAME
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+
+  - name: supplierengagement
+    image: "rdomloge/slinky-linky-supplierengagement:6.0.8-CI-18"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    explicitEnv:
+      server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
+      linkservice_baseurl: "http://linkservice-service:8090/.rest"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+      slinkylinky_domain:
+        configMapName: common-config
+        configMapKey: SLINKYLINKY_DOMAIN
+      slinkylinky_vhost:
+        configMapName: common-config
+        configMapKey: SLINKYLINKY_VHOST
+      spring_mail_testing:
+        configMapName: supplierengagement-config
+        configMapKey: SPRING_MAIL_TESTING
+      mail_from:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_FROM
+      mail_declineEmailRecipientName:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_DECLINE_EMAIL_RECIPIENT_NAME
+      mail_declined_warning_addresses:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_DECLINED_WARNING_ADDRESSES
+      mail_bccRecipients:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_BCCRECIPIENTS
+      mail_expiredWarningAddresses:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_EXPIRED_WARNING_ADDRESSES
+      mail_requestsignoff:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_REQUESTSIGNOFF
+      mail_requestcontact:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_REQUESTCONTACT
+    secretEnv:
+      mail_username:
+        secretName: mail-secret
+        secretKey: SUPPLIERENGAGEMENT_MAIL_USERNAME
+      mail_password:
+        secretName: mail-secret
+        secretKey: SUPPLIERENGAGEMENT_MAIL_PASSWORD
+      mail_host:
+        secretName: mail-secret
+        secretKey: SUPPLIERENGAGEMENT_MAIL_HOST
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: SUPPLIERENGAGEMENT_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: SUPPLIERENGAGEMENT_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: SUPPLIERENGAGEMENT_DB_USERNAME
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+      keycloak_clientcredentials_client_id:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID
+      keycloak_clientcredentials_client_secret:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET
+      keycloak_clientcredentials_token_uri:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
+      keycloak_base_url:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_BASE_URL
+
+services:
+  - name: postgres-service
+    port: 5432
+    selectorAppName: postgres
+  - name: linkservice-service
+    port: 8090
+    targetPort: 8080
+    selectorAppName: linkservice
+  - name: supplierengagement-service
+    port: 8091
+    targetPort: 8080
+    selectorAppName: supplierengagement
+  - name: audit-service
+    port: 8092
+    targetPort: 8080
+    selectorAppName: audit
+  - name: stats-service
+    port: 8093
+    targetPort: 8080
+    selectorAppName: stats
+  - name: woo-service
+    port: 8094
+    targetPort: 8080
+    selectorAppName: woo
+  - name: adminwebsite-service
+    port: 3000
+    targetPort: 3000
+    selectorAppName: adminwebsite
+  - name: rabbit-service
+    port: 5672
+    targetPort: 5672
+    selectorAppName: rabbit
+  - name: rabbit-mgmt-service
+    port: 15672
+    targetPort: 15672
+    selectorAppName: rabbit
+  - name: keycloak-service
+    port: 8100
+    targetPort: 8080
+    selectorAppName: keycloak

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maven-worker
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maven-worker
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: maven-worker
+        version: v1
+    spec:
+      # Only run on a node that has the image-builder role
+      nodeSelector:
+        node-role.kubernetes.io/image-builder: "true"
+      containers:
+        - name: maven-worker
+          image: rdomloge/jenkins-worker-maven-jdk21-latest:1.0.14
+          imagePullPolicy: Always
+          env:
+            - name: JENKINS_URL
+              value: http://jenkins-service:8099
+            - name: JENKINS_SECRET
+              value: '[get from Jenkins secret in web UI]'
+            - name: JENKINS_AGENT_NAME
+              value: maven-worker
+            - name: JENKINS_AGENT_WORKDIR
+              value: /home/jenkins/agent
+            - name: JENKINS_AGENT_WORKDIR_ROOT
+              value: /home/jenkins
+            - name: JAVA_OPTS
+              value: '-Djava.util.logging.config.file=/home/jenkins/logging.properties'
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2Gi"
+          volumeMounts:
+            - name: maven-worker-logging-config
+              mountPath: /home/jenkins/logging.properties
+              subPath: logging.properties
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+      volumes:
+        - name: maven-worker-logging-config
+          configMap:
+            name: maven-worker-logging-config
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+
+---
+# Create a config map, containing Java log configuration, to be mounted on the worker pod as logging.properties
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maven-worker-logging-config
+  namespace: slinkylinky
+data:
+  logging.properties: |
+    handlers = java.util.logging.ConsoleHandler
+
+    # see https://docs.oracle.com/en/java/javase/17/docs/api/java.logging/java/util/logging/SimpleFormatter.html
+    java.util.logging.SimpleFormatter.format = [%1$tF %1$tT][%4$-6s][%2$s] %5$s %6$s %n
+
+    # Keep this level to ALL or FINEST or it will be filtered before applying other levels
+    java.util.logging.ConsoleHandler.level = ALL
+
+    # Default level - one of SEVERE, WARNING, INFO, CONFIG, FINE, FINER, FINEST (this only configured console output on the worker, not visible in the Jenkins UI)
+    .level= INFO
+
+    # High verbosity for a dedicated package com.myplugin.*
+    com.myplugin.level = ALL

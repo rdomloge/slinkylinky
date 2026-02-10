@@ -1,0 +1,98 @@
+pipeline {
+    
+    agent { label "helm-worker" }
+
+    environment {
+        BUILDER = 'mybuilder'
+        FOLDER = "${WORKSPACE}/jenkins-k8s-setup/helm"
+    }
+
+    parameters {
+        string(name: 'TENANT', description: 'Tenant to remove')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                withFolderProperties() {
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+                }
+            }
+        }
+
+        stage('Uninstall tenant using Helm') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            helm uninstall \\
+                            helm-${TENANT}
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Remove tunnel from Cloudflare') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            sh '''
+
+                            # Wait for the tunnel to be deleted
+                            kubectl wait --for=condition=Ready=false pod -l app=cloudflared -n ${TENANT} --timeout=60s
+
+                            echo "Removing tunnel for tenant ${TENANT}"
+
+                            # First, get the tunnel ID
+                            TUNNEL_ID=\$(curl -sS \\
+                            -X GET \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel?name=\${TENANT}" | jq -r '.result[0].id')
+
+                            curl -sS \\
+                            -X DELETE \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            "https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/\$TUNNEL_ID"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Remove DNS records from Cloudflare') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        sh """
+                        curl -sS \\
+                        -X GET \\
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                        -H "Content-Type: application/json" \\
+                        "https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records?name=${TENANT}.slinkylinky.uk" > dns-response.json
+
+                        DNS_RECORD_ID=\$(jq -r '.result[0].id' dns-response.json)
+
+                        curl -sS \\
+                        -X DELETE \\
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                        -H "Content-Type: application/json" \\
+                        "https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records/\$DNS_RECORD_ID"
+
+                        rm -f dns-response.json
+                        """
+                    }
+                }
+            }
+        }
+    }
+}

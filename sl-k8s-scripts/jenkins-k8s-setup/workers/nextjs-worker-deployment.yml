@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextjs-worker
+  namespace: slinkylinky
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextjs-worker
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: nextjs-worker
+        version: v1
+    spec:
+      containers:
+        - name: nextjs-worker
+          image: jenkins/jnlp-slave:4.3-4
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: jenkins_URL
+              value: http://jenkins-service:8080
+            - name: jenkins_SECRET
+              value: CHANGEME
+            - name: jenkins_AGENT_NAME
+              value: nextjs-worker
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          volumeMounts:
+            - name: nextjs-worker-home
+              mountPath: /home/jenkins
+      volumes:
+        - name: nextjs-worker-home
+          emptyDir: {}

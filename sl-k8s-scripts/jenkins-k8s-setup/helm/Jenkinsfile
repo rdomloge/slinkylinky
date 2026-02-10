@@ -1,0 +1,679 @@
+pipeline {
+    
+    agent { label "helm-worker" }
+
+    environment {
+        BUILDER = 'mybuilder'
+        FOLDER = "${WORKSPACE}/jenkins-k8s-setup/helm"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                withFolderProperties() {
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/sl-k8s-scripts.git"
+                }
+            }
+        }
+
+        stage('Generate tenant name') {
+            steps {
+                script {
+                    // Generate a unique tenant name using 3 chars followed by 5 numbers
+                    env.TENANT = sh(
+                        script: "cat /dev/urandom | tr -dc 'a-z' | head -c3; cat /dev/urandom | tr -dc '0-9' | head -c5",
+                        returnStdout: true
+                    ).trim()
+                    echo "Generated tenant name: ${env.TENANT}"
+                }
+            }
+        }
+
+        stage('Generate Password') {
+            steps {
+                script {
+                    // Generate a 24-character base64 password (strong and URL-safe)
+                    env.LINKSERVICE_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    env.KEYCLOAK_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    env.STATS_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    env.AUDIT_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    env.SUPPLIERENGAGEMENT_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
+                    env.KC_CLIENT_SECRET = sh(
+                        script: "tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 10",
+                        returnStdout: true
+                    ).trim()
+
+                    env.KC_CLIENT_CREDENTIALS_SECRET = sh(
+                        script: "tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 10",
+                        returnStdout: true
+                    ).trim()
+
+                    // Optional: verify variable exists but don't echo it
+                    echo "Passwords generated and stored in env var (not printing it for security)"
+                }
+            }
+        }
+
+        stage('Deploy platform via Helm') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            helm install \\
+                            helm-${TENANT} \\
+                            ${FOLDER} \\
+                            --set tenant=${TENANT} \\
+                            --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
+                            --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
+                            --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
+                            --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} \\
+                            --set SUPPLIERENGAGEMENT_DB_PASSWORD=${SUPPLIERENGAGEMENT_DB_PASSWORD}
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Update secrets in Kubernetes') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Update the existing db-connection-secret created by Helm
+                            kubectl -n ${TENANT} patch secret db-connection-secret \\
+                              --type='merge' \\
+                              -p='{
+                                "data": {
+                                  "LINKSERVICE_DB_PASSWORD": "'$(echo -n "${LINKSERVICE_DB_PASSWORD}" | base64 -w 0)'",
+                                  "KC_DB_PASSWORD": "'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",
+                                  "STATS_DB_PASSWORD": "'$(echo -n "${STATS_DB_PASSWORD}" | base64 -w 0)'",
+                                  "AUDIT_DB_PASSWORD": "'$(echo -n "${AUDIT_DB_PASSWORD}" | base64 -w 0)'",
+                                  "SUPPLIERENGAGEMENT_DB_PASSWORD": "'$(echo -n "${SUPPLIERENGAGEMENT_DB_PASSWORD}" | base64 -w 0)'"
+                                }
+                              }'
+                            
+                
+
+                            # Also update keycloak-credentials secret if it exists
+                            if kubectl -n ${TENANT} get secret keycloak-credentials >/dev/null 2>&1; then
+                                kubectl -n ${TENANT} patch secret keycloak-credentials \\
+                                  --type='merge' \\
+                                  -p='{"data":{"KC_DB_PASSWORD":"'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'"}}'
+                            fi
+                            
+                            # Update the SLINKYLINKY_DOMAIN in common-config ConfigMap
+                            kubectl -n ${TENANT} patch configmap common-config \\
+                              --type='merge' \\
+                              -p='{"data":{"SLINKYLINKY_DOMAIN":"'"${TENANT}.slinkylinky.uk"'"}}'
+                            '''
+
+                            
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Create tunnel in Cloudflare') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        sh """
+                        curl -sS \\
+                        -X POST \\
+                        -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                        -H "Content-Type: application/json" \\
+                        -d '{
+                          "name": "${TENANT}",
+                          "config_src": "cloudflare"
+                        }' \\
+                        https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel \\
+                         > create-tunnel-response.json
+                        """
+                        // Extract the tunnel secret from the credentials file
+                        env.TUNNEL_SECRET = sh(
+                            script: "jq -r '.result.credentials_file.TunnelSecret' create-tunnel-response.json",
+                            returnStdout: true
+                        ).trim()
+                        // Extract the tunnel ID from the credentials file
+                        env.TUNNEL_ID = sh(
+                            script: "jq -r '.result.credentials_file.TunnelID' create-tunnel-response.json",
+                            returnStdout: true
+                        ).trim()
+                        // Extract the token from the credentials file
+                        env.TUNNEL_TOKEN = sh(
+                            script: "jq -r '.result.token' create-tunnel-response.json",
+                            returnStdout: true
+                        ).trim()
+                        // delete response.json to clean up
+                        sh 'rm -f create-tunnel-response.json'
+                    }
+                }
+            }
+        }
+
+        stage('Setup tunnel routes & DNS') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        // ROUTES
+                        // ${TENANT}.slinkylinky.uk/realms/* => http://keycloak-service:8100
+                        // ${TENANT}.slinkylinky.uk/resources/* => http://keycloak-service:8100
+                        // ${TENANT}.slinkylinky.uk => http://adminwebsite-service:3000
+                        sh """
+                            curl -sS \\
+                            -X PUT \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            -d '{
+                                "config": {
+                                    "ingress": [
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/realms/*",
+                                            "service": "http://keycloak-service:8100",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/resources/*",
+                                            "service": "http://keycloak-service:8100",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/stats*",
+                                            "service": "http://stats-service:8093",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/mozsupport",
+                                            "service": "http://stats-service:8093",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/semrush",
+                                            "service": "http://stats-service:8093",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/auditrecords",
+                                            "service": "http://audit-service:8092",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/engagements/*",
+                                            "service": "http://supplierengagement-service:8091",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/*",
+                                            "service": "http://linkservice-service:8090",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
+                                            "service": "http://adminwebsite-service:3000",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "service": "http_status:404"
+                                        }
+                                    ]
+                                }
+                            }' \\
+                            https://api.cloudflare.com/client/v4/accounts/a3f61764f4abaee7c31e8ec3343172cd/cfd_tunnel/${TUNNEL_ID}/configurations \\
+                            > tunnel-routes-response.json
+                        """
+                        // DNS
+                        sh """
+                            curl -sS \\
+                            -X POST \\
+                            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            -d '{
+                                    "type": "CNAME",
+                                    "proxied": true,
+                                    "name": "${TENANT}.slinkylinky.uk",
+                                    "content": "${TUNNEL_ID}.cfargotunnel.com"
+                                }' \\
+                            https://api.cloudflare.com/client/v4/zones/93230fb6cec6bbe6ca142e2d20c945c9/dns_records \\
+                            > tunnel-dns-response.json
+                        """
+                        
+                    }
+                }
+            }
+        }
+
+        stage('Store the tunnel token as a K8S secret') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Create or update the cloudflared-tunnel-secret in Kubernetes
+                            kubectl -n ${TENANT} create secret generic cloudflared-tunnel-secret \\
+                              --from-literal=token="${TUNNEL_TOKEN}" \\
+                              --dry-run=client -o yaml | kubectl apply -f -
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+
+        stage('Run cloudflare tunnel') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            cat <<EOF | kubectl -n ${TENANT} apply -f -
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cloudflared-tunnel
+  namespace: ${TENANT}
+spec:
+  serviceName: cloudflared
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloudflared
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: cloudflared
+        version: v1
+    spec:
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:latest
+          imagePullPolicy: Always
+          command: 
+            - cloudflared
+            - tunnel
+            - --no-autoupdate
+            - --loglevel
+            - debug
+            - --metrics
+            - 0.0.0.0:2000
+            - run
+          livenessProbe:
+            httpGet:
+              path: /ready
+              port: 2000
+            initialDelaySeconds: 10
+            failureThreshold: 3
+            periodSeconds: 10
+          env:
+            - name: TUNNEL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: cloudflared-tunnel-secret
+                  key: token
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "200Mi"
+            limits:
+              cpu: "500m"
+              memory: "500Mi"
+EOF
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Post-install config updates') {
+            steps {
+                script {
+                    // Update the admin-website-config ConfigMap with the external URL
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh """
+                            # Update the admin-website-config ConfigMap with the external URL
+                            kubectl -n ${TENANT} patch configmap admin-website-config \\
+                              --type='merge' \\
+                              -p='{"data":{"NEXTAUTH_URL":"https://${TENANT}.slinkylinky.uk"}}'
+                            """
+                        }
+                    }
+                    // Update the admin-website-config ConfigMap  NEXTAUTH_URL with the external URL
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh """
+                            # Update the admin-website-config ConfigMap NEXTAUTH_URL with the external URL
+                            kubectl -n ${TENANT} patch configmap admin-website-config \\
+                              --type='merge' \\
+                              -p='{"data":{"NEXTAUTH_URL":"https://${TENANT}.slinkylinky.uk"}}'
+                            """
+                        }
+                    }
+
+                    // Update the keycloak-credentials secret with the correct URLs
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh """
+                                # Create the base64 encoded values first
+                                KEYCLOAK_ISSUER_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}" | base64 -w 0)
+                                JWK_SET_URI_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk/realms/${TENANT}/protocol/openid-connect/certs" | base64 -w 0)
+                                KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI_B64=\$(echo -n "/realms/${TENANT}/protocol/openid-connect/token" | base64 -w 0)
+                                KEYCLOAK_BASE_URL_B64=\$(echo -n "https://${TENANT}.slinkylinky.uk" | base64 -w 0)
+                                
+                                # Update the keycloak-credentials with the correct URLs
+                                kubectl -n ${TENANT} patch secret keycloak-credentials \\
+                                  --type='merge' \\
+                                  -p="{\\"data\\": {
+                                    \\"KEYCLOAK_ISSUER\\": \\"\$KEYCLOAK_ISSUER_B64\\", 
+                                    \\"JWK_SET_URI\\": \\"\$JWK_SET_URI_B64\\", 
+                                    \\"KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI\\": \\"\$KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI_B64\\",
+                                    \\"KEYCLOAK_BASE_URL\\": \\"\$KEYCLOAK_BASE_URL_B64\\"
+                                  }}"
+                            """
+                        }
+                    }
+
+                    // Patch the mail-secret with the values from the folder properties
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            
+                            sh '''
+                            USERNAME="'''+"${env.SUPPLIERENGAGEMENT_MAIL_USERNAME}"+'''"
+                            PASSWORD="'''+"${env.SUPPLIERENGAGEMENT_MAIL_PASSWORD}"+'''"
+                            HOST="'''+"${env.SUPPLIERENGAGEMENT_MAIL_HOST}"+'''"
+
+                            kubectl -n ${TENANT} patch secret mail-secret \\
+                              --type='merge' \\
+                              -p='{"data":{
+                                "SUPPLIERENGAGEMENT_MAIL_USERNAME":"'$(echo -n "$USERNAME" | base64 -w 0)'",
+                                "SUPPLIERENGAGEMENT_MAIL_PASSWORD":"'$(echo -n "$PASSWORD" | base64 -w 0)'",
+                                "SUPPLIERENGAGEMENT_MAIL_HOST":"'$(echo -n "$HOST" | base64 -w 0)'"
+                              }}'
+                            '''
+                        }
+                    }                    
+
+                    // The CLIENTCREDENTIALS stuff is for server-to-server auth
+                    // Connect to the Keycloak API and create the TENANT realm if it doesn't exist
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Wait for the Keycloak statefulset to be in a ready state
+                            GREP_RESULT=1  # Initialize as "not ready"
+                            i=1
+                            while [ $i -le 60 ]; do
+                                echo "Attempt $i/60: Checking if Keycloak pod is ready..."
+                                kubectl -n ''' + "${TENANT}" + ''' get pods -l app=keycloak -o jsonpath="{.items[0].status.containerStatuses[0].ready}" > /tmp/keycloak-ready-status
+                                if grep -q "true" /tmp/keycloak-ready-status; then
+                                    echo "Keycloak pod is ready!"
+                                    GREP_RESULT=0
+                                    break
+                                else
+                                    GREP_RESULT=1
+                                    sleep 5
+                                fi
+                                i=$((i + 1))
+                            done
+
+                            if [ $GREP_RESULT -ne 0 ]; then
+                                echo "Keycloak pod did not become ready in time. Exiting."
+                                exit 1
+                            fi
+
+                            rm -f /tmp/keycloak-ready-status
+                            '''
+
+                            sh '''
+                            # Create Keycloak realm and Auth0 client setup \\
+                            # Create a port-forward to Keycloak service \\
+                            kubectl -n '''+"${TENANT}"+''' port-forward svc/keycloak-service 9090:8100 & \\
+                            KUBE_PID=$!
+
+                            sleep 3  # Wait for port-forward to establish
+
+                            # Fetch admin access token
+                            RESPONSE=$(curl -sS -X POST "http://localhost:9090/realms/master/protocol/openid-connect/token" \\
+                            -H "Content-Type: application/x-www-form-urlencoded" \\
+                            -d "grant_type=password&client_id=admin-cli&username=admin&password=admin")
+
+                            ADMIN_TOKEN=$(echo $RESPONSE | jq -r '.access_token')
+
+                            # Create realm
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"realm": "'''+"${TENANT}"+'''", "enabled": true}' \\
+                            "http://localhost:9090/admin/realms"
+
+                            # Create client credentials client
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"clientId": "sl-webapp", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_SECRET}"+'''", "redirectUris": ["https://'''+"${TENANT}"+'''.slinkylinky.uk/*"], "webOrigins": ["https://'''+"${TENANT}"+'''.slinkylinky.uk"]}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients"
+
+                            # Create  credential client for server to server auth
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"clientId": "sl-server", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''", "serviceAccountsEnabled": true}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients"
+
+                            # Create Avatar URI user attribute (using client mappers instead of user-profile)
+                            # Get the sl-webapp client ID first
+                            CLIENT_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-webapp" | jq -r '.[0].id')
+                            
+                            # Create a user attribute mapper for avatar_uri
+                            ##   First need to get the current model
+                            MODEL=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/profile")
+                            
+                            ##   Now add a new attribute to the model
+                            UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "picture", "displayName": "Avatar URI", "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}, "multivalued": false}]')
+                            ##   Update the user profile with the new model
+                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "$UPDATED_MODEL" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/profile"
+
+                            # Create default user for the realm
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"username": "user", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["admin"]}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users"
+
+                            # create the realm roles 'tenant_admin' and 'global_admin' 
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "tenant_admin"}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/roles"
+
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "global_admin"}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/roles"
+
+                            # Create an admin user with the username admin
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"]}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users"
+
+                            # Give the admin user the realm the tenant_admin and global_admin realm roles
+                            # First, get the user ID of the admin user
+                            USER_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users?username=admin" | jq -r '.[0].id')
+                            # Next, get the role representations for tenant_admin and global_admin
+                            ROLE_REPRESENTATIONS=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/roles" | jq '[.[] | select(.name=="tenant_admin" or .name=="global_admin")]')
+                            # Finally, assign the roles to the user 
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "$ROLE_REPRESENTATIONS" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID/role-mappings/realm"
+
+                            # Kill the port-forward
+                            kill $KUBE_PID
+                            '''
+
+                            // Update the secret with the client secret
+                            sh '''
+                            kubectl -n ${TENANT} patch secret keycloak-credentials \\
+                              --type='merge' \\
+                              -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "'''+"${KC_CLIENT_SECRET}"+'''" | base64 -w 0)'",
+                                      "KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET":"'$(echo -n "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''" | base64 -w 0)'"}}'
+                            '''
+
+                            // Update the backup-ssh-credentials secret with the rsync user from the BACKUP_SSH_USERNAME env var
+                            sh '''
+                            RSYNC_USERNAME="'''+"${env.BACKUP_SSH_USERNAME}"+'''"
+                            kubectl -n ${TENANT} patch secret backup-ssh-credentials \\
+                              --type='merge' \\
+                              -p='{"data":{
+                                "BACKUP_USERNAME":"'$(echo -n "$BACKUP_SSH_USERNAME" | base64 -w 0)'"
+                              }}'
+                            '''
+
+                            // Update the backup-ssh-key secret with the SSH private key from the SSH_PRIVATE_KEY env var
+                            sh '''
+                            SSH_PRIVATE_KEY="'''+"${env.BACKUP_SSH_PRIVATE_KEY}"+'''"
+                            kubectl -n ${TENANT} patch secret backup-ssh-key \\
+                              --type='merge' \\
+                              -p='{"data":{
+                                "ssh-privatekey":"'$(echo -n "$SSH_PRIVATE_KEY" | base64 -w 0)'"
+                              }}'
+                            '''
+                        }
+                    }
+
+                    
+
+                    // Restart the adminwebsite deployment to pick up config changes
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            kubectl -n ${TENANT} rollout restart deployment/adminwebsite
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Scale down') {
+            steps {
+                // scale all (except the DB) deployments and statefulsets to 0 replicas to disconnect them from the database
+                withFolderProperties() {
+                    withKubeConfig(credentialsId: 'prod-k8s', 
+                                    serverUrl: "${env.K8S_SERVER_URL}") {
+
+                        sh '''
+                        kubectl -n ${TENANT} scale --replicas=0 deployment --all
+                        kubectl -n ${TENANT} scale --replicas=0 statefulset keycloak
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Load Database Schema') {
+
+            agent { label "psql-worker" }
+
+            environment {
+                MAIN_SCHEMA_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/slinkylinky-schema-backup.sql"
+                CORE_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/core-tables-backup.sql"
+                STATS_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/stats-tables-backup.sql"
+                AUDIT_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/audit-schema-backup.sql"
+                SUPPLIERENGAGEMENT_TABLES_FILE = "${WORKSPACE}/jenkins-k8s-setup/helm/supplierengagement-schema-backup.sql"
+            }
+
+            steps {
+                script {
+                    // Load schema into Postgres database, from schema-backup.sql and fpa-tables-backup.sql
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', 
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            # Create a port-forward to Postgres database
+                            kubectl -n ${TENANT} port-forward svc/postgres-service 5432:5432 & 
+                            KUBE_PID=$!
+
+                            sleep 3  # Wait for port-forward to establish
+
+                            # Load the schema SQL files
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MAIN_SCHEMA_FILE}"+'''
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${CORE_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${STATS_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${AUDIT_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${SUPPLIERENGAGEMENT_DB_PASSWORD}"+''' psql -h localhost -U supplierengagement_user -d supplierengagement -f '''+"${SUPPLIERENGAGEMENT_TABLES_FILE}"+'''
+
+                            # Kill the port-forward
+                            kill $KUBE_PID
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Scale up') {
+            steps {
+                // scale all deployments and statefulsets back to 1 replica
+                withFolderProperties() {
+                    withKubeConfig(credentialsId: 'prod-k8s', 
+                                    serverUrl: "${env.K8S_SERVER_URL}") {
+
+                        sh '''
+                        kubectl -n ${TENANT} scale --replicas=1 deployment --all
+                        kubectl -n ${TENANT} scale --replicas=1 statefulset --all
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
