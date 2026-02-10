@@ -1,0 +1,13 @@
+GET {{host}}/srMonthlyStats
+###
+GET {{host}}/stats/search/findByDomainInTimeRange?domain=uknewsgroup.co.uk&startDate=2020-01-01&endDate=2024-01-01
+###
+POST {{host}}/srMonthlyStats
+content-type: application/json
+
+{
+    "traffic": 250,
+    "date": "2023-01-28",
+    "domain": "uknewsgroup.co.uk"
+}
+###

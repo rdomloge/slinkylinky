@@ -1,0 +1,11 @@
+GET {{host}}/stats/fordomain?domain=uknewsgroup.co.uk&startDate=2024-01-01&endDate=2024-02-28
+###
+GET {{host}}/stats/fordomain?domain=tacklingourdebt.com&startDate=2023-01-31&endDate=2024-02-16
+###
+PATCH http://localhost:8080/.rest/suppliers/482
+Content-Type: application/json
+
+{
+    "updatedBy": "rudolf",
+    "da": 23
+}

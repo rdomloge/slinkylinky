@@ -1,0 +1,23 @@
+POST https://lsapi.seomoz.com/v2/links
+Authorization: Basic mozscape-a319a50eb7:6983ad49571ec937eab3522206234ae
+
+{
+    "target": "businessmention.co.uk",
+    "target_scope": "page",
+    "filter": "external+nofollow",
+    "limit": 2
+}
+###
+GET {{host}}/mozsupport/checklink?demandurl=swsweb.co.uk&supplierDomain=businessmention.co.uk
+###
+GET {{host}}/mozsupport/checklink?demandurl=www.frontpageadvantage.com&supplierDomain=businessmention.co.uk
+###
+GET {{host}}/mozsupport/checkdomain?domain=frontpageadvantage.com
+user: santa@clause.com
+###
+POST https://lsapi.seomoz.com/v2/url_metrics
+x-moz-token: UdycZvVEF8ePeyf9IFmuItW81qEfThmiuqk8D26mOSjypw7VCuRmZM7nw0OBIhAO
+
+{
+    "targets": ["newvalleynews.co.uk"]
+}
