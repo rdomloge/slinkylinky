@@ -15,8 +15,44 @@ import Counter from './Counter'
 import SupplierSemRushTraffic from './SupplierStats'
 import { addProtocol } from './Util'
 import { AuthorizedAccess } from './authorizedAccess'
+import { useState } from 'react'
 
 
+export function SupplierCardHorizontalRowLayout({supplier, linkable}) {
+
+    const [spam, setSpam] = useState();
+
+    return (
+        <div className="list-card-horizontal card relative">
+            <div className='grid grid-cols-12 gap-4'>
+                <div className='col-span-2'>
+                    {linkable ?
+                        <Link href={addProtocol(supplier.website)} className='col-span-11' target='_blank' rel='nofollow'>
+                            <span className='align-middle truncate'>{supplier.website}</span>
+                        </Link>
+                    :
+                        <span className='align-middle truncate'>{supplier.website}</span>
+                    }
+                </div>
+                <div className='col-span-2'>
+                    <CategoriesCard categories={supplier.categories}/>
+                </div>
+                <div className='col-span-3'>
+                    <SupplierSemRushTraffic supplier={supplier} showTrafficAnalysis={false} showSpamScore={false} dataListener={(data) => setSpam(data.length > 0 ? data[data.length-1].spamScore : null)}/>
+                </div>
+                <div className='col-span-1'>
+                    <span id='supplier-da' className='align-middle text-lg font-bold'>DA{supplier.da}</span>
+                </div>
+                <div className='col-span-1'>
+                    <span id='supplier-spam' className='align-middle text-lg font-bold'>{spam}%</span>
+                </div>
+                <div className='col-span-1'>
+                    <span id='supplier-fee' className='align-middle'>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id, showCategories = true, showSemRushTraffic = true}) {
 

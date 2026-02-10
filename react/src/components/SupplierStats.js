@@ -6,7 +6,7 @@ import PigIcon from '@/components/pig.svg'
 import { useEffect, useState, useRef } from "react";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
-export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null}) {
+export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null, showTrafficAnalysis = true, showSpamScore = true}) {
     const [trafficDataPoints, setTrafficDataPoints] = useState([]);
     const [spamScore, setSpamScore] = useState();
     const { data: session } = useSession();
@@ -89,8 +89,13 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false, dataLis
         {trafficDataPoints ?
             <>
             <LineGraph datapoints={trafficDataPoints}/>
-            <TrafficAnalyser datapoints={trafficDataPoints}/>
-            {adhoc || spamScore < 1 ? 
+            {showTrafficAnalysis ?
+                <TrafficAnalyser datapoints={trafficDataPoints}/>
+            : 
+                null
+            }
+            
+            {!showSpamScore || adhoc || spamScore < 1 ? 
                 null
             : 
                 <div>
