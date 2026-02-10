@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>com.domloge.slinkylinky</groupId>
 			<artifactId>events</artifactId>
-			<version>0.0.5-SNAPSHOT</version>
+			<version>6.1.0</version>
 		</dependency>
 
 		<dependency>
