@@ -1,0 +1,83 @@
+GET {{host}}/demands
+###
+GET {{host}}/demands/107
+###
+POST {{host}}/demands
+Content-Type: application/json
+
+{"name": "Highclere Gin Weddings",
+    "url": "www.hiccup.co.uk",
+    "daNeeded": 10,
+    "anchorText": "Let's get sloshed people",
+    "domain": "hiccup.co.uk",
+    "requested": "27/11/2023",
+    "requestedDate": "2023-11-27",
+    "categories": ["http://localhost:8080/categories/42", "http://localhost:8080/categories/4"] }
+###
+POST {{host}}/demands
+Content-Type: application/json
+
+{"name": "Murder She Wrote Retirement Home",
+    "url": "www.murdersw.co.uk",
+    "daNeeded": 11,
+    "anchorText": "Come stay with us",
+    "domain": "murdersw.co.uk",
+    "requested": "26/11/2023",
+    "requestedDate": "2023-11-26",
+    "categories": ["http://localhost:8080/categories/5", "http://localhost:8080/categories/4"] }
+###
+POST {{host}}/demands
+Content-Type: application/json
+
+{"name": "Ricks Rentals",
+    "url": "www.ricksrentals.co.uk",
+    "daNeeded": 12,
+    "anchorText": "Come stay with us",
+    "domain": "ricksrentals.co.uk",
+    "requested": "25/11/2023",
+    "requestedDate": "2023-11-25",
+    "categories": ["http://localhost:8080/categories/6", "http://localhost:8080/categories/4"] }
+###
+POST {{host}}/demands
+Content-Type: application/json
+
+{"name": "Carlas Clean Crew",
+    "url": "www.carlascc.co.uk",
+    "daNeeded": 13,
+    "anchorText": "Squeaky Clean Carla",
+    "domain": "carlascc.co.uk",
+    "requested": "24/11/2023",
+    "requestedDate": "2023-11-24",
+    "categories": ["http://localhost:8080/categories/8", "http://localhost:8080/categories/4"] }
+
+###
+POST {{host}}/demands
+Content-Type: application/json
+
+{"daNeeded":"23",
+    "name":"Ken",
+    "anchorText":"Anchortext",
+    "url":"https://www.disney.com",
+    "requested": "2023-12-15T00:00:00.000Z",
+    "categories":["http://localhost:8080/.rest/categories/5","http://localhost:8080/.rest/categories/4"]}
+###
+GET {{host}}/demands/search/findById?id=2&projection=fullLinkDemand
+###
+GET {{host}}/demands/search/findDemandForSupplierId?supplierId=1&linkdemandIdToIgnore=4
+###
+GET {{host}}/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullLinkDemand
+###
+GET {{host}}/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullLinkDemand
+###
+GET {{host}}/demands/108?projection=fullLinkDemand
+###
+GET {{host}}/demands/search/findDemandForSupplierId?supplierId=99&linkdemandIdToIgnore=245
+###
+DELETE {{host}}/demands/321
+###
+DELETE {{host}}/demandsupport/delete?demandId=336
+Content-Type: application/json
+user: bert@disney.com
+
+{"updatedBy":"rdomloge@gmail.com"}
+###

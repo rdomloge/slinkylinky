@@ -1,0 +1,68 @@
+GET {{host}}/proposals/502
+###
+
+POST {{host}}/proposals
+Content-Type: application/json
+
+{
+  "paidLinks": ["http://localhost:8080/paidlinks/2", "http://localhost:8080/paidlinks/1"],
+  "dateCreated": "2023-11-24T14:45:00Z"
+}
+###
+PATCH {{host}}/proposals/1
+Content-Type: application/json
+
+{
+  "contentReady": true,
+  "proposalSent": true
+}
+###
+PATCH {{host}}/proposals/2
+Content-Type: application/json
+
+{
+  "contentReady": true,
+  "proposalSent": true,
+  "proposalAccepted": true
+}
+###
+PATCH {{host}}/proposals/3
+Content-Type: application/json
+
+{
+  "contentReady": true,
+  "proposalSent": true,
+  "proposalAccepted": true,
+  "invoiceReceived": true
+}
+###
+GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
+?startDate=2023-01-01T00:00&endDate=2023-11-26T00:00
+###
+GET {{host}}/proposals/search/findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqual
+?startDate=2023-01-01T00:00&endDate=2023-11-26T00:00&projection=fullProposal
+###
+GET {{host}}/proposals/611/paidLinks?projection=fullProposal
+###
+GET {{host}}/paidlinks/826/demand
+###
+GET {{host}}/proposals/611?projection=fullProposal
+###
+GET {{host}}/proposals/653?projection=fullProposal
+###
+GET {{host}}/proposalsupport/getProposalsWithOriginalSuppliers?startDate=2024-02-01&endDate=2024-02-03
+###
+DELETE {{host}}/proposalsupport/abort?proposalId=1
+user: ernie@disney.com
+###
+PATCH {{host}}/proposals/1759
+Content-Type: application/json
+
+{
+  "doNotExpire": false,
+  "updatedBy": "Mickey Mouse"
+}
+###
+GET {{host}}/proposals/search/findAllByPaidLinks_Demand_Domain?domain=acticareuk.com&projection=liteProposal&size=20&page=0
+###
+GET {{host}}/proposals/search/findAllByPaidLinks_Demand_DomainOrderByDateCreatedDesc?domain=acticareuk.com

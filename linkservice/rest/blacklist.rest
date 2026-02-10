@@ -1,0 +1,22 @@
+GET {{host}}/blacklistedsuppliers
+###
+POST {{host}}/blacklistedsuppliers
+
+{
+  "nubbles": "5f5b1b3b4f3c7d001f2e3b3b"
+}
+###
+###
+POST {{host}}/blackListedSupplierSupport/addBlackListed?website=www.fartspanker.com&da=14&spamRating=23
+user: Rams
+
+{
+  "dateCreated": "2024-03-24T00:00:00",
+  "createdBy": "rdomloge@gmail.com"
+}
+###
+DELETE  {{host}}/blacklistedsuppliers/2
+###
+GET {{host}}/blacklistedsuppliers/search/findByDomainIgnoreCase?domain=www.urbansplatter.com
+###
+GET {{host}}/blackListedSupplierSupport/isBlackListed?website=www.disney.com

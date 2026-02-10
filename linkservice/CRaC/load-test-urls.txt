@@ -1,0 +1,15 @@
+host.docker.internal:8080/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=2024-10-01T00:00&endDate=2024-10-31T23:59&projection=full
+host.docker.internal:8080/.rest/proposals/1706?projection=fullProposal
+
+host.docker.internal:8080/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullDemand
+
+host.docker.internal:8080/.rest/suppliers/search/countByDisabledFalse
+host.docker.internal:8080/.rest/suppliers/search/count
+host.docker.internal:8080/.rest/suppliers/search/findByEmailContainsIgnoreCaseOrNameContainsIgnoreCaseOrDomainContainsIgnoreCaseOrCategories_NameInOrDaGreaterThan?projection=fullSupplier&da=40&categories=Architecture
+
+host.docker.internal:8080/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=758,1072,1073,1109,453,357,803,1110,363,1170,361,769,366,380,385,386,1077,393,397,403,417,421,422,540,440,781,489,952,452,437,443,445,446,450,1002,467,1080,959,484,468,454,491,455,495,461,499,464,501,503,526,702,532,535,368,396,903,424,653,465,456,457,459,536,537,538,485,487,438,336,356,431,435,444,447,462,466,374,451,802,436,953,1057,458,482,494,754,772,1111,1112,1113,1115,1104,1116,303,1160,448,907,1060,1061,783,808,905,343,954,786,785,1107,1114,1102,1163,490,441,428,809,773,957,354,463,469,442,509,1086,1087,1090,1091,1092,771,511,539,906,1093,958,1101,1105,1117,1164,1165,1302,752,506,533,439,527,762,763,765,776,522,488,1120,1119,1106,1118,909,1167,525,1257,486,764,1303,770,402,804,1352,1353,1402,449,1452,1162,559,1079,1308,1252,1306,1169,1058,1307,1305,1161
+
+host.docker.internal:8080/.rest/categories/search/findAllByDisabledFalseOrderByNameAsc
+
+host.docker.internal:8080/.rest/demandsites?projection=fullDemandSite&sort=name,asc&size=200
+host.docker.internal:8080/.rest/demandsites/702?projection=fullDemandSite

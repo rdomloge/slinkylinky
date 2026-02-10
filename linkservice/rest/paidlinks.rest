@@ -1,0 +1,13 @@
+POST {{host}}/paidlinks
+Content-Type: application/json
+
+{
+  "supplier": "http://localhost:8080/suppliers/4",
+  "linkDemand": "http://localhost:8080/linkdemands/50"
+}
+###
+GET {{host}}/paidlinks?projection=litePaidLink&size=2
+###
+GET http://localhost:3000/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=422
+###
+GET {{host}}/paidlinksupport/getcountsforsuppliers?supplierIds=422,312

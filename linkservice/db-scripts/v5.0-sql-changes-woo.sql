@@ -1,0 +1,1 @@
+alter table if exists woo_order add column total float(53)

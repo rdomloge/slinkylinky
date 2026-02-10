@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# This assumes that the database you are restoring to already is running on IP 10.0.0.229 and there is a 
+# backup file in the Windows Download named 2023-12-12T10_24_59Z-backup.sql
+
+## THE DATABASES MUST ALREADY EXIST AND BE OWNED BY SLINKYLINKY
+
+docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v 'C:/Users/Ramsay Domloge/Downloads/temp:/backup' -ti postgres \
+-f backup/2026-01-08_1600-backup.sql -h host.docker.internal -U slinkylinky postgres
+
+#docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v C:/Users/domloger/repos/chris/linkservice/db-scripts:/backup -ti postgres \
+#-f backup/v5.1-sql-changes-linksvc.sql -h host.docker.internal -U slinkylinky slinkylinky
+
+#docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v C:/Users/domloger/repos/chris/linkservice/db-scripts:/backup -ti postgres \
+#-f backup/v5.1-sql-changes-suppeng.sql -h host.docker.internal -U slinkylinky supplierengagement
