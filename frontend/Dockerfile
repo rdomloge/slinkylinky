@@ -15,14 +15,13 @@ RUN npm run build
 
 
 
-FROM --platform=amd64 node:alpine AS final-amd64
-COPY --from=adminsite_build /adminwebsite /adminwebsite
+FROM nginx:alpine AS final
 
-FROM --platform=arm64 node:alpine AS final-arm64
-COPY --from=adminsite_build /adminwebsite /adminwebsite
+# Copy the built static files from the Vite build
+COPY --from=adminsite_build /adminwebsite/dist /usr/share/nginx/html
 
+# SPA routing: serve index.html for all routes not matching a static file
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-
-FROM final-${TARGETARCH}
-WORKDIR /adminwebsite
-CMD [ "npm", "run", "start" ]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
