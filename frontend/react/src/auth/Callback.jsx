@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { exchangeCodeForTokens } from './AuthProvider';
+import { exchangeCodeForTokens, useAuth } from './AuthProvider';
 
 export default function Callback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const { loadSession } = useAuth();
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -15,6 +16,7 @@ export default function Callback() {
     }
 
     exchangeCodeForTokens(code)
+      .then(() => loadSession())
       .then(() => {
         const returnTo = sessionStorage.getItem('sl_return_to') || '/demand';
         sessionStorage.removeItem('sl_return_to');
