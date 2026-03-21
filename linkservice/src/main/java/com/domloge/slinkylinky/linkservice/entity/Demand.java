@@ -51,7 +51,7 @@ public class Demand {
     private int wordCount;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @Fetch(FetchMode.JOIN)
+    @Fetch(FetchMode.SUBSELECT)
     private Set<Category> categories;
 
 
