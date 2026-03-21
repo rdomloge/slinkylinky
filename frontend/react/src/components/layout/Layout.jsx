@@ -3,7 +3,7 @@ import Menu from './Menu';
 import Footer from './Footer';
 import Header from './Header';
 import { useAuth } from '@/auth/AuthProvider';
-import TenantWarning from '../tenantWarning';
+import TenantWarning from '../TenantWarning';
 
 export default function Layout ({children, pagetitle = " "}) {
 

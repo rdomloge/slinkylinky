@@ -1,7 +1,7 @@
-import WarningIcon from '@/components/warning.svg'
-import InfoIcon from '@/components/info.svg'
-import SuccessIcon from '@/components/success.svg'
-import ErrorIcon from '@/components/stop-sign.svg'
+import WarningIcon from '@/assets/warning.svg'
+import InfoIcon from '@/assets/info.svg'
+import SuccessIcon from '@/assets/success.svg'
+import ErrorIcon from '@/assets/stop-sign.svg'
 
 export default function ErrorMessage({message, iconWidth=32, iconHeight=32, id, iconClass='flex-initial inline-block align-middle mr-2', messageClass='inline-block text-red-700 align-middle'}) {
     return (

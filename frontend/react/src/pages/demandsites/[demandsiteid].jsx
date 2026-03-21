@@ -2,7 +2,7 @@ import AddOrEditDemandSite from "@/components/AddOrEditDemandSite";
 import React, {useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom'
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
+import PageTitle from "@/components/PageTitle";
 import Loading from "@/components/Loading";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 

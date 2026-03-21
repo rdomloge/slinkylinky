@@ -1,6 +1,6 @@
 import '@/styles/globals.css'
 import { Link } from 'react-router-dom';
-import { AuthorizedAccess } from '../authorizedAccess';
+import { AuthorizedAccess } from '../AuthorizedAccess';
 
 export default function Menu() {
     

@@ -4,7 +4,7 @@ import TextInput from '@/components/atoms/TextInput';
 import NumberInput from '@/components/atoms/NumberInput';
 import DemandSiteFinder from './DemandSiteFinder';
 import Loading from './Loading';
-import CategoriesCard from './categoriescard';
+import CategoriesCard from './CategoriesCard';
 import { StyledButton } from './atoms/Button';
 import { fixForPosting } from './CategoryUtil'; 
 import ErrorMessage from './atoms/Messages';

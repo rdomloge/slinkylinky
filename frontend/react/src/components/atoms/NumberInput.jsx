@@ -1,4 +1,4 @@
-import LockedImage from '@/components/locked.svg';
+import LockedImage from '@/assets/locked.svg';
 import { useState } from "react";
 
 export default function NumberInput({label, disabled, binding, changeHandler, id, step = 1, min = 0, max = 1000000}) {

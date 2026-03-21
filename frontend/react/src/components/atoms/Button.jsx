@@ -33,7 +33,9 @@ export function StyledButton({submitHandler, enabled = true, label = "Submit", t
 
     if (isText) {
         return (
-            <span id={id} onClick={submitHandler} className={textClass+" "+extraClass}>
+            <span id={id} onClick={enabled ? submitHandler : undefined}
+                  role="button" tabIndex={enabled ? 0 : -1}
+                  className={textClass+" "+extraClass}>
                 {label}
             </span>
         );

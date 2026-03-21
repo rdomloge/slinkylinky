@@ -1,5 +1,5 @@
-import Icon from '@/components/logo.png'
-import Profile from '../profile';
+import Icon from '@/assets/logo.png'
+import Profile from '../Profile';
 
 
 export default function Header() {

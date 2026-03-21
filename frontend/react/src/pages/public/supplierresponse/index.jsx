@@ -5,7 +5,7 @@ import { StyledButton } from "@/components/atoms/Button";
 import Modal from "@/components/atoms/Modal";
 import TextInput from "@/components/atoms/TextInput";
 import LayoutPublic from "@/components/layout/LayoutPublic";
-import PageTitle from "@/components/pagetitle";
+import PageTitle from "@/components/PageTitle";
 import Loading from "@/components/Loading";
 import Jumbotron from "@/components/Jumbotron";
 import StyledCheckbox from "@/components/atoms/Checkbox";
