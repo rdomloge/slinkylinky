@@ -111,6 +111,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
     }
 
     @GetMapping(path = "/getProposalsWithOriginalSuppliers", produces = "application/json")
+    @Transactional
     public ResponseEntity<Proposal[]> getProposal(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
 
         List<Proposal> proposals = proposalRepo.findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
@@ -128,6 +129,10 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
             Supplier currentSupplier = p.getPaidLinks().get(0).getSupplier();
             if (p.getSupplierSnapshotVersion() != currentSupplier.getVersion()) {
                 String cacheKey = currentSupplier.getId() + ":" + p.getSupplierSnapshotVersion();
+                // Detach the current Supplier before any Envers lookup: Envers loads the same
+                // entity at an older revision with version=null. Having both versions in the
+                // same session causes a version conflict (see EntityManager javadoc on detach).
+                entityManager.detach(currentSupplier);
                 Supplier originalSupplier = enversCache.computeIfAbsent(cacheKey, k -> {
                     if (p.getSupplierSnapshot() != null) {
                         // Fast path: deserialize from stored JSON — zero Envers queries
@@ -163,14 +168,14 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
             }
         });
 
-        // Persist newly populated snapshots using a targeted UPDATE — does not touch paidLinks.
-        // Must clear the Hibernate session first: the modified PaidLink entities reference
-        // Envers-sourced Supplier objects that have version=null (Envers does not store the
-        // @Version field in supplier_aud). Hibernate auto-flushes before any write transaction
-        // and rejects the null version. Clearing the session drops that dirty tracking;
-        // the already-loaded in-memory objects are unaffected and still serializable by Jackson.
+        // Clear the Hibernate session unconditionally: PaidLinks were mutated in memory to
+        // reference Envers-sourced Supplier objects that have version=null (Envers does not
+        // store the @Version field in supplier_aud). Without this, the @Transactional flush
+        // at method exit rejects the null version on BOTH the backfill path AND the fast
+        // JSON-deserialization path. Clearing drops dirty tracking; the already-loaded
+        // in-memory objects are unaffected and still serializable by Jackson.
+        entityManager.clear();
         if (!snapshotsToSave.isEmpty()) {
-            entityManager.clear();
             snapshotsToSave.forEach(p -> proposalRepo.updateSupplierSnapshot(p.getId(), p.getSupplierSnapshot()));
         }
 
@@ -197,24 +202,29 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         
         log.info(user + " is creating a proposal for supplier {} for demands {} ", supplierId, Arrays.toString(demandIds));
         
+        // 0 = ok, 400 = conflict, 404 = not found
+        int[] errorStatus = {0};
+
         Proposal dbProposal = transactionTemplate.execute(status ->  {
             Optional<Supplier> supplierOpt = supplierRepo.findById(supplierId);
                 if( ! supplierOpt.isPresent()) {
+                    errorStatus[0] = 404;
                     return null;
                 }
-                
+
                 Supplier supplier = supplierOpt.get();
-                
+
                 List<Demand> dbDemands = new LinkedList<>();
                 Arrays.stream(demandIds).forEach(i -> {
                     Optional<Demand> demand = demandRepo.findById(i);
                     if (demand.isEmpty()) {
                         log.error("Demand with id {} does not exist", i);
-                        return;                
+                        return;
                     }
                     dbDemands.add(demand.get());
                 });
                 if(dbDemands.size() != demandIds.length) {
+                    errorStatus[0] = 404;
                     return null;
                 }
 
@@ -222,9 +232,10 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 List<Demand> existingPaidLinks = dbDemands.stream()
                     .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(d.getDomain(), supplier.getDomain()))
                     .collect(Collectors.toList());
-                
+
                 if(existingPaidLinks.size() > 0) {
                     log.error("There's already a paid link between supplier {} and one of the demands {}", supplierId, Arrays.toString(demandIds));
+                    errorStatus[0] = 400;
                     return null;
                 }
                 
@@ -268,7 +279,9 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         });
 
         if(dbProposal == null) {
-            return ResponseEntity.badRequest().build();
+            return errorStatus[0] == 404
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.badRequest().build();
         }
 
         
