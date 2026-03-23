@@ -43,6 +43,7 @@ export default function SupplierListView() {
     const [sortBy, setSortBy]                   = useState('');
     const [sortDir, setSortDir]                 = useState('asc');
     const [isLoading, setIsLoading]             = useState(false);
+    const [responsiveness, setResponsiveness]   = useState({});
 
     // Debounce search input (300ms)
     useEffect(() => {
@@ -56,6 +57,14 @@ export default function SupplierListView() {
         if (isFirstRender.current) { isFirstRender.current = false; return; }
         navigate('/supplier/list2?page=1');
     }, [search, includeDisabled, sortBy, sortDir]);
+
+    // Fetch responsiveness data once
+    useEffect(() => {
+        fetchWithAuth("/.rest/stats/responsiveness/all")
+            .then(res => res.ok ? res.json() : {})
+            .then(data => setResponsiveness(data))
+            .catch(() => {});
+    }, []);
 
     // Fetch
     useEffect(() => {
@@ -128,6 +137,7 @@ export default function SupplierListView() {
                     <div className="w-24 shrink-0">
                         <SortHeader label="Fee" field="weWriteFee" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                     </div>
+                    <div className="w-28 shrink-0 text-xs font-semibold text-gray-500 uppercase tracking-wide">Responsiveness</div>
                     <div className="w-10 shrink-0"/>
                 </div>
 
@@ -137,7 +147,7 @@ export default function SupplierListView() {
                     : suppliers.length === 0
                         ? <p className="text-sm text-gray-400 text-center py-12">No suppliers found.</p>
                         : suppliers.map((s, i) =>
-                            <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true}/>
+                            <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} responsiveness={responsiveness[s.id]}/>
                         )
                 }
 

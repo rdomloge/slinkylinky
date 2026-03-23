@@ -6,6 +6,7 @@ import MoneyIcon from '@/assets/tag.svg'
 import EnterIcon from '@/assets/enter.svg'
 import { Link } from 'react-router-dom'
 import Counter from './Counter'
+import ResponsivenessLabel from './ResponsivenessLabel'
 import SupplierSemRushTraffic from './SupplierStats'
 import { addProtocol } from './Util'
 import { AuthorizedAccess } from './AuthorizedAccess'
@@ -46,7 +47,7 @@ function SupplierStatsPopover({ supplier, anchor }) {
     );
 }
 
-export function SupplierCardHorizontalRowLayout({supplier, linkable}) {
+export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiveness}) {
     const [anchorRect, setAnchorRect] = useState(null);
     const trafficRef = useRef(null);
 
@@ -115,6 +116,11 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable}) {
                 )}
             </div>
 
+            {/* Responsiveness */}
+            <div className="w-28 shrink-0">
+                <ResponsivenessLabel avgResponseDays={responsiveness?.avgResponseDays} />
+            </div>
+
             {/* Edit */}
             <div className="w-10 shrink-0 text-right">
                 <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
@@ -128,7 +134,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable}) {
     )
 }
 
-export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id, showCategories = true, showSemRushTraffic = true}) {
+export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true}) {
 
     return (
         <div id={id} className="card list-card relative">
@@ -203,6 +209,9 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                 }
                 {usages &&
                     <Counter count={usages[supplier.id]} low={2} medium={5} high={25}/>
+                }
+                {responsiveness && responsiveness[supplier.id] &&
+                    <ResponsivenessLabel avgResponseDays={responsiveness[supplier.id].avgResponseDays} />
                 }
             </div>
 

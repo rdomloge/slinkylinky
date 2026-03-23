@@ -50,4 +50,10 @@ public interface ProposalRepo extends CrudRepository <Proposal, Long>, PagingAnd
     @Transactional
     @Query("UPDATE Proposal p SET p.supplierSnapshot = :snapshot WHERE p.id = :id")
     void updateSupplierSnapshot(@Param("id") long id, @Param("snapshot") String snapshot);
+
+    @Query("SELECT p FROM Proposal p JOIN p.paidLinks pl " +
+           "WHERE p.dateSentToSupplier IS NOT NULL " +
+           "AND p.dateBlogLive IS NOT NULL " +
+           "ORDER BY p.dateBlogLive DESC")
+    List<Proposal> findCompletedProposalsWithBothDates();
 }

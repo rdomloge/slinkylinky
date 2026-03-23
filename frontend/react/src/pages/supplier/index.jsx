@@ -22,6 +22,7 @@ export default function ListBloggers() {
     const [supplierCount, setSupplierCount] = useState()
     const [activeSupplierCount, setActiveSupplierCount] = useState()
     const [supplierUsageCount, setSupplierUsageCount] = useState();
+    const [responsiveness, setResponsiveness] = useState();
     const [daFilter, setDaFilter] = useState(0)
     const [showDisabled, setShowDisabled] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -36,6 +37,11 @@ export default function ListBloggers() {
         fetchWithAuth(activeCountUrl)
             .then( (res) => res.json())
             .then( (data) => setActiveSupplierCount(data));
+
+        fetchWithAuth("/.rest/stats/responsiveness/all")
+            .then(res => res.ok ? res.json() : {})
+            .then(data => setResponsiveness(data))
+            .catch(() => {});
     }, []);
 
     useEffect(
@@ -132,7 +138,7 @@ export default function ListBloggers() {
                 <div className="grid grid-cols-3">
                     {suppliers.map( (s, index) => 
                         <div key={index}>
-                            <SupplierCard supplier={s} editable={true} usages={supplierUsageCount} linkable={true} id={"supplier-card-"+index}/>
+                            <SupplierCard supplier={s} editable={true} usages={supplierUsageCount} responsiveness={responsiveness} linkable={true} id={"supplier-card-"+index}/>
                         </div>
                     )}
                 </div> 
