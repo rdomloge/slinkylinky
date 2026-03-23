@@ -1,6 +1,6 @@
 
 import { useAuth } from "@/auth/AuthProvider";
-import Icon from "@/components/user.svg";
+import Icon from "@/assets/user.svg";
 
 export default function Profile() {
     const { user, signIn, signOut } = useAuth();

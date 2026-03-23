@@ -2,11 +2,11 @@ import AddOrEditSupplier from "@/components/AddOrEditSupplier";
 import { StyledButton } from "@/components/atoms/Button";
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
-import NewSupplierBulkUpload from "@/components/newSupplierBulkUpload";
+import PageTitle from "@/components/PageTitle";
+import NewSupplierBulkUpload from "@/components/NewSupplierBulkUpload";
 
 import { useState } from "react";
-import NewSupplierBulkUploadList from "@/components/newSupplierBulkUploadList";
+import NewSupplierBulkUploadList from "@/components/NewSupplierBulkUploadList";
 
 
 export default function NewSupplier() {

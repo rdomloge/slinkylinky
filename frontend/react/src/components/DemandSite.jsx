@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { CategoryLite } from "./category";
-import ArrowIcon from '@/pages/demand/left-chevron.svg'
+import ArrowIcon from '@/assets/left-chevron.svg'
 import SessionButton, { SessionBlock, StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import { useState } from "react";

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
+import PageTitle from "@/components/PageTitle";
 import AddOrEditDemand from '@/components/AddOrEditDemand';
 
 export default function NewDemand() {

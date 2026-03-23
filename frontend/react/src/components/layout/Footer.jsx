@@ -1,4 +1,4 @@
-import Icon from '@/components/logo.png'
+import Icon from '@/assets/logo.png'
 
 export default function Footer() {
     return (

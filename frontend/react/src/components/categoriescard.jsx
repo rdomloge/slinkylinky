@@ -1,6 +1,6 @@
 import '@/styles/globals.css'
 import React, {useState, useEffect} from 'react'
-import Category, { CategoryLite } from './category';
+import Category, { CategoryLite } from './Category';
 
 export default function CategoriesCard({categories}) {
     

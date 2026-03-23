@@ -4,7 +4,7 @@ import DemandSiteSearchResult from './DemandSite';
 import Modal from './atoms/Modal';
 import TextInput from './atoms/TextInput';
 import { ClickHandlerButton } from './atoms/Button';
-import Icon from '@/pages/demand/arrow-bend-up-left.svg';
+import Icon from '@/assets/arrow-bend-up-left.svg';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}) {
@@ -71,7 +71,7 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
                 )
             :
             <div className="">
-                <img src={Icon} alt="arrow up and left" /> 
+                <img src={Icon} alt="arrow up and left" />
                 <p className="text-slate-500 text-7xl">Specify a name</p>
                 <p className="text-slate-500 text-4xl pt-4">3 characters min.</p>
             </div>

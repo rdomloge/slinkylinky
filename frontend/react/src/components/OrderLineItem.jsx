@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
-import WarningIcon from '@/components/warning.svg'
+import WarningIcon from '@/assets/warning.svg'
 import { fetchWithAuth } from "@/utils/fetchWithAuth"
 
 export default function OrderLineItem({lineItem}) {

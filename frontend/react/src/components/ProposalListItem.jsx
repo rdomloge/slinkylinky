@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 
 import NiceDate from "./atoms/DateTime";
 import TrafficLights from "./ProposalTrafficLights";
-import SupplierSummary from './supplierSummary';
+import SupplierSummary from './SupplierSummary';
 import { Link } from 'react-router-dom';
 import DemandHeadline from './DemandHeadline';
 

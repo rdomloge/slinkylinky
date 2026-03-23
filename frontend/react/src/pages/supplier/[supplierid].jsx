@@ -1,5 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
+import PageTitle from "@/components/PageTitle";
 import AddOrEditSupplier from "@/components/AddOrEditSupplier";
 import React, {useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom'

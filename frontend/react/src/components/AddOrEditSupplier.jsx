@@ -1,7 +1,7 @@
 import { useAuth } from "@/auth/AuthProvider";
 
 import CategorySelector from '@/components/CategorySelector'
-import Icon from '@/components/shipping.png'
+import Icon from '@/assets/shipping.png'
 import TextInput from '@/components/atoms/TextInput'
 import NumberInput from '@/components/atoms/NumberInput'
 import React, {useEffect, useState} from 'react';

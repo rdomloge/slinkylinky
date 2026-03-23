@@ -1,18 +1,18 @@
 import React, {useState, useEffect} from 'react'
 import { Link } from "react-router-dom";
 
-import Icon from '@/pages/supplier/arrow-bend-up.svg'
+import Icon from '@/assets/arrow-bend-up.svg'
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
-import SupplierCard from "@/components/suppliercard";
+import PageTitle from "@/components/PageTitle";
+import SupplierCard from "@/components/SupplierCard";
 import TextInput from "@/components/atoms/TextInput";
 import CategoryFilter from "@/components/CategorySelector";
 import SessionButton from "@/components/atoms/Button";
 import NumberInput from '@/components/atoms/NumberInput';
 import Loading from '@/components/Loading';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import { AuthorizedAccess } from '@/components/authorizedAccess';
+import { AuthorizedAccess } from '@/components/AuthorizedAccess';
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()

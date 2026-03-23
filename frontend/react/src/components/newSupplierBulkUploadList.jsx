@@ -1,4 +1,4 @@
-import Icon from '@/components/left-arrow.svg'
+import Icon from '@/assets/left-arrow.svg'
 
 export default function NewSupplierBulkUploadList({data, selectionHandler}) {
 

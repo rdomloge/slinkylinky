@@ -1,9 +1,9 @@
 import React, {useState, useEffect} from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import PageTitle from '@/components/pagetitle'
+import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
-import SupplierCard from '@/components/suppliercard'
-import DemandCard from '@/components/demandcard'
+import SupplierCard from '@/components/SupplierCard'
+import DemandCard from '@/components/DemandCard'
 import TrafficLights from '@/components/ProposalTrafficLights'
 import NiceDate from '@/components/atoms/DateTime'
 import { Link } from 'react-router-dom'
@@ -14,8 +14,8 @@ import { useAuth } from '@/auth/AuthProvider'
 import DotMenu from '@/components/atoms/DotMenu'
 import LabeledText from '@/components/atoms/LabeledText'
 import { addProtocol } from '@/components/Util'
-import Timer from "@/pages/proposals/timer.svg";
-import DoNotExpire from "@/pages/proposals/expired.svg";
+import Timer from "@/assets/timer.svg";
+import DoNotExpire from "@/assets/expired.svg";
 import AddOrEditDemand from '@/components/AddOrEditDemand'
 import { fetchWithAuth } from '@/utils/fetchWithAuth'
 

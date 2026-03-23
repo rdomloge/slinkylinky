@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
-import PageTitle from '@/components/pagetitle'
+import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import AddOrEditDemand from '@/components/AddOrEditDemand'
 import Loading from '@/components/Loading'

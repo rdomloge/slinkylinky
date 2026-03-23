@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { useAuth } from "@/auth/AuthProvider";
-import DemandCard from '@/components/demandcard';
-import PageTitle from '@/components/pagetitle'
+import DemandCard from '@/components/DemandCard';
+import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout';
 import { Link } from 'react-router-dom';
 import OwnerFilter from '@/components/OwnerFilter';

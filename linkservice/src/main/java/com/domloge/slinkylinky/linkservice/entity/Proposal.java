@@ -66,6 +66,18 @@ public class Proposal {
     @Column(columnDefinition = "bigint default 0")
     private long supplierSnapshotVersion;
 
+    // Stores the Envers revision number of the supplier at proposal creation time.
+    // Enables direct auditReader.find() without a preceding getRevisions() call.
+    // 0 means unset (legacy proposal created before this field existed).
+    @Column(columnDefinition = "bigint default 0")
+    private long supplierSnapshotRevision;
+
+    // JSON snapshot of the supplier as it was when the proposal was created.
+    // When present, eliminates all Envers queries at read time.
+    // Null for proposals created before this field was introduced (legacy path via Envers still used).
+    @Column(columnDefinition = "TEXT")
+    private String supplierSnapshot;
+
     @Lob
     @Column(columnDefinition="TEXT")
     private String article;

@@ -2,9 +2,9 @@ import React, {useState, useEffect} from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useAuth } from "@/auth/AuthProvider";
 
-import DemandCard from '@/components/demandcard'
-import SupplierCard from '@/components/suppliercard'
-import PageTitle from '@/components/pagetitle'
+import DemandCard from '@/components/DemandCard'
+import SupplierCard from '@/components/SupplierCard'
+import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import SelectableDemandCard from '@/components/SelectableDemandCard'
 import Loading from '@/components/Loading';

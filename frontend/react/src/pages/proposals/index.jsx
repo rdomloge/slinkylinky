@@ -4,12 +4,12 @@ import { useSearchParams } from 'react-router-dom'
 
 import ProposalListItem from "@/components/ProposalListItem";
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
-import MonthsBack from "@/components/monthsBack";
+import PageTitle from "@/components/PageTitle";
+import MonthsBack from "@/components/MonthsBack";
 import Loading from '@/components/Loading';
-import Divider from '@/components/divider';
+import Divider from '@/components/Divider';
 import { Link } from 'react-router-dom';
-import FiltersPanel from '@/components/filters';
+import FiltersPanel from '@/components/Filters';
 import { Toggle } from '@/components/atoms/Toggle';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
@@ -23,6 +23,7 @@ export default function ListProposals() {
     const [waitingForSupplier, setWaitingForSupplier] = useState([]);
     const [waitingForAdmin, setWaitingForAdmin] = useState([]);
     const [unpaidfilter, setUnpaidFilter] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     function isLeapYear(year) { 
         return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
@@ -111,7 +112,8 @@ export default function ListProposals() {
         () => {
             const minusMonths = searchParams.get('minusMonths')
 
-            fetchWithAuth(buildUrl(minusMonths))
+            setIsLoading(true);
+        fetchWithAuth(buildUrl(minusMonths))
                 .then( (res) => {
                     if(!res.ok) {
                         throw new Error("Can't fetch proposals.")
@@ -121,8 +123,12 @@ export default function ListProposals() {
                 .then( (data) => {
                     filterProposals(data);
                     setProposals(data);
+                    setIsLoading(false);
                 })
-                .catch( (error) => setError(error.message));
+                .catch( (error) => {
+                    setError(error.message);
+                    setIsLoading(false);
+                });
 
         }, [searchParams]
     );
@@ -144,46 +150,46 @@ export default function ListProposals() {
             
             <Divider text={"Waiting for us"} size='text-3xl' id='waiting-for-us'/>
 
-            {waitingForAdmin ?
+            {isLoading ?
+                <Loading error={error}/>
+            :
                 <ul>
-                {waitingForAdmin.map( (p) => 
+                {waitingForAdmin.map( (p) =>
                     <li className="m-2" key={p.id}>
                         <ProposalListItem proposal={p}/>
                     </li>
                 )}
                 </ul>
-            : 
-                <Loading error={error}/>
             }
-            
-            
+
+
             <Divider text={"Waiting for them"} size='text-3xl' id='waiting-for-them'/>
 
-            {waitingForSupplier ?
+            {isLoading ?
+                <Loading error={error}/>
+            :
                 <ul>
-                {waitingForSupplier.map( (p) => 
+                {waitingForSupplier.map( (p) =>
                     <li className="m-2" key={p.id}>
                         <ProposalListItem proposal={p}/>
                     </li>
                 )}
                 </ul>
-            : 
-                <Loading error={error}/>
             }
-            
-            
+
+
             <Divider text={"Complete"} size='text-3xl' id='complete-proposals'/>
 
-            {completeProposals ?
+            {isLoading ?
+                <Loading error={error}/>
+            :
                 <ul>
-                {completeProposals.map( (p) => 
+                {completeProposals.map( (p) =>
                     <li className="m-2" key={p.id}>
                         <ProposalListItem proposal={p}/>
                     </li>
                 )}
                 </ul>
-            : 
-                <Loading error={error}/>
             }
         </Layout>
     );

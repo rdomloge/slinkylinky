@@ -2,9 +2,12 @@ package com.domloge.slinkylinky.linkservice.controller;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -40,6 +43,7 @@ import com.domloge.slinkylinky.linkservice.repo.PaidLinkRepo;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.rjeschke.txtmark.Processor;
 
 import jakarta.annotation.PostConstruct;
@@ -81,6 +85,9 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     private TransactionTemplate transactionTemplate;
 
 
@@ -104,23 +111,73 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
     }
 
     @GetMapping(path = "/getProposalsWithOriginalSuppliers", produces = "application/json")
+    @Transactional
     public ResponseEntity<Proposal[]> getProposal(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
-        
+
         List<Proposal> proposals = proposalRepo.findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
             endDate, startDate);
-        // for each proposal, check if the supplier has been updated since the proposal was created
-        proposals.stream().forEach(p -> {
+
+        // Only needed for proposals that still lack a JSON snapshot (legacy / first access).
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
+        // Per-request cache: avoids duplicate Envers calls when proposals share the same
+        // supplier at the same snapshot version within a single request.
+        Map<String, Supplier> enversCache = new HashMap<>();
+        // Proposals whose supplierSnapshot was lazily populated this request — persist after the loop.
+        List<Proposal> snapshotsToSave = new ArrayList<>();
+
+        proposals.forEach(p -> {
             Supplier currentSupplier = p.getPaidLinks().get(0).getSupplier();
-            if(p.getSupplierSnapshotVersion() != currentSupplier.getVersion()) {
-                AuditReader auditReader = AuditReaderFactory.get(entityManager);
-                List<Number> revisions = auditReader.getRevisions(Supplier.class, currentSupplier.getId());
-                Supplier originalSupplier = auditReader.find(Supplier.class, currentSupplier.getId(), revisions.get((int) p.getSupplierSnapshotVersion()));
+            if (p.getSupplierSnapshotVersion() != currentSupplier.getVersion()) {
+                String cacheKey = currentSupplier.getId() + ":" + p.getSupplierSnapshotVersion();
+                // Detach the current Supplier before any Envers lookup: Envers loads the same
+                // entity at an older revision with version=null. Having both versions in the
+                // same session causes a version conflict (see EntityManager javadoc on detach).
+                entityManager.detach(currentSupplier);
+                Supplier originalSupplier = enversCache.computeIfAbsent(cacheKey, k -> {
+                    if (p.getSupplierSnapshot() != null) {
+                        // Fast path: deserialize from stored JSON — zero Envers queries
+                        try {
+                            return objectMapper.readValue(p.getSupplierSnapshot(), Supplier.class);
+                        } catch (Exception e) {
+                            log.warn("Failed to deserialize supplier snapshot for proposal {}, falling back to Envers", p.getId(), e);
+                        }
+                    }
+                    // Envers path: used for legacy proposals and first access before snapshot is stored
+                    if (p.getSupplierSnapshotRevision() > 0) {
+                        return auditReader.find(Supplier.class, currentSupplier.getId(), p.getSupplierSnapshotRevision());
+                    }
+                    List<Number> revisions = auditReader.getRevisions(Supplier.class, currentSupplier.getId());
+                    return auditReader.find(Supplier.class, currentSupplier.getId(), revisions.get((int) p.getSupplierSnapshotVersion()));
+                });
+
+                // Lazily populate the snapshot for any proposal that doesn't have one yet,
+                // so subsequent requests use JSON instead of hitting Envers again.
+                if (p.getSupplierSnapshot() == null) {
+                    try {
+                        p.setSupplierSnapshot(objectMapper.writeValueAsString(originalSupplier));
+                        snapshotsToSave.add(p);
+                    } catch (JsonProcessingException ex) {
+                        log.warn("Failed to serialize supplier snapshot for lazy backfill of proposal {}", p.getId(), ex);
+                    }
+                }
+
                 p.setPaidLinks(p.getPaidLinks().stream().map(pl -> {
                     pl.setSupplier(originalSupplier);
                     return pl;
                 }).collect(Collectors.toList()));
             }
         });
+
+        // Clear the Hibernate session unconditionally: PaidLinks were mutated in memory to
+        // reference Envers-sourced Supplier objects that have version=null (Envers does not
+        // store the @Version field in supplier_aud). Without this, the @Transactional flush
+        // at method exit rejects the null version on BOTH the backfill path AND the fast
+        // JSON-deserialization path. Clearing drops dirty tracking; the already-loaded
+        // in-memory objects are unaffected and still serializable by Jackson.
+        entityManager.clear();
+        if (!snapshotsToSave.isEmpty()) {
+            snapshotsToSave.forEach(p -> proposalRepo.updateSupplierSnapshot(p.getId(), p.getSupplierSnapshot()));
+        }
 
         return ResponseEntity.ok().body(proposals.stream().toArray(Proposal[]::new));
     }
@@ -145,24 +202,29 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         
         log.info(user + " is creating a proposal for supplier {} for demands {} ", supplierId, Arrays.toString(demandIds));
         
+        // 0 = ok, 400 = conflict, 404 = not found
+        int[] errorStatus = {0};
+
         Proposal dbProposal = transactionTemplate.execute(status ->  {
             Optional<Supplier> supplierOpt = supplierRepo.findById(supplierId);
                 if( ! supplierOpt.isPresent()) {
+                    errorStatus[0] = 404;
                     return null;
                 }
-                
+
                 Supplier supplier = supplierOpt.get();
-                
+
                 List<Demand> dbDemands = new LinkedList<>();
                 Arrays.stream(demandIds).forEach(i -> {
                     Optional<Demand> demand = demandRepo.findById(i);
                     if (demand.isEmpty()) {
                         log.error("Demand with id {} does not exist", i);
-                        return;                
+                        return;
                     }
                     dbDemands.add(demand.get());
                 });
                 if(dbDemands.size() != demandIds.length) {
+                    errorStatus[0] = 404;
                     return null;
                 }
 
@@ -170,9 +232,10 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 List<Demand> existingPaidLinks = dbDemands.stream()
                     .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(d.getDomain(), supplier.getDomain()))
                     .collect(Collectors.toList());
-                
+
                 if(existingPaidLinks.size() > 0) {
                     log.error("There's already a paid link between supplier {} and one of the demands {}", supplierId, Arrays.toString(demandIds));
+                    errorStatus[0] = 400;
                     return null;
                 }
                 
@@ -187,17 +250,38 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                     paidLinks.add(dbPaidLink);
                 });
 
+                // Capture the current Envers revision number for the supplier so that
+                // legacy Envers lookups (for proposals without a JSON snapshot) can do a
+                // direct find() without a preceding getRevisions() call.
+                List<Number> supplierRevisions = AuditReaderFactory.get(entityManager)
+                        .getRevisions(Supplier.class, supplier.getId());
+                long snapshotRevision = supplierRevisions.isEmpty() ? 0
+                        : supplierRevisions.get(supplierRevisions.size() - 1).longValue();
+
+                // Serialize the supplier as a JSON snapshot so getProposalsWithOriginalSuppliers
+                // can restore the original state at read time without any Envers queries.
+                String supplierSnapshotJson = null;
+                try {
+                    supplierSnapshotJson = objectMapper.writeValueAsString(supplier);
+                } catch (JsonProcessingException ex) {
+                    log.warn("Failed to serialize supplier snapshot at proposal creation — Envers will be used as fallback on reads", ex);
+                }
+
                 // create the proposal
                 Proposal proposal = new Proposal();
                 proposal.setCreatedBy(user);
                 proposal.setDateCreated(LocalDateTime.now());
                 proposal.setPaidLinks(paidLinks);
                 proposal.setSupplierSnapshotVersion(supplier.getVersion());
+                proposal.setSupplierSnapshotRevision(snapshotRevision);
+                proposal.setSupplierSnapshot(supplierSnapshotJson);
                 return proposalRepo.save(proposal);
         });
 
         if(dbProposal == null) {
-            return ResponseEntity.badRequest().build();
+            return errorStatus[0] == 404
+                ? ResponseEntity.notFound().build()
+                : ResponseEntity.badRequest().build();
         }
 
         

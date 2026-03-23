@@ -1,7 +1,7 @@
 import LineGraph from "./LineGraph";
 import TrafficAnalyser from "./TrafficAnalyser";
 import { useAuth } from "@/auth/AuthProvider";
-import PigIcon from '@/components/pig.svg'
+import PigIcon from '@/assets/pig.svg'
 import { useEffect, useState, useRef } from "react";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 

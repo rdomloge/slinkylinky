@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PageTitle from '@/components/pagetitle';
+import PageTitle from '@/components/PageTitle';
 import Paging from '@/components/Paging';
 import Layout from '@/components/layout/Layout';
 import { CompactDate } from '@/components/atoms/DateTime';

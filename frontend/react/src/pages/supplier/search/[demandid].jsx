@@ -3,9 +3,9 @@ import { useAuth } from "@/auth/AuthProvider";
 import React, {useState, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
 
-import DemandCard from '@/components/demandcard'
-import SupplierCard from '@/components/suppliercard'
-import PageTitle from '@/components/pagetitle'
+import DemandCard from '@/components/DemandCard'
+import SupplierCard from '@/components/SupplierCard'
+import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import SessionButton, { ClickHandlerButton, StyledButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'

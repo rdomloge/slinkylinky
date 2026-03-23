@@ -1,5 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
+import PageTitle from "@/components/PageTitle";
 import React, {useState, useEffect} from 'react'
 import Loading from "@/components/Loading";
 import { StyledButton } from "@/components/atoms/Button";
@@ -9,7 +9,7 @@ import { useAuth } from "@/auth/AuthProvider";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { InfoMessage, WarningMessage } from "@/components/atoms/Messages";
 import DisableToggle from "@/components/atoms/Toggle";
-import { AuthorizedAccess } from "@/components/authorizedAccess";
+import { AuthorizedAccess } from "@/components/AuthorizedAccess";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()

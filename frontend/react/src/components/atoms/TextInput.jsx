@@ -1,5 +1,5 @@
 
-import LockedImage from '@/components/locked.svg';
+import LockedImage from '@/assets/locked.svg';
 
 
 export default function TextInput({changeHandler, label, binding, disabled, maxLen, id}) {

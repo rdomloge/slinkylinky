@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/pagetitle";
+import PageTitle from "@/components/PageTitle";
 import Loading from '@/components/Loading';
 import { AuditLine } from '@/components/AuditCard';
 import Paging from '@/components/Paging';
