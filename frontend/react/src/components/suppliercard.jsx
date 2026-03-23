@@ -47,7 +47,7 @@ function SupplierStatsPopover({ supplier, anchor }) {
     );
 }
 
-export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiveness}) {
+export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiveness, usageCount}) {
     const [anchorRect, setAnchorRect] = useState(null);
     const trafficRef = useRef(null);
 
@@ -114,6 +114,11 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
                 ) : (
                     <span className="text-xs text-gray-400">—</span>
                 )}
+            </div>
+
+            {/* Usages */}
+            <div className="w-16 shrink-0 text-center">
+                {usageCount != null && <Counter count={usageCount} low={2} medium={5} high={25}/>}
             </div>
 
             {/* Responsiveness */}

@@ -44,6 +44,7 @@ export default function SupplierListView() {
     const [sortDir, setSortDir]                 = useState('asc');
     const [isLoading, setIsLoading]             = useState(false);
     const [responsiveness, setResponsiveness]   = useState({});
+    const [supplierUsageCount, setSupplierUsageCount] = useState({});
 
     // Debounce search input (300ms)
     useEffect(() => {
@@ -79,6 +80,14 @@ export default function SupplierListView() {
                 setTotalPages(data.totalPages ?? 0);
                 setTotalElements(data.totalElements ?? 0);
                 setIsLoading(false);
+
+                const ids = (data.content ?? []).map(s => s.id).join(",");
+                if (ids) {
+                    fetchWithAuth("/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=" + ids)
+                        .then(r => r.ok ? r.json() : {})
+                        .then(counts => setSupplierUsageCount(counts))
+                        .catch(() => {});
+                }
             })
             .catch(() => setIsLoading(false));
     }, [page, search, includeDisabled, sortBy, sortDir]);
@@ -90,10 +99,9 @@ export default function SupplierListView() {
 
     return (
         <Layout pagetitle='Supplier list'>
-            <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers}/>
-
-            {/* Toolbar */}
-            <div className="flex items-center gap-4 px-4 pt-2 pb-3">
+            {/* Title + actions */}
+            <div className="flex items-center gap-4 px-4 pt-2 pb-1">
+                <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers}/>
                 <div className="inline-flex items-center gap-3">
                     <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                         <Link to='/supplier/Add' rel='nofollow'>
@@ -102,6 +110,15 @@ export default function SupplierListView() {
                     </AuthorizedAccess>
                     <Link to='/supplier' className="text-sm text-blue-600 hover:underline">Card view</Link>
                 </div>
+                {totalElements !== null &&
+                    <span className="ml-auto text-xs text-gray-400 shrink-0">
+                        {totalElements} supplier{totalElements !== 1 ? 's' : ''}
+                    </span>
+                }
+            </div>
+
+            {/* Filters */}
+            <div className="flex items-center gap-4 px-4 pb-3">
                 <div className="w-64">
                     <TextInput
                         changeHandler={setSearchInput}
@@ -114,11 +131,6 @@ export default function SupplierListView() {
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Show disabled</span>
                     <Toggle changeHandler={setIncludeDisabled} initialValue={includeDisabled} label=""/>
                 </div>
-                {totalElements !== null &&
-                    <span className="ml-auto text-xs text-gray-400 shrink-0">
-                        {totalElements} supplier{totalElements !== 1 ? 's' : ''}
-                    </span>
-                }
             </div>
 
             <Paging page={page} pageCount={totalPages} total={totalElements} baseUrl="/supplier/list2"/>
@@ -137,6 +149,7 @@ export default function SupplierListView() {
                     <div className="w-24 shrink-0">
                         <SortHeader label="Fee" field="weWriteFee" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                     </div>
+                    <div className="w-16 shrink-0 text-center text-xs font-semibold text-gray-500 uppercase tracking-wide">Usages</div>
                     <div className="w-28 shrink-0 text-xs font-semibold text-gray-500 uppercase tracking-wide">Responsiveness</div>
                     <div className="w-10 shrink-0"/>
                 </div>
@@ -147,7 +160,7 @@ export default function SupplierListView() {
                     : suppliers.length === 0
                         ? <p className="text-sm text-gray-400 text-center py-12">No suppliers found.</p>
                         : suppliers.map((s, i) =>
-                            <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} responsiveness={responsiveness[s.id]}/>
+                            <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} responsiveness={responsiveness[s.id]} usageCount={supplierUsageCount[s.id]}/>
                         )
                 }
 

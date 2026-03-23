@@ -42,7 +42,7 @@ public class ResponsivenessSync {
         try {
             recalculateAll();
         } catch (Exception e) {
-            log.warn("Failed to calculate responsiveness on startup — will retry on weekly schedule", e);
+            log.warn("Failed to calculate responsiveness on startup - will retry on weekly schedule", e);
         }
     }
 
@@ -85,7 +85,7 @@ public class ResponsivenessSync {
             for (ResponsivenessDataPoint dp : points) {
                 long days = ChronoUnit.DAYS.between(dp.getDateSentToSupplier(), dp.getDateBlogLive());
                 if (days < 0) {
-                    log.debug("Skipping proposal for supplier {} — dateBlogLive before dateSentToSupplier", supplierId);
+                    log.debug("Skipping proposal for supplier {} - dateBlogLive before dateSentToSupplier", supplierId);
                     continue;
                 }
                 totalDays += days;
@@ -110,6 +110,6 @@ public class ResponsivenessSync {
             updated++;
         }
 
-        log.info("Responsiveness recalculation complete — updated {} suppliers", updated);
+        log.info("Responsiveness recalculation complete - updated {} suppliers", updated);
     }
 }
