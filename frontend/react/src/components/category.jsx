@@ -11,7 +11,7 @@ export default function Category({category}) {
 
 export function CategoryLite({category}) {
     return (
-        <span className="float-right bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 mb-1 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+        <span className="inline-block bg-blue-50 text-blue-700 text-xs font-medium me-1.5 mb-1 px-2.5 py-0.5 rounded-full border border-blue-200">
             {category.name}
         </span>
     );

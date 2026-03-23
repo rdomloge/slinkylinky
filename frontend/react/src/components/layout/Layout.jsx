@@ -18,20 +18,19 @@ export default function Layout ({children, pagetitle = " "}) {
 
     if (isAuthenticated && user) {
         return(
-            <>
-            <TenantWarning/>
+            <div className="flex flex-col h-screen">
+                <TenantWarning/>
                 <Header/>
-
-                <div className="grid grid-cols-8 gap-2">
-                    <div className="">
+                <div className="flex flex-1 overflow-hidden">
+                    <div className="w-52 shrink-0 overflow-y-auto">
                         <Menu/>
                     </div>
-                    <div className="col-span-7 h-full">
+                    <div className="flex-1 min-w-0 overflow-y-auto">
                         {children}
+                        <Footer/>
                     </div>
                 </div>
-                <Footer/>
-            </>
+            </div>
         )
     }
     else if(isLoading) return (

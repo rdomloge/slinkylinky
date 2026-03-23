@@ -5,7 +5,14 @@ import PigIcon from '@/assets/pig.svg'
 import { useEffect, useState, useRef } from "react";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
-export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null, showTrafficAnalysis = true, showSpamScore = true}) {
+function formatTraffic(n) {
+    if (!n) return '—';
+    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000) return (n / 1_000).toFixed(1) + 'k';
+    return String(n);
+}
+
+export default function SupplierSemRushTraffic({supplier, adhoc = false, dataListener = null, showTrafficAnalysis = true, showSpamScore = true, compact = false}) {
     const [trafficDataPoints, setTrafficDataPoints] = useState([]);
     const [spamScore, setSpamScore] = useState();
     const { user } = useAuth();
@@ -81,6 +88,31 @@ export default function SupplierSemRushTraffic({supplier, adhoc = false, dataLis
                 console.log("Unknown error: "+resp.status)
             }
         })
+    }
+
+    if (compact) {
+        const latest = trafficDataPoints.length > 0 ? trafficDataPoints[trafficDataPoints.length - 1] : null;
+        const prev   = trafficDataPoints.length > 1 ? trafficDataPoints[trafficDataPoints.length - 2] : null;
+        const trending = prev && latest ? (latest.traffic > prev.traffic ? 'up' : latest.traffic < prev.traffic ? 'down' : 'flat') : null;
+        return (
+            <div ref={containerRef} className="flex items-center gap-1.5">
+                {latest ? (
+                    <>
+                        {trending === 'up'   && <span className="text-green-500 text-xs font-bold">↑</span>}
+                        {trending === 'down' && <span className="text-red-400 text-xs font-bold">↓</span>}
+                        <span className="text-sm font-semibold text-gray-800">{formatTraffic(latest.traffic)}</span>
+                        <span className="text-xs text-gray-400">/mo</span>
+                        {showSpamScore && !adhoc && spamScore > 0 &&
+                            <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${spamScore > 9 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-500'}`}>
+                                {spamScore}% spam
+                            </span>
+                        }
+                    </>
+                ) : (
+                    <span className="text-xs text-gray-400">—</span>
+                )}
+            </div>
+        );
     }
 
     return (

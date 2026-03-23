@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/auth/AuthProvider';
 import ReactGA from 'react-ga4';
 
@@ -24,6 +24,7 @@ import CategoriesIndex from '@/pages/categories/index';
 import SupplierResponse from '@/pages/public/supplierresponse/index';
 import PaidLinksStaging from '@/pages/paidlinks/staging';
 import Sandbox from '@/pages/sandbox/index';
+import Dashboard from '@/pages/dashboard/index';
 
 const TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID || "G-4K0WX1L508";
 ReactGA.initialize(TRACKING_ID);
@@ -38,7 +39,7 @@ export default function App() {
           <Route path="/public/supplierresponse" element={<SupplierResponse />} />
 
           {/* Protected routes */}
-          <Route path="/" element={<Navigate to="/demand" replace />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/demand" element={<DemandIndex />} />
           <Route path="/demand/add" element={<DemandAdd />} />
           <Route path="/demand/:demandid" element={<DemandDetail />} />

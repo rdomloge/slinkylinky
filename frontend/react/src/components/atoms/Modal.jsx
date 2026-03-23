@@ -1,25 +1,49 @@
+import { useEffect } from 'react';
+
 export default function Modal({children, dismissHandler, title, width, id = "default-modal"}) {
+
+    // Close on Escape key
+    useEffect(() => {
+        const handler = e => { if (e.key === 'Escape') dismissHandler(); };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [dismissHandler]);
+
     return (
-        <>
-            <div id={id} tabIndex="-1" aria-hidden="true" 
-                    className="bg-gray-500/50 overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-                <div className=
-                        "justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-                    <div className={"card relative my-6 mx-auto "+(width?width:"w-auto")}>
-                        <div className="flex mb-12">
-                            {title ?
-                            <div className="bg-gray-700 absolute top-0 right-0 left-0 rounded-t-lg p-2 flex-1">
-                                <p className="text-white text-left pl-2">{title}</p>
-                            </div>
-                            : null}
-                            <button onClick={dismissHandler} className="contents absolute">
-                                <p className="absolute text-red-500 text font-bold text-3xl text-right pr-3 inherit top-0 right-0">X</p>
-                            </button>
-                        </div>
-                        {children}
-                    </div>
+        <div
+            id={id}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            aria-modal="true"
+            role="dialog"
+        >
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm"
+                onClick={dismissHandler}
+            />
+
+            {/* Panel */}
+            <div className={`relative bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh] ${width ?? 'w-auto min-w-80'}`}>
+
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 shrink-0">
+                    <h3 className="text-sm font-semibold text-gray-800">{title ?? ''}</h3>
+                    <button
+                        onClick={dismissHandler}
+                        className="ml-4 rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                        aria-label="Close"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Body */}
+                <div className="overflow-y-auto px-5 py-4 space-y-4">
+                    {children}
                 </div>
             </div>
-        </>
+        </div>
     );
 }

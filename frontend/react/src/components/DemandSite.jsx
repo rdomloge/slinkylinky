@@ -1,35 +1,44 @@
 import { Link } from "react-router-dom";
 import { CategoryLite } from "./category";
 import ArrowIcon from '@/assets/left-chevron.svg'
-import SessionButton, { SessionBlock, StyledButton } from "./atoms/Button";
+import { SessionBlock, StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
 import { useState } from "react";
 import { WarningMessage } from "./atoms/Messages";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
+import LinkIcon from '@/assets/link.svg';
 
 export default function DemandSiteSearchResult({demandSite, selectedHandler, id}) {
     return (
-        <div className="card list-card flex" id={id}>
-            <div className="flex-initial pr-4 m-auto w-max">
-                <button onClick={(e) => 
-                        selectedHandler(demandSite)} id="select-demand-site-button">
-                <img src={ArrowIcon} alt="Arrow icon" height={30} width={30} />
-                </button>
-            </div>
-            <div className="flex-1 w-min">
-                <span className="float-right bg-red-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
-                    {demandSite.demands.length}
-                </span>
-                <p className="text-lg">{demandSite.name}</p>
-                <p className="mb-6 truncate">{demandSite.domain}</p>
-                {demandSite.categories.filter(c => c.disabled == false).map( (c,index) => <CategoryLite category={c} key={index}/> )}
+        <div className="card list-card flex items-center gap-3" id={id}>
+
+            {/* Select button */}
+            <button onClick={() => selectedHandler(demandSite)} id="select-demand-site-button"
+                className="shrink-0 p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                <img src={ArrowIcon} alt="Select" height={20} width={20}/>
+            </button>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2 mb-1">
+                    <span className="text-base font-semibold text-gray-900">{demandSite.name}</span>
+                    <span className="inline-flex items-center bg-gray-100 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full shrink-0">
+                        {demandSite.demands.length} demands
+                    </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-2">
+                    <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-60 shrink-0"/>
+                    <span className="truncate">{demandSite.domain}</span>
+                </div>
+                <div className="flex flex-wrap">
+                    {demandSite.categories.filter(c => c.disabled == false).map((c, index) =>
+                        <CategoryLite category={c} key={index}/>
+                    )}
+                </div>
             </div>
         </div>
     );
 }
-
-
-
 
 export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
 
@@ -38,12 +47,9 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
 
     function handleDeleteClicked() {
         setShowDeleteModal(true);
-
         fetchWithAuth('/.rest/demandsites/search/countByDemandSiteId?demandSiteId='+demandSite.id)
-        .then(response => response.json())
-        .then(data => {
-            setLinkedDemands(data);
-        });
+            .then(response => response.json())
+            .then(data => setLinkedDemands(data));
     }
 
     function handleHistoryClicked() {
@@ -51,45 +57,57 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
     }
 
     function doDelete() {
-        deleteHandler(demandSite)
+        deleteHandler(demandSite);
         setShowDeleteModal(false);
     }
 
     return (
         <div className="card list-card" id={id}>
-            <div className="float-right">
+
+            {/* Header: name + actions */}
+            <div className="flex items-start justify-between gap-2 mb-2">
+                <span className="text-base font-semibold text-gray-900">{demandSite.name}</span>
                 <SessionBlock>
-                    <Link to={"/demandsites/"+demandSite.id} rel="nofollow">
-                        <p className='text-right'>Edit</p>
-                    </Link>
-                    <StyledButton isText={true} label="Delete" type="risky" extraClass="text-right" submitHandler={() => handleDeleteClicked()}/>
-                    <StyledButton isText={true} label="History" type="tertiary" extraClass="text-right block" submitHandler={() => handleHistoryClicked()}/>
+                    <div className="flex items-center gap-3 shrink-0 text-sm">
+                        <Link to={'/demandsites/'+demandSite.id} rel="nofollow">
+                            <span className="text-gray-400 hover:text-gray-700">Edit</span>
+                        </Link>
+                        <StyledButton isText={true} label="History" type="tertiary" submitHandler={handleHistoryClicked}/>
+                        <StyledButton isText={true} label="Delete" type="risky" submitHandler={handleDeleteClicked}/>
+                    </div>
                 </SessionBlock>
             </div>
-            <p className="text-lg">{demandSite.name}</p>
-            <p>{demandSite.domain}</p>
-            {demandSite.categories.filter(c => c.disabled == false).map( (c,index) =>
-                <CategoryLite category={c} key={index}/>
-            )}
-            {showDeleteModal ?
-                <Modal title={"Delete Demand Site"} dismissHandler={()=>setShowDeleteModal(false)} width={"w-1/2"}>
-                    <p className="text-2xl font-bold mb">{demandSite.name}</p>
-                    <p className="italic mb-4">{demandSite.domain}</p>
+
+            {/* Domain */}
+            <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-3">
+                <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-60 shrink-0"/>
+                <span className="truncate">{demandSite.domain}</span>
+            </div>
+
+            {/* Categories */}
+            <div className="flex flex-wrap">
+                {demandSite.categories.filter(c => c.disabled == false).map((c, index) =>
+                    <CategoryLite category={c} key={index}/>
+                )}
+            </div>
+
+            {showDeleteModal &&
+                <Modal title="Delete Demand Site" dismissHandler={() => setShowDeleteModal(false)} width="w-1/2">
+                    <p className="text-xl font-bold mb-1">{demandSite.name}</p>
+                    <p className="text-sm text-gray-500 italic mb-4">{demandSite.domain}</p>
                     {linkedDemands < 0 ?
-                        <p>Checking for linked demand...</p>
+                        <p className="text-sm text-gray-500">Checking for linked demand...</p>
                     :
                         <>
-                        <p>There are {linkedDemands} linked demands</p>
-                        {linkedDemands > 0 ?
-                            <WarningMessage message="You cannot delete this demand site because there are linked demands" />
-                        :
-                            <StyledButton label="Delete" type="risky" submitHandler={() => {doDelete()}}/>
-                        }
+                            <p className="mb-3">There are <strong>{linkedDemands}</strong> linked demands</p>
+                            {linkedDemands > 0 ?
+                                <WarningMessage message="You cannot delete this demand site because there are linked demands"/>
+                            :
+                                <StyledButton label="Delete" type="risky" submitHandler={doDelete}/>
+                            }
                         </>
                     }
                 </Modal>
-            : 
-                null
             }
         </div>
     );

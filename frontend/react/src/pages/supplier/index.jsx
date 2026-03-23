@@ -10,6 +10,7 @@ import TextInput from "@/components/atoms/TextInput";
 import CategoryFilter from "@/components/CategorySelector";
 import SessionButton from "@/components/atoms/Button";
 import NumberInput from '@/components/atoms/NumberInput';
+import { Toggle } from '@/components/atoms/Toggle';
 import Loading from '@/components/Loading';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { AuthorizedAccess } from '@/components/AuthorizedAccess';
@@ -22,6 +23,7 @@ export default function ListBloggers() {
     const [activeSupplierCount, setActiveSupplierCount] = useState()
     const [supplierUsageCount, setSupplierUsageCount] = useState();
     const [daFilter, setDaFilter] = useState(0)
+    const [showDisabled, setShowDisabled] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
@@ -54,7 +56,7 @@ export default function ListBloggers() {
                 fetchWithAuth(suppliersUrl)
                     .then( (res) => res.json())
                     .then( (data) => {
-                        setSuppliers(data)
+                        setSuppliers(showDisabled ? data : data.filter(s => !s.disabled))
                         setIsLoading(false)
                         var usageUrl = supplierUsageCountUrl;
                         data.forEach((s,index) => usageUrl += s.id + (index < data.length-1 ? "," : ""));
@@ -72,7 +74,7 @@ export default function ListBloggers() {
             else {
                 setSuppliers(null)
             }
-        }, [filter, categoriesFilter, daFilter]
+        }, [filter, categoriesFilter, daFilter, showDisabled]
     );
 
     function filterOrBlankString(key, value, min) {
@@ -101,23 +103,30 @@ export default function ListBloggers() {
     return (
         <Layout pagetitle='Supplier list'>
             <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers ? suppliers : null}/> 
-            <div className="content-center pt-2 pl-4 inline-block">
+            <div className="inline-flex items-center gap-3 pt-2 pl-4">
                 <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                     <Link to='/supplier/Add' rel='nofollow'>
                         <SessionButton label="New"/>
                     </Link>
                 </AuthorizedAccess>
+                <Link to='/supplier/list2' className="text-sm text-blue-600 hover:underline">List view</Link>
             </div>
             <span className='pb-4 block'>{supplierCount} &#47;&#47; total suppliers ({activeSupplierCount} active)</span>
-            <div className="w-1/4 pr-8 inline-block">
-                <TextInput changeHandler={(value) =>setFilter(value)} label="Name / email / domain filter" id={"nameEmailDomainFilter"}/>
-            </div>
-            <div className="w-1/3 pr-8 inline-block">
-                <CategoryFilter changeHandler={categoriesFilterChangeHandler} label="Category filter"/>
-            </div>
-            <div className="w-1/6 pr-8 inline-block">
-                <NumberInput changeHandler={(value) =>setDaFilter(value)} binding={daFilter} 
-                    label="DA filter (min. 40)" step={10}/>
+            <div className="flex items-end gap-4 px-4 py-3">
+                <div className="w-1/4">
+                    <TextInput changeHandler={(value) => setFilter(value)} binding={filter} label="Name / email / domain" id={"nameEmailDomainFilter"}/>
+                </div>
+                <div className="w-1/3">
+                    <CategoryFilter changeHandler={categoriesFilterChangeHandler} label="Category filter"/>
+                </div>
+                <div className="w-1/6">
+                    <NumberInput changeHandler={(value) => setDaFilter(value)} binding={daFilter}
+                        label="DA filter (min. 40)" step={10}/>
+                </div>
+                <div className="flex flex-col gap-1 pb-1">
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Show disabled</span>
+                    <Toggle changeHandler={setShowDisabled} initialValue={showDisabled} label=""/>
+                </div>
             </div>
             {suppliers && suppliers.length > 0 ?
                 <div className="grid grid-cols-3">

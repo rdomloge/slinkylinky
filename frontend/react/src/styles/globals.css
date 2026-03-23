@@ -6,7 +6,7 @@
 
 body {
   background-color: white;
-  
+
 }
 
 .colourOfBackground {
@@ -19,13 +19,17 @@ body {
 
 @layer components {
     .card {
-      background-color: #f3f3f6;
-      border-radius: theme(borderRadius.lg);
-      border-color: #dcdcdc;
+      background-color: white;
+      border-radius: theme(borderRadius.xl);
+      border-color: #e5e7eb;
       border-width: 1px;
       border-style: solid;
-      padding: theme(spacing.6);
-      box-shadow: theme(boxShadow.xl);
+      padding: theme(spacing.5);
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+      transition: box-shadow 0.15s ease;
+    }
+    .card:hover {
+      box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.10);
     }
 }
 
@@ -33,7 +37,7 @@ body {
   background-color: rgb(170, 220, 244);
   border-radius: 90%;
   padding: 3px;
-  right: -10px; 
+  right: -10px;
   top: -10px;
   position: absolute;
   border-width: 1px;
@@ -51,7 +55,7 @@ body {
 }
 
 .list-card {
-  margin: 1em;
+  margin: 0.5em;
 }
 
 .lozenge {

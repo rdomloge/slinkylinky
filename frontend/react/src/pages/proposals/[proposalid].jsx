@@ -155,31 +155,58 @@ export default function Proposal() {
                         }
                         <NiceDate isostring={proposal.dateCreated}/>
                     </div>
-                    <DotMenu items={createMenuItems()} classNames="float-left mt-6"/>
-                    <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
-                    {proposal.blogLive ?
-                        <div className="card grid grid-cols-3 m-4">
-                            <span className='text-center font-extrabold text-lg col-span-2'>{proposal.liveLinkTitle}</span>
-                            <span className='truncate'>
-                                <Link to={addProtocol(proposal.liveLinkUrl)} className='truncate' target='_blank' rel='nofollow'>
-                                    {proposal.liveLinkUrl}
-                                </Link>
-                            </span>
+                    <div className="flex items-center">
+                        <DotMenu items={createMenuItems()} classNames="shrink-0 ml-2"/>
+                        <div className="flex-1 min-w-0">
+                            <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
                         </div>
-                    : null}
+                    </div>
+                    {proposal.blogLive &&
+                        <div className="card m-4">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="min-w-0">
+                                    <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-200 mb-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500"/>
+                                        Live
+                                    </span>
+                                    <p className="text-base font-semibold text-gray-900">{proposal.liveLinkTitle}</p>
+                                </div>
+                                <Link to={addProtocol(proposal.liveLinkUrl)} target='_blank' rel='nofollow'
+                                    className="shrink-0 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                                    <span className="truncate max-w-xs">{proposal.liveLinkUrl}</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                    </svg>
+                                </Link>
+                            </div>
+                        </div>
+                    }
                     <div className="flex">
                             {supplier ?
                                 <div className="flex-initial w-1/2" id="supplierPanel">
                                     <SupplierCard supplier={supplier} latest={null == currentSupplier} editable={false} linkable={true} />
-                                    <div className="card list-card">
-                                        <div className="grid grid-cols-2" id="metadata">
-                                            <span>Created</span> <NiceDate isostring={proposal.dateCreated}/>
-                                            <span>Sent to supplier</span> <NiceDate isostring={proposal.dateSentToSupplier}/>
-                                            <span>Accepted by supplier</span> <NiceDate isostring={proposal.dateAcceptedBySupplier}/>
-                                            <span>Invoice received</span> <NiceDate isostring={proposal.dateInvoiceReceived}/>
-                                            <span>Invoice paid</span> <NiceDate isostring={proposal.dateInvoicePaid}/>
-                                            <span>Blog live</span> <NiceDate isostring={proposal.dateBlogLive}/>
-                                            <span>Validated</span> <NiceDate isostring={proposal.dateValidated}/> 
+                                    <div className="card list-card" id="metadata">
+                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Timeline</p>
+                                        <div className="space-y-1">
+                                            {[
+                                                { label: 'Created',              date: proposal.dateCreated },
+                                                { label: 'Sent to supplier',     date: proposal.dateSentToSupplier },
+                                                { label: 'Accepted by supplier', date: proposal.dateAcceptedBySupplier },
+                                                { label: 'Invoice received',     date: proposal.dateInvoiceReceived },
+                                                { label: 'Invoice paid',         date: proposal.dateInvoicePaid },
+                                                { label: 'Blog live',            date: proposal.dateBlogLive },
+                                                { label: 'Validated',            date: proposal.dateValidated },
+                                            ].map(({ label, date }) => (
+                                                <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full shrink-0 ${date ? 'bg-green-500' : 'bg-gray-200'}`}/>
+                                                        <span className={`text-sm ${date ? 'text-gray-700' : 'text-gray-400'}`}>{label}</span>
+                                                    </div>
+                                                    <span className={`text-sm ${date ? 'text-gray-900 font-medium' : 'text-gray-300'}`}>
+                                                        {date ? new Date(date).toDateString() : '—'}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 </div>
