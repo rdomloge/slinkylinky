@@ -1,0 +1,24 @@
+GET {{woocommerce_host}}/orders?page=1&per_page=2
+Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
+###
+GET {{woocommerce_host}}/orders
+Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
+###
+GET {{woocommerce_host}}/orders/285
+Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
+###
+https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart/2024-02-21-04fd7d9ad5616c4315ce52f4fde4f30a.csv
+###
+GET {{woocommerce_host}}/orders/297
+Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
+###
+GET {{woocommerce_host}}/customers/3
+Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
+###
+PUT {{woocommerce_host}}/orders/348
+Authorization: Basic {{woocommerce_key}} {{woocommerce_secret}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}

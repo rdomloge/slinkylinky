@@ -1,0 +1,18 @@
+GET http://localhost:8084/.rest/orders?projection=lightOrder
+###
+GET http://localhost:8084/.rest/profile
+###
+GET http://localhost:8084/.rest/orders?projection=lightOrder
+###
+GET http://localhost:8084/.rest/orders/search/findByLineItems_demandIdEquals?demandId=1173&projection=lightOrder
+###
+GET http://localhost:8084/.rest/orders/752?projection=lightOrder
+###
+GET http://localhost:8084/.rest/orders/archiveorder?id=802
+
+###
+GET http://localhost:8084/.rest/orders/search/findOrdersByArchivedEquals?archived=true&projection=lightOrder
+###
+POST http://localhost:8084/.rest/orders/webhooks/ordercreated
+###
+POST http://slinkylinky.uk:8094/.rest/orders/webhooks/ordercreated
