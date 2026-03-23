@@ -15,13 +15,13 @@ import freemarker.template.Configuration;
 @org.springframework.context.annotation.Configuration
 public class EmailConfig {
     
-    @Value("${mail_username}")
+    @Value("${mail_username:local-user}")
     private String username;
 
-    @Value("${mail_password}")
+    @Value("${mail_password:local-password}")
     private String password;
 
-    @Value("${mail_host}")
+    @Value("${mail_host:localhost}")
     private String host;
 
     @Bean

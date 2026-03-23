@@ -59,7 +59,7 @@ spec:
               value: <SPECIFY>
             - name: woocommerce_host
               value: <SPECIFY>
-            - name: wc_link_service_base
+            - name: linkservice_url
               value: http://linkservice-service:8090
             - name: wc_uploads_base
               value: https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart
