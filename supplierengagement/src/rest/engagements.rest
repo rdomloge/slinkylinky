@@ -1,0 +1,49 @@
+@tenant = slinkylinky 
+@kc_host = http://10.0.0.12:8100
+# @name getToken
+POST {{kc_host}}/realms/{{tenant}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_secret=uRw3MxCKhwOHTyx5JBAeuueTV33xT95p
+&client_id=sl-server
+###
+@accessToken = {{getToken.response.body.access_token}}
+###
+GET {{host}}/engagements
+###
+GET {{host}}/profile
+###
+GET {{host}}/engagements/search/findByGuid?guid=0345594b-a59d-4be3-baed-292378b1579c
+###
+GET {{host}}/engagements/
+Authorization: Bearer {{accessToken}}
+###
+GET {{host}}/engagements/752
+Authorization: Bearer {{accessToken}}
+
+###
+PATCH {{host}}/engagements/accept?guid=7e0e0222-9657-40c4-8419-843e3ffaba01
+Content-Type: application/json
+
+{
+  "blogTitle": "My awesome blog",
+  "blogUrl": "myawesomeblog.com"
+}
+
+###
+PATCH {{host}}/engagements/752
+Content-Type: application/json
+
+{
+  "status": "DECLINED",
+  "declinedReason": "I'm busy"
+}
+###
+PATCH {{host}}/engagements/updateblogdetails?guid=71107a6c-5041-425b-9912-b6471ee90ee1
+Content-Type: application/json
+
+{
+  "blogTitle": "This is the title",
+  "blogUrl": "disney.com"
+}

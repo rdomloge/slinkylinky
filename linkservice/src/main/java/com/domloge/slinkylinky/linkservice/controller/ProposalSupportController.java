@@ -347,6 +347,38 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         return ResponseEntity.created(URI.create("/proposals/" + dbProposal.getId())).build();
     }
 
+    @GetMapping(path = "/responsivenessData", produces = "application/json")
+    @Transactional
+    public ResponseEntity<List<ResponsivenessDataPoint>> getResponsivenessData() {
+        List<Proposal> proposals = proposalRepo.findCompletedProposalsWithBothDates();
+
+        Map<Long, List<ResponsivenessDataPoint>> bySupplier = new HashMap<>();
+
+        for (Proposal p : proposals) {
+            if (p.getPaidLinks() == null || p.getPaidLinks().isEmpty()) continue;
+            var supplier = p.getPaidLinks().get(0).getSupplier();
+            if (supplier == null || supplier.getDomain() == null) continue;
+
+            long supplierId = supplier.getId();
+            List<ResponsivenessDataPoint> points = bySupplier.computeIfAbsent(supplierId, k -> new ArrayList<>());
+            // Already ordered by dateBlogLive DESC from the query, so take first 10
+            if (points.size() < 10) {
+                points.add(new ResponsivenessDataPoint(
+                    supplierId,
+                    supplier.getDomain(),
+                    p.getDateSentToSupplier(),
+                    p.getDateBlogLive()
+                ));
+            }
+        }
+
+        List<ResponsivenessDataPoint> result = bySupplier.values().stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(result);
+    }
+
     @Override
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;

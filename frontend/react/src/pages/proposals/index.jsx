@@ -142,54 +142,45 @@ export default function ListProposals() {
             <FiltersPanel>
                 <Toggle initialValue={unpaidfilter} changeHandler={applyUnpaidFilter} label={"Unpaid"}/>
             </FiltersPanel>
-            <nav className='sticky top-0 border-b-2 bg-white pb-4 ps-1'>
-                <Link to={"#waiting-for-us"}>{waitingForAdmin.length + " needing attention, "} </Link>
-                <Link to={"#waiting-for-them"}>{waitingForSupplier.length + " need chasing, "} </Link>
-                <Link to={"#complete-proposals"}>{completeProposals.length + " complete"} </Link>
-            </nav>
-            
-            <Divider text={"Waiting for us"} size='text-3xl' id='waiting-for-us'/>
-
-            {isLoading ?
-                <Loading error={error}/>
-            :
-                <ul>
-                {waitingForAdmin.map( (p) =>
-                    <li className="m-2" key={p.id}>
-                        <ProposalListItem proposal={p}/>
-                    </li>
-                )}
-                </ul>
+            {!isLoading &&
+                <nav className='sticky top-0 border-b-2 bg-white pb-4 ps-1'>
+                    <Link to={"#waiting-for-us"}>{waitingForAdmin.length + " needing attention, "} </Link>
+                    <Link to={"#waiting-for-them"}>{waitingForSupplier.length + " need chasing, "} </Link>
+                    <Link to={"#complete-proposals"}>{completeProposals.length + " complete"} </Link>
+                </nav>
             }
 
-
-            <Divider text={"Waiting for them"} size='text-3xl' id='waiting-for-them'/>
-
             {isLoading ?
                 <Loading error={error}/>
             :
-                <ul>
-                {waitingForSupplier.map( (p) =>
-                    <li className="m-2" key={p.id}>
-                        <ProposalListItem proposal={p}/>
-                    </li>
-                )}
-                </ul>
-            }
+                <>
+                    <Divider text={"Waiting for us"} size='text-3xl' id='waiting-for-us'/>
+                    <ul>
+                        {waitingForAdmin.map( (p) =>
+                            <li className="m-2" key={p.id}>
+                                <ProposalListItem proposal={p}/>
+                            </li>
+                        )}
+                    </ul>
 
+                    <Divider text={"Waiting for them"} size='text-3xl' id='waiting-for-them'/>
+                    <ul>
+                        {waitingForSupplier.map( (p) =>
+                            <li className="m-2" key={p.id}>
+                                <ProposalListItem proposal={p}/>
+                            </li>
+                        )}
+                    </ul>
 
-            <Divider text={"Complete"} size='text-3xl' id='complete-proposals'/>
-
-            {isLoading ?
-                <Loading error={error}/>
-            :
-                <ul>
-                {completeProposals.map( (p) =>
-                    <li className="m-2" key={p.id}>
-                        <ProposalListItem proposal={p}/>
-                    </li>
-                )}
-                </ul>
+                    <Divider text={"Complete"} size='text-3xl' id='complete-proposals'/>
+                    <ul>
+                        {completeProposals.map( (p) =>
+                            <li className="m-2" key={p.id}>
+                                <ProposalListItem proposal={p}/>
+                            </li>
+                        )}
+                    </ul>
+                </>
             }
         </Layout>
     );

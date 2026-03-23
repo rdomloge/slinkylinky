@@ -8,6 +8,9 @@ import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
+import com.domloge.slinkylinky.linkservice.entity.DemandSiteCountProjection;
+
+import java.util.List;
 
 @RepositoryRestResource(collectionResourceRel = "demandsites", path = "demandsites")
 // @CrossOrigin(originPatterns = {"*host.docker.internal*"})
@@ -26,6 +29,14 @@ public interface DemandSiteRepo extends CrudRepository <DemandSite, Long>, Pagin
 
     @Query(value="SELECT COUNT(id) FROM demand d WHERE d.demand_site_id=?1", nativeQuery=true)
     int countByDemandSiteId(long demandSiteId);
+
+    @Query(nativeQuery=true, value=
+        "SELECT ds.id as id, ds.name as name, ds.domain as domain, COUNT(d.id) as demandCount " +
+        "FROM demand_site ds LEFT JOIN demand d ON d.demand_site_id = ds.id " +
+        "GROUP BY ds.id, ds.name, ds.domain " +
+        "ORDER BY demandCount DESC " +
+        "LIMIT :limit")
+    List<DemandSiteCountProjection> findTopByDemandCount(int limit);
 
     @Override
     @RestResource(exported = false)

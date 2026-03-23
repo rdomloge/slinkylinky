@@ -86,12 +86,10 @@ export default function Demand() {
                     options={sortOptions}/>
             </div>
 
-            {demands ? 
-                <div className="grid grid-cols-2">
+            {demands ?
+                <div className="grid grid-cols-2 gap-3 p-4">
                 {demands.map( (ld,index) => (
-                    <div key={index}>
-                        <DemandCard demand={ld} key={index} fullfilable={true} editable={true} deletable={true} id={"demandCard-"+index} deleteCascader={()=>demandDeleteHandler(ld)}/>
-                    </div>
+                    <DemandCard demand={ld} key={index} fullfilable={true} editable={true} deletable={true} id={"demandCard-"+index} deleteCascader={()=>demandDeleteHandler(ld)}/>
                 ))}
                 </div>
             : 

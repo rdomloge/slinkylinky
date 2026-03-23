@@ -2,19 +2,25 @@ package com.domloge.slinkylinky.stats.controller;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.domloge.slinkylinky.stats.dto.DataPoint;
 import com.domloge.slinkylinky.stats.entity.DaMonthlyData;
 import com.domloge.slinkylinky.stats.entity.SemRushMonthlyData;
 import com.domloge.slinkylinky.stats.entity.SpamMonthlyData;
+import com.domloge.slinkylinky.stats.entity.SupplierResponsiveness;
 import com.domloge.slinkylinky.stats.repo.DaRepo;
+import com.domloge.slinkylinky.stats.repo.ResponsivenessRepo;
 import com.domloge.slinkylinky.stats.repo.SpamRepo;
 import com.domloge.slinkylinky.stats.repo.TrafficRepo;
 
@@ -29,6 +35,9 @@ public class StatsController {
 
     @Autowired
     private DaRepo daRepo;
+
+    @Autowired
+    private ResponsivenessRepo responsivenessRepo;
 
 
     @GetMapping(path = "/fordomain", produces = "application/json")
@@ -74,7 +83,22 @@ public class StatsController {
             .stream()
             .sorted((d1, d2) -> { return d1.getYearMonth().compareTo(d2.getYearMonth()); })
             .toArray(DataPoint[]::new);
-            
+
         return ResponseEntity.ok(datapoints);
+    }
+
+    @GetMapping(path = "/responsiveness", produces = "application/json")
+    public ResponseEntity<SupplierResponsiveness> getResponsiveness(@RequestParam String domain) {
+        SupplierResponsiveness data = responsivenessRepo.findByDomain(domain);
+        if (data == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(data);
+    }
+
+    @GetMapping(path = "/responsiveness/all", produces = "application/json")
+    public ResponseEntity<Map<Long, SupplierResponsiveness>> getAllResponsiveness() {
+        List<SupplierResponsiveness> all = responsivenessRepo.findAll();
+        Map<Long, SupplierResponsiveness> map = all.stream()
+            .collect(Collectors.toMap(SupplierResponsiveness::getSupplierId, Function.identity()));
+        return ResponseEntity.ok(map);
     }
 }

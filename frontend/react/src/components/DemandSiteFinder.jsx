@@ -65,16 +65,15 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
                     </Modal>
                 : null}
             </div>
-            {searchResults && searchResults.length > 0 ?
-                searchResults.map( (sr,index) => 
+            {searchResults && searchResults.length > 0
+                ? searchResults.map((sr, index) =>
                     <DemandSiteSearchResult demandSite={sr} key={index} selectedHandler={demandsiteSelectedHandler} id={"demandSiteSearchResult-"+index}/>
                 )
-            :
-            <div className="">
-                <img src={Icon} alt="arrow up and left" />
-                <p className="text-slate-500 text-7xl">Specify a name</p>
-                <p className="text-slate-500 text-4xl pt-4">3 characters min.</p>
-            </div>
+                : <div className="flex flex-col items-center justify-center py-12 text-center text-gray-400">
+                    <img src={Icon} alt="arrow" className="w-10 h-10 opacity-20 mb-3"/>
+                    <p className="text-sm font-medium">Type a site name to search</p>
+                    <p className="text-xs mt-1">Minimum 3 characters</p>
+                  </div>
             }
         </div>
         </>

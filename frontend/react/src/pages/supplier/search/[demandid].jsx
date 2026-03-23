@@ -23,6 +23,7 @@ export default function App() {
     const [showModal, setShowModal] = useState(false);
     const [newSupplierName, setNewSupplierName] = useState();
     const [supplierUsageCount, setSupplierUsageCount] = useState();
+    const [responsiveness, setResponsiveness] = useState();
     const [error, setError] = useState();
 
     useEffect(
@@ -55,6 +56,11 @@ export default function App() {
                             .then(counts => {
                                 setSupplierUsageCount(counts)
                             })
+
+                        fetchWithAuth("/.rest/stats/responsiveness/all")
+                            .then(res => res.ok ? res.json() : {})
+                            .then(data => setResponsiveness(data))
+                            .catch(() => {});
                     })
                     .catch((error) => {
                         setError(error);
@@ -119,7 +125,7 @@ export default function App() {
                 <div>Matching suppliers</div>
                 {suppliers ?
                     <SupplierList suppliers={suppliers} demand={demand}
-                        demandid={demandid} usages={supplierUsageCount}/>
+                        demandid={demandid} usages={supplierUsageCount} responsiveness={responsiveness}/>
                 : 
                     null
                 }
@@ -149,7 +155,7 @@ function SupplierList(props) {
                             type="secondary" 
                             extraClass="text-xl font-bold"/>
                     </div>
-                    <SupplierCard supplier={s} linkable={true} usages={props.usages}/>
+                    <SupplierCard supplier={s} linkable={true} usages={props.usages} responsiveness={props.responsiveness}/>
                 </div>
             ))}
         </div>

@@ -163,7 +163,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
     }
 
     return (
-        <div className="inline-block cursor-pointer">
+        <div className="cursor-pointer shrink-0">
             <div onClick={() => clickHandler()}>
                 {children}
             </div>

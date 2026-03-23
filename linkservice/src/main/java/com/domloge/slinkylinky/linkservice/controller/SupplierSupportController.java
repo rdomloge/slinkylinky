@@ -9,6 +9,9 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.rest.core.event.AfterCreateEvent;
 import org.springframework.data.rest.core.event.AfterSaveEvent;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +59,25 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
     @Autowired
     private ProposalAbortHandler proposalAbortHandler;
 
+
+    @GetMapping(path = "/list", produces = "application/json")
+    public ResponseEntity<Page<Supplier>> list(
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "false") boolean includeDisabled,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        Sort sort = sortBy.isBlank()
+                ? Sort.by("name").ascending()
+                : direction.equalsIgnoreCase("desc")
+                    ? Sort.by(sortBy).descending()
+                    : Sort.by(sortBy).ascending();
+
+        return ResponseEntity.ok(
+                supplierRepo.findBySearchAndFilter(search, includeDisabled, PageRequest.of(page, size, sort)));
+    }
 
     @PatchMapping(path = "/updateSupplierDa", produces = "application/json")
     @Transactional

@@ -1,47 +1,55 @@
-import React, {useState, useEffect} from 'react'
-
 import NiceDate from "./atoms/DateTime";
 import TrafficLights from "./ProposalTrafficLights";
 import SupplierSummary from './SupplierSummary';
 import { Link } from 'react-router-dom';
 import DemandHeadline from './DemandHeadline';
-
+import CalendarIcon from '@/assets/calendar.svg';
+import LinkIcon from '@/assets/link.svg';
 
 export default function ProposalListItem({proposal, originalSupplier = null}) {
+    const supplier = originalSupplier ?? proposal.paidLinks[0].supplier;
 
     return (
-        <>
-            <div className="card grid grid-cols-11">
-                <div className='col-span-8'>
-                    <NiceDate isostring={proposal.dateCreated}/>
-                    {originalSupplier ?
-                        <SupplierSummary supplier={originalSupplier}/>
-                    :
-                        <SupplierSummary supplier={proposal.paidLinks[0].supplier}/>
-                    }
-                    {proposal.blogLive ?
-                        <div>
-                            <Link to={proposal.liveLinkUrl} rel='nofollow'>
-                                <p className='font-extrabold truncate'>
-                                    {proposal.liveLinkTitle}
-                                </p>
-                            </Link>
-                            <p>Blog live at <NiceDate isostring={proposal.dateBlogLive}/></p>
-                        </div>
-                    : null}
-                    <div>
-                        <TrafficLights proposal={proposal} interactive={false}/>
-                    </div>
-                </div>
-                <div className='col-span-3 m-3'>
-                    <Link to={"/proposals/"+proposal.id} className='font-semibold text-right text-2xl' rel='nofollow'>
-                        <p className='font-semibold text-right text-2xl mb-4'>View</p>
+        <div className="card list-card">
+
+            {/* Header: supplier info + View link */}
+            <div className="flex items-start justify-between gap-2 mb-3">
+                <SupplierSummary supplier={supplier}/>
+                <Link to={'/proposals/'+proposal.id} rel='nofollow'>
+                    <span className="text-sm font-semibold text-blue-600 hover:text-blue-800 shrink-0">View</span>
+                </Link>
+            </div>
+
+            {/* Live link */}
+            {proposal.blogLive &&
+                <div className="mb-3">
+                    <Link to={proposal.liveLinkUrl} rel='nofollow'
+                        className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                        <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-70"/>
+                        <span className="truncate font-medium">{proposal.liveLinkTitle}</span>
                     </Link>
-                    <p className='font-semibold text-right'>Demand</p>
-                       {proposal.paidLinks.map( 
-                            (pl,index) => <DemandHeadline demand={pl.demand} key={index}/> )} 
+                    <p className="text-xs text-gray-400 mt-0.5 ml-5">
+                        Live since <NiceDate isostring={proposal.dateBlogLive}/>
+                    </p>
+                </div>
+            }
+
+            {/* Traffic lights */}
+            <TrafficLights proposal={proposal} interactive={false}/>
+
+            {/* Footer: date + demands */}
+            <div className="flex items-start justify-between mt-3 pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <img src={CalendarIcon} alt="calendar" width={12} height={12} className="shrink-0"/>
+                    <NiceDate isostring={proposal.dateCreated}/>
+                </div>
+                <div className="text-right">
+                    <p className="text-xs font-medium text-gray-500 mb-1">Demand</p>
+                    {proposal.paidLinks.map((pl, index) =>
+                        <DemandHeadline demand={pl.demand} key={index}/>
+                    )}
                 </div>
             </div>
-        </>
+        </div>
     );
 }
