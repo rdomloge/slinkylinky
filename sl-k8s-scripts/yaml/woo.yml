@@ -49,13 +49,17 @@ spec:
               value: "8080"
             - name: slinkylinky_vhost
               value: slinkylinky
+            - name: slinkylinky_rabbitmq_username
+              value: <SPECIFY>
+            - name: slinkylinky_rabbitmq_password
+              value: <SPECIFY>
             - name: woocommerce_key
               value: <SPECIFY>
             - name: woocommerce_secret
               value: <SPECIFY>
             - name: woocommerce_host
               value: <SPECIFY>
-            - name: linkservice_url
+            - name: wc_link_service_base
               value: http://linkservice-service:8090
             - name: wc_uploads_base
               value: https://link-sync.co.uk/wp-content/uploads/woocommerce_uploads/cart

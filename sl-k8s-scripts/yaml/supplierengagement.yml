@@ -56,6 +56,12 @@ spec:
               value: <SPECIFY>
             - name: slinkylinky_domain
               value: https://slinkylinky.uk
+            - name: slinkylinky_rabbitmq_host
+              value: rabbit-service
+            - name: slinkylinky_rabbitmq_username
+              value: <SPECIFY>
+            - name: slinkylinky_rabbitmq_password
+              value: <SPECIFY>
             - name: slinkylinky_vhost
               value: slinkylinky
             - name: mail_declineEmailRecipientName

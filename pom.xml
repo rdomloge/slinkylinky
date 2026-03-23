@@ -14,5 +14,8 @@
 		<module>events</module>
 		<module>linkservice</module>
 		<module>stats</module>
+		<module>audit</module>
+		<module>woocommerce</module>
+		<module>supplierengagement</module>
 	</modules>
 </project>
