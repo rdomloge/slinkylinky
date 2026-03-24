@@ -17,6 +17,7 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.ErrorHandler;
 
 import com.domloge.slinkylinky.stats.amqp.SupplierEventReceiver;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
+@Profile("!test")
 public class RabbitConfig {
     
     @Value("${rabbitmq.supplier.queue}")

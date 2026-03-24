@@ -18,11 +18,14 @@ import com.domloge.slinkylinky.stats.dto.ResponsivenessDataPoint;
 import com.domloge.slinkylinky.stats.entity.SupplierResponsiveness;
 import com.domloge.slinkylinky.stats.repo.ResponsivenessRepo;
 
+import org.springframework.context.annotation.Profile;
+
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@Profile("!test")
 public class ResponsivenessSync {
 
     @Value("${linkservice.url}")
