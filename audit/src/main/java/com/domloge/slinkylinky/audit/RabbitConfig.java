@@ -13,6 +13,7 @@ import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.util.ErrorHandler;
 
@@ -20,6 +21,7 @@ import jakarta.persistence.RollbackException;
 import jakarta.validation.ConstraintViolationException;
 
 @Configuration
+@Profile("!test")
 public class RabbitConfig {
 
     @Value("${rabbitmq.audit.queue}")
