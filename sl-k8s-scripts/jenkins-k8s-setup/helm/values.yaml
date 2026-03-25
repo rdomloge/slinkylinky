@@ -96,7 +96,7 @@ fullnameOverride: ""
 # ConfigMaps configuration
 deployments:
   - name: linkservice
-    image: "rdomloge/slinky-linky-linkservice:6.0.7-CI-41"
+    image: "rdomloge/slinky-linky-linkservice:7.0.0-CI-13"
     cpuLimit: "500m"
     memoryLimit: "512Mi"
     startupFailureThreshold: 15
@@ -131,7 +131,7 @@ deployments:
       - 15672
 
   - name: adminwebsite
-    image: "rdomloge/slinky-linky-adminwebsite:6.0.17-CI-35"
+    image: "rdomloge/slinky-linky-adminwebsite:7.0.0-CI-13"
     ports:
       - 3000
     cpuLimit: "250m"
@@ -162,7 +162,7 @@ deployments:
     readinessPath: /demand
 
   - name: stats
-    image: "rdomloge/slinky-linky-stats:6.0.2-CI-9"
+    image: "rdomloge/slinky-linky-stats:7.0.0-CI-13"
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
@@ -199,7 +199,7 @@ deployments:
         secretKey: KEYCLOAK_ISSUER
   
   - name: audit
-    image: "rdomloge/slinky-linky-audit:6.0.1-CI-5"
+    image: "rdomloge/slinky-linky-audit:7.0.0-CI-13"
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
@@ -229,7 +229,7 @@ deployments:
         secretKey: KEYCLOAK_ISSUER
 
   - name: supplierengagement
-    image: "rdomloge/slinky-linky-supplierengagement:6.0.8-CI-18"
+    image: "rdomloge/slinky-linky-supplierengagement:7.0.0-CI-13"
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
