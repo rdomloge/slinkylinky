@@ -41,62 +41,80 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Docker Login') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-                        sh "docker buildx create --use --name multiarch || true"
-
-                        // linkservice
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${env.REPO}-linkservice:${env.VERSION} \
-                            --push linkservice
-                        """
-
-                        // stats
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${env.REPO}-stats:${env.VERSION} \
-                            --push stats
-                        """
-
-                        // audit
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${env.REPO}-audit:${env.VERSION} \
-                            --push audit
-                        """
-
-                        // supplierengagement
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${env.REPO}-supplierengagement:${env.VERSION} \
-                            --push supplierengagement
-                        """
-
-                        // woocommerce
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${env.REPO}-woocommerce:${env.VERSION} \
-                            --push woocommerce
-                        """
-
-                        // frontend (build context is frontend/, Dockerfile is frontend/Dockerfile)
-                        sh """
-                        docker buildx build \
-                            --platform linux/amd64,linux/arm64 \
-                            -t ${env.REPO}-adminwebsite:${env.VERSION} \
-                            --push frontend
-                        """
                     }
+                    sh "docker buildx create --use --name multiarch || true"
                 }
+            }
+        }
+
+        stage('Docker: linkservice') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-linkservice:${env.VERSION} \
+                    --push linkservice
+                """
+            }
+        }
+
+        stage('Docker: stats') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-stats:${env.VERSION} \
+                    --push stats
+                """
+            }
+        }
+
+        stage('Docker: audit') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-audit:${env.VERSION} \
+                    --push audit
+                """
+            }
+        }
+
+        stage('Docker: supplierengagement') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-supplierengagement:${env.VERSION} \
+                    --push supplierengagement
+                """
+            }
+        }
+
+        stage('Docker: woocommerce') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-woocommerce:${env.VERSION} \
+                    --push woocommerce
+                """
+            }
+        }
+
+        stage('Docker: frontend') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-adminwebsite:${env.VERSION} \
+                    --push frontend
+                """
             }
         }
     }
