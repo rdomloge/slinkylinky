@@ -642,7 +642,7 @@ EOF
                             kubectl -n ${TENANT} port-forward svc/postgres-service 5432:5432 & 
                             KUBE_PID=$!
 
-                            sleep 3  # Wait for port-forward to establish
+                            sleep 10  # Wait for port-forward to establish
 
                             # Load the schema SQL files
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MAIN_SCHEMA_FILE}"+'''
