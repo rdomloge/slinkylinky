@@ -623,11 +623,11 @@ EOF
             agent { label "psql-worker" }
 
             environment {
-                MAIN_SCHEMA_FILE = "${WORKSPACE}/sl-k8s-setup/jenkins-k8s-setup/helm/slinkylinky-schema-backup.sql"
-                CORE_TABLES_FILE = "${WORKSPACE}/sl-k8s-setup/jenkins-k8s-setup/helm/core-tables-backup.sql"
-                STATS_TABLES_FILE = "${WORKSPACE}/sl-k8s-setup/jenkins-k8s-setup/helm/stats-tables-backup.sql"
-                AUDIT_TABLES_FILE = "${WORKSPACE}/sl-k8s-setup/jenkins-k8s-setup/helm/audit-schema-backup.sql"
-                SUPPLIERENGAGEMENT_TABLES_FILE = "${WORKSPACE}/sl-k8s-setup/jenkins-k8s-setup/helm/supplierengagement-schema-backup.sql"
+                MAIN_SCHEMA_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/slinkylinky-schema-backup.sql"
+                CORE_TABLES_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/core-tables-backup.sql"
+                STATS_TABLES_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/stats-tables-backup.sql"
+                AUDIT_TABLES_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/audit-schema-backup.sql"
+                SUPPLIERENGAGEMENT_TABLES_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/supplierengagement-schema-backup.sql"
             }
 
             steps {
