@@ -347,8 +347,8 @@ services:
     targetPort: 8080
     selectorAppName: woo
   - name: adminwebsite-service
-    port: 3000
-    targetPort: 3000
+    port: 80
+    targetPort: 80
     selectorAppName: adminwebsite
   - name: rabbit-service
     port: 5672
