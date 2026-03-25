@@ -245,7 +245,7 @@ pipeline {
                                         },
                                         {
                                             "hostname": "${TENANT}.slinkylinky.uk",
-                                            "service": "http://adminwebsite-service:3000",
+                                            "service": "http://adminwebsite-service:80",
                                             "originRequest": {}
                                         },
                                         {
