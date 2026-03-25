@@ -133,7 +133,7 @@ deployments:
   - name: adminwebsite
     image: "rdomloge/slinky-linky-adminwebsite:7.0.0-CI-13"
     ports:
-      - 3000
+      - 5173
     cpuLimit: "250m"
     secretEnv:
       NEXTAUTH_SECRET:
@@ -155,10 +155,10 @@ deployments:
       NEXTAUTH_URL_INTERNAL:
         configMapName: admin-website-config
         configMapKey: NEXTAUTH_URL_INTERNAL
-    startupPort: 3000
-    livenessPort: 3000
+    startupPort: 5173
+    livenessPort: 5173
     livenessPath: /demand
-    readinessPort: 3000
+    readinessPort: 5173
     readinessPath: /demand
 
   - name: stats
@@ -197,6 +197,18 @@ deployments:
       ISSUER_URI:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+      keycloak_clientcredentials_client_id:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID
+      keycloak_clientcredentials_client_secret:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET
+      keycloak_base_url:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_BASE_URL
+      keycloak_clientcredentials_token_uri:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
   
   - name: audit
     image: "rdomloge/slinky-linky-audit:7.0.0-CI-13"
