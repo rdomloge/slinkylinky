@@ -52,6 +52,17 @@ pipeline {
             }
         }
 
+        stage('Docker: frontend') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -t ${env.REPO}-adminwebsite:${env.VERSION} \
+                    --push frontend
+                """
+            }
+        }
+
         stage('Docker: linkservice') {
             steps {
                 sh """
@@ -103,17 +114,6 @@ pipeline {
                     --platform linux/amd64,linux/arm64 \
                     -t ${env.REPO}-woocommerce:${env.VERSION} \
                     --push woocommerce
-                """
-            }
-        }
-
-        stage('Docker: frontend') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-adminwebsite:${env.VERSION} \
-                    --push frontend
                 """
             }
         }
