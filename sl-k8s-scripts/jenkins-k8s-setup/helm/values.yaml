@@ -133,7 +133,7 @@ deployments:
   - name: adminwebsite
     image: "rdomloge/slinky-linky-adminwebsite:7.0.0-CI-13"
     ports:
-      - 5173
+      - 80
     cpuLimit: "250m"
     secretEnv:
       NEXTAUTH_SECRET:
@@ -155,10 +155,10 @@ deployments:
       NEXTAUTH_URL_INTERNAL:
         configMapName: admin-website-config
         configMapKey: NEXTAUTH_URL_INTERNAL
-    startupPort: 5173
-    livenessPort: 5173
+    startupPort: 80
+    livenessPort: 80
     livenessPath: /demand
-    readinessPort: 5173
+    readinessPort: 80
     readinessPath: /demand
 
   - name: stats
