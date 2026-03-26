@@ -1,6 +1,10 @@
 pipeline {
-    
+
     agent { label "helm-worker" }
+
+    parameters {
+        string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy (e.g. 7.0.1-CI-23)')
+    }
 
     environment {
         BUILDER = 'mybuilder'
@@ -91,6 +95,7 @@ pipeline {
                             helm-${TENANT} \\
                             ${FOLDER} \\
                             --set tenant=${TENANT} \\
+                            --set imageTag=${IMAGE_TAG} \\
                             --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
                             --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
@@ -624,7 +629,7 @@ EOF
 
                         sh '''
                         kubectl -n ${TENANT} scale --replicas=0 deployment --all
-                        kubectl -n ${TENANT} scale --replicas=0 statefulset keycloak
+                        kubectl -n ${TENANT} scale --replicas=0 statefulset keycloak rabbit
                         '''
                     }
                 }
