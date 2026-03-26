@@ -68,6 +68,11 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.RABBITMQ_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
                     // Optional: verify variable exists but don't echo it
                     echo "Passwords generated and stored in env var (not printing it for security)"
                 }
@@ -90,7 +95,8 @@ pipeline {
                             --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
                             --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} \\
-                            --set SUPPLIERENGAGEMENT_DB_PASSWORD=${SUPPLIERENGAGEMENT_DB_PASSWORD}
+                            --set SUPPLIERENGAGEMENT_DB_PASSWORD=${SUPPLIERENGAGEMENT_DB_PASSWORD} \\
+                            --set RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
                             '''
                         }
                     }
@@ -118,8 +124,15 @@ pipeline {
                                   "SUPPLIERENGAGEMENT_DB_PASSWORD": "'$(echo -n "${SUPPLIERENGAGEMENT_DB_PASSWORD}" | base64 -w 0)'"
                                 }
                               }'
-                            
-                
+
+                            # Update the rabbitmq-credentials secret with the generated password
+                            kubectl -n ${TENANT} patch secret rabbitmq-credentials \
+                              --type='merge' \
+                              -p='{
+                                "data": {
+                                  "RABBITMQ_PASSWORD": "'$(echo -n "${RABBITMQ_PASSWORD}" | base64 -w 0)'"
+                                }
+                              }'
 
                             # Also update keycloak-credentials secret if it exists
                             if kubectl -n ${TENANT} get secret keycloak-credentials >/dev/null 2>&1; then

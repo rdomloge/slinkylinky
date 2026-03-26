@@ -64,6 +64,12 @@ secrets:
         ...
         -----END OPENSSH PRIVATE KEY-----
 
+  - name: rabbitmq-credentials
+    type: Opaque
+    data:
+      RABBITMQ_USERNAME: "slinkylinky"
+      RABBITMQ_PASSWORD: "changeme"
+
 # ConfigMaps configuration
 configMaps:
   - name: rabbitmq-config
@@ -122,6 +128,12 @@ deployments:
       ISSUER_URI: # named differently to match app config - is this the same value as KEYCLOAK_ISSUER in adminwebsite?
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+      slinkylinky_rabbitmq_username:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_USERNAME
+      slinkylinky_rabbitmq_password:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_PASSWORD
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
@@ -209,7 +221,13 @@ deployments:
       keycloak_clientcredentials_token_uri:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
-  
+      slinkylinky_rabbitmq_username:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_USERNAME
+      slinkylinky_rabbitmq_password:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_PASSWORD
+
   - name: audit
     image: "rdomloge/slinky-linky-audit:7.0.0-CI-13"
     cpuLimit: "250m"
@@ -239,6 +257,12 @@ deployments:
       ISSUER_URI:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+      slinkylinky_rabbitmq_username:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_USERNAME
+      slinkylinky_rabbitmq_password:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_PASSWORD
 
   - name: supplierengagement
     image: "rdomloge/slinky-linky-supplierengagement:7.0.0-CI-13"
@@ -321,6 +345,12 @@ deployments:
       keycloak_base_url:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_BASE_URL
+      slinkylinky_rabbitmq_username:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_USERNAME
+      slinkylinky_rabbitmq_password:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_PASSWORD
 
 services:
   - name: postgres-service

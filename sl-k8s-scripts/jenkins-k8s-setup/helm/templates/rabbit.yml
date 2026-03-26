@@ -22,9 +22,15 @@ spec:
           imagePullPolicy: Always
           env:
             - name: RABBITMQ_DEFAULT_USER
-              value: CHANGEME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_USERNAME
             - name: RABBITMQ_DEFAULT_PASS
-              value: CHANGEME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_PASSWORD
             - name: RABBITMQ_DEFAULT_VHOST
               value: slinkylinky
           resources:
