@@ -82,7 +82,7 @@ configMaps:
     data:
       VITE_KEYCLOAK_URL: "derived-from-tenant"
       VITE_KEYCLOAK_REALM: "derived-from-tenant"
-      VITE_KEYCLOAK_CLIENT_ID: "sl_webapp"
+      VITE_KEYCLOAK_CLIENT_ID: "sl-webapp"
       VITE_GA_TRACKING_ID: "G-4K0WX1L508"
   - name: common-config
     data:
