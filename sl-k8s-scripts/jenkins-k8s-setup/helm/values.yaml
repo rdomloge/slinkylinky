@@ -1,4 +1,5 @@
 tenant: "default-tenant"
+baseDomain: "slinkylinky.uk"
 imageTag: "7.0.1-CI-14"
 imageRepo: "rdomloge/slinky-linky"
 # Secrets configuration
@@ -79,7 +80,8 @@ configMaps:
       RABBITMQ_HOST: "rabbit-service"
   - name: admin-website-config
     data:
-      VITE_KEYCLOAK_REALM: "slinkylinky"
+      VITE_KEYCLOAK_URL: "derived-from-tenant"
+      VITE_KEYCLOAK_REALM: "derived-from-tenant"
       VITE_KEYCLOAK_CLIENT_ID: "sl_webapp"
       VITE_GA_TRACKING_ID: "G-4K0WX1L508"
   - name: common-config
@@ -150,11 +152,10 @@ deployments:
     ports:
       - 80
     cpuLimit: "250m"
-    secretEnv:
-      VITE_KEYCLOAK_URL:
-        secretName: keycloak-credentials
-        secretKey: KEYCLOAK_BASE_URL
     configMapEnv:
+      VITE_KEYCLOAK_URL:
+        configMapName: admin-website-config
+        configMapKey: VITE_KEYCLOAK_URL
       VITE_KEYCLOAK_REALM:
         configMapName: admin-website-config
         configMapKey: VITE_KEYCLOAK_REALM

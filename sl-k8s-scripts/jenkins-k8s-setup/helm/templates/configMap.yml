@@ -8,6 +8,12 @@ metadata:
   namespace: {{ $root.Values.tenant }}
 data:
   {{- range $key, $value := $configMap.data }}
+  {{- if eq $key "VITE_KEYCLOAK_URL" }}
+  {{ $key }}: {{ printf "https://%s.%s" $root.Values.tenant $root.Values.baseDomain | quote }}
+  {{- else if eq $key "VITE_KEYCLOAK_REALM" }}
+  {{ $key }}: {{ $root.Values.tenant | quote }}
+  {{- else }}
   {{ $key }}: {{ $value | quote }}
+  {{- end }}
   {{- end }}
 {{- end }}
