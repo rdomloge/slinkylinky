@@ -79,8 +79,9 @@ configMaps:
       RABBITMQ_HOST: "rabbit-service"
   - name: admin-website-config
     data:
-      NEXTAUTH_URL: "https://change-me"
-      NEXTAUTH_URL_INTERNAL: "http://adminwebsite-service:3000"
+      VITE_KEYCLOAK_REALM: "slinkylinky"
+      VITE_KEYCLOAK_CLIENT_ID: "sl_webapp"
+      VITE_GA_TRACKING_ID: "G-4K0WX1L508"
   - name: common-config
     data:
       SLINKYLINKY_DOMAIN: "changeme.slinkylinky.uk"
@@ -150,25 +151,19 @@ deployments:
       - 80
     cpuLimit: "250m"
     secretEnv:
-      NEXTAUTH_SECRET:
+      VITE_KEYCLOAK_URL:
         secretName: keycloak-credentials
-        secretKey: KEYCLOAK_SECRET
-      KEYCLOAK_ID:
-        secretName: keycloak-credentials
-        secretKey: KEYCLOAK_ID
-      KEYCLOAK_SECRET:
-        secretName: keycloak-credentials
-        secretKey: KEYCLOAK_SECRET
-      KEYCLOAK_ISSUER:
-        secretName: keycloak-credentials
-        secretKey: KEYCLOAK_ISSUER
+        secretKey: KEYCLOAK_BASE_URL
     configMapEnv:
-      NEXTAUTH_URL:
+      VITE_KEYCLOAK_REALM:
         configMapName: admin-website-config
-        configMapKey: NEXTAUTH_URL
-      NEXTAUTH_URL_INTERNAL:
+        configMapKey: VITE_KEYCLOAK_REALM
+      VITE_KEYCLOAK_CLIENT_ID:
         configMapName: admin-website-config
-        configMapKey: NEXTAUTH_URL_INTERNAL
+        configMapKey: VITE_KEYCLOAK_CLIENT_ID
+      VITE_GA_TRACKING_ID:
+        configMapName: admin-website-config
+        configMapKey: VITE_GA_TRACKING_ID
     startupPort: 80
     livenessPort: 80
     livenessPath: /demand

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/auth/AuthProvider';
 import ReactGA from 'react-ga4';
+import { GA_TRACKING_ID } from '@/config';
 
 import Callback from '@/auth/Callback';
 
@@ -26,8 +27,7 @@ import PaidLinksStaging from '@/pages/paidlinks/staging';
 import Sandbox from '@/pages/sandbox/index';
 import Dashboard from '@/pages/dashboard/index';
 
-const TRACKING_ID = import.meta.env.VITE_GA_TRACKING_ID || "G-4K0WX1L508";
-ReactGA.initialize(TRACKING_ID);
+ReactGA.initialize(GA_TRACKING_ID);
 
 export default function App() {
   return (

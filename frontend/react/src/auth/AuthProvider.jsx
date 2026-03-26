@@ -1,11 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { KEYCLOAK_URL, KEYCLOAK_REALM, KEYCLOAK_CLIENT_ID } from '@/config';
 
 const AuthContext = createContext(null);
-
-const KEYCLOAK_URL = import.meta.env.VITE_KEYCLOAK_URL;
-const KEYCLOAK_REALM = import.meta.env.VITE_KEYCLOAK_REALM;
-const KEYCLOAK_CLIENT_ID = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
 
 const TOKEN_KEY = 'sl_access_token';
 const REFRESH_TOKEN_KEY = 'sl_refresh_token';
