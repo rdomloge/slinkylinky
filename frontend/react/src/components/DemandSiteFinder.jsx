@@ -57,8 +57,8 @@ export default function DemandSiteFinder({searchTerm, demandsiteSelectedHandler}
                 <ClickHandlerButton label="Create new site" clickHandler={()=>setShowModal(true)} id="newDemandSite"/>
                 {showModal ?
                     <Modal dismissHandler={()=>setShowModal(false)} title="Create new demand site" width="w-1/3">
-                        <TextInput changeHandler={setNewDemandsiteName} label="Name" id={"newDemandSiteName"}/>
-                        <TextInput changeHandler={setNewDemandsiteWebsite} label="Website" id={"newDemandSiteWebsite"}/>
+                        <TextInput changeHandler={setNewDemandsiteName} label="Name" id={"newDemandSiteName"} binding={newDemandsiteName}/>
+                        <TextInput changeHandler={setNewDemandsiteWebsite} label="Website" id={"newDemandSiteWebsite"} binding={newDemandsiteWebsite}/>
                         <div className="pt-4">
                             <ClickHandlerButton label="Submit" clickHandler={()=>createNewDemandSite(newDemandsiteName, newDemandsiteWebsite)} id={"createDemandSiteButton"}/>
                         </div>
