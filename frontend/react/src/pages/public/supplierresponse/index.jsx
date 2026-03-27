@@ -26,6 +26,7 @@ export default function SupplierResponse() {
     const [invoiceUrl, setInvoiceUrl] = useState("");
     const [declineReason, setDeclineReason] = useState("")
     const [doNotContact, setDoNotContact] = useState(false)
+    const [isDeclining, setIsDeclining] = useState(false)
 
 
     useEffect(() => {
@@ -72,9 +73,10 @@ export default function SupplierResponse() {
     }
 
     function handleDecline() {
+        setIsDeclining(true);
         const id = searchParams.get('id');
         fetch("/.rest/engagements/decline?guid="+id, {
-            method: "PATCH", 
+            method: "PATCH",
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -88,7 +90,10 @@ export default function SupplierResponse() {
                 window.location.reload();
             }
         })
-        .catch((err) => console.error(err))
+        .catch((err) => {
+            console.error(err);
+            setIsDeclining(false);
+        })
     }
 
 
@@ -128,9 +133,9 @@ export default function SupplierResponse() {
                             {showAcceptModal ?
                                 <Modal title="Accept offer" dismissHandler={() => { setShowAcceptModal(false) }} width="w-1/2">
                                     <p className="text-2xl font-bold">By accepting this offer you agree to the links being permanent do-follow links.</p>
-                                    <TextInput label="Article title" changeHandler={(e) => { setBlogTitle(e) }} />
-                                    <TextInput label="URL to article" changeHandler={(e) => { setBlogUrl(e) }} />
-                                    <TextInput label="URL to invoice" changeHandler={(e) => { setInvoiceUrl(e) }} />
+                                    <TextInput label="Article title" binding={blogTitle} changeHandler={(e) => { setBlogTitle(e) }} />
+                                    <TextInput label="URL to article" binding={blogUrl} changeHandler={(e) => { setBlogUrl(e) }} />
+                                    <TextInput label="URL to invoice" binding={invoiceUrl} changeHandler={(e) => { setInvoiceUrl(e) }} />
                                     
                                     <div className="inline-block flex">
                                         <div className="flex-1 flex justify-end">
@@ -152,10 +157,10 @@ export default function SupplierResponse() {
                             {showDeclineModal ?
                                 <Modal title="Decline offer" dismissHandler={() => { setShowDeclineModal(false) }} width="w-1/2">
                                     <p>By declining this offer, you will not be able to accept it later.</p>
-                                    <TextInput label="(optional) Reason for declining" initialValue={declineReason} changeHandler={(e) => { setDeclineReason(e) }} />
+                                    <TextInput label="(optional) Reason for declining" binding={declineReason} changeHandler={(e) => { setDeclineReason(e) }} />
                                     <div className="inline-block flex justify-end">
                                         <StyledCheckbox label="Do not contact me again" checked={doNotContact} onChangeHandler={(e) => { setDoNotContact(e.target.checked) }} />
-                                        <StyledButton type="risky" label="Decline" submitHandler={() => { handleDecline() }} />
+                                        <StyledButton type="risky" label={isDeclining ? "Declining..." : "Decline"} enabled={!isDeclining} submitHandler={() => { handleDecline() }} />
                                     </div>
                                     {doNotContact && doNotContact === true ? 
                                         <InfoMessage message="You will receive one more email confirming that you are being removed from our system and we will not send you any future engagements" />
