@@ -106,7 +106,7 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
         log.info("Getting supplier version for supplierId: " + supplierId + " version: " + version);
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         List<Number> revisions = auditReader.getRevisions(Supplier.class, supplierId);
-        if (revisions.size() < version) {
+        if (revisions.size() <= (int) version) {
             return ResponseEntity.notFound().build();
         }
 

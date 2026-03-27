@@ -55,12 +55,18 @@ export default function Proposal() {
                     }
                     if(p.supplierSnapshotVersion != p.paidLinks[0].supplier.version) {
                         setCurrentSupplier(p.paidLinks[0].supplier);
-                        // load the version of the supplier that was current at the time of the proposal
-                        const url = "/.rest/supplierSupport/getVersion?supplierId="+p.paidLinks[0].supplier.id+"&projection=fullSupplier"
-                                    +"&version="+p.supplierSnapshotVersion
-                        fetchWithAuth(url, {headers: {'Cache-Control': 'no-cache'}})
-                            .then( (res) => res.json())
-                            .then( (s) => setSupplier(s))
+                        if(p.supplierSnapshot) {
+                            // Fast path: use the JSON snapshot stored at proposal creation time
+                            setSupplier(JSON.parse(p.supplierSnapshot));
+                        } else {
+                            // Legacy fallback for proposals created before snapshots were introduced
+                            const url = "/.rest/supplierSupport/getVersion?supplierId="+p.paidLinks[0].supplier.id
+                                        +"&version="+p.supplierSnapshotVersion
+                            fetchWithAuth(url, {headers: {'Cache-Control': 'no-cache'}})
+                                .then( (res) => res.ok ? res.json() : null)
+                                .then( (s) => setSupplier(s ?? p.paidLinks[0].supplier))
+                                .catch( () => setSupplier(p.paidLinks[0].supplier));
+                        }
                     }
                     else {
                         setSupplier(p.paidLinks[0].supplier);

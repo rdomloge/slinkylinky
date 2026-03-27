@@ -42,6 +42,8 @@ public interface FullProposalProjection {
 
     long getSupplierSnapshotVersion();
 
+    String getSupplierSnapshot();
+
     FullPaidLinkProjection[] getPaidLinks();
 
     boolean isDoNotExpire();
