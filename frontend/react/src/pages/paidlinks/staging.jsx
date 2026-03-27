@@ -28,6 +28,7 @@ export default function App() {
     const [otherDemands, setOtherDemands] = useState(null);
     const [selectedOtherDemands, setSelectedOtherDemands] = useState([]);
     const [error, setError] = useState(null);
+    const [submitError, setSubmitError] = useState(null);
     const [ready, setReady] = useState(false);
 
     
@@ -46,7 +47,9 @@ export default function App() {
                 location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
             }
             else {
-                setError("Could not create proposal: "+resp.statusText)
+                resp.json()
+                    .then(data => setSubmitError(data.error || ("Failed to create proposal (" + resp.status + ")")))
+                    .catch(() => setSubmitError("Failed to create proposal (" + resp.status + ")"));
             }
         });
     }
@@ -87,6 +90,7 @@ export default function App() {
             <PageTitle id="paidlink-staging-id" title="Proposal Staging"/>
             
             <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id={"submitProposal"}/>
+            <ErrorMessage message={submitError}/>
 
             {( !error && supplier && demand && otherDemands) ?
                 <>

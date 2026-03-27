@@ -197,15 +197,17 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
 
 
     @PostMapping(path = "/createProposal", produces = "application/json")
-    public ResponseEntity<Object> createProposal(@RequestHeader String user, @RequestParam long supplierId, 
+    public ResponseEntity<Object> createProposal(@RequestHeader String user, @RequestParam long supplierId,
             @RequestParam long[] demandIds) throws JsonProcessingException {
-        
+
         log.info(user + " is creating a proposal for supplier {} for demands {} ", supplierId, Arrays.toString(demandIds));
-        
+
         // 0 = ok, 400 = conflict, 404 = not found
         int[] errorStatus = {0};
 
-        Proposal dbProposal = transactionTemplate.execute(status ->  {
+        Proposal dbProposal;
+        try {
+        dbProposal = transactionTemplate.execute(status ->  {
             Optional<Supplier> supplierOpt = supplierRepo.findById(supplierId);
                 if( ! supplierOpt.isPresent()) {
                     errorStatus[0] = 404;
@@ -253,10 +255,15 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 // Capture the current Envers revision number for the supplier so that
                 // legacy Envers lookups (for proposals without a JSON snapshot) can do a
                 // direct find() without a preceding getRevisions() call.
-                List<Number> supplierRevisions = AuditReaderFactory.get(entityManager)
-                        .getRevisions(Supplier.class, supplier.getId());
-                long snapshotRevision = supplierRevisions.isEmpty() ? 0
-                        : supplierRevisions.get(supplierRevisions.size() - 1).longValue();
+                long snapshotRevision = 0;
+                try {
+                    List<Number> supplierRevisions = AuditReaderFactory.get(entityManager)
+                            .getRevisions(Supplier.class, supplier.getId());
+                    snapshotRevision = supplierRevisions.isEmpty() ? 0
+                            : supplierRevisions.get(supplierRevisions.size() - 1).longValue();
+                } catch (Exception e) {
+                    log.warn("Could not read Envers revisions for supplier {} — snapshotRevision will be 0", supplier.getId(), e);
+                }
 
                 // Serialize the supplier as a JSON snapshot so getProposalsWithOriginalSuppliers
                 // can restore the original state at read time without any Envers queries.
@@ -277,6 +284,11 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 proposal.setSupplierSnapshot(supplierSnapshotJson);
                 return proposalRepo.save(proposal);
         });
+        } catch (Exception e) {
+            log.error("Failed to create proposal for supplier {} demands {}", supplierId, Arrays.toString(demandIds), e);
+            String message = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+            return ResponseEntity.internalServerError().body(Map.of("error", message));
+        }
 
         if(dbProposal == null) {
             return errorStatus[0] == 404
