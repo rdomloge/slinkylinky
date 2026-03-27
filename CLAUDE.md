@@ -138,3 +138,17 @@ Backend services expect these env vars:
 Frontend expects (in `.env.development` for dev, injected via `window.__CONFIG__` in production):
 - `BACKEND_HOST` (defaults to `localhost`)
 - `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`, `VITE_KEYCLOAK_CLIENT_ID`
+
+## Database Schema & CI
+
+The Jenkinsfile (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) loads the schema for each new tenant from these SQL files in `sl-k8s-scripts/jenkins-k8s-setup/helm/`:
+
+| File | Database / owner |
+|---|---|
+| `slinkylinky-schema-backup.sql` | `slinkylinky` DB — base schema (roles, sequences, etc.) |
+| `core-tables-backup.sql` | `slinkylinky` DB — core tables (loaded as `linkservice_user`) |
+| `stats-tables-backup.sql` | `stats` DB (loaded as `stats_user`) |
+| `audit-schema-backup.sql` | `audit` DB (loaded as `audit_user`) |
+| `supplierengagement-schema-backup.sql` | `supplierengagement` DB (loaded as `supplierengagement_user`) |
+
+**Whenever you add or change a column/table/index on a JPA entity, you must also update the corresponding SQL file(s) above** so that new tenant deployments via CI get the correct schema.

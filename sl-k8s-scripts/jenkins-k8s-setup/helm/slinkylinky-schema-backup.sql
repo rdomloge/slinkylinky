@@ -230,7 +230,9 @@ CREATE TABLE public.paid_link (
     id bigint NOT NULL,
     demand_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
-    version bigint DEFAULT 0
+    version bigint DEFAULT 0,
+    demand_domain character varying(256),
+    supplier_domain character varying(256)
 );
 
 
@@ -282,6 +284,8 @@ CREATE TABLE public.proposal (
     proposal_sent boolean NOT NULL,
     updated_by character varying(255),
     supplier_snapshot_version bigint DEFAULT 0 NOT NULL,
+    supplier_snapshot_revision bigint DEFAULT 0,
+    supplier_snapshot text,
     version bigint DEFAULT 1 NOT NULL,
     validated boolean DEFAULT false,
     date_validated timestamp(6) without time zone,
@@ -314,6 +318,8 @@ CREATE TABLE public.proposal_aud (
     proposal_accepted boolean,
     proposal_sent boolean,
     supplier_snapshot_version bigint DEFAULT 0,
+    supplier_snapshot_revision bigint DEFAULT 0,
+    supplier_snapshot text,
     updated_by character varying(255),
     validated boolean DEFAULT false,
     date_validated timestamp(6) without time zone,
@@ -514,6 +520,14 @@ ALTER TABLE ONLY public.paid_link_aud
 
 ALTER TABLE ONLY public.paid_link
     ADD CONSTRAINT paid_link_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: paid_link paidlink_demand_supplier; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.paid_link
+    ADD CONSTRAINT paidlink_demand_supplier UNIQUE (demand_domain, supplier_domain);
 
 
 --

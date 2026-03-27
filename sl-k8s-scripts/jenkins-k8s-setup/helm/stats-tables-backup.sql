@@ -21341,6 +21341,23 @@ CREATE INDEX idxrd91crsguk75xa5ehfwqjfg8t ON public.da_monthly_data USING btree 
 
 
 --
+-- Name: supplier_responsiveness; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.supplier_responsiveness (
+    id bigserial PRIMARY KEY,
+    supplier_id bigint NOT NULL UNIQUE,
+    domain character varying(255),
+    avg_response_days double precision NOT NULL DEFAULT 0,
+    sample_size integer NOT NULL DEFAULT 0,
+    last_calculated timestamp without time zone
+);
+
+CREATE INDEX idx_responsiveness_supplier_id ON public.supplier_responsiveness USING btree (supplier_id);
+CREATE INDEX idx_responsiveness_domain ON public.supplier_responsiveness USING btree (domain);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
