@@ -175,12 +175,12 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
             <div>
                 {showModal ?
                     <Modal dismissHandler={()=>setShowModal(false)} title="Post details" width="w-1/3">
-                        <TextInput label="Post title" changeHandler={(e)=>setPostTitle(e)}/>
-                        <TextInput label="Live link URL" changeHandler={(e)=>setPostUrl(e)}/>
+                        <TextInput label="Post title" binding={postTitle} changeHandler={(e)=>setPostTitle(e)}/>
+                        <TextInput label="Live link URL" binding={postUrl} changeHandler={(e)=>setPostUrl(e)}/>
                         {proposal.paidLinks[0].supplier.thirdParty ?
                             <>
                             <div className="w-1/3 inline-block p-4">
-                                <TextInput label="3rd party currency" changeHandler={(e)=>setSupplierCurrency(e)}/>
+                                <TextInput label="3rd party currency" binding={supplierCurrency} changeHandler={(e)=>setSupplierCurrency(e)}/>
                             </div>
                             <div className="w-1/3 inline-block p-4">
                                 <NumberInput label="3rd party cost" changeHandler={(e)=>setSupplierCost(e)}/>

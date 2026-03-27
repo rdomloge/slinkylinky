@@ -4,14 +4,14 @@ export default function MonthsBack() {
 
     const [searchParams] = useSearchParams()
 
-    function isLeapYear(year) { 
-        return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
+    function isLeapYear(year) {
+        return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0));
     }
-    
+
     function getDaysInMonth(year, month) {
         return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
     }
-    
+
     function goBackMonths(value) {
         var d = new Date(),
             n = d.getDate();
@@ -29,41 +29,37 @@ export default function MonthsBack() {
         return months;
     }
 
-    function classFor(pos) {
+    function isActive(pos) {
         var mm = searchParams.get('minusMonths');
-        if(undefined === mm) mm = 0;
-        
-        return "inline-block p-1 " + (pos === Number(mm) ? "font-black" : "")
+        if(mm === null) mm = '0';
+        return pos === Number(mm);
     }
 
     const months = lastNMonths(5);
+    const entries = [
+        { pos: 4, to: '/proposals?minusMonths=4', label: months[4] },
+        { pos: 3, to: '/proposals?minusMonths=3', label: months[3] },
+        { pos: 2, to: '/proposals?minusMonths=2', label: months[2] },
+        { pos: 1, to: '/proposals?minusMonths=1', label: months[1] },
+        { pos: 0, to: '/proposals',               label: months[0] },
+    ];
+
     return (
-        <span className='display-block'>
-            <div className={classFor(4)}>
-                <Link to="/proposals?minusMonths=4" rel='nofollow'>
-                    {months[4]}
+        <div className="flex items-center gap-1">
+            {entries.map(({ pos, to, label }) => (
+                <Link
+                    key={pos}
+                    to={to}
+                    rel="nofollow"
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                        isActive(pos)
+                            ? 'bg-indigo-600 text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                    }`}
+                >
+                    {label}
                 </Link>
-            </div>
-            <div className={classFor(3)}>
-                <Link to="/proposals?minusMonths=3" rel='nofollow'>
-                    {months[3]}
-                </Link>
-            </div>
-            <div className={classFor(2)}>
-                <Link to="/proposals?minusMonths=2" rel='nofollow'>
-                    {months[2]}
-                </Link>
-            </div>
-            <div className={classFor(1)}>
-                <Link to="/proposals?minusMonths=1" rel='nofollow'>
-                    {months[1]}
-                </Link>
-            </div>
-            <div className={classFor(0)}>
-                <Link to="/proposals" rel='nofollow'>
-                    {months[0]}
-                </Link>
-            </div>
-        </span>
+            ))}
+        </div>
     );
 }

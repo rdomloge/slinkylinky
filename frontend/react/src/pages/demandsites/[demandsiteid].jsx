@@ -2,7 +2,6 @@ import AddOrEditDemandSite from "@/components/AddOrEditDemandSite";
 import React, {useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom'
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import Loading from "@/components/Loading";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
@@ -23,11 +22,13 @@ export default function DemandSite() {
 
     return (
         <Layout pagetitle="Edit demand site">
-            <PageTitle title="Edit demand site" id="demandsite-detail-title-id"/>
-            {demandSite ? 
+            <div className="px-6 pt-6 pb-4">
+                <h1 id="demandsite-detail-title-id" className="pageTitle">Edit demand site</h1>
+            </div>
+            {demandSite ?
                 <AddOrEditDemandSite demandSite={demandSite}/>
-            : 
-                <Loading error={error}/> 
+            :
+                <Loading error={error}/>
             }
         </Layout>
     );

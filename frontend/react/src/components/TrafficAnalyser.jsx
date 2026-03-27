@@ -1,38 +1,42 @@
-export default function TrafficAnalyser({datapoints}) {
-    
-    // rules
-    // if latest traffic is 0, return 0
-    // if average traffic in last 3 months > 50, return 5
+export default function TrafficAnalyser({ datapoints }) {
+    let rating;
 
-    var rating;
-
-    if(datapoints.length == 0) {
+    if (datapoints.length === 0) {
         rating = "NO DATA";
+    } else if (datapoints[datapoints.length - 1].traffic < 3 || datapoints.length < 3) {
+        rating = "BAD";
     } else {
-        if(datapoints[datapoints.length-1].traffic < 3 || datapoints.length < 3) { // if the most recent datapoint is 0, or there are less than 3 datapoints
-            rating = "BAD";
+        let sum = 0;
+        for (let i = datapoints.length - 1; i > datapoints.length - 4; i--) {
+            sum += datapoints[i].traffic;
         }
-        else {
-            var averageTraffic = 0;
-            for(var i = datapoints.length-1; i > datapoints.length-4; i--) {
-                averageTraffic += datapoints[i].traffic;
-            }
-            averageTraffic = averageTraffic / 3;
-            if(averageTraffic > 150) {
-                rating = "GOOD";
-            } 
-            else if(averageTraffic > 35) {
-                rating = "OK";
-            }
-            else {
-                rating = "BAD";
-            }
-        }
+        const avg = sum / 3;
+        if (avg > 150) rating = "GOOD";
+        else if (avg > 35) rating = "OK";
+        else rating = "BAD";
     }
-    
+
+    const styles = {
+        GOOD:      'bg-emerald-50 text-emerald-700 border-emerald-200',
+        OK:        'bg-amber-50 text-amber-700 border-amber-200',
+        BAD:       'bg-red-50 text-red-600 border-red-200',
+        'NO DATA': 'bg-slate-100 text-slate-500 border-slate-200',
+    };
+
+    const dots = {
+        GOOD:      'bg-emerald-500',
+        OK:        'bg-amber-500',
+        BAD:       'bg-red-500',
+        'NO DATA': 'bg-slate-400',
+    };
+
     return (
-        <div>
-            <h1>Traffic analysis: {rating}</h1>
+        <div className="flex items-center gap-2 mt-3">
+            <span className="text-xs text-slate-500 font-medium">Traffic quality</span>
+            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full border ${styles[rating]}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${dots[rating]}`}/>
+                {rating}
+            </span>
         </div>
-    )
+    );
 }

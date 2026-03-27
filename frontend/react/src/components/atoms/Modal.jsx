@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function Modal({children, dismissHandler, title, width, id = "default-modal"}) {
 
@@ -9,7 +10,7 @@ export default function Modal({children, dismissHandler, title, width, id = "def
         return () => document.removeEventListener('keydown', handler);
     }, [dismissHandler]);
 
-    return (
+    return createPortal(
         <div
             id={id}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -44,6 +45,7 @@ export default function Modal({children, dismissHandler, title, width, id = "def
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

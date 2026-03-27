@@ -16,7 +16,7 @@ export default function ProposalListItem({proposal, originalSupplier = null}) {
             <div className="flex items-start justify-between gap-2 mb-3">
                 <SupplierSummary supplier={supplier}/>
                 <Link to={'/proposals/'+proposal.id} rel='nofollow'>
-                    <span className="text-sm font-semibold text-blue-600 hover:text-blue-800 shrink-0">View</span>
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors shrink-0">View</span>
                 </Link>
             </div>
 

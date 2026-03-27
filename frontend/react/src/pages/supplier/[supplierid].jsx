@@ -1,5 +1,4 @@
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import AddOrEditSupplier from "@/components/AddOrEditSupplier";
 import React, {useState, useEffect} from 'react';
 import { useParams } from 'react-router-dom'
@@ -34,10 +33,12 @@ export default function EditSupplier() {
 
     return (
         <Layout pagetitle="Edit supplier">
-            <PageTitle id="supplier-edit-id" title="Edit supplier"/>
+            <div className="px-6 pt-6 pb-2">
+                <h1 id="supplier-edit-id" className="pageTitle">Edit supplier</h1>
+            </div>
             {supplier ?
-                <AddOrEditSupplier supplier={supplier} 
-                    supplierName={supplierName} setSupplierName={setSupplierName} 
+                <AddOrEditSupplier supplier={supplier}
+                    supplierName={supplierName} setSupplierName={setSupplierName}
                     supplierWebsite={supplierWebsite} setSupplierWebsite={setSupplierWebsite}
                     supplierFee={supplierWeWriteFee} setSupplierFee={setSupplierWeWriteFee}
                     supplierSource={supplierSource} setSupplierSource={setSupplierSource}

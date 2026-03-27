@@ -47,31 +47,13 @@ export default function AddOrEditDemandSite({demandSite}) {
     }
 
     return (
-        <div className="flex">
-            <div className="flex-1">
-                <div className="content-center mb-4">
-                    <SessionButton label="Submit" clickHandler={submitHandler}/>
-                </div>
-                <div>
-                <form className="w-full max-w-lg card">
-                    <div className="flex flex-wrap -mx-3 mb-6">
-                        <div className="w-full px-3 mb-6 md:mb-0">
-                            <TextInput label="name" binding={demandSiteName} changeHandler={(e)=>{
-                                setDemandSiteName(e)
-                            }} />
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap -mx-3 mb-6">
-                        <div className="w-full px-3">
-                            <TextInput label="URL" changeHandler={(e)=>setDemandSiteUrl(e)} binding={demandSiteUrl}/>
-                        </div>
-                    </div>
-                    <div className="flex flex-wrap -mx-3 mb-2">
-                        <div className="w-full md:w-2/3 px-3 mb-6 md:mb-0">
-                            <CategorySelector changeHandler={categoryChangeHandler} label="Categories" initialValue={demandSite.categories}/>
-                        </div>
-                    </div>
-                    </form>
+        <div className="px-6 pb-6 max-w-2xl">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col gap-5">
+                <TextInput label="Name" binding={demandSiteName} changeHandler={(e) => setDemandSiteName(e)}/>
+                <TextInput label="URL" binding={demandSiteUrl} changeHandler={(e) => setDemandSiteUrl(e)}/>
+                <CategorySelector changeHandler={categoryChangeHandler} label="Categories" initialValue={demandSite.categories}/>
+                <div className="flex justify-end pt-2">
+                    <SessionButton label="Save" clickHandler={submitHandler}/>
                 </div>
             </div>
         </div>

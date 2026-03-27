@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom'
 
 import DemandCard from '@/components/DemandCard'
 import SupplierCard from '@/components/SupplierCard'
-import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import SessionButton, { ClickHandlerButton, StyledButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
@@ -48,23 +47,19 @@ export default function App() {
                         fetchWithAuth(existingLinkCountUrl+dataDemand.domain)
                             .then(resCount => resCount.json())
                             .then(count => setExistingLinkCount(count));
-                        
+
                         var usageUrl = supplierUsageCountUrl;
                         dataSuppliers.forEach((s,index) => usageUrl += s.id + (index < dataSuppliers.length-1 ? "," : ""));
                         fetchWithAuth(usageUrl)
                             .then(resCount => resCount.json())
-                            .then(counts => {
-                                setSupplierUsageCount(counts)
-                            })
+                            .then(counts => setSupplierUsageCount(counts))
 
                         fetchWithAuth("/.rest/stats/responsiveness/all")
                             .then(res => res.ok ? res.json() : {})
                             .then(data => setResponsiveness(data))
                             .catch(() => {});
                     })
-                    .catch((error) => {
-                        setError(error);
-                    })
+                    .catch((error) => setError(error))
         }, [demandid]
     );
 
@@ -80,56 +75,67 @@ export default function App() {
         })
         .then( (resp) => {
             if(resp.ok) {
-                console.log("Created proposal");
                 const locationUrl = resp.headers.get('Location')
                 location.href = "/proposals/"+locationUrl.substring(locationUrl.lastIndexOf('/')+1);
-            }
-            else {
-                console.log("Created proposal failed: "+JSON.stringify(resp));
             }
         })
     }
 
     return (
         <Layout pagetitle="Supplier search">
-            <PageTitle id="supplier-search-id"  title="Find a matching supplier"/>
-            {error || !demand ? 
-                <Loading error={error}/> 
-            : 
+
+            {/* Page header */}
+            <div className="px-6 pt-6 pb-4">
+                <h1 id="supplier-search-id" className="pageTitle">Find a matching supplier</h1>
+            </div>
+
+            {error || !demand ?
+                <Loading error={error}/>
+            :
                 <>
-                <div className='flex'>
-                    <div className='flex-1'>
-                        {demand ?
-                            <DemandCard demand={demand} />
-                        : null}
-                    </div>
-                    <div className='card flex-none text-lg font-bold m-4 text-zinc-600'>
-                        There are 
-                        <span className='text-5xl'> {existingLinkCount} </span> 
-                        historical links tracked for this domain
-                        <div className='mt-4'>
-                            <SessionButton label="Use 3rd party" clickHandler={(e) => setShowModal(true)}/>
+                    {/* Demand + historical links */}
+                    <div className="flex gap-4 px-6 mb-6">
+                        <div className="flex-1 min-w-0">
+                            <DemandCard demand={demand}/>
+                        </div>
+
+                        <div className="w-64 shrink-0 bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col gap-4">
+                            <div>
+                                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Historical links</p>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-4xl font-bold text-slate-800">{existingLinkCount}</span>
+                                    <span className="text-sm text-slate-500">tracked for this domain</span>
+                                </div>
+                            </div>
+                            <SessionButton label="Use 3rd party" clickHandler={() => setShowModal(true)}/>
                         </div>
                     </div>
-                </div>
-                {showModal ?
-                    <Modal dismissHandler={()=>setShowModal(false)} title="3rd Party options" >
-                        <TextInput label="Supplier name" changeHandler={(e)=>setNewSupplierName(e)}/>
-                        <div className='mt-4'>
-                            <ClickHandlerButton label="Create" clickHandler={()=>create3rdPartyProposal()}/>
-                        </div>
-                    </Modal>
-                : 
-                    null
-                }
-                <div>Matching suppliers</div>
-                {suppliers ?
-                    <SupplierList suppliers={suppliers} demand={demand}
-                        demandid={demandid} usages={supplierUsageCount} responsiveness={responsiveness}/>
-                : 
-                    null
-                }
+
+                    {/* Matching suppliers header */}
+                    <div className="flex items-center gap-3 px-6 mb-3">
+                        <h2 className="text-lg font-semibold text-slate-700">Matching suppliers</h2>
+                        {suppliers &&
+                            <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+                                {suppliers.length}
+                            </span>
+                        }
+                    </div>
+
+                    {/* Supplier grid */}
+                    {suppliers ?
+                        <SupplierList suppliers={suppliers} demand={demand}
+                            demandid={demandid} usages={supplierUsageCount} responsiveness={responsiveness}/>
+                    : null}
                 </>
+            }
+
+            {showModal &&
+                <Modal dismissHandler={() => setShowModal(false)} title="3rd Party options">
+                    <TextInput label="Supplier name" binding={newSupplierName} changeHandler={(e) => setNewSupplierName(e)}/>
+                    <div className="mt-4">
+                        <ClickHandlerButton label="Create" clickHandler={() => create3rdPartyProposal()}/>
+                    </div>
+                </Modal>
             }
         </Layout>
     );
@@ -140,22 +146,22 @@ function selectSupplier(s, props) {
 }
 
 function SupplierList(props) {
-    
     if(props.suppliers === null || props.demand === null) return <p>Loading...</p>;
-    else return (
-        <div className="grid grid-cols-3">
-            {props.suppliers.map((s,index) => (
-                <div key={index} id={"selectableSupplierCard-"+index}>
-                    <div className="top-10 right-10 relative float-right z-50">
-                        <StyledButton id="supplier-selectbtn-id"
-                            label="Select" 
-                            submitHandler={()=>{selectSupplier(s,props)}} 
-                            isText={true} 
-                            key={index} 
-                            type="secondary" 
-                            extraClass="text-xl font-bold"/>
-                    </div>
+    return (
+        <div className="grid grid-cols-3 gap-4 px-6 pb-6">
+            {props.suppliers.map((s, index) => (
+                <div key={index} id={"selectableSupplierCard-"+index} className="relative">
                     <SupplierCard supplier={s} linkable={true} usages={props.usages} responsiveness={props.responsiveness}/>
+                    <div className="absolute top-4 right-4 z-10">
+                        <StyledButton
+                            id="supplier-selectbtn-id"
+                            label="Select"
+                            submitHandler={() => selectSupplier(s, props)}
+                            isText={true}
+                            type="secondary"
+                            extraClass="font-semibold"
+                        />
+                    </div>
                 </div>
             ))}
         </div>
