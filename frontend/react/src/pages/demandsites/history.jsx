@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import PageTitle from '@/components/PageTitle';
 import Paging from '@/components/Paging';
 import Layout from '@/components/layout/Layout';
 import { CompactDate } from '@/components/atoms/DateTime';
@@ -58,41 +57,56 @@ const History = () => {
 
     return (
         <Layout pagetitle='Demand site history'>
-            <PageTitle title='Demand site history' id="demandsite-history-list-id"  />
-            <h1>Customer: {searchParams.get('domain')}, {total} links</h1>
-            <div>
+            {/* Page header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <div>
+                    <h1 id="demandsite-history-list-id" className="pageTitle">Link history</h1>
+                    <p className="text-slate-500 text-sm mt-1">{searchParams.get('domain')}</p>
+                </div>
+                {total > 0 &&
+                    <span className="text-slate-400 text-sm font-medium">{total} links</span>
+                }
+            </div>
+
+            <div className="px-6">
                 <Paging baseUrl={`/demandsites/history`} baseQuery={{"domain": searchParams.get('domain')}} pageCount={totalPages} total={total} page={currentPage}/>
             </div>
 
             {proposals ?
-                <table className='table-auto w-full'>
-                    <thead>
-                    <tr>
-                        <th>Live</th>
-                        <th>DA</th>
-                        <th>Anchor</th>
-                        <th>Blog</th>
-                        <th>Client URL</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        {proposals
-                            .map((proposal, index) => (
-                                <tr key={index}>
-                                    <td className='truncate max-w-xs'> 
-                                        <Link to={`/proposals/${proposal.id}`}>
-                                            <CompactDate isostring={proposal.dateBlogLive}/> 
-                                        </Link>
-                                    </td>
-                                    <td className='text-center truncate max-w-xs'>{proposal.paidLinks[0].supplier.da}</td>
-                                    <td className='truncate max-w-xxs'>{proposal.paidLinks[0].demand.anchorText}</td>
-                                    <td className='truncate max-w-xs'>{proposal.liveLinkUrl}</td>
-                                    <td className='truncate max-w-xs'>{removeProtocolAndDomain(proposal.paidLinks[0].demand.url)}</td>
+                <div className="px-6 pb-6">
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <table className="table-auto w-full">
+                            <thead>
+                                <tr className="bg-slate-50 border-b border-slate-200">
+                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Live date</th>
+                                    <th className="text-center px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">DA</th>
+                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Anchor</th>
+                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Blog URL</th>
+                                    <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Client URL</th>
                                 </tr>
-                            ))
-                        }
-                    </tbody>
-                </table>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {proposals.map((proposal, index) => (
+                                    <tr key={index} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-4 py-3 text-sm">
+                                            <Link to={`/proposals/${proposal.id}`} className="text-indigo-600 hover:text-indigo-800 font-medium">
+                                                <CompactDate isostring={proposal.dateBlogLive}/>
+                                            </Link>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-center">
+                                            <span className="inline-flex items-center bg-indigo-50 text-indigo-700 text-xs font-medium px-2 py-0.5 rounded-full">
+                                                {proposal.paidLinks[0].supplier.da}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-slate-700 truncate max-w-xs">{proposal.paidLinks[0].demand.anchorText}</td>
+                                        <td className="px-4 py-3 text-sm text-slate-500 truncate max-w-xs">{proposal.liveLinkUrl}</td>
+                                        <td className="px-4 py-3 text-sm text-slate-500 truncate max-w-xs">{removeProtocolAndDomain(proposal.paidLinks[0].demand.url)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             :
                 <Loading />
             }

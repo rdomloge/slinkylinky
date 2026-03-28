@@ -43,19 +43,21 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
 
             {/* Header: name + actions */}
             <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="text-base font-semibold text-gray-900 leading-snug">{demand.name}</div>
+                <div className="text-base font-semibold text-slate-900 leading-snug">{demand.name}</div>
                 <SessionBlock>
-                    <div className="flex items-center gap-3 shrink-0 text-sm">
+                    <div className="flex items-center gap-2 shrink-0">
                         {fullfilable &&
                             <Link to={'/supplier/search/'+demand.id} rel='nofollow'>
-                                <span className="font-semibold text-blue-600 hover:text-blue-800">Fulfil</span>
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors">
+                                    Fulfil
+                                </span>
                             </Link>
                         }
                         {editable && (
                             editHandler
                                 ? <StyledButton label='Edit' type='primary' submitHandler={() => editHandler(demand)} isText={true}/>
                                 : <Link to={'/demand/'+demand.id} rel='nofollow'>
-                                    <span className="text-gray-400 hover:text-gray-700">Edit</span>
+                                    <span className="text-xs font-medium text-slate-400 hover:text-slate-700 transition-colors">Edit</span>
                                   </Link>
                         )}
                         {deletable &&
@@ -68,11 +70,11 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
             {/* URL + Anchor text */}
             <div className="space-y-1 mb-3">
                 <Link to={addProtocol(demand.url)} target='_blank' rel='nofollow'
-                    className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                    className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors">
                     <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-70"/>
                     <span className="truncate">{demand.url}</span>
                 </Link>
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
                     <img src={AnchorIcon} alt="anchor" width={13} height={13} className="shrink-0 opacity-60"/>
                     <span className="truncate">{demand.anchorText}</span>
                 </div>
@@ -80,11 +82,11 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
 
             {/* Stat chips */}
             <div className="flex items-center flex-wrap gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-100">
                     <img src={DaIcon} alt="DA" width={11} height={11}/>
                     DA {demand.daNeeded}
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-600 text-xs font-medium px-2.5 py-1 rounded-full">
+                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-medium px-2.5 py-1 rounded-full border border-emerald-100">
                     <img src={WordCountIcon} alt="words" width={12} height={12}/>
                     {demand.wordCount} words
                 </span>
@@ -94,16 +96,16 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
             <CategoriesCard categories={demand.categories}/>
 
             {/* Footer: date, creator, source logo */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-1.5 text-xs text-gray-400 min-w-0">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 min-w-0">
                     <img src={CalendarIcon} alt="calendar" width={12} height={12} className="shrink-0"/>
                     <NiceDate isostring={demand.requested}/>
                     <span className="mx-0.5">·</span>
                     <span className="truncate">{demand.createdBy}</span>
                 </div>
                 <div className="shrink-0 ml-2">
-                    {'LinkSync' === demand.source && <img src={LSLogo} alt="LinkSync" className="h-4 w-auto opacity-40"/>}
-                    {'SlinkyLinky' === demand.source && <img src={SLLogo} alt="SlinkyLinky" className="h-4 w-auto opacity-40"/>}
+                    {'LinkSync' === demand.source && <img src={LSLogo} alt="LinkSync" className="h-4 w-auto opacity-30"/>}
+                    {'SlinkyLinky' === demand.source && <img src={SLLogo} alt="SlinkyLinky" className="h-4 w-auto opacity-30"/>}
                 </div>
             </div>
 

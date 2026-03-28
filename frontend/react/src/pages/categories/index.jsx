@@ -1,5 +1,5 @@
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
+import { BADGE_COLORS, hashName } from "@/components/Category";
 import React, {useState, useEffect} from 'react'
 import Loading from "@/components/Loading";
 import { StyledButton } from "@/components/atoms/Button";
@@ -23,7 +23,7 @@ export default function ListCategories() {
     const [editingCategoryName, setEditingCategoryName] = useState();
 
     const catUrl = "/.rest/categories/search/findAllByOrderByNameAsc";
-    const patchUrl = "/.rest/categories/";
+    const categoriesUrl = "/.rest/categories";
 
     useEffect(
         () => {
@@ -41,7 +41,7 @@ export default function ListCategories() {
         
 
         setCategories(categories);
-        fetchWithAuth(patchUrl, {
+        fetchWithAuth(categoriesUrl, {
             method: 'POST',
             headers: {'Content-Type':'application/json', 'user': user.email},
             body: JSON.stringify(newCategory)
@@ -77,7 +77,7 @@ export default function ListCategories() {
         console.log("Saving updated category: "+editingCategoryName);
         setShowEditModal(false);
         
-        fetchWithAuth(patchUrl + editingCategory.id, {
+        fetchWithAuth(categoriesUrl + "/" + editingCategory.id, {
             method: 'PATCH',
             headers: {'Content-Type':'application/json', 'user': user.email},
             body: JSON.stringify({name: editingCategoryName, disabled: editingCategory.disabled, updatedBy: user.email})
@@ -87,29 +87,36 @@ export default function ListCategories() {
     
     return (
         <Layout pagetitle="Categories">
-            <PageTitle id="category-list-id" title="Categories" count={categories}/>
-            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                <StyledButton label="New" type="primary" extraClass="mb-8 align-super" submitHandler={()=>setShowNewModal(true)} enabled={!!user}/>
-            </AuthorizedAccess>
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <h1 id="category-list-id" className="pageTitle">
+                    Categories
+                    {categories && <span className="text-slate-400 font-normal text-2xl ml-2">({categories.length})</span>}
+                </h1>
+                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                    <StyledButton label="New" type="primary" extraClass="!m-0" submitHandler={()=>setShowNewModal(true)} enabled={!!user}/>
+                </AuthorizedAccess>
+            </div>
             {categories ?
-                <div className="grid grid-cols-4">
-                        {categories.map( (c,index) => {
-                            return (
-                                <div className={"font-bold text-xl p-2 border rounded-full m-1 p-2 bg-slate-100 "+(c.disabled?"line-through":"")} key={index}>
-                                    {c.name} 
-                                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                                        <StyledButton label="Edit" type="secondary" isText={true} extraClass="float-right font-light text-sm" 
-                                            submitHandler={()=>editCategory(c)}/>
-                                    </AuthorizedAccess>
-                                </div>
-                        )})}
+                <div className="flex flex-wrap gap-3 px-6 pb-6">
+                    {categories.map( (c,index) => {
+                        const colorClass = BADGE_COLORS[hashName(c.name) % BADGE_COLORS.length];
+                        return (
+                            <div className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-full border text-base font-medium ${colorClass} ${c.disabled ? 'opacity-40 line-through' : ''}`} key={index}>
+                                {c.name}
+                                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                                    <StyledButton label="Edit" type="secondary" isText={true} extraClass="!text-inherit opacity-60 hover:opacity-100 !text-xs !m-0"
+                                        submitHandler={()=>editCategory(c)}/>
+                                </AuthorizedAccess>
+                            </div>
+                        )
+                    })}
                 </div>
             : 
                 <Loading error={error}/>
             }
             {showNewModal ?
                 <Modal dismissHandler={()=>setShowNewModal(false)} title="New category" >
-                    <TextInput label="Category name" changeHandler={(e)=>setNewCategoryName(e)}/>
+                    <TextInput label="Category name" binding={newCategoryName} changeHandler={(e)=>setNewCategoryName(e)}/>
                     <StyledButton label="Create" submitHandler={()=>createCategory()}/>
                 </Modal>
             : 
@@ -119,18 +126,9 @@ export default function ListCategories() {
                 <Modal dismissHandler={()=>setShowEditModal(false)} title="Edit category" >
                     <TextInput label="Category name" binding={editingCategoryName} disabled={true} />
                     
-                    <WarningMessage message="Disabling a category means that demandsites will no longer populate demand with this category." 
-                        messageClass="text-yellow-700 text-sm inline-block" 
-                        iconWidth={24} 
-                        iconHeight={24}/>
-                    <WarningMessage message="Suppliers will no longer match on this category." 
-                        messageClass="text-yellow-700 text-sm inline-block" 
-                        iconWidth={24} 
-                        iconHeight={24}/>
-                    <InfoMessage message="Categories cannot be renamed - disable this one and create a new one."
-                        messageClass="text-blue-700 text-sm inline-block" 
-                        iconWidth={24} 
-                        iconHeight={24}/>
+                    <WarningMessage message="Disabling a category means that demandsites will no longer populate demand with this category."/>
+                    <WarningMessage message="Suppliers will no longer match on this category."/>
+                    <InfoMessage message="Categories cannot be renamed - disable this one and create a new one."/>
                     <DisableToggle label="Disable" initialValue={editingCategory.disabled?true:false} changeHandler={(e)=>editingCategory.disabled=e}/>
                     <div className="flex-1 flex justify-end inline-block">
                         <StyledButton label="Update" submitHandler={()=>saveUpdatedCategory()} type="risky"/>

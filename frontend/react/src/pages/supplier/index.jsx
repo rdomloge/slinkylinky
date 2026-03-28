@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import Icon from '@/assets/arrow-bend-up.svg'
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import SupplierCard from "@/components/SupplierCard";
 import TextInput from "@/components/atoms/TextInput";
 import CategoryFilter from "@/components/CategorySelector";
@@ -108,17 +107,30 @@ export default function ListBloggers() {
     
     return (
         <Layout pagetitle='Supplier list'>
-            <PageTitle id="supplier-list-id" title="Suppliers" count={suppliers ? suppliers : null}/> 
-            <div className="inline-flex items-center gap-3 pt-2 pl-4">
-                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                    <Link to='/supplier/Add' rel='nofollow'>
-                        <SessionButton label="New"/>
-                    </Link>
-                </AuthorizedAccess>
-                <Link to='/supplier/list2' className="text-sm text-blue-600 hover:underline">List view</Link>
+            {/* Page header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-2">
+                <div>
+                    <h1 id="supplier-list-id" className="pageTitle">
+                        Suppliers
+                        {suppliers && <span className="text-slate-400 font-normal text-2xl ml-2">({suppliers.length})</span>}
+                    </h1>
+                    <p className="text-sm text-slate-400 mt-0.5">
+                        {supplierCount} total
+                        {activeSupplierCount != null && <span className="ml-1">({activeSupplierCount} active)</span>}
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Link to='/supplier' className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">List view</Link>
+                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                        <Link to='/supplier/Add' rel='nofollow'>
+                            <SessionButton label="New"/>
+                        </Link>
+                    </AuthorizedAccess>
+                </div>
             </div>
-            <span className='pb-4 block'>{supplierCount} &#47;&#47; total suppliers ({activeSupplierCount} active)</span>
-            <div className="flex items-end gap-4 px-4 py-3">
+
+            {/* Filters */}
+            <div className="flex items-end gap-4 px-6 py-4">
                 <div className="w-1/4">
                     <TextInput changeHandler={(value) => setFilter(value)} binding={filter} label="Name / email / domain" id={"nameEmailDomainFilter"}/>
                 </div>
@@ -130,30 +142,26 @@ export default function ListBloggers() {
                         label="DA filter (min. 40)" step={10}/>
                 </div>
                 <div className="flex flex-col gap-1 pb-1">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Show disabled</span>
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Show disabled</span>
                     <Toggle changeHandler={setShowDisabled} initialValue={showDisabled} label=""/>
                 </div>
             </div>
+
+            {/* Results */}
             {suppliers && suppliers.length > 0 ?
-                <div className="grid grid-cols-3">
-                    {suppliers.map( (s, index) => 
-                        <div key={index}>
-                            <SupplierCard supplier={s} editable={true} usages={supplierUsageCount} responsiveness={responsiveness} linkable={true} id={"supplier-card-"+index}/>
-                        </div>
+                <div className="grid grid-cols-3 gap-4 px-6 pb-6">
+                    {suppliers.map((s, index) =>
+                        <SupplierCard key={index} supplier={s} editable={true} usages={supplierUsageCount} responsiveness={responsiveness} linkable={true} id={"supplier-card-"+index}/>
                     )}
-                </div> 
+                </div>
+            : isLoading ?
+                <Loading/>
             :
-            isLoading ?
-                    <Loading/>
-                :
-                    <div className="flex flex-col h-full">
-                        <div className="flex justify-center items-center flex-grow">
-                            <img src={Icon} width={227} height={222} alt="Up arrow" className="p-1 inline-block"/>
-                            <p className="text-slate-500 text-8xl">Set a filter</p>
-                        </div>
-                    </div>
+                <div className="flex flex-col items-center justify-center gap-4 py-24 text-center">
+                    <img src={Icon} width={80} height={80} alt="Up arrow" className="opacity-20"/>
+                    <p className="text-slate-400 text-lg font-medium">Set a filter to find suppliers</p>
+                </div>
             }
-            
         </Layout>
     );
     

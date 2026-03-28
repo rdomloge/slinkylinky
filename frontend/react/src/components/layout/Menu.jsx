@@ -78,13 +78,13 @@ function NavItem({ to, label, icon }) {
         <Link
             to={to}
             rel="nofollow"
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
                 ${active
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'bg-indigo-500 text-white shadow-md shadow-indigo-900/20'
+                    : 'text-slate-200 hover:bg-slate-600 hover:text-white'
                 }`}
         >
-            <span className={active ? 'text-blue-600' : 'text-gray-400'}>{icon}</span>
+            <span className={`shrink-0 ${active ? 'text-white' : 'text-slate-300'}`}>{icon}</span>
             {label}
         </Link>
     );
@@ -92,15 +92,14 @@ function NavItem({ to, label, icon }) {
 
 export default function Menu() {
     return (
-        <aside className="flex flex-col h-full pt-4 px-3 bg-white">
-            <nav className="flex flex-col gap-1">
-                {navItems.filter(i => !i.adminOnly).map(item => (
-                    <NavItem key={item.to} {...item} />
-                ))}
-                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                    <NavItem {...navItems.find(i => i.adminOnly)} />
-                </AuthorizedAccess>
-            </nav>
-        </aside>
+        <nav className="flex flex-col gap-1 pt-3 px-3 pb-4">
+            {navItems.filter(i => !i.adminOnly).map(item => (
+                <NavItem key={item.to} {...item} />
+            ))}
+            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                <div className="my-2 border-t border-slate-600/60"/>
+                <NavItem {...navItems.find(i => i.adminOnly)} />
+            </AuthorizedAccess>
+        </nav>
     );
 }

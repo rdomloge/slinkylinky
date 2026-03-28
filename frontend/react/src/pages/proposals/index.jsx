@@ -4,7 +4,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import ProposalListItem from "@/components/ProposalListItem";
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import MonthsBack from "@/components/MonthsBack";
 import Loading from '@/components/Loading';
 import Divider from '@/components/Divider';
@@ -25,14 +24,14 @@ export default function ListProposals() {
     const [unpaidfilter, setUnpaidFilter] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    function isLeapYear(year) { 
-        return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
+    function isLeapYear(year) {
+        return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0));
     }
-    
+
     function getDaysInMonth(year, month) {
         return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
     }
-    
+
     function goBackMonths(date, value) {
         var d = new Date(date),
             n = date.getDate();
@@ -46,7 +45,7 @@ export default function ListProposals() {
         if(i > 9) return i;
         else  return "0"+i;
     }
-    
+
     function buildUrl(minusMonths) {
         var date = new Date();
         if(minusMonths) {
@@ -58,15 +57,14 @@ export default function ListProposals() {
         const firstDateString = firstDay.getFullYear()+"-"+dd(firstDay.getMonth()+1)+"-01"
         const lastDateString = lastDay.getFullYear()+"-"+dd(lastDay.getMonth()+1)+"-"+dd(lastDay.getDate())
 
-
-        const proposalsUrl = 
+        const proposalsUrl =
             "/.rest/proposalsupport/getProposalsWithOriginalSuppliers"+
             "?startDate="+firstDateString+"T00:00"+
             "&endDate="+lastDateString+"T23:59"+
             "&projection=fullProposal";
         return proposalsUrl;
     }
-    
+
     // filter proposals into 3 buckets for presentation
     function filterProposals(data) {
 
@@ -105,7 +103,6 @@ export default function ListProposals() {
             }, [[]])
             setWaitingForAdmin(unpaid)
         }
-        
     }
 
     useEffect(
@@ -113,7 +110,7 @@ export default function ListProposals() {
             const minusMonths = searchParams.get('minusMonths')
 
             setIsLoading(true);
-        fetchWithAuth(buildUrl(minusMonths))
+            fetchWithAuth(buildUrl(minusMonths))
                 .then( (res) => {
                     if(!res.ok) {
                         throw new Error("Can't fetch proposals.")
@@ -135,52 +132,68 @@ export default function ListProposals() {
 
     return (
         <Layout pagetitle='Proposals'>
-            <PageTitle id="proposal-list-id" title="Proposals" count={proposals}/>
-            <div className='block'>
+            {/* Page header */}
+            <div className="px-6 pt-6 pb-4 flex items-center justify-between gap-4 flex-wrap">
+                <h1 id="proposal-list-id" className="pageTitle">
+                    Proposals
+                    {proposals && <span className="text-slate-400 font-normal text-2xl ml-2">({proposals.length})</span>}
+                </h1>
                 <MonthsBack/>
             </div>
+
+            {/* Filters */}
             <FiltersPanel>
                 <Toggle initialValue={unpaidfilter} changeHandler={applyUnpaidFilter} label={"Unpaid"}/>
             </FiltersPanel>
+
+            {/* Sticky counts nav */}
             {!isLoading &&
-                <nav className='sticky top-0 border-b-2 bg-white pb-4 ps-1'>
-                    <Link to={"#waiting-for-us"}>{waitingForAdmin.length + " needing attention, "} </Link>
-                    <Link to={"#waiting-for-them"}>{waitingForSupplier.length + " need chasing, "} </Link>
-                    <Link to={"#complete-proposals"}>{completeProposals.length + " complete"} </Link>
+                <nav className="sticky top-0 bg-slate-50/95 backdrop-blur border-b border-slate-200 px-6 py-2.5 flex items-center gap-5 text-sm z-10">
+                    <Link to={"#waiting-for-us"} className="flex items-center gap-1.5 text-amber-600 font-medium hover:text-amber-800 transition-colors">
+                        <span className="text-base font-bold">{waitingForAdmin.length}</span> needing attention
+                    </Link>
+                    <span className="text-slate-300">·</span>
+                    <Link to={"#waiting-for-them"} className="flex items-center gap-1.5 text-slate-500 font-medium hover:text-slate-700 transition-colors">
+                        <span className="text-base font-bold">{waitingForSupplier.length}</span> need chasing
+                    </Link>
+                    <span className="text-slate-300">·</span>
+                    <Link to={"#complete-proposals"} className="flex items-center gap-1.5 text-emerald-600 font-medium hover:text-emerald-800 transition-colors">
+                        <span className="text-base font-bold">{completeProposals.length}</span> complete
+                    </Link>
                 </nav>
             }
 
             {isLoading ?
                 <Loading error={error}/>
             :
-                <>
-                    <Divider text={"Waiting for us"} size='text-3xl' id='waiting-for-us'/>
-                    <ul>
+                <div className="px-6 pb-6">
+                    <Divider text={"Waiting for us"} size='text-2xl' id='waiting-for-us'/>
+                    <ul className="flex flex-col gap-2 mb-4">
                         {waitingForAdmin.map( (p) =>
-                            <li className="m-2" key={p.id}>
+                            <li key={p.id}>
                                 <ProposalListItem proposal={p}/>
                             </li>
                         )}
                     </ul>
 
-                    <Divider text={"Waiting for them"} size='text-3xl' id='waiting-for-them'/>
-                    <ul>
+                    <Divider text={"Waiting for them"} size='text-2xl' id='waiting-for-them'/>
+                    <ul className="flex flex-col gap-2 mb-4">
                         {waitingForSupplier.map( (p) =>
-                            <li className="m-2" key={p.id}>
+                            <li key={p.id}>
                                 <ProposalListItem proposal={p}/>
                             </li>
                         )}
                     </ul>
 
-                    <Divider text={"Complete"} size='text-3xl' id='complete-proposals'/>
-                    <ul>
+                    <Divider text={"Complete"} size='text-2xl' id='complete-proposals'/>
+                    <ul className="flex flex-col gap-2 mb-4">
                         {completeProposals.map( (p) =>
-                            <li className="m-2" key={p.id}>
+                            <li key={p.id}>
                                 <ProposalListItem proposal={p}/>
                             </li>
                         )}
                     </ul>
-                </>
+                </div>
             }
         </Layout>
     );

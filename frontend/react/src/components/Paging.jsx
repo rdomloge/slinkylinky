@@ -51,7 +51,7 @@ export default function Paging({ total, page, pageCount, baseUrl, baseQuery = {}
         <nav className="flex justify-center my-4">
             <button
                 onClick={() => setUrl(baseUrl, {"page":  page - 1})}
-                className={`px-3 py-2 mx-1 rounded-md ${page === 1 ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-500 hover:text-white'}`}
+                className={`px-3 py-2 mx-1 rounded-md ${page === 1 ? 'cursor-not-allowed opacity-50' : 'hover:bg-indigo-500 hover:text-white'}`}
                 disabled={page === 1}
             >
                 Previous
@@ -63,14 +63,14 @@ export default function Paging({ total, page, pageCount, baseUrl, baseQuery = {}
                 <button
                     key={index}
                     onClick={() => setUrl(baseUrl, {"page": pageNumber})}
-                    className={`px-3 py-2 mx-1 rounded-md ${pageNumber === page ? 'bg-blue-500 text-white' : 'hover:bg-blue-500 hover:text-white'}`}
+                    className={`px-3 py-2 mx-1 rounded-md ${pageNumber === page ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-500 hover:text-white'}`}
                 >
                     {pageNumber}
                 </button>
             ))}
             <button
                 onClick={() => setUrl(baseUrl, {"page": page + 1})}
-                className={`px-3 py-2 mx-1 rounded-md ${page === pageCount ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-500 hover:text-white'}`}
+                className={`px-3 py-2 mx-1 rounded-md ${page === pageCount ? 'cursor-not-allowed opacity-50' : 'hover:bg-indigo-500 hover:text-white'}`}
                 disabled={page === pageCount}
             >
                 Next

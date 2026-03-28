@@ -14,9 +14,9 @@ import { checkIfSupplierExists, checkIfSupplierIsBlacklisted, url_domain, validD
 import { WarningMessage } from "./atoms/Messages";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
-export default function AddOrEditSupplier({supplier, 
-        supplierName = '', setSupplierName, 
-        supplierWebsite='', setSupplierWebsite, 
+export default function AddOrEditSupplier({supplier,
+        supplierName = '', setSupplierName,
+        supplierWebsite='', setSupplierWebsite,
         supplierSource='', setSupplierSource,
         supplierEmail='', setSupplierEmail,
         supplierFee=0, setSupplierFee,
@@ -57,7 +57,7 @@ export default function AddOrEditSupplier({supplier,
         if(validDomain(e)) {
             const existsAlready = await checkIfSupplierExists(e, user)
             if(existsAlready) { setSupplierAlreadyExists(true) }
-            
+
             const blacklisted = await checkIfSupplierIsBlacklisted(e, user)
             if(blacklisted) { setSupplierIsBlackListed(true) }
 
@@ -121,13 +121,13 @@ export default function AddOrEditSupplier({supplier,
             categories: supplier.categories
         }
         delete patchData._links
-        
+
         fixForPosting(patchData)
 
         if(supplier.id) {
 
             patchData.updatedBy = user.email
-            
+
             fetchWithAuth(supplierUrl+"/"+supplier.id, {
                 method: 'PATCH',
                 headers: {'Content-Type':'application/json'},
@@ -156,7 +156,6 @@ export default function AddOrEditSupplier({supplier,
             .then( (resp) => {
                 if(resp.ok) {
                     if(bulkMode) {
-                        // should make a toast appear saying that it was created
                         bulkSupplierAddedHandler(supplierWebsite);
                         setSupplierDa(0);
                         setSupplierWebsite('');
@@ -170,13 +169,13 @@ export default function AddOrEditSupplier({supplier,
                     handleError(resp.status === 409 ? "Website already exists" : "Unknown error: "+resp.statusText)
                 }
             })
-            .catch(err => { 
+            .catch(err => {
                 handleError("Oops") });
         }
     }
 
     function submitEnabled() {
-        return supplierName.length > 2 
+        return supplierName.length > 2
             && ! supplierAlreadyExists
             && validDomain(supplierWebsite)
     }
@@ -184,100 +183,96 @@ export default function AddOrEditSupplier({supplier,
     return (
         <>
             {supplier != null ?
-                <div className="list-card card">
-                    <p className='text-red-600'>{errorMsg}</p>
-                    <div className='float-right p-1 '>
-                        <StyledButton label="Submit" type="primary" submitHandler={submitHandler} extraClass="block" enabled={submitEnabled()}/>
-                        
-                        <DisableToggle changeHandler={(e) => supplier.disabled = e} initialValue={supplier.disabled}/>
-                    </div>
-                    <img src={Icon} width={32} height={32} alt="Shipping icon"/>
+                <div className="px-6 pb-6">
+                    {/* Form card */}
+                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
 
-
-                    <div className='w-1/3 inline-block pr-8'> 
-                        <TextInput binding={supplierName} label={"Name (min. 3)"} changeHandler={(e)=>setSupplierName(e)} id={"nameInput"}/> 
-                    </div>
-                    <div className='w-24 inline-block pr-8'>
-                        <NumberInput label={"DA"} changeHandler={(e) => setSupplierDa(e)} binding={supplierDa} id={"daInput"}/>
-                    </div>
-                    <div className='w-1/3 inline-block pr-8'>
-                        <TextInput binding={supplierWebsite} label={"Website"} changeHandler={(e)=>supplierWebsiteChangeHandler(e)} id={"websiteInput"}/>
-                        {supplierAlreadyExists ? 
-                            <p id="supplierExistsMessage" className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
-                                <span className="font-medium">Error! </span> 
-                                Supplier exists.
-                            </p> 
-                        : <p className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
-                        {supplierIsBlackListed ? 
-                            <p id="blacklistedSupplierMessage" className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">
-                                <span className="font-medium">Error! </span> 
-                                Supplier is blacklisted.
-                            </p> 
-                        : <p className="mt-2 text-sm text-red-600 dark:text-red-500 float-left">  &nbsp; </p> }
-                    </div>
-                    <div className='w-1/4 inline-block pr-8'>
-                        <TextInput binding={supplierSource} label={"Source"} changeHandler={(e)=>setSupplierSource(e)} id={"sourceInput"}/> 
-                    </div>
-
-
-                    <div className='w-1/3 inline-block pr-8'>
-                        <TextInput binding={supplierEmail} label={"Email"} changeHandler={(e)=>setSupplierEmail(e)} id={"emailInput"}/> 
-                    </div>
-                    
-                    
-                    <div className='w-20 inline-block pr-8 mt-8'>
-                        <TextInput binding={supplierCurrency} label="Currency" changeHandler={(e)=>setSupplierCurrency(e)} maxLen={1} id={"currencyInput"}/>
-                    </div>
-                    <div className='w-28 inline-block pr-8'>
-                        <NumberInput binding={supplierFee} label={"Fee"} changeHandler={(e)=>setSupplierFee(e)} id={"costInput"}/>
-                    </div>
-
-                    {supplier.id == null && showStatsButton ?
-                        <div className="inline-block float-right">
-                            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="srButton">
-                                Fetch DA and load SEM rush traffic (cost attached)
-                            </label>
-                            <StyledButton id="srButton" label="Load" type="risky"
-                                submitHandler={()=>displaySemData()}  />
+                        {/* Card header: icon + actions */}
+                        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+                            <div className="flex items-center gap-2">
+                                <img src={Icon} width={28} height={28} alt="Supplier icon" className="opacity-50"/>
+                                <span className="text-sm font-medium text-slate-400">Supplier details</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
+                                <DisableToggle changeHandler={(e) => supplier.disabled = e} initialValue={supplier.disabled}/>
+                                <StyledButton label="Submit" type="primary" submitHandler={submitHandler} extraClass="!m-0" enabled={submitEnabled()}/>
+                            </div>
                         </div>
-                    :
-                        null
-                    }
 
-                    <div className='w-1/2 mt-8'>
-                        <CategorySelector label="Categories"
-                            changeHandler={(e)=> supplier.categories = e}
-                            initialValue={supplier.categories}/>
+                        {/* Row 1: Name / DA / Website */}
+                        <div className="grid grid-cols-[1fr_6rem_1fr] gap-4 mb-4">
+                            <TextInput binding={supplierName} label="Name (min. 3)" changeHandler={(e)=>setSupplierName(e)} id="nameInput"/>
+                            <NumberInput label="DA" changeHandler={(e) => setSupplierDa(e)} binding={supplierDa} id="daInput"/>
+                            <div>
+                                <TextInput binding={supplierWebsite} label="Website" changeHandler={(e)=>supplierWebsiteChangeHandler(e)} id="websiteInput"/>
+                                {supplierAlreadyExists &&
+                                    <p id="supplierExistsMessage" className="mt-1 text-xs text-red-600">
+                                        <span className="font-medium">Error!</span> Supplier exists.
+                                    </p>
+                                }
+                                {supplierIsBlackListed &&
+                                    <p id="blacklistedSupplierMessage" className="mt-1 text-xs text-red-600">
+                                        <span className="font-medium">Error!</span> Supplier is blacklisted.
+                                    </p>
+                                }
+                            </div>
+                        </div>
+
+                        {/* Row 2: Source / Email */}
+                        <div className="grid grid-cols-[1fr_2fr] gap-4 mb-4">
+                            <TextInput binding={supplierSource} label="Source" changeHandler={(e)=>setSupplierSource(e)} id="sourceInput"/>
+                            <TextInput binding={supplierEmail} label="Email" changeHandler={(e)=>setSupplierEmail(e)} id="emailInput"/>
+                        </div>
+
+                        {/* Row 3: Currency / Fee / Load stats */}
+                        <div className="flex items-end gap-4 mb-6">
+                            <div className="w-20">
+                                <TextInput binding={supplierCurrency} label="Currency" changeHandler={(e)=>setSupplierCurrency(e)} maxLen={1} id="currencyInput"/>
+                            </div>
+                            <div className="w-32">
+                                <NumberInput binding={supplierFee} label="Fee" changeHandler={(e)=>setSupplierFee(e)} id="costInput"/>
+                            </div>
+                            {supplier.id == null && showStatsButton &&
+                                <div>
+                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Fetch DA + SemRush traffic</p>
+                                    <StyledButton id="srButton" label="Load" type="risky" submitHandler={()=>displaySemData()} extraClass="!m-0"/>
+                                </div>
+                            }
+                        </div>
+
+                        {/* Categories */}
+                        <div className="max-w-2xl">
+                            <CategorySelector label="Categories"
+                                changeHandler={(e)=> supplier.categories = e}
+                                initialValue={supplier.categories}/>
+                        </div>
                     </div>
-                    {showStatsModal ?
+
+                    {showStatsModal &&
                         <Modal title={"SEM rush traffic // "+supplier.domain} dismissHandler={()=>setShowStatsModal(false)} width={"w-2/3"} id="stats-modal">
-                            <StyledButton label="Blacklist" type="risky" submitHandler={()=>setShowBlacklistModal(true)} extraClass=" mt-0 float-right"/>
-                            <span className="inline-block mr-6">Domain authority: 
-                                <span className="text-2xl" > {supplierDa}</span>
+                            <StyledButton label="Blacklist" type="risky" submitHandler={()=>setShowBlacklistModal(true)} extraClass="mt-0 float-right"/>
+                            <span className="inline-block mr-6">Domain authority:
+                                <span className="text-2xl"> {supplierDa}</span>
                             </span>
-                            <span>Spam score: 
-                                <span className="text-2xl" > {supplierSpamScore}</span>
+                            <span>Spam score:
+                                <span className="text-2xl"> {supplierSpamScore}</span>
                             </span>
                             <SupplierSemRushTraffic supplier={supplier} adhoc={true} dataListener={(data) => setDataPoints(data)}/>
                         </Modal>
-                    : 
-                        null
                     }
 
-                    {showBlacklistModal ?
+                    {showBlacklistModal &&
                         <Modal title={"Blacklist supplier"} dismissHandler={()=>setShowBlacklistModal(false)} width={"w-1/2"} id="blacklist-modal">
                             <p className="p-2 text-2xl">{"Are you sure you want to blacklist "}<span className="font-bold">{supplierWebsite}</span>{"?"}</p>
                             <WarningMessage message={"This is permanent action and future users will be prevented from creating Suppliers with this domain"}/>
-                            <StyledButton  label="Blacklist" type="risky" submitHandler={()=>doBlackList()} extraClass=" mt-4 float-right"/>
+                            <StyledButton label="Blacklist" type="risky" submitHandler={()=>doBlackList()} extraClass="mt-4 float-right"/>
                         </Modal>
-                    :
-                        null
                     }
                 </div>
-            : 
+            :
                 <p>Loading supplier</p>
             }
         </>
-        
     )
 }

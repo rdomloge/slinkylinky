@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react'
 import { useAuth } from '@/auth/AuthProvider';
 import { useSearchParams } from 'react-router-dom';
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import Loading from '@/components/Loading';
 import { DemandSiteListItemLite } from '@/components/DemandSite';
 import Paging from '@/components/Paging';
@@ -86,27 +85,51 @@ export default function DemandSiteList() {
 
     return (
         <Layout pagetitle='Demand site list'>
-            <PageTitle id="demandsite-list-id" title="Demand sites" count={demandsites}/>
-            <p className="pl-2">{demandsites ? (missingCategories.length + " missing categories (top of page), " + demandsites.length+" categorised") : ""}</p>
-            
-            <div className="grid grid-cols-3">
-            {missingCategories ?
-                missingCategories.map( (ds,index) => (
-                    <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index} deleteHandler={()=>deleteDemandSite(ds)} />
-                ))
-            : <Loading/> }
-        </div>
-
-            <div className="inline-flex items-center justify-center w-full">
-                <hr className="w-4/5 h-px my-8 bg-gray-500 border-0 dark:bg-gray-700"/>
-                <span className="absolute px-3 font-medium text-gray-900 -translate-x-2/5 colourOfBackground left-1/2 dark:text-white dark:bg-gray-900">
-                    With categories
-                </span>
+            {/* Page header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <h1 id="demandsite-list-id" className="pageTitle">
+                    Demand sites
+                    {demandsites && <span className="text-slate-400 font-normal text-2xl ml-2">({total})</span>}
+                </h1>
+                {demandsites &&
+                    <div className="flex items-center gap-3 text-sm">
+                        {missingCategories.length > 0 &&
+                            <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full font-medium">
+                                {missingCategories.length} missing categories
+                            </span>
+                        }
+                        <span className="text-slate-400">{demandsites.length} categorised</span>
+                    </div>
+                }
             </div>
-            
+
+            {/* Missing categories section */}
+            {missingCategories && missingCategories.length > 0 &&
+                <>
+                    <div className="px-6 mb-3">
+                        <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Missing categories</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4 px-6 mb-6">
+                        {missingCategories.map((ds, index) => (
+                            <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-missing-"+index} deleteHandler={()=>deleteDemandSite(ds)} />
+                        ))}
+                    </div>
+                </>
+            }
+            {!missingCategories && <Loading/>}
+
+            {/* Divider */}
+            {missingCategories && missingCategories.length > 0 &&
+                <div className="flex items-center gap-4 px-6 mb-4">
+                    <div className="flex-1 h-px bg-slate-200"/>
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">With categories</span>
+                    <div className="flex-1 h-px bg-slate-200"/>
+                </div>
+            }
+
             <Paging baseUrl="/demandsites" total={total} pageCount={pageCount} page={page} />
 
-            <div className="grid grid-cols-3">
+            <div className="grid grid-cols-3 gap-4 px-6 pb-6">
                 {demandsites ?
                     demandsites.map( (ds,index) => (
                         <DemandSiteListItemLite demandSite={ds} key={index} id={"demandsite-"+index} deleteHandler={()=>deleteDemandSite(ds)} />

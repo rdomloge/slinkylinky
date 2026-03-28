@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import { useAuth } from "@/auth/AuthProvider";
 import DemandCard from '@/components/DemandCard';
-import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout';
 import { Link } from 'react-router-dom';
 import OwnerFilter from '@/components/OwnerFilter';
@@ -56,7 +55,7 @@ export default function Demand() {
 
     function buildSortOptions() {
         const storedSortOrder = window.localStorage.getItem("demandSortOrder");
-        
+
         var options = [
             {value: "requested", name: "Requested (ASC)"},
             {value: "daNeeded", name: "DA (DESC)"}
@@ -74,28 +73,36 @@ export default function Demand() {
 
     return (
         <Layout pagetitle="Demand">
-            <PageTitle id="demand-list-id" title="Demand" count={demands}/>
-            <div className="inline-block content-center pl-4">
+            {/* Page header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <div>
+                    <h1 id="demand-list-id" className="pageTitle">
+                        Demand
+                        {demands && <span className="text-slate-400 font-normal text-2xl ml-2">({demands.length})</span>}
+                    </h1>
+                </div>
                 <Link to='/demand/Add' rel='nofollow'>
                     <SessionButton label="New"/>
                 </Link>
             </div>
-            <div className="block pt-4">
+
+            {/* Filters bar */}
+            <div className="flex items-center gap-2 px-6 pb-4">
                 <OwnerFilter changeHandler={ (e) => setPersonal(e)}/>
                 <Select label="Sort" changeHandler={ (e) => setAndStoreSortOrder(e)}
                     options={sortOptions}/>
             </div>
 
             {demands ?
-                <div className="grid grid-cols-2 gap-3 p-4">
+                <div className="grid grid-cols-2 gap-3 px-6 pb-6">
                 {demands.map( (ld,index) => (
                     <DemandCard demand={ld} key={index} fullfilable={true} editable={true} deletable={true} id={"demandCard-"+index} deleteCascader={()=>demandDeleteHandler(ld)}/>
                 ))}
                 </div>
-            : 
+            :
                 <Loading error={error}/>
             }
         </Layout>
     );
-    
+
 }

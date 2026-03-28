@@ -46,9 +46,9 @@ export default function App() {
           <Route path="/demandsites" element={<DemandSitesIndex />} />
           <Route path="/demandsites/history" element={<DemandSiteHistory />} />
           <Route path="/demandsites/:demandsiteid" element={<DemandSiteDetail />} />
-          <Route path="/supplier" element={<SupplierIndex />} />
+          <Route path="/supplier" element={<SupplierList2 />} />
+          <Route path="/supplier/cards" element={<SupplierIndex />} />
           <Route path="/supplier/add" element={<SupplierAdd />} />
-          <Route path="/supplier/list2" element={<SupplierList2 />} />
           <Route path="/supplier/search/:demandid" element={<SupplierSearch />} />
           <Route path="/supplier/:supplierid" element={<SupplierDetail />} />
           <Route path="/proposals" element={<ProposalsIndex />} />

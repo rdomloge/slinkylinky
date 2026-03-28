@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import SupplierCard from '@/components/SupplierCard'
 import DemandCard from '@/components/DemandCard'
@@ -144,41 +143,39 @@ export default function Proposal() {
 
     return (
             <Layout pagetitle='Proposal details'>
-                
-                <PageTitle id="proposal-detail-id" title="Proposal"/>
-                
+
                 {proposal ?
                     <>
-                    <div>
-                        {proposal.doNotExpire ?
-                            <div className="float-left mt-1 mr-1">
-                                <img src={DoNotExpire} alt="Do not expire" width={22} height={22} className="" />
+                    {/* Page header */}
+                    <div className="flex items-start justify-between px-6 pt-6 pb-3">
+                        <div>
+                            <h1 id="proposal-detail-id" className="pageTitle">Proposal</h1>
+                            <div className="flex items-center gap-1.5 mt-1">
+                                <img src={proposal.doNotExpire ? DoNotExpire : Timer} alt={proposal.doNotExpire ? "Does not expire" : "Expires"} width={16} height={16} className="opacity-50"/>
+                                <span className="text-sm text-slate-500"><NiceDate isostring={proposal.dateCreated}/></span>
                             </div>
-                            :
-                            <div className="float-left mt-1 mr-1">
-                                <img src={Timer} alt="Expires" width={22} height={22} className="" />
-                            </div>
-                        }
-                        <NiceDate isostring={proposal.dateCreated}/>
-                    </div>
-                    <div className="flex items-center">
-                        <DotMenu items={createMenuItems()} classNames="shrink-0 ml-2"/>
-                        <div className="flex-1 min-w-0">
-                            <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
                         </div>
+                        <DotMenu items={createMenuItems()} classNames="shrink-0 mt-1"/>
                     </div>
+
+                    {/* Traffic lights */}
+                    <div className="px-6 pb-4">
+                        <TrafficLights proposal={proposal} updateHandler={setProposal} interactive={true}/>
+                    </div>
+
+                    {/* Live link card */}
                     {proposal.blogLive &&
-                        <div className="card m-4">
+                        <div className="card mx-6 mb-4">
                             <div className="flex items-start justify-between gap-4">
                                 <div className="min-w-0">
                                     <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-green-200 mb-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-500"/>
                                         Live
                                     </span>
-                                    <p className="text-base font-semibold text-gray-900">{proposal.liveLinkTitle}</p>
+                                    <p className="text-base font-semibold text-slate-900">{proposal.liveLinkTitle}</p>
                                 </div>
                                 <Link to={addProtocol(proposal.liveLinkUrl)} target='_blank' rel='nofollow'
-                                    className="shrink-0 inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline">
+                                    className="shrink-0 inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-800 hover:underline">
                                     <span className="truncate max-w-xs">{proposal.liveLinkUrl}</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 opacity-70" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
@@ -192,7 +189,7 @@ export default function Proposal() {
                                 <div className="flex-initial w-1/2" id="supplierPanel">
                                     <SupplierCard supplier={supplier} latest={null == currentSupplier} editable={false} linkable={true} />
                                     <div className="card list-card" id="metadata">
-                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Timeline</p>
+                                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Timeline</p>
                                         <div className="space-y-1">
                                             {[
                                                 { label: 'Created',              date: proposal.dateCreated },
@@ -203,12 +200,12 @@ export default function Proposal() {
                                                 { label: 'Blog live',            date: proposal.dateBlogLive },
                                                 { label: 'Validated',            date: proposal.dateValidated },
                                             ].map(({ label, date }) => (
-                                                <div key={label} className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0">
+                                                <div key={label} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
                                                     <div className="flex items-center gap-2">
                                                         <div className={`w-2 h-2 rounded-full shrink-0 ${date ? 'bg-green-500' : 'bg-gray-200'}`}/>
-                                                        <span className={`text-sm ${date ? 'text-gray-700' : 'text-gray-400'}`}>{label}</span>
+                                                        <span className={`text-sm ${date ? 'text-slate-700' : 'text-slate-400'}`}>{label}</span>
                                                     </div>
-                                                    <span className={`text-sm ${date ? 'text-gray-900 font-medium' : 'text-gray-300'}`}>
+                                                    <span className={`text-sm ${date ? 'text-slate-900 font-medium' : 'text-slate-300'}`}>
                                                         {date ? new Date(date).toDateString() : '—'}
                                                     </span>
                                                 </div>
