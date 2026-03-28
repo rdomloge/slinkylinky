@@ -18,7 +18,7 @@ export default function Callback() {
     exchangeCodeForTokens(code)
       .then(() => loadSession())
       .then(() => {
-        const returnTo = sessionStorage.getItem('sl_return_to') || '/demand';
+        const returnTo = sessionStorage.getItem('sl_return_to') || '/';
         sessionStorage.removeItem('sl_return_to');
         navigate(returnTo, { replace: true });
       })
