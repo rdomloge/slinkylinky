@@ -4,7 +4,6 @@ import { useAuth } from "@/auth/AuthProvider";
 
 import DemandCard from '@/components/DemandCard'
 import SupplierCard from '@/components/SupplierCard'
-import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import SelectableDemandCard from '@/components/SelectableDemandCard'
 import Loading from '@/components/Loading';
@@ -22,7 +21,7 @@ function parseId(entity) {
 export default function App() {
     const { user } = useAuth();
     const [searchParams] = useSearchParams()
-    
+
     const [demand, setDemand] = useState(null);
     const [supplier, setSupplier] = useState(null);
     const [otherDemands, setOtherDemands] = useState(null);
@@ -31,7 +30,7 @@ export default function App() {
     const [submitError, setSubmitError] = useState(null);
     const [ready, setReady] = useState(false);
 
-    
+
     const handleSubmit = (supplierId) => {
 
         const aggregateDemand = selectedOtherDemands.concat([demand]);
@@ -80,50 +79,54 @@ export default function App() {
                     .catch((error) => {
                         setError(error.message);
                     });
-                    
+
             }
         }, [searchParams]
-    );   
+    );
 
     return (
         <Layout pagetitle='Proposal staging'>
-            <PageTitle id="paidlink-staging-id" title="Proposal Staging"/>
-            
-            <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id={"submitProposal"}/>
-            <ErrorMessage message={submitError}/>
+
+            {/* Page header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <h1 id="paidlink-staging-id" className="pageTitle">Proposal Staging</h1>
+                <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id="submitProposal"/>
+            </div>
+
+            {submitError && (
+                <div className="px-6 pb-2">
+                    <ErrorMessage message={submitError}/>
+                </div>
+            )}
 
             {( !error && supplier && demand && otherDemands) ?
                 <>
-                <ProposalValidationPanel primaryDemand={demand} 
-                    otherDemands={selectedOtherDemands} 
+                <ProposalValidationPanel primaryDemand={demand}
+                    otherDemands={selectedOtherDemands}
                     supplier={supplier}
-                    readinessCallback={(ready) => { 
-                        // const button = document.getElementById("submitproposal");
-                        // button.disabled = !ready;
-                        setReady(ready);
-                     }}
+                    readinessCallback={(ready) => setReady(ready)}
                     />
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 px-6 pb-6">
                     <div>
                         <SupplierCard supplier={supplier}/>
                         <DemandCard demand={demand}/>
                     </div>
                     <div>
-                        <p>Other matching demand:</p>
-                        
-                        {otherDemands.map( (d,index) => 
-                            <SelectableDemandCard 
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3 mt-1">Other matching demand</p>
+                        {otherDemands.length === 0 && (
+                            <p className="text-sm text-slate-400 italic">No other matching demand for this supplier.</p>
+                        )}
+                        {otherDemands.map( (d,index) =>
+                            <SelectableDemandCard
                                     onSelectedHandler={() => {
-                                        console.log("Selected");
                                         selectedOtherDemands.push(d);
                                         setSelectedOtherDemands([...selectedOtherDemands]);
-                                    }} 
+                                    }}
                                     onDeselectedHandler={() => {
-                                        console.log("Deselected");
                                         const pos = selectedOtherDemands.indexOf(d);
                                         if(pos != -1)  selectedOtherDemands.splice(pos, 1);
                                         setSelectedOtherDemands([...selectedOtherDemands]);
-                                    }} 
+                                    }}
                                     key={index}>
                                 <DemandCard demand={d} />
                             </SelectableDemandCard>
@@ -131,7 +134,7 @@ export default function App() {
                     </div>
                 </div>
                 </>
-            : 
+            :
                 <Loading error={error} />
             }
 

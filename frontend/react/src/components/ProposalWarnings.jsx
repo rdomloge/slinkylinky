@@ -117,20 +117,14 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
             });
     }
     
-    return (
-        <div className={validationErrors.length > 0 ? "border-l-8 border border-red-500 bg-red-100 mx-6 my-4":""}>
-        {error ?
-            <ErrorMessage message={"There was an issue using the Moz service: "+error}/>
-            :
-        null}
+    if (!error && (!validationErrors || validationErrors.length === 0)) return null;
 
-        {validationErrors ? 
-            validationErrors.map( (e,index) => {
-                return <ErrorMessage key={index} message={e} id={"error-"+index}/>
-            })
-        :
-            null
-        }
+    return (
+        <div className="px-6 pb-2 space-y-2">
+            {error && <ErrorMessage message={"There was an issue using the Moz service: " + error}/>}
+            {validationErrors && validationErrors.map((e, index) => (
+                <ErrorMessage key={index} message={e} id={"error-" + index}/>
+            ))}
         </div>
     );
 }
