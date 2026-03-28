@@ -2,7 +2,6 @@ import AddOrEditSupplier from "@/components/AddOrEditSupplier";
 import { StyledButton } from "@/components/atoms/Button";
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import NewSupplierBulkUpload from "@/components/NewSupplierBulkUpload";
 
 import { useState } from "react";
@@ -40,8 +39,10 @@ export default function NewSupplier() {
     
     return (
         <Layout pagetitle="New supplier">
-            <PageTitle id="supplier-add-id" title="New supplier"/>
-            <StyledButton label="Bulk upload" submitHandler={()=>setShowBulkUploadModal(true)} type="secondary" extraClass="inline-block pl-4" isText={true}/>
+            <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <h1 id="supplier-add-id" className="pageTitle">New supplier</h1>
+                <StyledButton label="Bulk upload" submitHandler={()=>setShowBulkUploadModal(true)} type="secondary" extraClass="!m-0" isText={true}/>
+            </div>
             <div className="flex">
                 <div className="flex-1">
                     <AddOrEditSupplier supplier={({da: 0, name: "", website: "", source: "", email: "", weWriteFeeCurrency: "£", weWriteFee: 0})}
