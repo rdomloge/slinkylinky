@@ -56,17 +56,10 @@ const History = () => {
     }
 
     return (
-        <Layout pagetitle='Demand site history'>
-            {/* Page header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <div>
-                    <h1 id="demandsite-history-list-id" className="pageTitle">Link history</h1>
-                    <p className="text-slate-500 text-sm mt-1">{searchParams.get('domain')}</p>
-                </div>
-                {total > 0 &&
-                    <span className="text-slate-400 text-sm font-medium">{total} links</span>
-                }
-            </div>
+        <Layout pagetitle='Demand site history'
+            headerTitle="Link history"
+            headerActions={<div className="flex items-center gap-4"><span className="text-sm text-slate-500">{searchParams.get('domain')}</span>{total > 0 && <span className="text-sm text-slate-400 font-medium">{total} links</span>}</div>}
+        >
 
             <div className="px-6">
                 <Paging baseUrl={`/demandsites/history`} baseQuery={{"domain": searchParams.get('domain')}} pageCount={totalPages} total={total} page={currentPage}/>

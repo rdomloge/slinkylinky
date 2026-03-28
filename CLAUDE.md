@@ -50,6 +50,11 @@ npm run build           # production build to dist/
 ```
 The Vite config uses `@` as an alias for `/src`. Proxy routes are configured in `vite.config.js`.
 
+## Frontend Component Guidelines
+
+    React components live in `frontend/react/src/components/`. Prefer creating and reusing shared components from this folder over writing inline JSX. Before building
+    something new, check whether a suitable component already exists here. If it doesn't quite work as we want, prefer making it dynamic and configurable.
+
 ### Backend (individual service)
 ```bash
 cd linkservice

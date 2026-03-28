@@ -111,24 +111,11 @@ export default function SupplierListView() {
     }
 
     return (
-        <Layout pagetitle='Supplier list'>
+        <Layout pagetitle='Supplier list'
+            headerTitle={<>Suppliers {totalElements !== null && <span className="font-normal text-slate-400">({totalElements})</span>}</>}
+            headerActions={<AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}><Link to='/supplier/Add' rel='nofollow'><SessionButton label="New"/></Link></AuthorizedAccess>}
+        >
 
-            {/* Page header */}
-            <div className="px-6 pt-6 pb-2">
-                <div className="flex items-center gap-4">
-                    <h1 id="supplier-list-id" className="pageTitle">Suppliers</h1>
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <Link to='/supplier/Add' rel='nofollow'>
-                            <SessionButton label="New"/>
-                        </Link>
-                    </AuthorizedAccess>
-                </div>
-                {totalElements !== null && (
-                    <p className="text-sm text-slate-400 mt-1">
-                        {totalElements} supplier{totalElements !== 1 ? 's' : ''} total
-                    </p>
-                )}
-            </div>
 
             {/* View switcher */}
             <div className="flex items-center gap-3 px-6 pb-3">

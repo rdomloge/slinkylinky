@@ -106,25 +106,10 @@ export default function ListBloggers() {
 
     
     return (
-        <Layout pagetitle='Supplier list'>
-            {/* Page header */}
-            <div className="px-6 pt-6 pb-2">
-                <div className="flex items-center gap-4">
-                    <h1 id="supplier-list-id" className="pageTitle">
-                        Suppliers
-                        {suppliers && <span className="text-slate-400 font-normal text-2xl ml-2">({suppliers.length})</span>}
-                    </h1>
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <Link to='/supplier/Add' rel='nofollow'>
-                            <SessionButton label="New"/>
-                        </Link>
-                    </AuthorizedAccess>
-                </div>
-                <p className="text-sm text-slate-400 mt-1">
-                    {supplierCount} total
-                    {activeSupplierCount != null && <span className="ml-1">({activeSupplierCount} active)</span>}
-                </p>
-            </div>
+        <Layout pagetitle='Supplier list'
+            headerTitle={<>Suppliers {suppliers && <span className="font-normal text-slate-400">({suppliers.length})</span>}</>}
+            headerActions={<AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}><Link to='/supplier/Add' rel='nofollow'><SessionButton label="New"/></Link></AuthorizedAccess>}
+        >
 
             {/* View switcher */}
             <div className="flex items-center gap-3 px-6 pb-3">

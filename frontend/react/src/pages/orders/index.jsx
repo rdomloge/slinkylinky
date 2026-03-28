@@ -1,7 +1,6 @@
 import Loading from "@/components/Loading";
 import OrderCard from "@/components/OrderCard";
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { useEffect, useState } from "react";
 
@@ -53,8 +52,7 @@ export default function ListOrders() {
     },[]);
 
     return (
-        <Layout pagetitle="Orders">
-            <PageTitle title="Orders" id="order-list-title-id" />
+        <Layout pagetitle="Orders" headerTitle="Orders">
             { !error && orders ?
                 <div className="">
                     {orders.map( (order,index) => {

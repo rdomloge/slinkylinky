@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react'
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import Loading from '@/components/Loading';
 import { AuditLine } from '@/components/AuditCard';
 import Paging from '@/components/Paging';
@@ -32,8 +31,7 @@ export default function AuditIndexPage() {
     },[searchParams]);
 
     return (
-        <Layout pagetitle='Audit trail'>
-            <PageTitle title="Audit" count={audits} id="audit-list-title-id"/>
+        <Layout pagetitle='Audit trail' headerTitle={<>Audit {audits && <span className="font-normal text-slate-400">({audits.length})</span>}</>}>
             <Paging page={page} pageCount={pageCount} total={total} baseUrl={"/audit"}/>
             { !error && audits ? 
                 <div className="grid grid-cols-4 gap-2">

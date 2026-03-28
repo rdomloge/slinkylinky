@@ -6,7 +6,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import TenantWarning from '../TenantWarning';
 import Logo from '@/assets/logo.png';
 
-export default function Layout ({children, pagetitle = " "}) {
+export default function Layout ({children, pagetitle = " ", headerTitle, headerActions}) {
 
     const { user, isAuthenticated, isLoading, signIn } = useAuth()
 
@@ -32,8 +32,8 @@ export default function Layout ({children, pagetitle = " "}) {
                     </aside>
                     {/* Main content area */}
                     <div className="flex flex-col flex-1 min-w-0 bg-slate-50">
-                        <Header/>
-                        <div className="flex-1 overflow-y-auto">
+                        <Header title={headerTitle ?? pagetitle} actions={headerActions}/>
+                        <div className="flex-1 overflow-y-auto pt-4">
                             {children}
                             <Footer/>
                         </div>

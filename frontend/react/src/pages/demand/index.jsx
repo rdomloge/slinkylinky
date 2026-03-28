@@ -72,19 +72,10 @@ export default function Demand() {
     }
 
     return (
-        <Layout pagetitle="Demand">
-            {/* Page header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <div>
-                    <h1 id="demand-list-id" className="pageTitle">
-                        Demand
-                        {demands && <span className="text-slate-400 font-normal text-2xl ml-2">({demands.length})</span>}
-                    </h1>
-                </div>
-                <Link to='/demand/Add' rel='nofollow'>
-                    <SessionButton label="New"/>
-                </Link>
-            </div>
+        <Layout pagetitle="Demand"
+            headerTitle={<>Demand {demands && <span className="font-normal text-slate-400">({demands.length})</span>}</>}
+            headerActions={<Link to='/demand/Add' rel='nofollow'><SessionButton label="New"/></Link>}
+        >
 
             {/* Filters bar */}
             <div className="flex items-center gap-2 px-6 pb-4">

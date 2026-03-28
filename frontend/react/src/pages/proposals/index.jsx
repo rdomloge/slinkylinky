@@ -131,15 +131,10 @@ export default function ListProposals() {
     );
 
     return (
-        <Layout pagetitle='Proposals'>
-            {/* Page header */}
-            <div className="px-6 pt-6 pb-4 flex items-center justify-between gap-4 flex-wrap">
-                <h1 id="proposal-list-id" className="pageTitle">
-                    Proposals
-                    {proposals && <span className="text-slate-400 font-normal text-2xl ml-2">({proposals.length})</span>}
-                </h1>
-                <MonthsBack/>
-            </div>
+        <Layout pagetitle='Proposals'
+            headerTitle={<>Proposals {proposals && <span className="font-normal text-slate-400">({proposals.length})</span>}</>}
+            headerActions={<MonthsBack/>}
+        >
 
             {/* Filters */}
             <FiltersPanel>

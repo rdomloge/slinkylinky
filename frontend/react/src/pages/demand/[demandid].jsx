@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
-import PageTitle from '@/components/PageTitle'
 import Layout from '@/components/layout/Layout'
 import AddOrEditDemand from '@/components/AddOrEditDemand'
 import Loading from '@/components/Loading'
@@ -25,8 +24,7 @@ export default function Demand() {
     )
 
     return (
-        <Layout pagetitle='Edit demand'>
-            <PageTitle id="demand-edit-id" title="Edit Demand"/>
+        <Layout pagetitle='Edit demand' headerTitle="Edit demand">
             {demand ? 
                 <AddOrEditDemand demand={demand}/>
             : 

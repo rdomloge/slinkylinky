@@ -84,24 +84,19 @@ export default function DemandSiteList() {
     }, [searchParams]);
 
     return (
-        <Layout pagetitle='Demand site list'>
-            {/* Page header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <h1 id="demandsite-list-id" className="pageTitle">
-                    Demand sites
-                    {demandsites && <span className="text-slate-400 font-normal text-2xl ml-2">({total})</span>}
-                </h1>
-                {demandsites &&
-                    <div className="flex items-center gap-3 text-sm">
-                        {missingCategories.length > 0 &&
-                            <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full font-medium">
-                                {missingCategories.length} missing categories
-                            </span>
-                        }
-                        <span className="text-slate-400">{demandsites.length} categorised</span>
-                    </div>
-                }
-            </div>
+        <Layout pagetitle='Demand site list'
+            headerTitle={<>Demand sites {demandsites && <span className="font-normal text-slate-400">({total})</span>}</>}
+            headerActions={demandsites && (
+                <div className="flex items-center gap-3 text-sm">
+                    {missingCategories.length > 0 &&
+                        <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full font-medium">
+                            {missingCategories.length} missing categories
+                        </span>
+                    }
+                    <span className="text-slate-400">{demandsites.length} categorised</span>
+                </div>
+            )}
+        >
 
             {/* Missing categories section */}
             {missingCategories && missingCategories.length > 0 &&

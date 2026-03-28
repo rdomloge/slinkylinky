@@ -1,13 +1,11 @@
 import React, {useState, useEffect} from 'react'
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import AddOrEditDemand from '@/components/AddOrEditDemand';
 
 export default function NewDemand() {
 
     return( 
-        <Layout pagetitle='New demand'>
-            <PageTitle id="demand-add-id" title="New demand"/>
+        <Layout pagetitle='New demand' headerTitle="New demand">
             <AddOrEditDemand demand={ {name: "", anchorText: "", url: "", daNeeded: 0, requested: null} } /> 
         </Layout>
     );
