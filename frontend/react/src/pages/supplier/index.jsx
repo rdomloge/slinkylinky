@@ -108,25 +108,15 @@ export default function ListBloggers() {
     return (
         <Layout pagetitle='Supplier list'>
             {/* Page header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-2">
-                <div>
-                    <h1 id="supplier-list-id" className="pageTitle">
-                        Suppliers
-                        {suppliers && <span className="text-slate-400 font-normal text-2xl ml-2">({suppliers.length})</span>}
-                    </h1>
-                    <p className="text-sm text-slate-400 mt-0.5">
-                        {supplierCount} total
-                        {activeSupplierCount != null && <span className="ml-1">({activeSupplierCount} active)</span>}
-                    </p>
-                </div>
-                <div className="flex items-center gap-3">
-                    <Link to='/supplier' className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">List view</Link>
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <Link to='/supplier/Add' rel='nofollow'>
-                            <SessionButton label="New"/>
-                        </Link>
-                    </AuthorizedAccess>
-                </div>
+            <div className="px-6 pt-6 pb-2">
+                <h1 id="supplier-list-id" className="pageTitle">
+                    Suppliers
+                    {suppliers && <span className="text-slate-400 font-normal text-2xl ml-2">({suppliers.length})</span>}
+                </h1>
+                <p className="text-sm text-slate-400 mt-0.5">
+                    {supplierCount} total
+                    {activeSupplierCount != null && <span className="ml-1">({activeSupplierCount} active)</span>}
+                </p>
             </div>
 
             {/* Filters */}
@@ -144,6 +134,14 @@ export default function ListBloggers() {
                 <div className="flex flex-col gap-1 pb-1">
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Show disabled</span>
                     <Toggle changeHandler={setShowDisabled} initialValue={showDisabled} label=""/>
+                </div>
+                <div className="flex items-center gap-3 ml-auto pb-1">
+                    <Link to='/supplier' className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">List view</Link>
+                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                        <Link to='/supplier/Add' rel='nofollow'>
+                            <SessionButton label="New"/>
+                        </Link>
+                    </AuthorizedAccess>
                 </div>
             </div>
 

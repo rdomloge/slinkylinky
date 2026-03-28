@@ -114,28 +114,15 @@ export default function SupplierListView() {
         <Layout pagetitle='Supplier list'>
 
             {/* Page header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 gap-3 flex-wrap">
+            <div className="px-6 pt-6 pb-2">
                 <h1 id="supplier-list-id" className="pageTitle">
                     Suppliers
                     {suppliers.length > 0 && <span className="text-slate-400 font-normal text-2xl ml-2">({suppliers.length})</span>}
                 </h1>
-                <div className="flex items-center gap-3">
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <Link to='/supplier/Add' rel='nofollow'>
-                            <SessionButton label="New"/>
-                        </Link>
-                    </AuthorizedAccess>
-                    <Link to='/supplier/cards' className="text-sm text-slate-500 hover:text-slate-800 transition-colors">Card view</Link>
-                    {totalElements !== null &&
-                        <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">
-                            {totalElements} supplier{totalElements !== 1 ? 's' : ''}
-                        </span>
-                    }
-                </div>
             </div>
 
             {/* Filters */}
-            <div className="flex items-center gap-6 px-6 pb-4">
+            <div className="flex items-center gap-6 px-6 py-4">
                 <div className="w-64">
                     <TextInput
                         changeHandler={setSearchInput}
@@ -147,6 +134,19 @@ export default function SupplierListView() {
                 <div className="flex flex-col gap-1 pb-1">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Show disabled</span>
                     <Toggle changeHandler={setIncludeDisabled} initialValue={includeDisabled} label=""/>
+                </div>
+                <div className="flex items-center gap-3 ml-auto">
+                    {totalElements !== null &&
+                        <span className="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full font-medium">
+                            {totalElements} supplier{totalElements !== 1 ? 's' : ''}
+                        </span>
+                    }
+                    <Link to='/supplier/cards' className="text-sm text-slate-500 hover:text-slate-800 transition-colors">Card view</Link>
+                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                        <Link to='/supplier/Add' rel='nofollow'>
+                            <SessionButton label="New"/>
+                        </Link>
+                    </AuthorizedAccess>
                 </div>
             </div>
 
