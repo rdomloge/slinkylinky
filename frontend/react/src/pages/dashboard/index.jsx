@@ -214,7 +214,7 @@ export default function Dashboard() {
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
     return (
-        <Layout pagetitle="Dashboard">
+        <Layout pagetitle="Dashboard" headerTitle="Dashboard">
             <div className="p-6 max-w-5xl space-y-8">
 
                 {/* Greeting */}

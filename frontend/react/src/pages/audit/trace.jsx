@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import Layout from "@/components/layout/Layout";
-import PageTitle from "@/components/PageTitle";
 import Loading from '@/components/Loading';
 import TimelineEntry from '@/components/atoms/TimelineEntry';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
@@ -25,8 +24,7 @@ export default function EntityAuditTrail() {
     );
 
     return (
-        <Layout pagetitle='Audit trace'>
-            <PageTitle title="Audit trail" id="audit-trace-title-id"/>
+        <Layout pagetitle='Audit trace' headerTitle="Audit trail">
             <ol className="relative border-s border-gray-600 dark:border-gray-700">
                 {trail 
                 ?

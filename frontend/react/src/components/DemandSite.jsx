@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CategoryLite } from "./Category";
+import CategoriesCard from "./CategoriesCard";
 import ArrowIcon from '@/assets/left-chevron.svg'
 import { SessionBlock, StyledButton } from "./atoms/Button";
 import Modal from "./atoms/Modal";
@@ -30,11 +30,7 @@ export default function DemandSiteSearchResult({demandSite, selectedHandler, id}
                     <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-60 shrink-0"/>
                     <span className="truncate">{demandSite.domain}</span>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
-                    {demandSite.categories.filter(c => c.disabled == false).map((c, index) =>
-                        <CategoryLite category={c} key={index}/>
-                    )}
-                </div>
+                <CategoriesCard categories={demandSite.categories}/>
             </div>
         </div>
     );
@@ -85,11 +81,7 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
             </div>
 
             {/* Categories */}
-            <div className="flex flex-wrap">
-                {demandSite.categories.filter(c => c.disabled == false).map((c, index) =>
-                    <CategoryLite category={c} key={index}/>
-                )}
-            </div>
+            <CategoriesCard categories={demandSite.categories}/>
 
             {showDeleteModal &&
                 <Modal title="Delete Demand Site" dismissHandler={() => setShowDeleteModal(false)} width="w-1/2">
