@@ -19,13 +19,20 @@ pipeline {
     environment {
         MIGRATION_FILE    = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql"
         GRANTS_FILE       = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/restore-demo/post-restore-grants.sql"
-        BACKUP_CLEAN_FILE = "${WORKSPACE}/backup-clean.sql"
+        // Use a build-number-scoped path in /tmp so concurrent builds don't clash,
+        // and so the file survives the git checkout step that cleans the workspace.
+        BACKUP_TEMP_FILE  = "/tmp/production-backup-${BUILD_NUMBER}.sql"
+        BACKUP_CLEAN_FILE = "/tmp/production-backup-${BUILD_NUMBER}-clean.sql"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
+                // IMPORTANT: copy the uploaded file to /tmp BEFORE git checkout.
+                // The git step cleans the workspace, which would delete BACKUP_FILE.
+                sh 'cp ${WORKSPACE}/BACKUP_FILE ${BACKUP_TEMP_FILE}'
+
                 withFolderProperties() {
                     git branch: 'main',
                         url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinkylinky.git"
@@ -69,14 +76,14 @@ pipeline {
                             sleep 6
 
                             # ----------------------------------------------------------------
-                            # Strip pg18 \\restrict / \\unrestrict authentication tokens.
+                            # Strip pg18 \restrict / \unrestrict authentication tokens.
                             # These lines are present in pg_dump output from PostgreSQL 18 and
                             # require the original server token to authenticate — they must be
                             # removed before loading with psql on a different server.
                             # ----------------------------------------------------------------
-                            echo "==> Stripping pg18 \\\\restrict tokens from backup..."
-                            sed '/^\\\\restrict/d; /^\\\\unrestrict/d' \
-                                ${WORKSPACE}/BACKUP_FILE > ${BACKUP_CLEAN_FILE}
+                            echo "==> Stripping pg18 restrict tokens from backup..."
+                            grep -v '^\\\restrict\|^\\\unrestrict' \
+                                ${BACKUP_TEMP_FILE} > ${BACKUP_CLEAN_FILE}
 
                             # ----------------------------------------------------------------
                             # Ensure the slinkylinky role exists.
@@ -124,7 +131,7 @@ pipeline {
                             # ----------------------------------------------------------------
                             # Clean up and restore services.
                             # ----------------------------------------------------------------
-                            rm -f ${BACKUP_CLEAN_FILE}
+                            rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE}
                             kill $KUBE_PID
 
                             echo "==> Scaling services back up..."
@@ -141,6 +148,10 @@ pipeline {
     }
 
     post {
+        always {
+            // Clean up temp files in case the build failed mid-flight.
+            sh 'rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE} || true'
+        }
         failure {
             script {
                 withFolderProperties() {
