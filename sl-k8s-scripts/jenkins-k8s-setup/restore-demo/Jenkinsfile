@@ -82,8 +82,7 @@ pipeline {
                             # removed before loading with psql on a different server.
                             # ----------------------------------------------------------------
                             echo "==> Stripping pg18 restrict tokens from backup..."
-                            grep -v '^\\\restrict\|^\\\\unrestrict' \
-                                ${BACKUP_TEMP_FILE} > ${BACKUP_CLEAN_FILE}
+                            grep -vE '^[\\\\](un)?restrict' ${BACKUP_TEMP_FILE} > ${BACKUP_CLEAN_FILE}
 
                             # ----------------------------------------------------------------
                             # Ensure the slinkylinky role exists.
