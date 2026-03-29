@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict y8sVMzxgFa1abp7LlySv7mx6YVFD6B17VT73J0edH4XeXMZuotlFAW0EKaIA5zM
+\restrict 1X0Pmff6d8FgEHrslnlhhdrwXaXdwKgKY9z5eu52os1FqNgnmzx7U9u7acVrzHf
 
--- Dumped from database version 16.6 (Debian 16.6-1.pgdg120+1)
--- Dumped by pg_dump version 17.6 (Debian 17.6-1.pgdg13+1)
+-- Dumped from database version 18.1 (Debian 18.1-1.pgdg13+2)
+-- Dumped by pg_dump version 18.1 (Debian 18.1-1.pgdg13+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -230,9 +230,7 @@ CREATE TABLE public.paid_link (
     id bigint NOT NULL,
     demand_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
-    version bigint DEFAULT 0,
-    demand_domain character varying(256),
-    supplier_domain character varying(256)
+    version bigint DEFAULT 0
 );
 
 
@@ -284,12 +282,12 @@ CREATE TABLE public.proposal (
     proposal_sent boolean NOT NULL,
     updated_by character varying(255),
     supplier_snapshot_version bigint DEFAULT 0 NOT NULL,
-    supplier_snapshot_revision bigint DEFAULT 0,
-    supplier_snapshot text,
     version bigint DEFAULT 1 NOT NULL,
     validated boolean DEFAULT false,
     date_validated timestamp(6) without time zone,
-    do_not_expire boolean DEFAULT false
+    do_not_expire boolean DEFAULT false,
+    supplier_snapshot_revision bigint DEFAULT 0,
+    supplier_snapshot text
 );
 
 
@@ -318,12 +316,12 @@ CREATE TABLE public.proposal_aud (
     proposal_accepted boolean,
     proposal_sent boolean,
     supplier_snapshot_version bigint DEFAULT 0,
-    supplier_snapshot_revision bigint DEFAULT 0,
-    supplier_snapshot text,
     updated_by character varying(255),
     validated boolean DEFAULT false,
     date_validated timestamp(6) without time zone,
-    do_not_expire boolean DEFAULT false
+    do_not_expire boolean DEFAULT false,
+    supplier_snapshot text,
+    supplier_snapshot_revision bigint DEFAULT 0
 );
 
 
@@ -520,14 +518,6 @@ ALTER TABLE ONLY public.paid_link_aud
 
 ALTER TABLE ONLY public.paid_link
     ADD CONSTRAINT paid_link_pkey PRIMARY KEY (id);
-
-
---
--- Name: paid_link paidlink_demand_supplier; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.paid_link
-    ADD CONSTRAINT paidlink_demand_supplier UNIQUE (demand_domain, supplier_domain);
 
 
 --
@@ -894,5 +884,5 @@ GRANT ALL ON SCHEMA public TO slinkylinky;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict y8sVMzxgFa1abp7LlySv7mx6YVFD6B17VT73J0edH4XeXMZuotlFAW0EKaIA5zM
+\unrestrict 1X0Pmff6d8FgEHrslnlhhdrwXaXdwKgKY9z5eu52os1FqNgnmzx7U9u7acVrzHf
 
