@@ -1,0 +1,160 @@
+pipeline {
+
+    // Run everything on the psql-worker so the uploaded BACKUP_FILE parameter
+    // is staged on the correct agent before any stage tries to read it.
+    agent { label "psql-worker" }
+
+    parameters {
+        string(
+            name: 'TENANT',
+            description: 'Target tenant K8s namespace (e.g. abc12345). Must already be provisioned.'
+        )
+        file(
+            name: 'BACKUP_FILE',
+            description: 'Upload the production slinkylinky SQL backup file (.sql). ' +
+                         'This replaces the tenant\'s entire slinkylinky database with production data.'
+        )
+    }
+
+    environment {
+        MIGRATION_FILE    = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql"
+        GRANTS_FILE       = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/restore-demo/post-restore-grants.sql"
+        BACKUP_CLEAN_FILE = "${WORKSPACE}/backup-clean.sql"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                withFolderProperties() {
+                    git branch: 'main',
+                        url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinkylinky.git"
+                }
+            }
+        }
+
+        stage('Restore Production Data') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s',
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            echo "==> Restoring production data into tenant: ${TENANT}"
+
+                            # ----------------------------------------------------------------
+                            # Read the linkservice_user password from the tenant's K8s secret.
+                            # ----------------------------------------------------------------
+                            LINKSERVICE_DB_PASSWORD=$(kubectl -n ${TENANT} \
+                                get secret db-connection-secret \
+                                -o jsonpath='{.data.LINKSERVICE_DB_PASSWORD}' | base64 -d)
+
+                            # postgres superuser password — set by POSTGRES_PASSWORD env var
+                            # in templates/postgres.yml (hardcoded as CHANGEME for all tenants).
+                            POSTGRES_PASSWORD=CHANGEME
+
+                            # ----------------------------------------------------------------
+                            # Scale down all services so nothing holds open DB connections.
+                            # ----------------------------------------------------------------
+                            echo "==> Scaling down tenant services..."
+                            kubectl -n ${TENANT} scale --replicas=0 deployment --all
+                            kubectl -n ${TENANT} scale --replicas=0 statefulset keycloak rabbit
+
+                            # ----------------------------------------------------------------
+                            # Port-forward to the tenant's postgres.
+                            # ----------------------------------------------------------------
+                            kubectl -n ${TENANT} port-forward svc/postgres-service 5432:5432 &
+                            KUBE_PID=$!
+                            sleep 6
+
+                            # ----------------------------------------------------------------
+                            # Strip pg18 \\restrict / \\unrestrict authentication tokens.
+                            # These lines are present in pg_dump output from PostgreSQL 18 and
+                            # require the original server token to authenticate — they must be
+                            # removed before loading with psql on a different server.
+                            # ----------------------------------------------------------------
+                            echo "==> Stripping pg18 \\\\restrict tokens from backup..."
+                            sed '/^\\\\restrict/d; /^\\\\unrestrict/d' \
+                                ${WORKSPACE}/BACKUP_FILE > ${BACKUP_CLEAN_FILE}
+
+                            # ----------------------------------------------------------------
+                            # Ensure the slinkylinky role exists.
+                            # Production tables are owned by this role; without it the restore
+                            # errors on ALTER TABLE ... OWNER TO slinkylinky statements.
+                            # ----------------------------------------------------------------
+                            echo "==> Ensuring slinkylinky role exists..."
+                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
+                                -h localhost -U postgres \
+                                -c "CREATE ROLE slinkylinky;" 2>/dev/null || true
+
+                            # ----------------------------------------------------------------
+                            # Wipe the existing schema entirely and restore from the backup.
+                            # ----------------------------------------------------------------
+                            echo "==> Dropping existing schema..."
+                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
+                                -h localhost -U postgres -d slinkylinky \
+                                -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+
+                            echo "==> Restoring production backup (errors are non-fatal)..."
+                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
+                                -h localhost -U postgres -d slinkylinky \
+                                -v ON_ERROR_STOP=0 \
+                                -f ${BACKUP_CLEAN_FILE}
+
+                            # ----------------------------------------------------------------
+                            # Re-apply grants.
+                            # DROP SCHEMA CASCADE removes all ACLs; linkservice_user loses access.
+                            # ----------------------------------------------------------------
+                            echo "==> Re-applying grants to linkservice_user..."
+                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
+                                -h localhost -U postgres -d slinkylinky \
+                                -f ${GRANTS_FILE}
+
+                            # ----------------------------------------------------------------
+                            # Run the idempotent schema migration:
+                            #   - drops legacy paid_link columns if still present
+                            #   - wires up the paid_link_duplicate_check trigger
+                            # ----------------------------------------------------------------
+                            echo "==> Running schema migration..."
+                            PGPASSWORD=${LINKSERVICE_DB_PASSWORD} psql \
+                                -h localhost -U linkservice_user -d slinkylinky \
+                                -f ${MIGRATION_FILE}
+
+                            # ----------------------------------------------------------------
+                            # Clean up and restore services.
+                            # ----------------------------------------------------------------
+                            rm -f ${BACKUP_CLEAN_FILE}
+                            kill $KUBE_PID
+
+                            echo "==> Scaling services back up..."
+                            kubectl -n ${TENANT} scale --replicas=1 deployment --all
+                            kubectl -n ${TENANT} scale --replicas=1 statefulset --all
+
+                            echo "==> Done. Production data restored into tenant: ${TENANT}"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            script {
+                withFolderProperties() {
+                    withKubeConfig(credentialsId: 'prod-k8s',
+                                    serverUrl: "${env.K8S_SERVER_URL}") {
+                        // Always scale back up on failure so the tenant is not left dark.
+                        sh '''
+                        echo "==> Build failed — scaling services back up..."
+                        kubectl -n ${TENANT} scale --replicas=1 deployment --all || true
+                        kubectl -n ${TENANT} scale --replicas=1 statefulset --all || true
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
