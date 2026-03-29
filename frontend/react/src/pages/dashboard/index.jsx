@@ -106,6 +106,90 @@ function NavCard({ to, label, description, icon }) {
     );
 }
 
+function SupplierPipelineHealthPanel({ healthData, atRiskData, loading }) {
+    function riskColour(count) {
+        if (count === 0) return 'bg-red-100 text-red-700';
+        if (count <= 2)  return 'bg-orange-100 text-orange-700';
+        return 'bg-amber-100 text-amber-700';
+    }
+
+    return (
+        <div className="grid grid-cols-2 gap-4">
+
+            {/* Onboarding rate */}
+            <PanelCard title="Supplier onboarding" loading={loading} to="/supplier" linkLabel="View suppliers">
+                <div className="flex items-center gap-3 mb-3">
+                    <span className="text-3xl font-bold text-gray-900">
+                        {healthData?.thisMonth ?? '—'}
+                    </span>
+                    <span className="text-xs text-gray-400">new this month</span>
+                </div>
+                {healthData?.history?.length > 0 ? (
+                    <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-gray-500 mb-1.5">Monthly history</p>
+                        {[...healthData.history].reverse().map(row => (
+                            <div key={row.yearMonth}
+                                 className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
+                                <span className="text-xs text-gray-500">{row.yearMonth}</span>
+                                <span className="text-xs font-medium text-gray-700">{row.count}</span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-xs text-gray-400">No onboarding history yet.</p>
+                )}
+            </PanelCard>
+
+            {/* At-risk demand sites */}
+            <PanelCard title="At-risk demand sites" loading={loading} to="/demandsites" linkLabel="View all sites">
+                <div className="flex items-center gap-2 mb-3">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${(atRiskData?.sites?.length ?? 0) === 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {atRiskData?.sites?.length ?? 0} at risk
+                    </span>
+                    <span className="text-xs text-gray-400">
+                        fewer than {atRiskData?.threshold ?? 5} available suppliers
+                    </span>
+                </div>
+                {(atRiskData?.sites?.length ?? 0) === 0 ? (
+                    <p className="text-xs text-gray-400">All demand sites are healthy.</p>
+                ) : (
+                    <>
+                        <div className="space-y-0.5">
+                            {atRiskData.sites.slice(0, 6).map(site => (
+                                <div key={site.id}
+                                     className="flex items-center justify-between py-1 border-b border-gray-50 last:border-0">
+                                    <div className="min-w-0">
+                                        <p className="text-xs text-gray-700 truncate">{site.name}</p>
+                                        <p className="text-xs text-gray-400 truncate">{site.domain}</p>
+                                    </div>
+                                    <span className={`shrink-0 ml-2 px-1.5 py-0.5 rounded-full text-xs font-semibold ${riskColour(site.availableCount)}`}>
+                                        {site.availableCount}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                        {atRiskData.topNeededCategories?.length > 0 && (
+                            <div className="pt-3 border-t border-gray-100 mt-1">
+                                <p className="text-xs font-medium text-gray-500 mb-1.5">Most needed categories</p>
+                                <div className="flex flex-wrap gap-1">
+                                    {atRiskData.topNeededCategories.slice(0, 8).map(cat => (
+                                        <span key={cat.categoryId}
+                                              className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-600">
+                                            {cat.categoryName}
+                                            <span className="ml-1 text-blue-300">×{cat.siteCount}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </PanelCard>
+
+        </div>
+    );
+}
+
 // ─── Nav section definitions ─────────────────────────────────────────────────
 
 const navSections = [
@@ -155,6 +239,8 @@ export default function Dashboard() {
     const [topSuppliers, setTopSuppliers]       = useState([]);
     const [topUsedSuppliersList, setTopUsedSuppliersList] = useState([]);
     const [topDemandSites, setTopDemandSites]   = useState([]);
+    const [supplierHealth, setSupplierHealth]   = useState(null);
+    const [atRiskSites, setAtRiskSites]         = useState(null);
     const [loading, setLoading]                 = useState(true);
 
     useEffect(() => {
@@ -184,7 +270,11 @@ export default function Dashboard() {
             safeJson('/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalse?projection=fullSupplier'),
             // Top demand sites by demand count
             safeJson('/.rest/demandssitesupport/topbydemands?limit=5'),
-        ]).then(([demands, suppliers, thisMonthProposals, sixMonthProposals, topSuppliersData, missingSites, missingCatSuppliersData, allSitesPage]) => {
+            // Supplier pipeline health: onboarding rate
+            safeJson('/.rest/supplierHealthSupport/onboarding?months=12'),
+            // Supplier pipeline health: at-risk demand sites
+            safeJson('/.rest/supplierHealthSupport/atrisk?threshold=5'),
+        ]).then(([demands, suppliers, thisMonthProposals, sixMonthProposals, topSuppliersData, missingSites, missingCatSuppliersData, allSitesPage, onboardingData, atRiskData]) => {
 
             if (demands) { setDemandCount(demands.length); setUnproposedDemands(demands.slice(0, 5)); }
             if (suppliers != null) setActiveSuppliers(suppliers);
@@ -206,6 +296,9 @@ export default function Dashboard() {
             if (missingSites) setMissingCatSites(missingSites);
             setMissingCatSuppliers(missingCatSuppliersData?._embedded?.suppliers ?? missingCatSuppliersData ?? []);
             setTopDemandSites(allSitesPage ?? []);
+
+            if (onboardingData) setSupplierHealth(onboardingData);
+            if (atRiskData)     setAtRiskSites(atRiskData);
 
             setLoading(false);
         }).catch(() => setLoading(false));
@@ -340,6 +433,13 @@ export default function Dashboard() {
                     </PanelCard>
 
                 </div>
+
+                {/* Supplier pipeline health */}
+                <SupplierPipelineHealthPanel
+                    healthData={supplierHealth}
+                    atRiskData={atRiskSites}
+                    loading={loading}
+                />
 
                 {/* Usage panels */}
                 <div className="grid grid-cols-2 gap-4">
