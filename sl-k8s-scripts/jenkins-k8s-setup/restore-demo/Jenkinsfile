@@ -76,13 +76,13 @@ pipeline {
                             sleep 6
 
                             # ----------------------------------------------------------------
-                            # Strip pg18 \restrict / \unrestrict authentication tokens.
+                            # Strip pg18 \\restrict / \\unrestrict authentication tokens.
                             # These lines are present in pg_dump output from PostgreSQL 18 and
                             # require the original server token to authenticate — they must be
                             # removed before loading with psql on a different server.
                             # ----------------------------------------------------------------
                             echo "==> Stripping pg18 restrict tokens from backup..."
-                            grep -v '^\\\restrict\|^\\\unrestrict' \
+                            grep -v '^\\\restrict\|^\\\\unrestrict' \
                                 ${BACKUP_TEMP_FILE} > ${BACKUP_CLEAN_FILE}
 
                             # ----------------------------------------------------------------
