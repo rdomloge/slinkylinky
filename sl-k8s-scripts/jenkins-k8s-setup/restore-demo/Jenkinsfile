@@ -142,23 +142,19 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s',
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             sh '''
-                            # Read the linkservice_user password from the tenant's K8s secret.
-                            LINKSERVICE_DB_PASSWORD=$(kubectl -n ${TENANT} \
-                                get secret db-connection-secret \
-                                -o jsonpath='{.data.LINKSERVICE_DB_PASSWORD}' | base64 -d)
-
                             # Re-apply grants. DROP SCHEMA CASCADE removes all ACLs;
                             # linkservice_user loses access without this.
                             echo "==> Re-applying grants to linkservice_user..."
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
                                 sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -f /tmp/grants.sql'
 
-                            # Run the idempotent schema migration:
-                            #   - drops legacy paid_link columns if still present
-                            #   - wires up the paid_link_duplicate_check trigger
+                            # Run the idempotent schema migration as postgres superuser.
+                            # The migration contains only DDL (ALTER TABLE, DROP/CREATE TRIGGER).
+                            # Tables are owned by the slinkylinky role from the production backup,
+                            # so linkservice_user cannot alter them — only postgres can.
                             echo "==> Running schema migration..."
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
-                                sh -c "PGPASSWORD=${LINKSERVICE_DB_PASSWORD} psql -U linkservice_user -d slinkylinky -f /tmp/migration.sql"
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -f /tmp/migration.sql'
 
                             # Clean up files from the pod and local temp files.
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \

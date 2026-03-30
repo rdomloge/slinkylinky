@@ -18,3 +18,23 @@ DROP TRIGGER IF EXISTS paid_link_duplicate_check_trigger ON public.paid_link;
 CREATE TRIGGER paid_link_duplicate_check_trigger
     BEFORE INSERT ON public.paid_link
     FOR EACH ROW EXECUTE FUNCTION public.paid_link_duplicate_check();
+
+-- Step 3: Add supplier snapshot columns to proposal / proposal_aud.
+--   supplier_snapshot_version was added in v2.3 and is present in production.
+--   supplier_snapshot and supplier_snapshot_revision were added later and may
+--   be absent from older production backups. All IF NOT EXISTS — no-ops when
+--   columns already exist.
+ALTER TABLE IF EXISTS public.proposal     ADD COLUMN IF NOT EXISTS supplier_snapshot          TEXT;
+ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snapshot          TEXT;
+ALTER TABLE IF EXISTS public.proposal     ADD COLUMN IF NOT EXISTS supplier_snapshot_revision BIGINT DEFAULT 0;
+ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snapshot_revision BIGINT DEFAULT 0;
+
+-- Step 3: Add supplier snapshot columns to proposal / proposal_aud.
+--   supplier_snapshot_version was added in v2.3 and is present in production.
+--   supplier_snapshot and supplier_snapshot_revision were added later and may
+--   be absent from older production backups. All three are IF NOT EXISTS no-ops
+--   when the columns already exist.
+ALTER TABLE IF EXISTS public.proposal     ADD COLUMN IF NOT EXISTS supplier_snapshot          TEXT;
+ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snapshot          TEXT;
+ALTER TABLE IF EXISTS public.proposal     ADD COLUMN IF NOT EXISTS supplier_snapshot_revision BIGINT DEFAULT 0;
+ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snapshot_revision BIGINT DEFAULT 0;
