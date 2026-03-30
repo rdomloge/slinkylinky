@@ -22,6 +22,21 @@ GRANT ALL ON SCHEMA public TO slinkylinky;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO slinkylinky;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO slinkylinky;
 
+-- Grant linkservice_user access to all PostgreSQL large objects.
+-- Hibernate @Lob fields (e.g. proposal.article) are stored as OID references into
+-- pg_largeobject. After a pg_dump restore as the postgres superuser, those large
+-- objects are owned by postgres — linkservice_user cannot read them without an
+-- explicit grant. Large objects are cluster-wide so this loop covers all of them.
+DO $$
+DECLARE
+    loid oid;
+BEGIN
+    FOR loid IN SELECT oid FROM pg_largeobject_metadata LOOP
+        EXECUTE format('GRANT SELECT ON LARGE OBJECT %s TO linkservice_user', loid);
+    END LOOP;
+END;
+$$;
+
 -- -----------------------------------------------------------------------
 -- supplierengagement database
 -- -----------------------------------------------------------------------
