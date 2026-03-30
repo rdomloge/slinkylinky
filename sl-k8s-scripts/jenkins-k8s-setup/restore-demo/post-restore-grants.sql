@@ -66,3 +66,14 @@ GRANT ALL ON SCHEMA public TO audit_user;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO audit_user;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO audit_user;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO audit_user;
+
+-- Grant audit_user access to all PostgreSQL large objects (same issue as slinkylinky).
+DO $$
+DECLARE
+    loid oid;
+BEGIN
+    FOR loid IN SELECT oid FROM pg_largeobject_metadata LOOP
+        EXECUTE format('GRANT SELECT ON LARGE OBJECT %s TO audit_user', loid);
+    END LOOP;
+END;
+$$;
