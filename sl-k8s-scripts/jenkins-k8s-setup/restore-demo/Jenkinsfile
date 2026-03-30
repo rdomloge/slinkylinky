@@ -60,23 +60,12 @@ pipeline {
                                 get secret db-connection-secret \
                                 -o jsonpath='{.data.LINKSERVICE_DB_PASSWORD}' | base64 -d)
 
-                            # postgres superuser password — set by POSTGRES_PASSWORD env var
-                            # in templates/postgres.yml (hardcoded as CHANGEME for all tenants).
-                            POSTGRES_PASSWORD=CHANGEME
-
                             # ----------------------------------------------------------------
                             # Scale down all services so nothing holds open DB connections.
                             # ----------------------------------------------------------------
                             echo "==> Scaling down tenant services..."
                             kubectl -n ${TENANT} scale --replicas=0 deployment --all
                             kubectl -n ${TENANT} scale --replicas=0 statefulset keycloak rabbit
-
-                            # ----------------------------------------------------------------
-                            # Port-forward to the tenant's postgres.
-                            # ----------------------------------------------------------------
-                            kubectl -n ${TENANT} port-forward svc/postgres-service 5432:5432 &
-                            KUBE_PID=$!
-                            sleep 6
 
                             # ----------------------------------------------------------------
                             # Strip pg18 restrict/unrestrict authentication tokens.
@@ -88,37 +77,49 @@ pipeline {
                             grep -vE '^[\\\\](un)?restrict' ${BACKUP_TEMP_FILE} > ${BACKUP_CLEAN_FILE}
 
                             # ----------------------------------------------------------------
+                            # Look up the postgres pod name dynamically.
+                            # ----------------------------------------------------------------
+                            POSTGRES_POD=$(kubectl -n ${TENANT} get pod -l app=postgres \
+                                -o jsonpath='{.items[0].metadata.name}')
+                            echo "==> Using postgres pod: ${POSTGRES_POD}"
+
+                            # ----------------------------------------------------------------
+                            # Copy backup and SQL files into the pod.
+                            # The 500MB transfer happens once as a bulk stream — no per-statement
+                            # round-trip overhead from port-forwarding.
+                            # ----------------------------------------------------------------
+                            echo "==> Copying files into pod..."
+                            kubectl cp ${BACKUP_CLEAN_FILE} ${TENANT}/${POSTGRES_POD}:/tmp/restore.sql
+                            kubectl cp ${GRANTS_FILE}       ${TENANT}/${POSTGRES_POD}:/tmp/grants.sql
+                            kubectl cp ${MIGRATION_FILE}    ${TENANT}/${POSTGRES_POD}:/tmp/migration.sql
+
+                            # ----------------------------------------------------------------
                             # Ensure the slinkylinky role exists.
                             # Production tables are owned by this role; without it the restore
                             # errors on ALTER TABLE ... OWNER TO slinkylinky statements.
                             # ----------------------------------------------------------------
                             echo "==> Ensuring slinkylinky role exists..."
-                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
-                                -h localhost -U postgres \
-                                -c "CREATE ROLE slinkylinky;" 2>/dev/null || true
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -c "CREATE ROLE slinkylinky;" 2>/dev/null || true'
 
                             # ----------------------------------------------------------------
                             # Wipe the existing schema entirely and restore from the backup.
                             # ----------------------------------------------------------------
                             echo "==> Dropping existing schema..."
-                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
-                                -h localhost -U postgres -d slinkylinky \
-                                -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"'
 
                             echo "==> Restoring production backup (errors are non-fatal)..."
-                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
-                                -h localhost -U postgres -d slinkylinky \
-                                -v ON_ERROR_STOP=0 \
-                                -f ${BACKUP_CLEAN_FILE}
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -v ON_ERROR_STOP=0 -f /tmp/restore.sql'
 
                             # ----------------------------------------------------------------
                             # Re-apply grants.
                             # DROP SCHEMA CASCADE removes all ACLs; linkservice_user loses access.
                             # ----------------------------------------------------------------
                             echo "==> Re-applying grants to linkservice_user..."
-                            PGPASSWORD=${POSTGRES_PASSWORD} psql \
-                                -h localhost -U postgres -d slinkylinky \
-                                -f ${GRANTS_FILE}
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -f /tmp/grants.sql'
 
                             # ----------------------------------------------------------------
                             # Run the idempotent schema migration:
@@ -126,15 +127,15 @@ pipeline {
                             #   - wires up the paid_link_duplicate_check trigger
                             # ----------------------------------------------------------------
                             echo "==> Running schema migration..."
-                            PGPASSWORD=${LINKSERVICE_DB_PASSWORD} psql \
-                                -h localhost -U linkservice_user -d slinkylinky \
-                                -f ${MIGRATION_FILE}
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c "PGPASSWORD=${LINKSERVICE_DB_PASSWORD} psql -U linkservice_user -d slinkylinky -f /tmp/migration.sql"
 
                             # ----------------------------------------------------------------
-                            # Clean up and restore services.
+                            # Clean up files from the pod and local temp files.
                             # ----------------------------------------------------------------
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                rm -f /tmp/restore.sql /tmp/grants.sql /tmp/migration.sql
                             rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE}
-                            kill $KUBE_PID
 
                             echo "==> Scaling services back up..."
                             kubectl -n ${TENANT} scale --replicas=1 deployment --all
