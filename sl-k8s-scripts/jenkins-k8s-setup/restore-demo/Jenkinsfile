@@ -11,8 +11,8 @@ pipeline {
         )
         string(
             name: 'RESTORE_BRANCH',
-            defaultValue: 'main',
-            description: 'Git branch to check out for SQL scripts (e.g. main, restore-demo-pipeline).'
+            defaultValue: 'restore-demo-pipeline',
+            description: 'Git branch to check out for SQL scripts. Update to main after this branch is merged.'
         )
         stashedFile(
             name: 'BACKUP_FILE',
