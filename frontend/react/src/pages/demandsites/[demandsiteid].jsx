@@ -21,10 +21,7 @@ export default function DemandSite() {
         }, [demandsiteid]);
 
     return (
-        <Layout pagetitle="Edit demand site">
-            <div className="px-6 pt-6 pb-4">
-                <h1 id="demandsite-detail-title-id" className="pageTitle">Edit demand site</h1>
-            </div>
+        <Layout pagetitle="Edit demand site" headerTitle="Edit demand site">
             {demandSite ?
                 <AddOrEditDemandSite demandSite={demandSite}/>
             :

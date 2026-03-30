@@ -1,10 +1,34 @@
+import { Link } from 'react-router-dom';
 import Profile from '../Profile';
 
-export default function Header() {
+export default function Header({ title, actions }) {
     return (
         <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-            <div className="flex items-center justify-end px-6 py-2">
-                <Profile/>
+            <div className="flex items-center justify-between px-6 py-2.5 gap-4">
+
+                {/* Breadcrumb: home icon + chevron + page title */}
+                <div className="flex items-center gap-2 min-w-0">
+                    <Link to="/" className="shrink-0 text-slate-400 hover:text-indigo-600 transition-colors" aria-label="Home">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+                        </svg>
+                    </Link>
+                    {title && (
+                        <>
+                            <svg className="w-4 h-4 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            <h1 className="text-sm font-semibold text-slate-800 truncate">{title}</h1>
+                        </>
+                    )}
+                </div>
+
+                {/* Right: actions + profile */}
+                <div className="flex items-center gap-4 shrink-0">
+                    {actions}
+                    <Profile/>
+                </div>
+
             </div>
         </header>
     );

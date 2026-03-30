@@ -142,20 +142,17 @@ export default function Proposal() {
     }
 
     return (
-            <Layout pagetitle='Proposal details'>
+            <Layout pagetitle='Proposal details'
+                headerTitle="Proposal"
+                headerActions={proposal ? <DotMenu items={createMenuItems()} classNames="shrink-0"/> : null}
+            >
 
                 {proposal ?
                     <>
-                    {/* Page header */}
-                    <div className="flex items-start justify-between px-6 pt-6 pb-3">
-                        <div>
-                            <h1 id="proposal-detail-id" className="pageTitle">Proposal</h1>
-                            <div className="flex items-center gap-1.5 mt-1">
-                                <img src={proposal.doNotExpire ? DoNotExpire : Timer} alt={proposal.doNotExpire ? "Does not expire" : "Expires"} width={16} height={16} className="opacity-50"/>
-                                <span className="text-sm text-slate-500"><NiceDate isostring={proposal.dateCreated}/></span>
-                            </div>
-                        </div>
-                        <DotMenu items={createMenuItems()} classNames="shrink-0 mt-1"/>
+                    {/* Date line */}
+                    <div className="flex items-center gap-1.5 px-6 pb-3">
+                        <img src={proposal.doNotExpire ? DoNotExpire : Timer} alt={proposal.doNotExpire ? "Does not expire" : "Expires"} width={16} height={16} className="opacity-50"/>
+                        <span className="text-sm text-slate-500"><NiceDate isostring={proposal.dateCreated}/></span>
                     </div>
 
                     {/* Traffic lights */}

@@ -11,7 +11,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+import com.domloge.slinkylinky.linkservice.entity.AtRiskDemandSiteProjection;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
+import com.domloge.slinkylinky.linkservice.entity.SupplierOnboardingMonthProjection;
 
 @RepositoryRestResource(collectionResourceRel = "suppliers", path = "suppliers")
 @CrossOrigin(exposedHeaders = "*")
@@ -56,4 +58,32 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
     long count();
 
     long countByDisabledFalse();
+
+    @Query(nativeQuery = true,
+        value = "SELECT TO_CHAR(to_timestamp(s.created_date / 1000.0), 'YYYY-MM') AS yearMonth, " +
+                "       COUNT(s.id) AS count " +
+                "FROM supplier s " +
+                "WHERE s.created_date > 0 " +
+                "AND to_timestamp(s.created_date / 1000.0) >= NOW() - (:months || ' months')::interval " +
+                "GROUP BY yearMonth " +
+                "ORDER BY yearMonth ASC")
+    List<SupplierOnboardingMonthProjection> countNewSuppliersByMonth(@Param("months") int months);
+
+    @Query(nativeQuery = true,
+        value = "SELECT ds.id AS id, ds.name AS name, ds.domain AS domain, COUNT(DISTINCT s.id) AS availableCount " +
+                "FROM demand_site ds " +
+                "JOIN demand_site_categories dsc ON dsc.demand_site_id = ds.id " +
+                "JOIN supplier_categories sc     ON sc.categories_id = dsc.categories_id " +
+                "JOIN supplier s ON s.id = sc.supplier_id " +
+                "    AND s.disabled = false " +
+                "    AND s.third_party = false " +
+                "    AND s.id NOT IN ( " +
+                "        SELECT pl.supplier_id FROM paid_link pl " +
+                "        JOIN demand d ON pl.demand_id = d.id " +
+                "        WHERE d.domain = ds.domain " +
+                "    ) " +
+                "GROUP BY ds.id, ds.name, ds.domain " +
+                "HAVING COUNT(DISTINCT s.id) < :threshold " +
+                "ORDER BY COUNT(DISTINCT s.id) ASC")
+    List<AtRiskDemandSiteProjection> findAtRiskDemandSites(@Param("threshold") int threshold);
 }

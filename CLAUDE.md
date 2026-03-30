@@ -6,6 +6,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 SlinkyLinky is a link management and supplier engagement platform. It is a full-stack monorepo with a React frontend and multiple Java Spring Boot microservices communicating via RabbitMQ, backed by PostgreSQL, and authenticated through Keycloak (OAuth2/OIDC).
 
+## Domain Model
+
+SlinkyLinky is a "dating agency" for SEO link building — it matches **demand** with **supply**:
+
+- **DemandSite**: a customer's website that wants inbound links for SEO
+- **Demand**: a monthly work order raised by a DemandSite — think of it as "I need a link this month"
+- **Supplier**: a website owner who can place a link on their site
+- **PaidLink**: the historical record of a link placed between two domains
+
+A Demand is matched to a Supplier at most once per DemandSite–Supplier domain pair. Since Google SEO gives no benefit from multiple links between the same two domains, a DemandSite must never be matched to the same Supplier again. **PaidLink is the authoritative history that enforces this uniqueness constraint.**
+
 ## Architecture
 
 ```
@@ -49,6 +60,11 @@ npm run dev:docker      # dev server using BACKEND_HOST from .env.docker
 npm run build           # production build to dist/
 ```
 The Vite config uses `@` as an alias for `/src`. Proxy routes are configured in `vite.config.js`.
+
+## Frontend Component Guidelines
+
+    React components live in `frontend/react/src/components/`. Prefer creating and reusing shared components from this folder over writing inline JSX. Before building
+    something new, check whether a suitable component already exists here. If it doesn't quite work as we want, prefer making it dynamic and configurable.
 
 ### Backend (individual service)
 ```bash

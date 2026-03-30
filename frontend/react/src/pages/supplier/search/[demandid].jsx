@@ -82,12 +82,7 @@ export default function App() {
     }
 
     return (
-        <Layout pagetitle="Supplier search">
-
-            {/* Page header */}
-            <div className="px-6 pt-6 pb-4">
-                <h1 id="supplier-search-id" className="pageTitle">Find a matching supplier</h1>
-            </div>
+        <Layout pagetitle="Supplier search" headerTitle="Find a matching supplier">
 
             {error || !demand ?
                 <Loading error={error}/>

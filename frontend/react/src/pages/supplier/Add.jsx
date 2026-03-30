@@ -38,11 +38,10 @@ export default function NewSupplier() {
     }
     
     return (
-        <Layout pagetitle="New supplier">
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <h1 id="supplier-add-id" className="pageTitle">New supplier</h1>
-                <StyledButton label="Bulk upload" submitHandler={()=>setShowBulkUploadModal(true)} type="secondary" extraClass="!m-0" isText={true}/>
-            </div>
+        <Layout pagetitle="New supplier"
+            headerTitle="New supplier"
+            headerActions={<StyledButton label="Bulk upload" submitHandler={()=>setShowBulkUploadModal(true)} type="secondary" extraClass="!m-0" isText={true}/>}
+        >
             <div className="flex">
                 <div className="flex-1">
                     <AddOrEditSupplier supplier={({da: 0, name: "", website: "", source: "", email: "", weWriteFeeCurrency: "£", weWriteFee: 0})}

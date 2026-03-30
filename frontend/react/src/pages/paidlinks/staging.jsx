@@ -85,13 +85,10 @@ export default function App() {
     );
 
     return (
-        <Layout pagetitle='Proposal staging'>
-
-            {/* Page header */}
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <h1 id="paidlink-staging-id" className="pageTitle">Proposal Staging</h1>
-                <ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id="submitProposal"/>
-            </div>
+        <Layout pagetitle='Proposal staging'
+            headerTitle="Proposal Staging"
+            headerActions={<ClickHandlerButton label="Submit" clickHandler={() => handleSubmit(searchParams.get('supplierId'))} disabled={!ready} id="submitProposal"/>}
+        >
 
             {submitError && (
                 <div className="px-6 pb-2">

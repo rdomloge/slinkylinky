@@ -32,10 +32,7 @@ export default function EditSupplier() {
         }, [supplierid]);
 
     return (
-        <Layout pagetitle="Edit supplier">
-            <div className="px-6 pt-6 pb-2">
-                <h1 id="supplier-edit-id" className="pageTitle">Edit supplier</h1>
-            </div>
+        <Layout pagetitle="Edit supplier" headerTitle="Edit supplier">
             {supplier ?
                 <AddOrEditSupplier supplier={supplier}
                     supplierName={supplierName} setSupplierName={setSupplierName}

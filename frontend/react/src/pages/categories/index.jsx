@@ -86,16 +86,10 @@ export default function ListCategories() {
 
     
     return (
-        <Layout pagetitle="Categories">
-            <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <h1 id="category-list-id" className="pageTitle">
-                    Categories
-                    {categories && <span className="text-slate-400 font-normal text-2xl ml-2">({categories.length})</span>}
-                </h1>
-                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                    <StyledButton label="New" type="primary" extraClass="!m-0" submitHandler={()=>setShowNewModal(true)} enabled={!!user}/>
-                </AuthorizedAccess>
-            </div>
+        <Layout pagetitle="Categories"
+            headerTitle={<>Categories {categories && <span className="font-normal text-slate-400">({categories.length})</span>}</>}
+            headerActions={<AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}><StyledButton label="New" type="primary" extraClass="!m-0" submitHandler={()=>setShowNewModal(true)} enabled={!!user}/></AuthorizedAccess>}
+        >
             {categories ?
                 <div className="flex flex-wrap gap-3 px-6 pb-6">
                     {categories.map( (c,index) => {
