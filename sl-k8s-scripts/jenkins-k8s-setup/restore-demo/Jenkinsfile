@@ -1,8 +1,9 @@
 pipeline {
 
-    // Run everything on the psql-worker so the uploaded BACKUP_FILE parameter
-    // is staged on the correct agent before any stage tries to read it.
-    agent { label "psql-worker" }
+    // agent none because Jenkins file parameters land on the controller workspace,
+    // not on remote agents. The Transfer Backup stage stashes the file from the
+    // controller; the Restore stage unstashes it on the psql-worker.
+    agent none
 
     parameters {
         string(
@@ -17,33 +18,37 @@ pipeline {
     }
 
     environment {
-        MIGRATION_FILE    = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql"
-        GRANTS_FILE       = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/restore-demo/post-restore-grants.sql"
-        // Use a build-number-scoped path in /tmp so concurrent builds don't clash,
-        // and so the file survives the git checkout step that cleans the workspace.
+        // Use a build-number-scoped path in /tmp so concurrent builds don't clash.
+        // MIGRATION_FILE and GRANTS_FILE use ${WORKSPACE} so are defined inside the sh block.
         BACKUP_TEMP_FILE  = "/tmp/production-backup-${BUILD_NUMBER}.sql"
         BACKUP_CLEAN_FILE = "/tmp/production-backup-${BUILD_NUMBER}-clean.sql"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Transfer Backup') {
+            // File parameters land on the controller workspace. Stash here so the
+            // psql-worker stage can retrieve the file via unstash.
+            agent { label 'built-in' }
             steps {
-                // IMPORTANT: copy the uploaded file to /tmp BEFORE git checkout.
-                // The git step cleans the workspace, which would delete BACKUP_FILE.
-                sh 'cp ${WORKSPACE}/BACKUP_FILE ${BACKUP_TEMP_FILE}'
-
-                withFolderProperties() {
-                    git branch: 'main',
-                        url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinkylinky.git"
-                }
+                stash name: 'backup', includes: 'BACKUP_FILE'
             }
         }
 
         stage('Restore Production Data') {
+            // Single stage so that checkout and restore run on the same agent pod/workspace.
+            agent { label 'psql-worker' }
             steps {
+                // Recover the uploaded file and copy to /tmp BEFORE git checkout
+                // cleans the workspace.
+                unstash 'backup'
+                sh 'cp BACKUP_FILE ${BACKUP_TEMP_FILE}'
+
                 script {
                     withFolderProperties() {
+                        git branch: 'main',
+                            url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinkylinky.git"
+
                         withKubeConfig(credentialsId: 'prod-k8s',
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
@@ -61,6 +66,9 @@ pipeline {
                             # in templates/postgres.yml (hardcoded as CHANGEME for all tenants).
                             POSTGRES_PASSWORD=CHANGEME
 
+                            MIGRATION_FILE=${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql
+                            GRANTS_FILE=${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/restore-demo/post-restore-grants.sql
+
                             # ----------------------------------------------------------------
                             # Scale down all services so nothing holds open DB connections.
                             # ----------------------------------------------------------------
@@ -76,7 +84,7 @@ pipeline {
                             sleep 6
 
                             # ----------------------------------------------------------------
-                            # Strip pg18 \\restrict / \\unrestrict authentication tokens.
+                            # Strip pg18 restrict/unrestrict authentication tokens.
                             # These lines are present in pg_dump output from PostgreSQL 18 and
                             # require the original server token to authenticate — they must be
                             # removed before loading with psql on a different server.
