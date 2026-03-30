@@ -9,7 +9,7 @@ pipeline {
             name: 'TENANT',
             description: 'Target tenant K8s namespace (e.g. abc12345). Must already be provisioned.'
         )
-        file(
+        stashedFile(
             name: 'BACKUP_FILE',
             description: 'Upload the production slinkylinky SQL backup file (.sql). ' +
                          'This replaces the tenant\'s entire slinkylinky database with production data.'
