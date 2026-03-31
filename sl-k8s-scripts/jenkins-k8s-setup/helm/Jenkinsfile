@@ -4,6 +4,7 @@ pipeline {
 
     parameters {
         string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy (e.g. 7.0.1-CI-23)')
+        string(name: 'KEYCLOAK_IMAGE_TAG', defaultValue: '26.3.4', description: 'Keycloak image tag — use the app IMAGE_TAG once a custom image has been built (e.g. 7.0.1-CI-23), or leave as the base Keycloak version for the first deploy')
     }
 
     environment {
@@ -96,6 +97,7 @@ pipeline {
                             ${FOLDER} \\
                             --set tenant=${TENANT} \\
                             --set imageTag=${IMAGE_TAG} \\
+                            --set keycloakImageTag=${KEYCLOAK_IMAGE_TAG} \\
                             --set LINKSERVICE_DB_PASSWORD=${LINKSERVICE_DB_PASSWORD} \\
                             --set KEYCLOAK_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD} \\
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
@@ -538,6 +540,11 @@ EOF
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d "$UPDATED_MODEL" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/profile"
+
+                            # Set the custom login theme for the realm
+                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"loginTheme": "slinkylinky"}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}"
 
                             # Create default user for the realm
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\

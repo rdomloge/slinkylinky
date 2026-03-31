@@ -2,6 +2,7 @@ tenant: "default-tenant"
 baseDomain: "slinkylinky.uk"
 imageTag: "7.0.1-CI-14"
 imageRepo: "rdomloge/slinky-linky"
+keycloakImageTag: "26.3.4"
 # Secrets configuration
 secrets:
   - name: keycloak-credentials

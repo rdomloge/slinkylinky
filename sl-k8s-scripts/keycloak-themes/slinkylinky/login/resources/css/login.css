@@ -1,0 +1,367 @@
+/* SlinkyLinky — Custom Keycloak Login Theme */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: linear-gradient(135deg, #0a0e1a 0%, #0f172a 55%, #1e1b4b 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Dot grid overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Animated Background Orbs ─────────────────────────────────────────────── */
+
+.sl-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sl-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(52px);
+}
+
+.sl-orb-1 {
+  top: 8%;
+  left: 3%;
+  width: 680px;
+  height: 680px;
+  background: radial-gradient(circle, rgba(5, 150, 105, 0.14) 0%, transparent 68%);
+  animation: sl-orb-drift-a 20s ease-in-out infinite;
+}
+
+.sl-orb-2 {
+  bottom: 2%;
+  right: 5%;
+  width: 580px;
+  height: 580px;
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.12) 0%, transparent 68%);
+  animation: sl-orb-drift-b 25s ease-in-out infinite;
+}
+
+.sl-orb-3 {
+  top: 35%;
+  right: 12%;
+  width: 430px;
+  height: 430px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.17) 0%, transparent 68%);
+  animation: sl-orb-drift-c 18s ease-in-out infinite;
+}
+
+/* ─── Page layout ──────────────────────────────────────────────────────────── */
+
+.sl-page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 1.5rem;
+  animation: sl-fade-up 0.55s ease-out 0.05s both;
+}
+
+/* ─── Card ─────────────────────────────────────────────────────────────────── */
+
+.sl-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  padding: 2.5rem 2.25rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 32px 64px rgba(0, 0, 0, 0.45),
+    0 0 120px rgba(124, 58, 237, 0.06);
+}
+
+/* ─── Brand ─────────────────────────────────────────────────────────────────── */
+
+.sl-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.sl-logo-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.sl-wordmark {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.sl-accent {
+  color: #a78bfa;
+}
+
+/* ─── Title ─────────────────────────────────────────────────────────────────── */
+
+.sl-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.sl-subtitle {
+  font-size: 0.9rem;
+  color: rgba(148, 163, 184, 0.72);
+  margin-bottom: 28px;
+}
+
+/* ─── Message ───────────────────────────────────────────────────────────────── */
+
+.sl-message {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+  line-height: 1.45;
+}
+
+.sl-message-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+}
+
+.sl-message-warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #fcd34d;
+}
+
+.sl-message-info,
+.sl-message-success {
+  background: rgba(5, 150, 105, 0.12);
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  color: #6ee7b7;
+}
+
+/* ─── Form fields ───────────────────────────────────────────────────────────── */
+
+.sl-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.sl-field {
+  margin-bottom: 16px;
+}
+
+.sl-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+
+.sl-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.85);
+  letter-spacing: 0.01em;
+  margin-bottom: 7px;
+}
+
+.sl-label-row .sl-label {
+  margin-bottom: 0;
+}
+
+.sl-input {
+  width: 100%;
+  padding: 0.76rem 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.sl-input::placeholder {
+  color: rgba(148, 163, 184, 0.35);
+}
+
+.sl-input:focus {
+  border-color: rgba(167, 139, 250, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
+}
+
+/* Override browser autofill yellow/blue highlight */
+.sl-input:-webkit-autofill,
+.sl-input:-webkit-autofill:hover,
+.sl-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px #151a2e inset !important;
+  -webkit-text-fill-color: white !important;
+  caret-color: white;
+  border-color: rgba(167, 139, 250, 0.35) !important;
+}
+
+/* ─── Forgot password link ──────────────────────────────────────────────────── */
+
+.sl-forgot {
+  font-size: 0.78rem;
+  color: rgba(167, 139, 250, 0.65);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
+  white-space: nowrap;
+}
+
+.sl-forgot:hover {
+  color: #a78bfa;
+}
+
+/* ─── Remember me ───────────────────────────────────────────────────────────── */
+
+.sl-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.84rem;
+  color: rgba(148, 163, 184, 0.7);
+  cursor: pointer;
+}
+
+.sl-remember label {
+  cursor: pointer;
+}
+
+.sl-checkbox {
+  width: 15px;
+  height: 15px;
+  accent-color: #7c3aed;
+  cursor: pointer;
+}
+
+/* ─── Submit button ─────────────────────────────────────────────────────────── */
+
+.sl-btn {
+  width: 100%;
+  padding: 0.92rem 2rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #6d28d9 100%);
+  color: white;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 24px rgba(99, 102, 241, 0.38);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.sl-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.07) 50%, transparent 70%);
+}
+
+.sl-btn:hover {
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.55);
+  transform: translateY(-1px);
+}
+
+.sl-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+/* ─── Keyframe Animations ───────────────────────────────────────────────────── */
+
+@keyframes sl-orb-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(60px, -40px) scale(1.15); }
+  66%       { transform: translate(-20px, 30px) scale(0.92); }
+}
+
+@keyframes sl-orb-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%       { transform: translate(-50px, 55px) scale(1.12); }
+}
+
+@keyframes sl-orb-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25%       { transform: translate(45px, -55px) scale(0.88); }
+  75%       { transform: translate(-25px, 20px) scale(1.08); }
+}
+
+@keyframes sl-fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Responsive ────────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .sl-card {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .sl-title {
+    font-size: 1.5rem;
+  }
+
+  .sl-orb-1,
+  .sl-orb-2,
+  .sl-orb-3 {
+    width: 300px;
+    height: 300px;
+  }
+}

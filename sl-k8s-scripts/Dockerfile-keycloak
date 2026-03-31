@@ -1,0 +1,15 @@
+# Custom Keycloak image with the SlinkyLinky login theme baked in.
+#
+# Build:
+#   docker buildx build --platform linux/amd64,linux/arm64 \
+#     -f sl-k8s-scripts/Dockerfile-keycloak \
+#     -t <your-registry>/slinkylinky-keycloak:26.3.4 \
+#     sl-k8s-scripts
+#   docker push <your-registry>/slinkylinky-keycloak:26.3.4
+#
+# Then update keycloak.yml image: to point at the pushed image.
+# In the Keycloak realm settings, set Login theme → "slinkylinky".
+
+FROM quay.io/keycloak/keycloak:26.3.4
+
+COPY keycloak-themes/slinkylinky /opt/keycloak/themes/slinkylinky

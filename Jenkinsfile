@@ -117,5 +117,17 @@ pipeline {
                 """
             }
         }
+
+        stage('Docker: keycloak') {
+            steps {
+                sh """
+                docker buildx build \
+                    --platform linux/amd64,linux/arm64 \
+                    -f sl-k8s-scripts/Dockerfile-keycloak \
+                    -t ${env.REPO}-keycloak:${env.VERSION} \
+                    --push sl-k8s-scripts
+                """
+            }
+        }
     }
 }
