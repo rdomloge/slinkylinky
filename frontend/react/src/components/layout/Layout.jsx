@@ -22,16 +22,19 @@ export default function Layout ({children, pagetitle = " ", headerTitle, headerA
                 <TenantWarning/>
                 <div className="flex flex-1 overflow-hidden">
                     {/* Sidebar */}
-                    <aside className="w-56 shrink-0 flex flex-col bg-slate-700 border-r border-slate-600/50 overflow-y-auto">
+                    <aside className="w-56 shrink-0 flex flex-col border-r border-white/5 overflow-y-auto"
+                           style={{background: 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)'}}>
                         {/* Brand */}
-                        <a href="/" className="flex items-center gap-3 px-4 py-[1.1rem] shrink-0 border-b border-slate-600/50 hover:bg-slate-600/50 transition-colors">
-                            <img src={Logo} width={Math.round(439/10)} height={Math.round(498/10)} alt="Logo" className="brightness-0 invert opacity-90"/>
-                            <span className="text-white font-bold text-base tracking-tight">Slinky Linky</span>
+                        <a href="/" className="flex items-center gap-3 px-4 py-[1.1rem] shrink-0 border-b border-white/10 hover:bg-white/5 transition-colors group">
+                            <img src={Logo} width={Math.round(439/10)} height={Math.round(498/10)} alt="Logo" className="brightness-0 invert opacity-80 group-hover:opacity-100 transition-opacity"/>
+                            <span className="text-white font-extrabold text-base tracking-tight" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.03em'}}>
+                                Slinky<span style={{color: '#a78bfa'}}>Linky</span>
+                            </span>
                         </a>
                         <Menu/>
                     </aside>
                     {/* Main content area */}
-                    <div className="flex flex-col flex-1 min-w-0 bg-slate-50">
+                    <div className="flex flex-col flex-1 min-w-0" style={{background: '#f0f2f7'}}>
                         <Header title={headerTitle ?? pagetitle} actions={headerActions}/>
                         <div className="flex-1 overflow-y-auto pt-4">
                             {children}
