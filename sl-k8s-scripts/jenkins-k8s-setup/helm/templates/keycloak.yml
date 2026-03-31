@@ -19,7 +19,7 @@ spec:
       
       containers:
         - name: keycloak
-          image: "{{ .Values.imageRepo }}-keycloak:{{ $root.Values.imageTag }}"
+          image: "{{ .Values.imageRepo }}-keycloak:{{ .Values.imageTag }}"
           imagePullPolicy: Always
           args: ["start"]
           env:
