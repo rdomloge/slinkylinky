@@ -53,3 +53,5 @@ CREATE TABLE IF NOT EXISTS public.supplier_responsiveness (
 );
 CREATE INDEX IF NOT EXISTS idx_responsiveness_supplier_id ON public.supplier_responsiveness (supplier_id);
 CREATE INDEX IF NOT EXISTS idx_responsiveness_domain      ON public.supplier_responsiveness (domain);
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.supplier_responsiveness TO stats_user;
+GRANT USAGE, SELECT ON SEQUENCE public.supplier_responsiveness_id_seq TO stats_user;

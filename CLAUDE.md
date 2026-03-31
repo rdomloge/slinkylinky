@@ -44,7 +44,7 @@ The `events/` module is a shared Maven library (v6.1.0) containing event classes
 - `stats/` — Analytics Spring Boot 3.2.2 service
 - `audit/` — Audit Spring Boot service
 - `supplierengagement/` — Supplier engagement Spring Boot service
-- `woocommerce/` — WooCommerce integration Spring Boot service
+- `woocommerce/` — WooCommerce integration Spring Boot service — **single-customer, original deployment only**; not deployed by the Jenkins/K8s pipeline (no entry in `values.yaml`); secured via IP allowlist at the network level rather than JWT
 - `events/` — Shared event POJOs (Lombok), published as Maven artifact
 - `sl-k8s-scripts/` — Docker Compose and K8s deployment configs
 - Root `pom.xml` — Maven aggregator (modules: events, linkservice, stats)

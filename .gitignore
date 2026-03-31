@@ -1,4 +1,6 @@
 .vscode/launch.json
-.claude/settings.local.json
+.claude/*
+.claude-flow/*
 .gitignore
-linkservice/.claude/settings.local.json
+linkservice/.claude/*
+.mcp.json
