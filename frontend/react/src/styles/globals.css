@@ -2,36 +2,163 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Entity Color System ───────────────────────────────────────────────────── */
+:root {
+  /* Supplier — emerald: they supply, they grow */
+  --supplier-color:       #059669;
+  --supplier-color-light: #10b981;
+  --supplier-bg:          #ecfdf5;
+  --supplier-border:      #a7f3d0;
+  --supplier-glow:        rgba(5, 150, 105, 0.18);
 
+  /* Demand — amber/orange: urgency, heat, want */
+  --demand-color:         #d97706;
+  --demand-color-light:   #f59e0b;
+  --demand-bg:            #fffbeb;
+  --demand-border:        #fde68a;
+  --demand-glow:          rgba(217, 119, 6, 0.18);
 
+  /* DemandSite — violet: aspiration, destination */
+  --demandsite-color:         #7c3aed;
+  --demandsite-color-light:   #8b5cf6;
+  --demandsite-bg:            #f5f3ff;
+  --demandsite-border:        #ddd6fe;
+  --demandsite-glow:          rgba(124, 58, 237, 0.18);
+}
+
+/* ─── Fonts ─────────────────────────────────────────────────────────────────── */
 body {
-  background-color: #f8fafc;
-
+  font-family: 'Outfit', system-ui, sans-serif;
+  background-color: #f0f2f7;
 }
 
+.font-mono-data {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ─── Base Card ──────────────────────────────────────────────────────────────── */
 .colourOfBackground {
-  background-color: #f8fafc;
-}
-
-.timelineDot {
-  inset-inline-start: -0.5rem;
+  background-color: #f0f2f7;
 }
 
 @layer components {
-    .card {
-      background-color: white;
-      border-radius: theme(borderRadius.xl);
-      border-color: #e2e8f0;
-      border-width: 1px;
-      border-style: solid;
-      padding: theme(spacing.5);
-      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-    .card:hover {
-      box-shadow: 0 8px 24px 0 rgb(0 0 0 / 0.10), 0 2px 8px 0 rgb(0 0 0 / 0.06);
-      transform: translateY(-1px);
-    }
+  .card {
+    background-color: white;
+    border-radius: theme(borderRadius.xl);
+    border-color: #e2e8f0;
+    border-width: 1px;
+    border-style: solid;
+    padding: theme(spacing.5);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    transition: box-shadow 0.25s ease, transform 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover {
+    box-shadow: 0 8px 24px 0 rgb(0 0 0 / 0.10), 0 2px 8px 0 rgb(0 0 0 / 0.06);
+    transform: translateY(-2px);
+  }
+
+  /* ── Supplier card ── */
+  .supplier-card {
+    border-left: 4px solid var(--supplier-color) !important;
+    background: linear-gradient(105deg, var(--supplier-bg) 0%, #ffffff 80px) !important;
+  }
+  .supplier-card:hover {
+    box-shadow: 0 8px 28px 0 var(--supplier-glow), 0 2px 8px 0 rgb(0 0 0 / 0.06) !important;
+    border-color: var(--supplier-border) !important;
+    border-left-color: var(--supplier-color) !important;
+  }
+
+  /* ── Demand card ── */
+  .demand-card {
+    border-left: 4px solid var(--demand-color) !important;
+    background: linear-gradient(105deg, var(--demand-bg) 0%, #ffffff 80px) !important;
+  }
+  .demand-card:hover {
+    box-shadow: 0 8px 28px 0 var(--demand-glow), 0 2px 8px 0 rgb(0 0 0 / 0.06) !important;
+    border-color: var(--demand-border) !important;
+    border-left-color: var(--demand-color) !important;
+  }
+
+  /* ── DemandSite card ── */
+  .demandsite-card {
+    border-left: 4px solid var(--demandsite-color) !important;
+    background: linear-gradient(105deg, var(--demandsite-bg) 0%, #ffffff 80px) !important;
+  }
+  .demandsite-card:hover {
+    box-shadow: 0 8px 28px 0 var(--demandsite-glow), 0 2px 8px 0 rgb(0 0 0 / 0.06) !important;
+    border-color: var(--demandsite-border) !important;
+    border-left-color: var(--demandsite-color) !important;
+  }
+
+  /* ── Entity type badge ── */
+  .entity-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2em 0.6em;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+  .entity-badge-supplier {
+    background: var(--supplier-bg);
+    color: var(--supplier-color);
+    border: 1px solid var(--supplier-border);
+  }
+  .entity-badge-demand {
+    background: var(--demand-bg);
+    color: var(--demand-color);
+    border: 1px solid var(--demand-border);
+  }
+  .entity-badge-demandsite {
+    background: var(--demandsite-bg);
+    color: var(--demandsite-color);
+    border: 1px solid var(--demandsite-border);
+  }
+
+  /* ── Stat chip variants ── */
+  .stat-chip-supplier {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--supplier-bg);
+    color: var(--supplier-color);
+    border: 1px solid var(--supplier-border);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+  }
+  .stat-chip-demand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--demand-bg);
+    color: var(--demand-color);
+    border: 1px solid var(--demand-border);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+  }
+  .stat-chip-demandsite {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: var(--demandsite-bg);
+    color: var(--demandsite-color);
+    border: 1px solid var(--demandsite-border);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+  }
+}
+
+/* ─── Legacy / misc ──────────────────────────────────────────────────────────── */
+.timelineDot {
+  inset-inline-start: -0.5rem;
 }
 
 .third-party {
@@ -54,10 +181,11 @@ body {
 }
 
 .pageTitle {
+  font-family: 'Outfit', sans-serif;
   font-size: 1.875rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #0f172a;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   line-height: 1.2;
 }
 

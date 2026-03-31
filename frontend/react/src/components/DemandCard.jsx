@@ -39,16 +39,18 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
     }
 
     return (
-        <div className="card list-card" id={id}>
+        <div className="card list-card demand-card" id={id}>
 
-            {/* Header: name + actions */}
+            {/* Header: name + entity badge + actions */}
             <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="text-base font-semibold text-slate-900 leading-snug">{demand.name}</div>
+                <div className="text-base font-semibold text-slate-800 leading-snug">{demand.name}</div>
                 <SessionBlock>
                     <div className="flex items-center gap-2 shrink-0">
+                        <span className="entity-badge entity-badge-demand">Demand</span>
                         {fullfilable &&
                             <Link to={'/supplier/search/'+demand.id} rel='nofollow'>
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition-colors">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-white text-xs font-semibold transition-colors"
+                                      style={{backgroundColor: 'var(--demand-color)'}}>
                                     Fulfil
                                 </span>
                             </Link>
@@ -70,25 +72,26 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
             {/* URL + Anchor text */}
             <div className="space-y-1 mb-3">
                 <Link to={addProtocol(demand.url)} target='_blank' rel='nofollow'
-                    className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800 hover:underline transition-colors">
+                    className="flex items-center gap-2 text-sm hover:underline transition-colors"
+                    style={{color: 'var(--demand-color)'}}>
                     <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-70"/>
                     <span className="truncate">{demand.url}</span>
                 </Link>
                 <div className="flex items-center gap-2 text-sm text-slate-500">
                     <img src={AnchorIcon} alt="anchor" width={13} height={13} className="shrink-0 opacity-60"/>
-                    <span className="truncate">{demand.anchorText}</span>
+                    <span className="truncate italic">{demand.anchorText}</span>
                 </div>
             </div>
 
             {/* Stat chips */}
             <div className="flex items-center flex-wrap gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-indigo-100">
+                <span className="stat-chip-demand font-mono-data">
                     <img src={DaIcon} alt="DA" width={11} height={11}/>
-                    DA {demand.daNeeded}
+                    DA {demand.daNeeded}+
                 </span>
-                <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-medium px-2.5 py-1 rounded-full border border-emerald-100">
+                <span className="stat-chip-demand font-mono-data">
                     <img src={WordCountIcon} alt="words" width={12} height={12}/>
-                    {demand.wordCount} words
+                    {demand.wordCount}w
                 </span>
             </div>
 
@@ -96,7 +99,7 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
             <CategoriesCard categories={demand.categories}/>
 
             {/* Footer: date, creator, source logo */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{borderColor: 'var(--demand-border)'}}>
                 <div className="flex items-center gap-1.5 text-xs text-slate-400 min-w-0">
                     <img src={CalendarIcon} alt="calendar" width={12} height={12} className="shrink-0"/>
                     <NiceDate isostring={demand.requested}/>

@@ -10,24 +10,27 @@ import LinkIcon from '@/assets/link.svg';
 
 export default function DemandSiteSearchResult({demandSite, selectedHandler, id}) {
     return (
-        <div className="card list-card flex items-center gap-3" id={id}>
+        <div className="card list-card demandsite-card flex items-center gap-3" id={id}>
 
             {/* Select button */}
             <button onClick={() => selectedHandler(demandSite)} id="select-demand-site-button"
-                className="shrink-0 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                className="shrink-0 p-1.5 rounded-lg transition-colors hover:bg-violet-100">
                 <img src={ArrowIcon} alt="Select" height={20} width={20}/>
             </button>
 
             {/* Content */}
             <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2 mb-1">
-                    <span className="text-base font-semibold text-slate-900">{demandSite.name}</span>
-                    <span className="inline-flex items-center bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 rounded-full shrink-0">
-                        {demandSite.demands.length} demands
-                    </span>
+                    <span className="text-base font-semibold text-slate-800">{demandSite.name}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="stat-chip-demandsite font-mono-data">
+                            {demandSite.demands.length} demands
+                        </span>
+                        <span className="entity-badge entity-badge-demandsite">Site</span>
+                    </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-sm text-slate-500 mb-2">
-                    <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-60 shrink-0"/>
+                <div className="flex items-center gap-1.5 text-sm mb-2" style={{color: 'var(--demandsite-color)'}}>
+                    <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-70 shrink-0"/>
                     <span className="truncate">{demandSite.domain}</span>
                 </div>
                 <CategoriesCard categories={demandSite.categories}/>
@@ -58,11 +61,14 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
     }
 
     return (
-        <div className="card list-card" id={id}>
+        <div className="card list-card demandsite-card" id={id}>
 
-            {/* Header: name + actions */}
+            {/* Header: name + entity badge + actions */}
             <div className="flex items-start justify-between gap-2 mb-2">
-                <span className="text-base font-semibold text-slate-900">{demandSite.name}</span>
+                <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base font-semibold text-slate-800">{demandSite.name}</span>
+                    <span className="entity-badge entity-badge-demandsite shrink-0">Demand Site</span>
+                </div>
                 <SessionBlock>
                     <div className="flex items-center gap-3 shrink-0 text-sm">
                         <Link to={'/demandsites/'+demandSite.id} rel="nofollow">
@@ -75,8 +81,8 @@ export function DemandSiteListItemLite({demandSite, id, deleteHandler}) {
             </div>
 
             {/* Domain */}
-            <div className="flex items-center gap-1.5 text-sm text-slate-500 mb-3">
-                <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-60 shrink-0"/>
+            <div className="flex items-center gap-1.5 text-sm mb-3" style={{color: 'var(--demandsite-color)'}}>
+                <img src={LinkIcon} alt="domain" width={12} height={12} className="opacity-70 shrink-0"/>
                 <span className="truncate">{demandSite.domain}</span>
             </div>
 
