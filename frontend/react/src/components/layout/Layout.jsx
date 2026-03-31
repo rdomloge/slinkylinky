@@ -64,7 +64,7 @@ export default function Layout ({children, pagetitle = " ", headerTitle, headerA
                 </div>
                 <div>
                     <h1 className="text-4xl font-bold leading-snug mb-4">
-                        Procurement,<br/>connected.
+                        Links,<br/>connected.
                     </h1>
                     <p className="text-slate-300 text-lg leading-relaxed">
                         Manage suppliers, demand sites, proposals, and orders — all in one place.
