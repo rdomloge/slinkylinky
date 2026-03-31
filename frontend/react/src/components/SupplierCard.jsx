@@ -139,12 +139,12 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
     )
 }
 
-export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true}) {
+export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true, selectHandler}) {
 
     return (
         <div id={id} className="card list-card supplier-card relative">
 
-            {/* Header: name + entity badge + edit */}
+            {/* Header: name + badges + entity badge + actions */}
             <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex items-center flex-wrap gap-2 min-w-0">
                     <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
@@ -165,6 +165,13 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                     <span className="entity-badge entity-badge-supplier">Supplier</span>
+                    {selectHandler &&
+                        <button id="supplier-selectbtn-id" onClick={selectHandler}
+                            className="text-xs font-semibold px-2.5 py-1 rounded-md text-white transition-colors"
+                            style={{backgroundColor: 'var(--supplier-color)'}}>
+                            Select
+                        </button>
+                    }
                     {editable &&
                         <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                             <Link to={'/supplier/'+supplier.id} rel='nofollow'>

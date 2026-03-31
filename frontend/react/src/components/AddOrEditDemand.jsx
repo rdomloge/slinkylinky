@@ -91,15 +91,20 @@ export default function AddOrEditDemand({demand, successHandler}) {
 
                 {/* ── Form panel ── */}
                 <div className="w-full md:w-1/2 shrink-0">
-                    <div className="card p-6 space-y-5">
-                        <h2 className="text-base font-semibold text-gray-800">
-                            {editMode ? 'Edit demand' : 'New demand'}
-                        </h2>
+                    <div className="card demand-card p-6 space-y-5">
+
+                        {/* Card header with demand identity */}
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-base font-semibold text-gray-800" style={{fontFamily: "'Outfit', sans-serif"}}>
+                                {editMode ? 'Edit demand' : 'New demand'}
+                            </h2>
+                            <span className="entity-badge entity-badge-demand">Demand</span>
+                        </div>
 
                         {/* Name */}
                         {demandsite
                             ? <div className="flex flex-col gap-1">
-                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Name</span>
+                                <span className="text-xs font-semibold uppercase tracking-wide" style={{color: 'var(--demand-color)'}}>Name</span>
                                 <p id="nameLbl" className="text-sm font-medium text-gray-800">{demandsite.name}</p>
                               </div>
                             : <TextInput id="name" label="Name" binding={demandName}
@@ -130,22 +135,22 @@ export default function AddOrEditDemand({demand, successHandler}) {
 
                         {/* Requested date */}
                         <div className="flex flex-col gap-2">
-                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Requested</span>
+                            <span className="text-xs font-semibold uppercase tracking-wide" style={{color: 'var(--demand-color)'}}>Requested</span>
                             <div className="flex gap-2">
                                 {['today', 'specify'].map(mode => (
                                     <button key={mode} type="button"
                                         onClick={() => { if (fieldsEnabled) setDateMode(mode) }}
                                         disabled={!fieldsEnabled}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-colors
-                                            ${!fieldsEnabled
-                                                ? 'opacity-40 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200'
-                                                : dateMode === mode
-                                                    ? 'bg-indigo-600 text-white border-indigo-600'
-                                                    : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400 hover:text-indigo-600'
-                                            }`}
+                                        className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all"
+                                        style={!fieldsEnabled
+                                            ? {opacity: 0.4, cursor: 'not-allowed', background: '#f1f5f9', color: '#94a3b8', borderColor: '#e2e8f0'}
+                                            : dateMode === mode
+                                                ? {background: 'var(--demand-color)', color: 'white', borderColor: 'var(--demand-color)'}
+                                                : {background: 'white', color: '#6b7280', borderColor: '#d1d5db'}
+                                        }
                                     >
-                                        <span className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0
-                                            ${dateMode === mode && fieldsEnabled ? 'border-white' : 'border-current'}`}>
+                                        <span className="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0"
+                                              style={{borderColor: dateMode === mode && fieldsEnabled ? 'white' : 'currentColor'}}>
                                             {dateMode === mode && <span className="w-1.5 h-1.5 rounded-full bg-current"/>}
                                         </span>
                                         {mode === 'today' ? 'Today' : 'Specify'}
@@ -157,12 +162,13 @@ export default function AddOrEditDemand({demand, successHandler}) {
                                     onChange={e => setDemandRequested(e.target.value)}
                                     value={demandRequested}
                                     disabled={!fieldsEnabled}
-                                    className={`w-full rounded-lg border px-3 py-2 text-sm text-gray-800
-                                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors
-                                        ${!fieldsEnabled
-                                            ? 'bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed'
-                                            : 'bg-white border-gray-200 hover:border-gray-300'
-                                        }`}
+                                    className="w-full rounded-lg border px-3 py-2 text-sm text-gray-800 transition-colors"
+                                    style={!fieldsEnabled
+                                        ? {background: '#f8fafc', borderColor: '#e2e8f0', color: '#94a3b8', cursor: 'not-allowed'}
+                                        : {background: 'white', borderColor: 'var(--demand-border)', outline: 'none'}
+                                    }
+                                    onFocus={e => e.target.style.boxShadow = '0 0 0 3px var(--demand-glow)'}
+                                    onBlur={e => e.target.style.boxShadow = 'none'}
                                 />
                             }
                         </div>
@@ -170,17 +176,26 @@ export default function AddOrEditDemand({demand, successHandler}) {
                         {/* Categories */}
                         {demand.categories && demand.categories.length > 0 &&
                             <div className="flex flex-col gap-1">
-                                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Categories</span>
+                                <span className="text-xs font-semibold uppercase tracking-wide" style={{color: 'var(--demand-color)'}}>Categories</span>
                                 <CategoriesCard categories={demand.categories}/>
                             </div>
                         }
+
+                        {/* Divider */}
+                        <div className="border-t" style={{borderColor: 'var(--demand-border)'}}/>
 
                         {/* Error + submit */}
                         {errorMessage &&
                             <ErrorMessage message={errorMessage}/>
                         }
-                        <div className="pt-2">
-                            <StyledButton submitHandler={submitHandler} enabled={canSubmit} label="Save demand" type="primary" id="createnew"/>
+                        <div>
+                            <button onClick={canSubmit ? submitHandler : undefined}
+                                disabled={!canSubmit}
+                                id="createnew"
+                                className="w-full py-2.5 px-4 rounded-lg text-white font-semibold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                                style={{background: canSubmit ? 'var(--demand-color)' : undefined}}>
+                                Save demand
+                            </button>
                         </div>
                     </div>
                 </div>
