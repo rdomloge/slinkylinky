@@ -1,6 +1,17 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AuthorizedAccess } from '../AuthorizedAccess';
 
+// Entity accent colours for nav items
+const ENTITY_COLORS = {
+    '/demand':      { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
+    '/supplier':    { active: '#10b981', glow: 'rgba(16,185,129,0.25)',  dot: '#10b981' },
+    '/demandsites': { active: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', dot: '#8b5cf6' },
+    '/proposals':   { active: '#60a5fa', glow: 'rgba(96,165,250,0.25)', dot: '#60a5fa' },
+    '/categories':  { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/orders':      { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
+    '/audit':       { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+};
+
 const navItems = [
     {
         to: '/demand',
@@ -73,31 +84,44 @@ const navItems = [
 function NavItem({ to, label, icon }) {
     const { pathname } = useLocation();
     const active = pathname === to || pathname.startsWith(to + '/');
+    const colors = ENTITY_COLORS[to] || ENTITY_COLORS['/categories'];
 
     return (
         <Link
             to={to}
             rel="nofollow"
+            style={active ? {
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                borderLeft: `3px solid ${colors.active}`,
+                boxShadow: `0 0 12px ${colors.glow}`,
+                color: 'white',
+                paddingLeft: '9px',
+            } : {}}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
                 ${active
-                    ? 'bg-indigo-500 text-white shadow-md shadow-indigo-900/20'
-                    : 'text-slate-200 hover:bg-slate-600 hover:text-white'
+                    ? 'text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5 border-l-3 border-transparent'
                 }`}
         >
-            <span className={`shrink-0 ${active ? 'text-white' : 'text-slate-300'}`}>{icon}</span>
-            {label}
+            <span style={active ? {color: colors.active} : {}} className={`shrink-0 transition-colors ${!active ? 'text-slate-500' : ''}`}>
+                {icon}
+            </span>
+            <span>{label}</span>
+            {active && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full shrink-0" style={{backgroundColor: colors.dot}}/>
+            )}
         </Link>
     );
 }
 
 export default function Menu() {
     return (
-        <nav className="flex flex-col gap-1 pt-3 px-3 pb-4">
+        <nav className="flex flex-col gap-0.5 pt-3 px-3 pb-4">
             {navItems.filter(i => !i.adminOnly).map(item => (
                 <NavItem key={item.to} {...item} />
             ))}
             <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                <div className="my-2 border-t border-slate-600/60"/>
+                <div className="my-2 border-t border-white/10"/>
                 <NavItem {...navItems.find(i => i.adminOnly)} />
             </AuthorizedAccess>
         </nav>

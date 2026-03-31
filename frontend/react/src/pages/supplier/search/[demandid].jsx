@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom'
 import DemandCard from '@/components/DemandCard'
 import SupplierCard from '@/components/SupplierCard'
 import Layout from '@/components/layout/Layout'
-import SessionButton, { ClickHandlerButton, StyledButton } from '@/components/atoms/Button'
+import SessionButton, { ClickHandlerButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
 import Loading from "@/components/Loading";
@@ -145,18 +145,9 @@ function SupplierList(props) {
     return (
         <div className="grid grid-cols-3 gap-4 px-6 pb-6">
             {props.suppliers.map((s, index) => (
-                <div key={index} id={"selectableSupplierCard-"+index} className="relative">
-                    <SupplierCard supplier={s} linkable={true} usages={props.usages} responsiveness={props.responsiveness}/>
-                    <div className="absolute top-4 right-4 z-10">
-                        <StyledButton
-                            id="supplier-selectbtn-id"
-                            label="Select"
-                            submitHandler={() => selectSupplier(s, props)}
-                            isText={true}
-                            type="secondary"
-                            extraClass="font-semibold"
-                        />
-                    </div>
+                <div key={index} id={"selectableSupplierCard-"+index}>
+                    <SupplierCard supplier={s} linkable={true} usages={props.usages} responsiveness={props.responsiveness}
+                        selectHandler={() => selectSupplier(s, props)}/>
                 </div>
             ))}
         </div>

@@ -60,13 +60,13 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
     }
 
     return (
-        <div className="flex items-center gap-4 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition-colors">
+        <div className="flex items-center gap-4 px-4 py-3 border-b hover:bg-emerald-50/30 transition-colors" style={{borderColor: 'var(--supplier-border)'}}>
 
             {/* Domain + badges */}
             <div className="w-56 shrink-0 min-w-0">
                 {linkable ? (
                     <Link to={addProtocol(supplier.website)} target='_blank' rel='nofollow'
-                          className="text-sm font-semibold text-indigo-600 hover:underline truncate block">
+                          className="text-sm font-semibold hover:underline truncate block" style={{color: 'var(--supplier-color)'}}>
                         {supplier.website}
                     </Link>
                 ) : (
@@ -100,7 +100,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
 
             {/* DA */}
             <div className="w-16 shrink-0 text-center">
-                <span className="inline-flex items-center bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-1 rounded-full">
+                <span className="stat-chip-supplier font-mono-data">
                     DA {supplier.da}
                 </span>
             </div>
@@ -139,16 +139,16 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
     )
 }
 
-export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true}) {
+export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true, selectHandler}) {
 
     return (
-        <div id={id} className="card list-card relative">
+        <div id={id} className="card list-card supplier-card relative">
 
-            {/* Header: name + badges + edit */}
+            {/* Header: name + badges + entity badge + actions */}
             <div className="flex items-start justify-between gap-2 mb-3">
                 <div className="flex items-center flex-wrap gap-2 min-w-0">
                     <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <span id="supplier-name" className={`text-base font-semibold leading-snug ${supplier.disabled ? 'text-slate-300' : 'text-slate-900'}`}>
+                        <span id="supplier-name" className={`text-base font-semibold leading-snug ${supplier.disabled ? 'text-slate-300' : 'text-slate-800'}`}>
                             {supplier.name}
                         </span>
                     </AuthorizedAccess>
@@ -163,19 +163,29 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                         </span>
                     }
                 </div>
-                {editable &&
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <Link to={'/supplier/'+supplier.id} rel='nofollow'>
-                            <span id="supplier-editbtn-id" className="text-sm text-slate-400 hover:text-slate-700 shrink-0">Edit</span>
-                        </Link>
-                    </AuthorizedAccess>
-                }
+                <div className="flex items-center gap-2 shrink-0">
+                    <span className="entity-badge entity-badge-supplier">Supplier</span>
+                    {selectHandler &&
+                        <button id="supplier-selectbtn-id" onClick={selectHandler}
+                            className="text-xs font-semibold px-2.5 py-1 rounded-md text-white transition-colors"
+                            style={{backgroundColor: 'var(--supplier-color)'}}>
+                            Select
+                        </button>
+                    }
+                    {editable &&
+                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                            <Link to={'/supplier/'+supplier.id} rel='nofollow'>
+                                <span id="supplier-editbtn-id" className="text-sm text-slate-400 hover:text-slate-700">Edit</span>
+                            </Link>
+                        </AuthorizedAccess>
+                    }
+                </div>
             </div>
 
             {/* Website + Email */}
             <div className="space-y-1 mb-3">
                 {linkable ? (
-                    <Link to={addProtocol(supplier.website)} className="flex items-center gap-2 text-sm text-indigo-600 hover:underline" target='_blank' rel='nofollow'>
+                    <Link to={addProtocol(supplier.website)} className="flex items-center gap-2 text-sm hover:underline" style={{color: 'var(--supplier-color)'}} target='_blank' rel='nofollow'>
                         <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-70"/>
                         <span className="truncate">{supplier.website}</span>
                     </Link>
@@ -187,7 +197,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                 )}
                 <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                     {linkable ? (
-                        <Link to={'mailto:'+supplier.email} className="flex items-center gap-2 text-sm text-indigo-600 hover:underline" rel='nofollow'>
+                        <Link to={'mailto:'+supplier.email} className="flex items-center gap-2 text-sm hover:underline" style={{color: 'var(--supplier-color)'}} rel='nofollow'>
                             <img src={EmailIcon} alt="email" width={13} height={13} className="shrink-0 opacity-70"/>
                             <span id="supplier-email" className="truncate">{supplier.email}</span>
                         </Link>
@@ -202,7 +212,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
 
             {/* Stat chips */}
             <div className="flex items-center flex-wrap gap-2 mb-3">
-                <span className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                <span className="stat-chip-supplier font-mono-data">
                     <img src={DaIcon} alt="DA" width={11} height={11}/>
                     DA {supplier.da}
                 </span>
@@ -227,7 +237,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
 
             {/* Footer: source + traffic graph */}
             {showSemRushTraffic &&
-                <div className="mt-3 pt-3 border-t border-slate-100">
+                <div className="mt-3 pt-3 border-t" style={{borderColor: 'var(--supplier-border)'}}>
                     <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                         {supplier.source &&
                             <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
