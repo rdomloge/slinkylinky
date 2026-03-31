@@ -179,6 +179,64 @@ function NavCard({ to, label, description, icon, accentColor }) {
     );
 }
 
+/** Mini bar chart for supplier onboarding history */
+function OnboardingBarChart({ history }) {
+    const [hovered, setHovered] = useState(null);
+    if (!history?.length) return null;
+
+    const data = [...history].slice(-12); // up to last 12 months, oldest→newest
+    const maxCount = Math.max(...data.map(d => d.count), 1);
+
+    return (
+        <div className="flex items-end gap-px" style={{height: 80}}>
+            {data.map((d, i) => {
+                const barPct = Math.max(4, Math.round((d.count / maxCount) * 100));
+                const month  = new Date(d.yearMonth + '-01')
+                    .toLocaleDateString('en-GB', { month: 'short' });
+                const isHovered = hovered === i;
+                const anyHovered = hovered !== null;
+
+                return (
+                    <div key={d.yearMonth}
+                         className="flex-1 flex flex-col items-center justify-end gap-0.5 relative cursor-default"
+                         style={{height: '100%'}}
+                         onMouseEnter={() => setHovered(i)}
+                         onMouseLeave={() => setHovered(null)}>
+
+                        {/* Tooltip */}
+                        {isHovered && (
+                            <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-10
+                                            rounded px-1.5 py-0.5 text-white font-bold whitespace-nowrap pointer-events-none"
+                                 style={{background: 'var(--supplier-color)', fontSize: '0.6rem',
+                                         fontFamily: "'JetBrains Mono', monospace",
+                                         boxShadow: '0 2px 8px var(--supplier-glow)'}}>
+                                {d.count}
+                            </div>
+                        )}
+
+                        {/* Bar */}
+                        <div className="w-full rounded-sm transition-all duration-150"
+                             style={{
+                                 height: `${barPct}%`,
+                                 background: isHovered
+                                     ? 'var(--supplier-color)'
+                                     : 'var(--supplier-color-light)',
+                                 opacity: anyHovered && !isHovered ? 0.35 : 1,
+                                 maxHeight: 'calc(100% - 16px)',
+                             }}/>
+
+                        {/* Month label */}
+                        <span className="shrink-0 text-slate-400 select-none"
+                              style={{fontSize: '0.55rem', lineHeight: 1, height: 12}}>
+                            {month}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
 function SupplierPipelineHealthPanel({ healthData, atRiskData, loading }) {
     function riskColour(count) {
         if (count === 0) return { bg: '#fee2e2', color: '#b91c1c' };
@@ -189,23 +247,16 @@ function SupplierPipelineHealthPanel({ healthData, atRiskData, loading }) {
     return (
         <div className="grid grid-cols-2 gap-4">
             <PanelCard title="Supplier onboarding" loading={loading} to="/supplier" linkLabel="View suppliers" accentColor="var(--supplier-color)">
-                <div className="flex items-center gap-3 mb-3">
-                    <span className="text-3xl font-bold text-slate-800" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.03em'}}>
-                        {healthData?.thisMonth ?? '—'}
-                    </span>
-                    <span className="text-xs text-slate-400">new this month</span>
-                </div>
                 {healthData?.history?.length > 0 ? (
-                    <div className="space-y-0.5">
-                        <p className="text-xs font-medium text-slate-500 mb-1.5">Monthly history</p>
-                        {[...healthData.history].reverse().map(row => (
-                            <div key={row.yearMonth}
-                                 className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                <span className="text-xs text-slate-500 font-mono">{row.yearMonth}</span>
-                                <span className="text-xs font-semibold" style={{color: 'var(--supplier-color)'}}>{row.count}</span>
-                            </div>
-                        ))}
-                    </div>
+                    <>
+                        <OnboardingBarChart history={healthData.history}/>
+                        <div className="flex items-baseline gap-1.5 pt-1 border-t" style={{borderColor: 'var(--supplier-border)'}}>
+                            <span className="text-2xl font-bold" style={{fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.03em', color: 'var(--supplier-color)'}}>
+                                {healthData.thisMonth ?? 0}
+                            </span>
+                            <span className="text-xs text-slate-400">new suppliers this month</span>
+                        </div>
+                    </>
                 ) : (
                     <p className="text-xs text-slate-400">No onboarding history yet.</p>
                 )}
