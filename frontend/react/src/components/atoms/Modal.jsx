@@ -26,16 +26,16 @@ export default function Modal({children, dismissHandler, title, width, id = "def
 
             {/* Panel */}
             <div
-                className={`relative flex flex-col max-h-[90vh] ${width ?? 'w-auto min-w-[22rem]'}`}
+                className={`relative flex flex-col max-h-[90vh] overflow-hidden ${width ?? 'w-auto min-w-[22rem]'}`}
                 style={{
                     background: 'white',
                     borderRadius: '1rem',
                     boxShadow: '0 25px 60px rgba(0,0,0,0.3), 0 8px 20px rgba(0,0,0,0.15)',
-                    border: '1px solid rgba(255,255,255,0.8)',
+                    border: '1px solid #e2e8f0',
                 }}
             >
                 {/* Accent strip at top */}
-                <div className="h-0.5 rounded-t-2xl" style={{background: 'linear-gradient(90deg, #0f172a 0%, #6366f1 50%, #8b5cf6 100%)'}}/>
+                <div className="h-1 shrink-0" style={{background: 'linear-gradient(90deg, #0f172a 0%, #6366f1 50%, #8b5cf6 100%)'}}/>
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
