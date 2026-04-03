@@ -7,7 +7,8 @@
     "dev": "vite",
     "dev:docker": "vite --mode docker",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "gen-docs": "node ../../scripts/gen-docs.js"
   },
   "dependencies": {
     "chart.js": "^4.4.1",

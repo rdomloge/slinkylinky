@@ -339,6 +339,68 @@ public class SupplierRepoTest {
         assertThat(result.length).isEqualTo(0);
     }
 
+    /**
+     * findSuppliersForDemandId must return results ordered by weWriteFee ASC then
+     * da DESC (Rule 3). Cheapest supplier appears first; ties on fee are broken by
+     * highest DA first.
+     */
+    @Test
+    public void testFindSuppliersForDemandId_orderedByCheapestFirstThenHighestDa() {
+        // Given
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        // Four suppliers, all eligible (category matches, DA >= 20, not disabled, not third-party)
+        Supplier cheap1 = new Supplier();
+        cheap1.setName("Cheap High DA");
+        cheap1.setWebsite("www.cheap-high-da.com");
+        cheap1.setDa(70);
+        cheap1.setWeWriteFee(100);
+        cheap1.setWeWriteFeeCurrency("£");
+        cheap1.setCategories(new HashSet<>(testCategories));
+
+        Supplier cheap2 = new Supplier();
+        cheap2.setName("Cheap Low DA");
+        cheap2.setWebsite("www.cheap-low-da.com");
+        cheap2.setDa(50);
+        cheap2.setWeWriteFee(100);
+        cheap2.setWeWriteFeeCurrency("£");
+        cheap2.setCategories(new HashSet<>(testCategories));
+
+        Supplier expensive1 = new Supplier();
+        expensive1.setName("Expensive High DA");
+        expensive1.setWebsite("www.expensive-high-da.com");
+        expensive1.setDa(90);
+        expensive1.setWeWriteFee(200);
+        expensive1.setWeWriteFeeCurrency("£");
+        expensive1.setCategories(new HashSet<>(testCategories));
+
+        Supplier expensive2 = new Supplier();
+        expensive2.setName("Expensive Low DA");
+        expensive2.setWebsite("www.expensive-low-da.com");
+        expensive2.setDa(40);
+        expensive2.setWeWriteFee(200);
+        expensive2.setWeWriteFeeCurrency("£");
+        expensive2.setCategories(new HashSet<>(testCategories));
+
+        supplierRepo.saveAll(List.of(cheap1, cheap2, expensive1, expensive2));
+
+        Demand demand = new Demand();
+        demand.setDaNeeded(20);
+        demand.setCategories(new HashSet<>(testCategories));
+        Demand dbDemand = demandRepo.save(demand);
+
+        // When
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(dbDemand.getId());
+
+        // Then — cheapest first (fee=100 before fee=200); within same fee, highest DA first
+        assertThat(result.length).isEqualTo(4);
+        assertThat(result[0].getName()).isEqualTo("Cheap High DA");      // fee=100, da=70
+        assertThat(result[1].getName()).isEqualTo("Cheap Low DA");       // fee=100, da=50
+        assertThat(result[2].getName()).isEqualTo("Expensive High DA");  // fee=200, da=90
+        assertThat(result[3].getName()).isEqualTo("Expensive Low DA");   // fee=200, da=40
+    }
+
     private List<Supplier> createTestSuppliers() {
         List<Supplier> suppliers = new ArrayList<>();
 

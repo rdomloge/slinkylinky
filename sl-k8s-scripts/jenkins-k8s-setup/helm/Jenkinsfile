@@ -4,7 +4,6 @@ pipeline {
 
     parameters {
         string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy (e.g. 7.0.1-CI-23)')
-        string(name: 'KEYCLOAK_IMAGE_TAG', defaultValue: '26.3.4', description: 'Keycloak image tag — use the app IMAGE_TAG once a custom image has been built (e.g. 7.0.1-CI-23), or leave as the base Keycloak version for the first deploy')
     }
 
     environment {

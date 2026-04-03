@@ -2,6 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Quick Reference — Generated Index Files
+
+These files are auto-generated and kept up to date. Read them at the start of any task instead of scanning source files directly.
+
+| File | What it covers |
+|------|----------------|
+| [`docs/frontend-components.md`](docs/frontend-components.md) | Every React component: file path, props, API calls, sub-components used |
+| [`docs/frontend-pages.md`](docs/frontend-pages.md) | Full route table (path → component → file, auth status) and per-page API calls |
+| [`docs/backend-entities.md`](docs/backend-entities.md) | All JPA entities with fields and relationships |
+| [`docs/backend-api.md`](docs/backend-api.md) | All custom REST endpoints by controller + Spring Data REST auto-exposed resources |
+
+Regenerate after significant structural changes:
+```bash
+node scripts/gen-docs.js
+# or from frontend/react:
+npm run gen-docs
+```
+
 ## Project Overview
 
 SlinkyLinky is a link management and supplier engagement platform. It is a full-stack monorepo with a React frontend and multiple Java Spring Boot microservices communicating via RabbitMQ, backed by PostgreSQL, and authenticated through Keycloak (OAuth2/OIDC).

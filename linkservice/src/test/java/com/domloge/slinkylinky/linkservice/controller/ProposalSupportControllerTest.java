@@ -502,6 +502,180 @@ public class ProposalSupportControllerTest {
         cleanup();
     }
 
+    /**
+     * When createProposal is called with multiple demands and at least one of them
+     * already has a PaidLink with the same supplier, the entire request is rejected
+     * (400) and no new PaidLinks or Proposals are created (Rule 2, multi-demand).
+     */
+    @Test
+    @Transactional
+    void createProposal_partialDomainConflict_returns400AndNoNewDataCreated() throws JsonProcessingException {
+        // Given
+        Supplier supplier = new Supplier();
+        supplier.setName("conflict-supplier");
+        supplier.setWebsite("www.conflict-supplier.com");
+        Supplier dbSupplier = supplierRepo.save(supplier);
+
+        Demand demandOk = new Demand();
+        demandOk.setUrl("http://www.site-ok.com");
+        Demand dbDemandOk = demandRepo.save(demandOk);
+
+        Demand demandConflict = new Demand();
+        demandConflict.setUrl("http://www.site-conflict.com");
+        Demand dbDemandConflict = demandRepo.save(demandConflict);
+
+        // Pre-existing paid link between this supplier and the conflict demand's domain
+        PaidLink existing = new PaidLink();
+        existing.setSupplier(dbSupplier);
+        existing.setDemand(dbDemandConflict);
+        paidLinkRepo.save(existing);
+
+        long paidLinkCountBefore = paidLinkRepo.count(); // 1
+
+        // When
+        ResponseEntity<Object> response = controller.createProposal("testuser",
+                dbSupplier.getId(), new long[]{dbDemandOk.getId(), dbDemandConflict.getId()});
+
+        // Then
+        assertEquals(HttpStatusCode.valueOf(400), response.getStatusCode());
+        assertEquals(paidLinkCountBefore, paidLinkRepo.count()); // no new PaidLinks
+        assertEquals(0, proposalRepo.count());                   // no Proposal created
+    }
+
+    /**
+     * Aborting a standard (non-third-party) proposal deletes the Proposal and all
+     * its PaidLinks, but leaves the Supplier intact (Rule 7).
+     */
+    @Test
+    void abort_standardMultiDemandProposal_allPaidLinksDeletedSupplierRetained() throws JsonProcessingException {
+        // Given — supplier + two demands with different domains
+        Supplier supplier = new Supplier();
+        supplier.setName("abort-supplier");
+        supplier.setWebsite("www.abort-supplier.com");
+        Supplier dbSupplier = supplierRepo.save(supplier);
+
+        Demand demand1 = new Demand();
+        demand1.setUrl("http://www.abort-site-a.com");
+        Demand dbDemand1 = demandRepo.save(demand1);
+
+        Demand demand2 = new Demand();
+        demand2.setUrl("http://www.abort-site-b.com");
+        Demand dbDemand2 = demandRepo.save(demand2);
+
+        ResponseEntity<Object> createResp = controller.createProposal("testuser",
+                dbSupplier.getId(), new long[]{dbDemand1.getId(), dbDemand2.getId()});
+        String location = createResp.getHeaders().get("Location").get(0);
+        long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
+
+        assertTrue(proposalRepo.findById(proposalId).isPresent(), "Proposal should exist before abort");
+        assertEquals(2, paidLinkRepo.count(), "Two PaidLinks should exist before abort");
+
+        // When
+        ResponseEntity<Object> abortResp = controller.delete(proposalId, "testuser");
+
+        // Then
+        assertEquals(HttpStatusCode.valueOf(200), abortResp.getStatusCode());
+        assertFalse(proposalRepo.findById(proposalId).isPresent(), "Proposal should be deleted");
+        assertEquals(0, paidLinkRepo.count(), "All PaidLinks should be deleted");
+        assertTrue(supplierRepo.findById(dbSupplier.getId()).isPresent(), "Standard supplier should NOT be deleted");
+
+        cleanup();
+    }
+
+    /**
+     * Aborting a third-party proposal deletes the Proposal, its PaidLink, AND the
+     * ephemeral third-party Supplier that was created for it (Rules 6 & 7).
+     */
+    @Test
+    void abort_thirdPartyProposal_supplierAlsoDeleted() {
+        // Given
+        Demand demand = new Demand();
+        Demand dbDemand = demandRepo.save(demand);
+
+        ResponseEntity<Object> createResp = controller.resolveDemandWith3rdPartySupplier(
+                "3rd Party Blogger", "testuser", (int) dbDemand.getId());
+        String location = createResp.getHeaders().get("Location").get(0);
+        long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
+
+        Proposal proposal = proposalRepo.findById(proposalId).get();
+        long thirdPartySupplierId = proposal.getPaidLinks().get(0).getSupplier().getId();
+
+        assertTrue(proposalRepo.findById(proposalId).isPresent(), "Proposal should exist before abort");
+        assertTrue(supplierRepo.findById(thirdPartySupplierId).isPresent(), "3rd-party supplier should exist before abort");
+
+        // When
+        ResponseEntity<Object> abortResp = controller.delete(proposalId, "testuser");
+
+        // Then
+        assertEquals(HttpStatusCode.valueOf(200), abortResp.getStatusCode());
+        assertFalse(proposalRepo.findById(proposalId).isPresent(), "Proposal should be deleted");
+        assertEquals(0, paidLinkRepo.count(), "PaidLink should be deleted");
+        assertFalse(supplierRepo.findById(thirdPartySupplierId).isPresent(), "3rd-party supplier should be deleted on abort");
+
+        cleanup();
+    }
+
+    /**
+     * A "semi-legacy" proposal that has supplierSnapshotRevision > 0 but no JSON
+     * snapshot (supplierSnapshot = null) falls back to the Envers direct-find path
+     * and returns the supplier as it was at proposal-creation time (Rule 8, second
+     * Envers branch).
+     *
+     * The semi-legacy state is simulated by creating the proposal normally via
+     * createProposal (which stores the revision number), then nulling out only the
+     * supplierSnapshot column to force the Envers branch on the next read.
+     */
+    @Test
+    void semiLegacyProposal_revisionPresentNoSnapshot_enversDirectFindUsed() throws JsonProcessingException {
+        // Given — create proposal normally; createProposal stores supplierSnapshotRevision > 0
+        Supplier supplier = new Supplier();
+        supplier.setDa(42);
+        supplier.setName("semi-legacy-supplier");
+        supplier.setWebsite("www.semi-legacy.com");
+        List<Category> categories = createTestCategories();
+        categoryRepo.saveAll(categories);
+        supplier.setCategories(new HashSet<>(categories));
+        Supplier dbSupplier = supplierRepo.save(supplier);
+
+        Demand demand = new Demand();
+        Demand dbDemand = demandRepo.save(demand);
+
+        ResponseEntity<Object> createResp = controller.createProposal("testuser",
+                dbSupplier.getId(), new long[]{dbDemand.getId()});
+        String location = createResp.getHeaders().get("Location").get(0);
+        long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
+
+        // Simulate the semi-legacy state: revision is stored but snapshot was never written.
+        // Null out supplierSnapshot to force the Envers direct-find branch on the next read.
+        proposalRepo.updateSupplierSnapshot(proposalId, null);
+
+        // Update the supplier so the version diverges and snapshot restoration is triggered
+        dbSupplier.setDa(999);
+        dbSupplier.setName("updated-semi-legacy");
+        supplierRepo.save(dbSupplier);
+
+        // When
+        ResponseEntity<Proposal[]> resp = controller.getProposal(
+                LocalDateTime.now().minusHours(1), LocalDateTime.now());
+
+        // Then — original supplier data restored via Envers direct-find
+        assertEquals(HttpStatusCode.valueOf(200), resp.getStatusCode());
+        Proposal[] proposals = resp.getBody();
+        assertEquals(1, proposals.length);
+        Supplier returnedSupplier = proposals[0].getPaidLinks().get(0).getSupplier();
+        assertEquals(42, returnedSupplier.getDa());
+        assertEquals("semi-legacy-supplier", returnedSupplier.getName());
+
+        // The snapshot should also have been lazily backfilled after the Envers access
+        assertNotNull(proposalRepo.findById(proposalId).get().getSupplierSnapshot(),
+                "Snapshot should be backfilled after first Envers direct-find access");
+
+        // Updated supplier still visible directly
+        assertEquals(999, supplierRepo.findById(dbSupplier.getId()).get().getDa());
+
+        cleanup();
+    }
+
     private List<Category> createTestCategories() {
         List<Category> categories = new ArrayList<>();
 

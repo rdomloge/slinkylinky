@@ -4,6 +4,8 @@ import { useAuth } from '@/auth/AuthProvider';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { Link } from 'react-router-dom';
 import { AuthorizedAccess } from '@/components/AuthorizedAccess';
+import { PanelCard } from '@/components/PanelCard';
+import { NavCard } from '@/components/NavCard';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -121,29 +123,6 @@ function ProposalPipeline({ stats, loading }) {
 }
 
 /** Panel card with optional left-bar accent */
-function PanelCard({ title, loading, children, to, linkLabel, accentColor }) {
-    return (
-        <div className="card p-5 flex flex-col gap-3 overflow-hidden" style={accentColor ? {borderLeft: `3px solid ${accentColor}`} : {}}>
-            <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wide"
-                   style={{color: accentColor ?? '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem'}}>
-                    {title}
-                </p>
-                {to && (
-                    <Link to={to} className="text-xs font-medium transition-colors hover:underline"
-                          style={{color: accentColor ?? '#6366f1'}}>
-                        {linkLabel ?? 'View all →'}
-                    </Link>
-                )}
-            </div>
-            {loading
-                ? <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-4 bg-slate-100 rounded animate-pulse"/>)}</div>
-                : children
-            }
-        </div>
-    );
-}
-
 /** Medal rank badge — gold/silver/bronze */
 function RankBadge({ rank }) {
     const styles = [
@@ -160,25 +139,6 @@ function RankBadge({ rank }) {
     );
 }
 
-/** Nav card with entity colour */
-function NavCard({ to, label, description, icon, accentColor }) {
-    return (
-        <Link to={to}>
-            <div className="card p-4 flex items-start gap-3 h-full transition-all"
-                 style={{borderLeft: `3px solid ${accentColor ?? '#6366f1'}`}}>
-                <div className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
-                     style={{background: `${accentColor}18`, color: accentColor ?? '#6366f1'}}>
-                    {icon}
-                </div>
-                <div>
-                    <p className="text-sm font-semibold text-slate-800" style={{fontFamily: "'Outfit', sans-serif"}}>{label}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{description}</p>
-                </div>
-            </div>
-        </Link>
-    );
-}
-
 /** Mini bar chart for supplier onboarding history */
 function OnboardingBarChart({ history }) {
     const [hovered, setHovered] = useState(null);
@@ -190,10 +150,11 @@ function OnboardingBarChart({ history }) {
     return (
         <div className="flex items-end gap-px" style={{height: 80}}>
             {data.map((d, i) => {
-                const barPct = Math.max(4, Math.round((d.count / maxCount) * 100));
-                const month  = new Date(d.yearMonth + '-01')
+                const isEmpty  = d.count === 0;
+                const barPct   = isEmpty ? 0 : Math.max(6, Math.round((d.count / maxCount) * 100));
+                const month    = new Date(d.yearMonth + '-01')
                     .toLocaleDateString('en-GB', { month: 'short' });
-                const isHovered = hovered === i;
+                const isHovered  = hovered === i;
                 const anyHovered = hovered !== null;
 
                 return (
@@ -206,28 +167,47 @@ function OnboardingBarChart({ history }) {
                         {/* Tooltip */}
                         {isHovered && (
                             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-10
-                                            rounded px-1.5 py-0.5 text-white font-bold whitespace-nowrap pointer-events-none"
-                                 style={{background: 'var(--supplier-color)', fontSize: '0.6rem',
-                                         fontFamily: "'JetBrains Mono', monospace",
-                                         boxShadow: '0 2px 8px var(--supplier-glow)'}}>
+                                            rounded px-1.5 py-0.5 font-bold whitespace-nowrap pointer-events-none"
+                                 style={{
+                                     background: isEmpty ? '#64748b' : 'var(--supplier-color)',
+                                     color: 'white',
+                                     fontSize: '0.6rem',
+                                     fontFamily: "'JetBrains Mono', monospace",
+                                     boxShadow: isEmpty ? '0 2px 8px rgba(0,0,0,0.2)' : '0 2px 8px var(--supplier-glow)',
+                                 }}>
                                 {d.count}
                             </div>
                         )}
 
-                        {/* Bar */}
-                        <div className="w-full rounded-sm transition-all duration-150"
-                             style={{
-                                 height: `${barPct}%`,
-                                 background: isHovered
-                                     ? 'var(--supplier-color)'
-                                     : 'var(--supplier-color-light)',
-                                 opacity: anyHovered && !isHovered ? 0.35 : 1,
-                                 maxHeight: 'calc(100% - 16px)',
-                             }}/>
+                        {isEmpty ? (
+                            /* Zero month — dashed baseline tick */
+                            <div className="w-full transition-all duration-150"
+                                 style={{
+                                     height: 2,
+                                     borderTop: `2px dashed ${isHovered ? '#94a3b8' : 'rgba(148,163,184,0.35)'}`,
+                                     maxHeight: 'calc(100% - 16px)',
+                                 }}/>
+                        ) : (
+                            /* Normal bar */
+                            <div className="w-full rounded-sm transition-all duration-150"
+                                 style={{
+                                     height: `${barPct}%`,
+                                     background: isHovered
+                                         ? 'var(--supplier-color)'
+                                         : 'var(--supplier-color-light)',
+                                     opacity: anyHovered && !isHovered ? 0.35 : 1,
+                                     maxHeight: 'calc(100% - 16px)',
+                                 }}/>
+                        )}
 
                         {/* Month label */}
-                        <span className="shrink-0 text-slate-400 select-none"
-                              style={{fontSize: '0.55rem', lineHeight: 1, height: 12}}>
+                        <span className="shrink-0 select-none"
+                              style={{
+                                  fontSize: '0.55rem',
+                                  lineHeight: 1,
+                                  height: 12,
+                                  color: isEmpty ? 'rgba(148,163,184,0.5)' : 'rgb(148,163,184)',
+                              }}>
                             {month}
                         </span>
                     </div>

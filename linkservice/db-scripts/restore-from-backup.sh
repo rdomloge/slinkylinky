@@ -5,8 +5,8 @@
 
 ## THE DATABASES MUST ALREADY EXIST AND BE OWNED BY SLINKYLINKY
 
-docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v 'C:/Users/Ramsay Domloge/Downloads/temp:/backup' -ti postgres \
--f backup/2026-01-08_1600-backup.sql -h host.docker.internal -U slinkylinky postgres
+docker run --rm --env PGPASSWORD=sl --entrypoint psql -i postgres \
+-h host.docker.internal -U slinkylinky postgres < "//DiskStation/sl-backup/2026-04-03_1900-backup.sql"
 
 #docker run -ti --rm --env PGPASSWORD=sl --entrypoint psql -v C:/Users/domloger/repos/chris/linkservice/db-scripts:/backup -ti postgres \
 #-f backup/v5.1-sql-changes-linksvc.sql -h host.docker.internal -U slinkylinky slinkylinky

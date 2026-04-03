@@ -41,17 +41,23 @@ public class SupplierHealthSupportController {
 
         List<SupplierOnboardingMonthProjection> rows = supplierRepo.countNewSuppliersByMonth(months);
 
-        String currentMonth = YearMonth.now().format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM");
+        YearMonth now = YearMonth.now();
+        String currentMonth = now.format(fmt);
 
-        long thisMonth = rows.stream()
-                .filter(r -> currentMonth.equals(r.getYearMonth()))
-                .mapToLong(SupplierOnboardingMonthProjection::getCount)
-                .findFirst()
-                .orElse(0L);
+        Map<String, Long> countsByMonth = rows.stream()
+                .collect(Collectors.toMap(
+                        SupplierOnboardingMonthProjection::getYearMonth,
+                        SupplierOnboardingMonthProjection::getCount));
 
-        List<SupplierOnboardingResponse.MonthCount> history = rows.stream()
-                .map(r -> new SupplierOnboardingResponse.MonthCount(r.getYearMonth(), r.getCount()))
-                .collect(Collectors.toList());
+        long thisMonth = countsByMonth.getOrDefault(currentMonth, 0L);
+
+        List<SupplierOnboardingResponse.MonthCount> history = new ArrayList<>();
+        YearMonth start = now.minusMonths(months - 1);
+        for (int i = 0; i < months; i++) {
+            String label = start.plusMonths(i).format(fmt);
+            history.add(new SupplierOnboardingResponse.MonthCount(label, countsByMonth.getOrDefault(label, 0L)));
+        }
 
         return ResponseEntity.ok(new SupplierOnboardingResponse(thisMonth, history));
     }
