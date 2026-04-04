@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                                 .jwt(Customizer.withDefaults())
                 )
-                .csrf(csrf -> csrf.ignoringRequestMatchers(AUTH_WHITELIST));
+                .csrf(csrf -> csrf.disable()); // stateless JWT API — CSRF attacks require cookies, not Bearer tokens
         return http.build();
     }
 }

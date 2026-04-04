@@ -24,7 +24,8 @@ public class SecurityConfig {
             )
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(Customizer.withDefaults())
-            );
+            )
+            .csrf(csrf -> csrf.disable()); // stateless JWT API — CSRF attacks require cookies, not Bearer tokens
 
         http.headers(headers -> headers.frameOptions(Customizer.withDefaults()).disable()); //disable x-frame-options for all endpoints so they can be iframed in browser iframes
         return http.build();
