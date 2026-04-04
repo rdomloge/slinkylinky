@@ -62,6 +62,18 @@ public class SecurityConfigTest {
     }
 
     @Test
+    void errorEndpoint_isPublic() throws Exception {
+        // /error must be accessible without auth. Spring Boot dispatches to /error
+        // when a controller throws an exception. If /error itself is blocked by Spring
+        // Security, the error response becomes a 401 instead of the real error code.
+        mockMvc.perform(get("/error"))
+               .andExpect(result -> assertNotEquals(
+                       401,
+                       result.getResponse().getStatus(),
+                       "/error must not require authentication — Spring Boot uses it for error dispatch"));
+    }
+
+    @Test
     void securedEndpoint_requiresAuth() throws Exception {
         // Confirms the security filter IS active and enforcing auth on protected endpoints
         mockMvc.perform(get("/.rest/suppliers"))

@@ -13,7 +13,8 @@ public class SecurityConfig {
         new AntPathRequestMatcher("/actuator/**"),
         new AntPathRequestMatcher("/.rest/engagements/accept"),
         new AntPathRequestMatcher("/.rest/engagements/decline"),
-        new AntPathRequestMatcher("/.rest/engagements/search/findByGuid")
+        new AntPathRequestMatcher("/.rest/engagements/search/findByGuid"),
+        new AntPathRequestMatcher("/error")  // Spring Boot dispatches here on controller exceptions; must be public or error responses become 401
     };
 
     @Bean

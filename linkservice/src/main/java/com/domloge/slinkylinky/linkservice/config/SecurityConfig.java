@@ -11,7 +11,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
     private static final AntPathRequestMatcher[] AUTH_WHITELIST = {
         new AntPathRequestMatcher("/actuator/**"),
-        new AntPathRequestMatcher("/.rest/proposalsupport/getArticleFormatted")
+        new AntPathRequestMatcher("/.rest/proposalsupport/getArticleFormatted"),
+        new AntPathRequestMatcher("/error")  // Spring Boot dispatches here on controller exceptions; must be public or error responses become 401
     };
 
     @Bean
