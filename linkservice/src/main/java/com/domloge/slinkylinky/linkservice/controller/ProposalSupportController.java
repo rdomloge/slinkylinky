@@ -162,6 +162,10 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 }
 
                 p.setPaidLinks(p.getPaidLinks().stream().map(pl -> {
+                    // Detach the PaidLink before swapping its supplier to an Envers-sourced
+                    // entity (version=null).  Without this, Hibernate auto-flushes the dirty
+                    // PaidLink on the next Envers query and rejects the null version.
+                    entityManager.detach(pl);
                     pl.setSupplier(originalSupplier);
                     return pl;
                 }).collect(Collectors.toList()));

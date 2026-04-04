@@ -5,10 +5,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
-    private static final String[] AUTH_WHITELIST = {"/actuator/**", "/.rest/engagements/accept", "/.rest/engagements/decline", "/.rest/engagements/search/findByGuid"};
+    private static final AntPathRequestMatcher[] AUTH_WHITELIST = {
+        new AntPathRequestMatcher("/actuator/**"),
+        new AntPathRequestMatcher("/.rest/engagements/accept"),
+        new AntPathRequestMatcher("/.rest/engagements/decline"),
+        new AntPathRequestMatcher("/.rest/engagements/search/findByGuid")
+    };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
