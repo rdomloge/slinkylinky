@@ -827,4 +827,13 @@ EOF
             }
         }
     }
+
+    post {
+        always {
+            // Delete workspace after each build so Jenkins has no stale workspace to be sticky about.
+            // Without this, Jenkins always prefers the node that ran the previous build regardless
+            // of executor count, preventing local workers from being preferred.
+            deleteDir()
+        }
+    }
 }
