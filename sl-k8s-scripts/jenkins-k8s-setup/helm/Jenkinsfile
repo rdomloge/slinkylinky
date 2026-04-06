@@ -718,18 +718,8 @@ EOF
 
                     sh """
                     BASE_URL="https://${TENANT}.slinkylinky.uk"
+                    FAILURES=0
 
-                    # Failure tracking uses a temp directory rather than a plain integer counter.
-                    # Each check runs as a background subshell (see the '&' calls below), and
-                    # subshells cannot write back to a variable in the parent shell — the parent's
-                    # FAILURES counter would always stay at 0 no matter how many checks failed.
-                    # Instead, each failing check atomically creates a unique file in RESULTS_DIR
-                    # using 'mktemp'. After all checks finish we count those files to get the total.
-                    RESULTS_DIR=\$(mktemp -d)
-
-                    # check_protected METHOD ENDPOINT
-                    # Expects a 401 (Unauthorized). Any other response means the endpoint is
-                    # unprotected and is treated as a security failure.
                     check_protected() {
                         METHOD="\$1"
                         ENDPOINT="\$2"
@@ -738,29 +728,24 @@ EOF
                             echo "  PASS [\$METHOD \$ENDPOINT] -> 401"
                         else
                             echo "  FAIL [\$METHOD \$ENDPOINT] -> \$HTTP_CODE (expected 401)"
-                            mktemp "\$RESULTS_DIR/fail.XXXXXX" > /dev/null
+                            FAILURES=\$((FAILURES + 1))
                         fi
                     }
 
-                    # check_public METHOD ENDPOINT
-                    # Expects anything other than 401. A 401 means Spring Security is incorrectly
-                    # blocking a route that must be publicly accessible (e.g. supplier accept/decline).
                     check_public() {
                         METHOD="\$1"
                         ENDPOINT="\$2"
                         HTTP_CODE=\$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -X "\$METHOD" "\$BASE_URL\$ENDPOINT")
                         if [ "\$HTTP_CODE" = "401" ]; then
                             echo "  FAIL [\$METHOD \$ENDPOINT] -> 401 (public endpoint should not require auth)"
-                            mktemp "\$RESULTS_DIR/fail.XXXXXX" > /dev/null
+                            FAILURES=\$((FAILURES + 1))
                         else
                             echo "  PASS [\$METHOD \$ENDPOINT] -> \$HTTP_CODE (not 401)"
                         fi
                     }
 
-                    # kubectl reports pods as ready before the Cloudflare tunnel has propagated the
-                    # new deployment. Poll the tunnel directly until we get a real HTTP response
-                    # (401 = Spring Security is up, 200 = public route). Anything else (000, 502,
-                    # 503) means the tunnel isn't ready yet.
+                    # Poll until linkservice is reachable through the Cloudflare tunnel.
+                    # A 401 means Spring Security is up and enforcing auth — exactly what we want.
                     echo "Waiting for services to be accessible via Cloudflare tunnel..."
                     ATTEMPT=1
                     while [ \$ATTEMPT -le 30 ]; do
@@ -779,62 +764,60 @@ EOF
                     fi
 
                     echo ""
-                    echo "=== Auth Security Verification (parallel) ==="
+                    echo "=== Auth Security Verification ==="
                     echo ""
-
-                    # Each check is launched as a background job with '&'. All 38 curl requests
-                    # hit the Cloudflare tunnel simultaneously, so total wall-clock time equals the
-                    # slowest single response (~1-2 s) rather than the sum of all responses
-                    # (~2 min when run sequentially). 'wait' below blocks until every job finishes.
-                    check_protected GET    "/.rest/suppliers" &
-                    check_protected GET    "/.rest/demands" &
-                    check_protected GET    "/.rest/demandsites" &
-                    check_protected GET    "/.rest/paidlinks" &
-                    check_protected GET    "/.rest/proposals" &
-                    check_protected GET    "/.rest/categories" &
-                    check_protected GET    "/.rest/blackListedSupplierSupport/isBlackListed" &
-                    check_protected POST   "/.rest/blackListedSupplierSupport/addBlackListed" &
-                    check_protected POST   "/.rest/aisupport/generate" &
-                    check_protected DELETE "/.rest/demandsupport/delete" &
-                    check_protected GET    "/.rest/demandssitesupport/topbydemands" &
-                    check_protected DELETE "/.rest/demandssitesupport/delete" &
-                    check_protected GET    "/.rest/paidlinksupport/topbysuppliers" &
-                    check_protected GET    "/.rest/paidlinksupport/getcountsforsuppliers" &
-                    check_protected DELETE "/.rest/proposalsupport/abort" &
-                    check_protected GET    "/.rest/proposalsupport/getProposalsWithOriginalSuppliers" &
-                    check_protected POST   "/.rest/proposalsupport/createProposal" &
-                    check_protected PATCH  "/.rest/proposalsupport/addarticle" &
-                    check_protected POST   "/.rest/proposalsupport/resolveProposal3rdParty" &
-                    check_protected GET    "/.rest/proposalsupport/responsivenessData" &
-                    check_protected GET    "/.rest/supplierSupport/list" &
-                    check_protected PATCH  "/.rest/supplierSupport/updateSupplierDa" &
-                    check_protected GET    "/.rest/supplierSupport/getVersion" &
-                    check_protected GET    "/.rest/supplierSupport/exists" &
-                    check_protected POST   "/.rest/supplierSupport/supplierresponse" &
-                    check_protected GET    "/.rest/supplierHealthSupport/onboarding" &
-                    check_protected GET    "/.rest/supplierHealthSupport/atrisk" &
-                    check_protected GET    "/.rest/stats/fordomain" &
-                    check_protected GET    "/.rest/stats/responsiveness" &
-                    check_protected GET    "/.rest/stats/responsiveness/all" &
-                    check_protected GET    "/.rest/mozsupport/checkdomain" &
-                    check_protected GET    "/.rest/mozsupport/checklink" &
-                    check_protected GET    "/.rest/semrush" &
-                    check_protected GET    "/.rest/auditrecords" &
-                    check_protected GET    "/.rest/engagements" &
-                    check_public    GET    "/.rest/proposalsupport/getArticleFormatted" &
-                    check_public    PATCH  "/.rest/engagements/accept" &
-                    check_public    PATCH  "/.rest/engagements/decline" &
-
-                    wait  # Block until every background check has returned
-
+                    echo "--- linkservice: Spring Data REST repositories ---"
+                    check_protected GET "/.rest/suppliers"
+                    check_protected GET "/.rest/demands"
+                    check_protected GET "/.rest/demandsites"
+                    check_protected GET "/.rest/paidlinks"
+                    check_protected GET "/.rest/proposals"
+                    check_protected GET "/.rest/categories"
                     echo ""
-                    # Count the failure marker files created by the background jobs above.
-                    # 'tr -d' strips the trailing newline that wc -l adds on some shells.
-                    FAILURES=\$(find "\$RESULTS_DIR" -name "fail.*" 2>/dev/null | wc -l | tr -d ' ')
-                    rm -rf "\$RESULTS_DIR"
-
+                    echo "--- linkservice: custom controllers ---"
+                    check_protected GET    "/.rest/blackListedSupplierSupport/isBlackListed"
+                    check_protected POST   "/.rest/blackListedSupplierSupport/addBlackListed"
+                    check_protected POST   "/.rest/aisupport/generate"
+                    check_protected DELETE "/.rest/demandsupport/delete"
+                    check_protected GET    "/.rest/demandssitesupport/topbydemands"
+                    check_protected DELETE "/.rest/demandssitesupport/delete"
+                    check_protected GET    "/.rest/paidlinksupport/topbysuppliers"
+                    check_protected GET    "/.rest/paidlinksupport/getcountsforsuppliers"
+                    check_protected DELETE "/.rest/proposalsupport/abort"
+                    check_protected GET    "/.rest/proposalsupport/getProposalsWithOriginalSuppliers"
+                    check_protected POST   "/.rest/proposalsupport/createProposal"
+                    check_protected PATCH  "/.rest/proposalsupport/addarticle"
+                    check_protected POST   "/.rest/proposalsupport/resolveProposal3rdParty"
+                    check_protected GET    "/.rest/proposalsupport/responsivenessData"
+                    check_protected GET    "/.rest/supplierSupport/list"
+                    check_protected PATCH  "/.rest/supplierSupport/updateSupplierDa"
+                    check_protected GET    "/.rest/supplierSupport/getVersion"
+                    check_protected GET    "/.rest/supplierSupport/exists"
+                    check_protected POST   "/.rest/supplierSupport/supplierresponse"
+                    check_protected GET    "/.rest/supplierHealthSupport/onboarding"
+                    check_protected GET    "/.rest/supplierHealthSupport/atrisk"
+                    echo ""
+                    echo "--- stats ---"
+                    check_protected GET "/.rest/stats/fordomain"
+                    check_protected GET "/.rest/stats/responsiveness"
+                    check_protected GET "/.rest/stats/responsiveness/all"
+                    check_protected GET "/.rest/mozsupport/checkdomain"
+                    check_protected GET "/.rest/mozsupport/checklink"
+                    check_protected GET "/.rest/semrush"
+                    echo ""
+                    echo "--- audit ---"
+                    check_protected GET "/.rest/auditrecords"
+                    echo ""
+                    echo "--- supplierengagement ---"
+                    check_protected GET "/.rest/engagements"
+                    echo ""
+                    echo "--- public endpoints (expect non-401) ---"
+                    check_public GET   "/.rest/proposalsupport/getArticleFormatted"
+                    check_public PATCH "/.rest/engagements/accept"
+                    check_public PATCH "/.rest/engagements/decline"
+                    echo ""
                     echo "=== Results: \$FAILURES failure(s) ==="
-                    if [ "\$FAILURES" -ne 0 ]; then
+                    if [ \$FAILURES -ne 0 ]; then
                         echo "SECURITY VERIFICATION FAILED: \$FAILURES endpoint(s) did not respond with the expected auth behaviour"
                         exit 1
                     fi
