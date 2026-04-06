@@ -52,81 +52,85 @@ pipeline {
             }
         }
 
-        stage('Docker: frontend') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-adminwebsite:${env.VERSION} \
-                    --push frontend
-                """
-            }
-        }
+        stage('Docker builds') {
+            parallel {
+                stage('Docker: frontend') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-adminwebsite:${env.VERSION} \
+                            --push frontend
+                        """
+                    }
+                }
 
-        stage('Docker: linkservice') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-linkservice:${env.VERSION} \
-                    --push linkservice
-                """
-            }
-        }
+                stage('Docker: linkservice') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-linkservice:${env.VERSION} \
+                            --push linkservice
+                        """
+                    }
+                }
 
-        stage('Docker: stats') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-stats:${env.VERSION} \
-                    --push stats
-                """
-            }
-        }
+                stage('Docker: stats') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-stats:${env.VERSION} \
+                            --push stats
+                        """
+                    }
+                }
 
-        stage('Docker: audit') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-audit:${env.VERSION} \
-                    --push audit
-                """
-            }
-        }
+                stage('Docker: audit') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-audit:${env.VERSION} \
+                            --push audit
+                        """
+                    }
+                }
 
-        stage('Docker: supplierengagement') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-supplierengagement:${env.VERSION} \
-                    --push supplierengagement
-                """
-            }
-        }
+                stage('Docker: supplierengagement') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-supplierengagement:${env.VERSION} \
+                            --push supplierengagement
+                        """
+                    }
+                }
 
-        stage('Docker: woocommerce') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -t ${env.REPO}-woocommerce:${env.VERSION} \
-                    --push woocommerce
-                """
-            }
-        }
+                stage('Docker: woocommerce') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-woocommerce:${env.VERSION} \
+                            --push woocommerce
+                        """
+                    }
+                }
 
-        stage('Docker: keycloak') {
-            steps {
-                sh """
-                docker buildx build \
-                    --platform linux/amd64,linux/arm64 \
-                    -f sl-k8s-scripts/Dockerfile-keycloak \
-                    -t ${env.REPO}-keycloak:${env.VERSION} \
-                    --push sl-k8s-scripts
-                """
+                stage('Docker: keycloak') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -f sl-k8s-scripts/Dockerfile-keycloak \
+                            -t ${env.REPO}-keycloak:${env.VERSION} \
+                            --push sl-k8s-scripts
+                        """
+                    }
+                }
             }
         }
     }

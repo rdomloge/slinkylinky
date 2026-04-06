@@ -1,0 +1,48 @@
+services:
+  maven-worker-local:
+    image: rdomloge/jenkins-worker-maven-jdk21-latest:1.0.14
+    container_name: jenkins-maven-worker-local
+    restart: unless-stopped
+    environment:
+      JENKINS_URL: ${JENKINS_URL}
+      JENKINS_SECRET: ${MAVEN_WORKER_LOCAL_SECRET}
+      JENKINS_AGENT_NAME: maven-worker-local
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_AGENT_WORKDIR_ROOT: /home/jenkins
+      JAVA_OPTS: -Djava.util.logging.config.file=/home/jenkins/logging.properties
+    volumes:
+      - ./maven-worker-logging.properties:/home/jenkins/logging.properties:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  kubectl-worker-local:
+    image: rdomloge/jenkins-worker-kubectl:1.0.0
+    container_name: jenkins-kubectl-worker-local
+    restart: unless-stopped
+    environment:
+      JENKINS_URL: ${JENKINS_URL}
+      JENKINS_SECRET: ${KUBECTL_WORKER_LOCAL_SECRET}
+      JENKINS_AGENT_NAME: kubectl-worker-local
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_AGENT_WORKDIR_ROOT: /home/jenkins
+
+  helm-worker-local:
+    image: rdomloge/jenkins-worker-helm:1.0.0
+    container_name: jenkins-helm-worker-local
+    restart: unless-stopped
+    environment:
+      JENKINS_URL: ${JENKINS_URL}
+      JENKINS_SECRET: ${HELM_WORKER_LOCAL_SECRET}
+      JENKINS_AGENT_NAME: helm-worker-local
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_AGENT_WORKDIR_ROOT: /home/jenkins
+
+  psql-worker-local:
+    image: rdomloge/jenkins-worker-psql:1.0.0
+    container_name: jenkins-psql-worker-local
+    restart: unless-stopped
+    environment:
+      JENKINS_URL: ${JENKINS_URL}
+      JENKINS_SECRET: ${PSQL_WORKER_LOCAL_SECRET}
+      JENKINS_AGENT_NAME: psql-worker-local
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+      JENKINS_AGENT_WORKDIR_ROOT: /home/jenkins

@@ -1,7 +1,12 @@
+FROM --platform=$BUILDPLATFORM azul/zulu-openjdk:21-jre AS extract
+COPY target/linkservice.jar app.jar
+RUN java -Djarmode=layertools -jar app.jar extract --destination extracted
+
 FROM azul/zulu-openjdk:21-jre
-
 EXPOSE 8080
-
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar linkservice.jar"]
-
-COPY target/linkservice.jar linkservice.jar
+WORKDIR /app
+COPY --from=extract extracted/dependencies/ ./
+COPY --from=extract extracted/spring-boot-loader/ ./
+COPY --from=extract extracted/snapshot-dependencies/ ./
+COPY --from=extract extracted/application/ ./
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS org.springframework.boot.loader.launch.JarLauncher"]
