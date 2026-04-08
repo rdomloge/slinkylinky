@@ -874,6 +874,14 @@ ALTER TABLE ONLY public.demand_categories
 
 
 --
+-- Name: paid_link_dup_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER paid_link_dup_trigger BEFORE INSERT ON public.paid_link
+    FOR EACH ROW EXECUTE FUNCTION public.paid_link_duplicate_check();
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
 
