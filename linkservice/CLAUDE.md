@@ -192,6 +192,12 @@ _Source: `entity/validator/DemandValidator.java`_
 | Test file | What it covers |
 |-----------|----------------|
 | `controller/ProposalSupportControllerTest.java` | Proposal creation: 404 (supplier/demand not found), 400 (single-demand duplicate), **400 (multi-demand partial conflict — Rule 2)**; abort: **standard multi-demand (Rule 7)**, **third-party (Rules 6+7)**; supplier snapshot restore: JSON fast path, **Envers direct-find path (revision present, no JSON snapshot — Rule 8)**, Envers legacy path (no revision, no snapshot), unchanged supplier, multi-proposal same supplier, narrow date range |
+| `controller/BlackListedSupplierSupportControllerTest.java` | `isBlackListed`: not found → false, found → true, subdomain stripping; `addBlackListed`: new domain → 200, duplicate → 400 — **Rule 10** |
+| `controller/SupplierSupportControllerTest.java` | `processSupplierResponse`: ACCEPTED sets all acceptance flags on proposal; DECLINED deletes proposal + PaidLinks, standard supplier retained — **Rules 6+7** |
 | `repo/SupplierRepoTest.java` | `findSuppliersForDemandId`: disabled/third-party exclusion, DA threshold, category matching (single/multi), prior-link exclusion, **result ordering (cheapest first, then highest DA — Rule 3)** |
 | `repo/DemandRepoTest.java` | `findDemandForSupplierId`: disabled category exclusion, same-domain deduplication, prior paid-link exclusion, DA matching, category matching |
 | `repo/SupplierHealthRepoTest.java` | `findAtRiskDemandSites`: at-risk flagging, healthy site not flagged, threshold boundary, mixed sites, disabled/third-party exclusion |
+| `entity/validator/SupplierValidatorTest.java` | All Rule 11 constraints: name length, email/website/domain presence, DA bounds (0–100), weWriteFee bounds, currency length; third-party bypass |
+| `entity/validator/DemandValidatorTest.java` | All Rule 12 constraints: requested, daNeeded > 0, url/domain, source, createdBy; update path requires updatedBy |
+| `entity/validator/ProposalValidatorTest.java` | Rule 1: null/empty/4 paidLinks rejected; 1–3 paidLinks accepted; createdBy/updatedBy required |
+| `UtilTest.java` | `Util.stripDomain`: www prefix, no-scheme URL, path/query stripped, multi-part TLD (co.uk), subdomain stripping, localhost fallback |
