@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -21,6 +22,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.domloge.slinkylinky.linkservice.config.TenantContextTest;
 
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
@@ -77,8 +81,14 @@ public class ProposalSupportControllerTest {
 
 
     @BeforeEach
-    void cleanupBeforeEach() {
+    void setup() {
         cleanup();
+        TenantContextTest.setSecurityContext("testuser", "00000000-0000-0000-0000-000000000001", List.of("global_admin"));
+    }
+
+    @AfterEach
+    void clearContext() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -105,7 +115,7 @@ public class ProposalSupportControllerTest {
 
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()});
         List<String> locationHeaders = response.getHeaders().get("Location");
         String location = locationHeaders.get(0);
         String[] parts = location.split("/");
@@ -242,7 +252,7 @@ public class ProposalSupportControllerTest {
         // nothing to do here
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", 23L, new long[]{1,2,3});
+        ResponseEntity<Object> response = controller.createProposal(23L, new long[]{1,2,3});
         
         // Then
         assertTrue(response.getStatusCode() == HttpStatusCode.valueOf(404));
@@ -257,7 +267,7 @@ public class ProposalSupportControllerTest {
         Supplier dbSupplier = supplierRepo.save(supplier);
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", dbSupplier.getId(), new long[]{1,2,3});
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{1,2,3});
         
         // Then
         assertEquals(response.getStatusCode(), HttpStatusCode.valueOf(404));
@@ -289,7 +299,7 @@ public class ProposalSupportControllerTest {
         paidLinkRepo.save(paidLink);
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()});
         
         // Then
         assertEquals(response.getStatusCode(), HttpStatusCode.valueOf(400));
@@ -311,7 +321,7 @@ public class ProposalSupportControllerTest {
 
         Demand demand = new Demand();
         Demand dbDemand = demandRepo.save(demand);
-        controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()});
 
         // When – supplier NOT updated, fetch immediately
         ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
@@ -421,8 +431,8 @@ public class ProposalSupportControllerTest {
         demand2.setDomain("site-b.com");
         Demand dbDemand2 = demandRepo.save(demand2);
 
-        controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand1.getId()});
-        controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand2.getId()});
+        controller.createProposal(dbSupplier.getId(), new long[]{dbDemand1.getId()});
+        controller.createProposal(dbSupplier.getId(), new long[]{dbDemand2.getId()});
 
         dbSupplier.setDa(300);
         dbSupplier.setName("updated-shared-supplier");
@@ -467,7 +477,7 @@ public class ProposalSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         LocalDateTime beforeCreate = LocalDateTime.now();
-        ResponseEntity<Object> createResp = controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        ResponseEntity<Object> createResp = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()});
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
         LocalDateTime afterCreate = LocalDateTime.now();
@@ -533,7 +543,7 @@ public class ProposalSupportControllerTest {
         long paidLinkCountBefore = paidLinkRepo.count(); // 1
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("testuser",
+        ResponseEntity<Object> response = controller.createProposal(
                 dbSupplier.getId(), new long[]{dbDemandOk.getId(), dbDemandConflict.getId()});
 
         // Then
@@ -562,7 +572,7 @@ public class ProposalSupportControllerTest {
         demand2.setUrl("http://www.abort-site-b.com");
         Demand dbDemand2 = demandRepo.save(demand2);
 
-        ResponseEntity<Object> createResp = controller.createProposal("testuser",
+        ResponseEntity<Object> createResp = controller.createProposal(
                 dbSupplier.getId(), new long[]{dbDemand1.getId(), dbDemand2.getId()});
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
@@ -571,7 +581,7 @@ public class ProposalSupportControllerTest {
         assertEquals(2, paidLinkRepo.count(), "Two PaidLinks should exist before abort");
 
         // When
-        ResponseEntity<Object> abortResp = controller.delete(proposalId, "testuser");
+        ResponseEntity<Object> abortResp = controller.delete(proposalId);
 
         // Then
         assertEquals(HttpStatusCode.valueOf(200), abortResp.getStatusCode());
@@ -593,7 +603,7 @@ public class ProposalSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         ResponseEntity<Object> createResp = controller.resolveDemandWith3rdPartySupplier(
-                "3rd Party Blogger", "testuser", (int) dbDemand.getId());
+                "3rd Party Blogger", (int) dbDemand.getId());
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
 
@@ -604,7 +614,7 @@ public class ProposalSupportControllerTest {
         assertTrue(supplierRepo.findById(thirdPartySupplierId).isPresent(), "3rd-party supplier should exist before abort");
 
         // When
-        ResponseEntity<Object> abortResp = controller.delete(proposalId, "testuser");
+        ResponseEntity<Object> abortResp = controller.delete(proposalId);
 
         // Then
         assertEquals(HttpStatusCode.valueOf(200), abortResp.getStatusCode());
@@ -640,7 +650,7 @@ public class ProposalSupportControllerTest {
         Demand demand = new Demand();
         Demand dbDemand = demandRepo.save(demand);
 
-        ResponseEntity<Object> createResp = controller.createProposal("testuser",
+        ResponseEntity<Object> createResp = controller.createProposal(
                 dbSupplier.getId(), new long[]{dbDemand.getId()});
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);

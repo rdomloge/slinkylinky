@@ -64,6 +64,66 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: organisation; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.organisation (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    slug character varying(100) NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    active boolean NOT NULL DEFAULT true
+);
+
+
+--
+-- Name: organisation organisation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- (added inline for readability; constraint section below also lists it)
+
+ALTER TABLE ONLY public.organisation
+    ADD CONSTRAINT organisation_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.organisation
+    ADD CONSTRAINT organisation_slug_unique UNIQUE (slug);
+
+
+--
+-- Name: supplier_tenant_exclusion_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.supplier_tenant_exclusion_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: supplier_tenant_exclusion; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.supplier_tenant_exclusion (
+    id bigint NOT NULL DEFAULT nextval('public.supplier_tenant_exclusion_seq'),
+    supplier_id bigint NOT NULL,
+    organisation_id uuid NOT NULL
+);
+
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT supplier_tenant_exclusion_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT ste_supplier_org_unique UNIQUE (supplier_id, organisation_id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT fk_ste_supplier FOREIGN KEY (supplier_id) REFERENCES public.supplier(id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT fk_ste_organisation FOREIGN KEY (organisation_id) REFERENCES public.organisation(id);
+
+
+--
 -- Name: black_listed_supplier; Type: TABLE; Schema: public; Owner: -
 --
 

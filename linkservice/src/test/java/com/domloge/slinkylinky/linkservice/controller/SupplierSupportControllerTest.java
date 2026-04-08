@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -17,6 +18,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.domloge.slinkylinky.linkservice.config.TenantContextTest;
 
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
@@ -66,6 +70,16 @@ public class SupplierSupportControllerTest {
     private AmqpTemplate supplierRabbitTemplate;
 
     @BeforeEach
+    void setup() {
+        cleanup();
+        TenantContextTest.setSecurityContext("testuser", "00000000-0000-0000-0000-000000000001", List.of("global_admin"));
+    }
+
+    @AfterEach
+    void clearContext() {
+        SecurityContextHolder.clearContext();
+    }
+
     void cleanup() {
         proposalRepo.deleteAll();
         paidLinkRepo.deleteAll();
@@ -127,7 +141,7 @@ public class SupplierSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         ResponseEntity<Object> createResp = proposalSupportController.createProposal(
-                "testuser", dbSupplier.getId(), new long[]{dbDemand.getId()});
+                dbSupplier.getId(), new long[]{dbDemand.getId()});
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
 
@@ -167,7 +181,7 @@ public class SupplierSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         ResponseEntity<Object> createResp = proposalSupportController.createProposal(
-                "testuser", dbSupplier.getId(), new long[]{dbDemand.getId()});
+                dbSupplier.getId(), new long[]{dbDemand.getId()});
 
         String location = createResp.getHeaders().get("Location").get(0);
         return Long.parseLong(location.split("/")[location.split("/").length - 1]);

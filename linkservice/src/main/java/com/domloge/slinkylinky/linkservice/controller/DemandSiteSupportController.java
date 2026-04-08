@@ -7,9 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.domloge.slinkylinky.linkservice.config.TenantContext;
 
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.DemandSiteCountProjection;
@@ -37,7 +38,8 @@ public class DemandSiteSupportController {
 
     @DeleteMapping(path = "/delete", produces = "text/HTML")
     @Transactional
-    public ResponseEntity<Object> delete(@RequestParam long demandSiteId, @RequestHeader String user) {
+    public ResponseEntity<Object> delete(@RequestParam long demandSiteId) {
+        String user = TenantContext.getUsername();
         DemandSite demand = demandSiteRepo.findById(demandSiteId).get();
         demand.setUpdatedBy(user);
         demandSiteRepo.delete(demand);
