@@ -32,17 +32,19 @@ CREATE FUNCTION public.paid_link_duplicate_check() RETURNS trigger
                         join demand d on pl.demand_id = d.id
                         join demand_site ds on d.demand_site_id = ds.id
                         join supplier s on s.id=pl.supplier_id
-                        where s.id = new.supplier_id and ds.domain = (
-                                select innerds.domain 
-                                from demand_site innerds 
+                        where s.id = new.supplier_id
+                          and pl.organisation_id = new.organisation_id
+                          and ds.domain = (
+                                select innerds.domain
+                                from demand_site innerds
                                 join demand innerd on innerd.demand_site_id = innerds.id
                                 where innerd.id = new.demand_id
                             )
                         ) then
-                raise exception 'A paid link already exists between the supplier domain and the demand site domain';
+                raise exception 'A paid link already exists between the supplier domain and the demand site domain within this organisation';
             end if;
-        end if; 
-       return new; 
+        end if;
+       return new;
     end;
     $$;
 
@@ -207,7 +209,8 @@ CREATE TABLE public.demand (
     url character varying(255),
     demand_site_id bigint,
     source character varying(255),
-    word_count integer DEFAULT 0
+    word_count integer DEFAULT 0,
+    organisation_id uuid
 );
 
 
@@ -244,7 +247,8 @@ CREATE TABLE public.demand_site (
     email character varying(255),
     name character varying(255),
     updated_by character varying(255),
-    url character varying(255)
+    url character varying(255),
+    organisation_id uuid
 );
 
 
@@ -290,7 +294,8 @@ CREATE TABLE public.paid_link (
     id bigint NOT NULL,
     demand_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
-    version bigint DEFAULT 0
+    version bigint DEFAULT 0,
+    organisation_id uuid
 );
 
 
@@ -347,7 +352,8 @@ CREATE TABLE public.proposal (
     date_validated timestamp(6) without time zone,
     do_not_expire boolean DEFAULT false,
     supplier_snapshot_revision bigint DEFAULT 0,
-    supplier_snapshot text
+    supplier_snapshot text,
+    organisation_id uuid
 );
 
 

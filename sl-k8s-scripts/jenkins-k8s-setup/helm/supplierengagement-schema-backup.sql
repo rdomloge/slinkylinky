@@ -56,6 +56,7 @@ CREATE TABLE public.engagement (
     supplier_website character varying(255),
     article text,
     invoice_url character varying(512),
+    organisation_id uuid,
     CONSTRAINT engagement_status_check CHECK (((status)::text = ANY (ARRAY[('NEW'::character varying)::text, ('ACCEPTED'::character varying)::text, ('DECLINED'::character varying)::text, ('CANCELLED'::character varying)::text, ('EXPIRED'::character varying)::text])))
 );
 

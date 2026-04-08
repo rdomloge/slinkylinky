@@ -34,7 +34,8 @@ CREATE TABLE public.audit_record (
     entity_type character varying(255),
     what character varying(255),
     who character varying(255),
-    detail text
+    detail text,
+    organisation_id uuid
 );
 
 

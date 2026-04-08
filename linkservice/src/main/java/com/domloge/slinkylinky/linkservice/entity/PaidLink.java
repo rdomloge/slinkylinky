@@ -1,5 +1,7 @@
 package com.domloge.slinkylinky.linkservice.entity;
 
+import java.util.UUID;
+
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.envers.Audited;
@@ -40,6 +42,9 @@ public class  PaidLink {
     private Demand demand;
 
     
+    @Column(name = "organisation_id")
+    private UUID organisationId;
+
     @Version
     @Column(name = "version", columnDefinition = "bigint default 0")
     private Long version;
