@@ -21,8 +21,8 @@ public class DemandValidator implements Validator {
         if(null == d.getDomain()) errors.rejectValue("domain", "missing");
         if(null == d.getSource()) errors.rejectValue("source", "missing");
 
-        if(null == d.getCreatedBy()) errors.rejectValue("createdby", "missing");
-        if(d.getId() > 0 && null == d.getUpdatedBy()) errors.rejectValue("updatedby", "missing");
+        if(null == d.getCreatedBy()) errors.rejectValue("createdBy", "missing");
+        if(d.getId() > 0 && null == d.getUpdatedBy()) errors.rejectValue("updatedBy", "missing");
     }
     
 }
