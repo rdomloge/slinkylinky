@@ -168,6 +168,9 @@ public class ProposalEventReceiver {
         engagement.setSupplierEmailSent(java.time.LocalDateTime.now());
         engagement.setArticle(event.getArticle());
         engagement.setStatus(EngagementStatus.NEW);
+        if (event.getOrganisationId() != null) {
+            engagement.setOrganisationId(UUID.fromString(event.getOrganisationId()));
+        }
         log.info("Saving engagement {}", engagement);
         return engagementRepo.save(engagement);
     }

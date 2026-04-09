@@ -49,8 +49,11 @@ public class ProposalEventDispatcher {
     private void doCommon(Proposal proposal, ProposalUpdateEvent event) {
         Supplier supplier = proposal.getPaidLinks().get(0).getSupplier();
         event.setProposalDetails(proposal.getArticle(), proposal.getId());
-        event.setSupplierDetails(supplier.getName(), supplier.getEmail(), supplier.getWebsite(), supplier.getWeWriteFee(), 
+        event.setSupplierDetails(supplier.getName(), supplier.getEmail(), supplier.getWebsite(), supplier.getWeWriteFee(),
             supplier.getWeWriteFeeCurrency(), supplier.isThirdParty());
+        if (proposal.getOrganisationId() != null) {
+            event.setOrganisationId(proposal.getOrganisationId().toString());
+        }
         proposalsRabbitTemplate.convertAndSend(event);
     }
 }

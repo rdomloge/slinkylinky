@@ -65,6 +65,7 @@ public class DemandAuditor {
         auditRecord.setEventTime(LocalDateTime.now());
         auditRecord.setEntityId(demand.getId());
         auditRecord.setEntityType(Demand.class.getSimpleName());
+        auditRecord.setOrganisationId(demand.getOrganisationId());
         try {
             auditRecord.setDetail(objectMapper.writeValueAsString(demand));
         } catch (JsonProcessingException e) {
