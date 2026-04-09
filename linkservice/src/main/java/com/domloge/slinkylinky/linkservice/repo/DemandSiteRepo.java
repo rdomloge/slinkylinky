@@ -1,5 +1,7 @@
 package com.domloge.slinkylinky.linkservice.repo;
 
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -17,6 +19,8 @@ import java.util.List;
 public interface DemandSiteRepo extends CrudRepository <DemandSite, Long>, PagingAndSortingRepository<DemandSite, Long> {
 
     DemandSite findByDomainIgnoreCase(String domain);
+
+    DemandSite findByDomainIgnoreCaseAndOrganisationId(String domain, UUID organisationId);
 
     DemandSite[] findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase(String email, String name);
 

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 
 @DataJpaTest
 public class SupplierRepoTest {
+
+    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private SupplierRepo supplierRepo;
@@ -48,10 +51,11 @@ public class SupplierRepoTest {
 
         Demand matchingByDisabledCategory = new Demand();
         matchingByDisabledCategory.setCategories(Set.of(testCategories.get(0)));
+        matchingByDisabledCategory.setOrganisationId(TEST_ORG_ID);
         demandRepo.save(matchingByDisabledCategory);
 
         // When
-        Supplier[] result = supplierRepo.findSuppliersForDemandId(matchingByDisabledCategory.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(matchingByDisabledCategory.getId(), TEST_ORG_ID);
 
         // Then
         assertThat(result.length).isEqualTo(0);
@@ -71,10 +75,11 @@ public class SupplierRepoTest {
 
         Demand matchingByEnabledCategory = new Demand();
         matchingByEnabledCategory.setCategories(Set.of(testCategories.get(0)));
+        matchingByEnabledCategory.setOrganisationId(TEST_ORG_ID);
         demandRepo.save(matchingByEnabledCategory);
 
         // When
-        Supplier[] result = supplierRepo.findSuppliersForDemandId(matchingByEnabledCategory.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(matchingByEnabledCategory.getId(), TEST_ORG_ID);
 
         // Then
         assertThat(result.length).isEqualTo(testSuppliers.size());
@@ -106,11 +111,12 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(new HashSet<>(testCategories));
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
         assertThat(result.length).isEqualTo(3);
@@ -145,11 +151,12 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(new HashSet<>(testCategories));
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
         assertThat(result.length).isEqualTo(2);
@@ -182,11 +189,12 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Set.of(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
         assertThat(result.length).isEqualTo(2);
@@ -219,11 +227,12 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Set.of(testCategories.get(0), testCategories.get(1))); // cat 0 & 1
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
         assertThat(result.length).isEqualTo(1);
@@ -255,11 +264,12 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(20);
         ld.setCategories(Set.of(testCategories.get(0)));
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
         assertThat(result.length).isEqualTo(1);
@@ -288,6 +298,7 @@ public class SupplierRepoTest {
         ld.setDaNeeded(20);
         ld.setCategories(new HashSet<>(testCategories));
         ld.setUrl("https://www.disney.com");
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // link one of the suppliers to a /previous/ link demand with the same domain
@@ -295,16 +306,18 @@ public class SupplierRepoTest {
         previousD.setUrl("https://www.disney.com");
         previousD.setCategories(new HashSet<>(testCategories));
         previousD.setDaNeeded(20);
+        previousD.setOrganisationId(TEST_ORG_ID);
         demandRepo.save(previousD);
         PaidLink pl = new PaidLink();
         pl.setSupplier(testSuppliers.get(0));
         pl.setDemand(previousD);
+        pl.setOrganisationId(TEST_ORG_ID);
         paidLinkRepo.save(pl);
 
         
         // WHEN
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
         assertThat(result.length).isEqualTo(testSuppliers.size() - 1);
@@ -329,11 +342,12 @@ public class SupplierRepoTest {
         Demand ld = new Demand();
         ld.setDaNeeded(100);
         ld.setCategories(new HashSet<>(testCategories));
+        ld.setOrganisationId(TEST_ORG_ID);
         Demand dbLd = demandRepo.save(ld);
 
         // when
         // Call the method under test
-        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // Assert the results
         assertThat(result.length).isEqualTo(0);
@@ -388,10 +402,11 @@ public class SupplierRepoTest {
         Demand demand = new Demand();
         demand.setDaNeeded(20);
         demand.setCategories(new HashSet<>(testCategories));
+        demand.setOrganisationId(TEST_ORG_ID);
         Demand dbDemand = demandRepo.save(demand);
 
         // When
-        Supplier[] result = supplierRepo.findSuppliersForDemandId(dbDemand.getId());
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(dbDemand.getId(), TEST_ORG_ID);
 
         // Then — cheapest first (fee=100 before fee=200); within same fee, highest DA first
         assertThat(result.length).isEqualTo(4);

@@ -18,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.domloge.slinkylinky.linkservice.config.TenantContextTest;
@@ -69,10 +70,13 @@ public class SupplierSupportControllerTest {
     @MockBean(name = "supplierRabbitTemplate")
     private AmqpTemplate supplierRabbitTemplate;
 
+    private MockHttpServletRequest mockRequest;
+
     @BeforeEach
     void setup() {
         cleanup();
         TenantContextTest.setSecurityContext("testuser", "00000000-0000-0000-0000-000000000001", List.of("global_admin"));
+        mockRequest = new MockHttpServletRequest();
     }
 
     @AfterEach
@@ -141,7 +145,7 @@ public class SupplierSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         ResponseEntity<Object> createResp = proposalSupportController.createProposal(
-                dbSupplier.getId(), new long[]{dbDemand.getId()});
+                dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
 
@@ -181,7 +185,7 @@ public class SupplierSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         ResponseEntity<Object> createResp = proposalSupportController.createProposal(
-                dbSupplier.getId(), new long[]{dbDemand.getId()});
+                dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
 
         String location = createResp.getHeaders().get("Location").get(0);
         return Long.parseLong(location.split("/")[location.split("/").length - 1]);

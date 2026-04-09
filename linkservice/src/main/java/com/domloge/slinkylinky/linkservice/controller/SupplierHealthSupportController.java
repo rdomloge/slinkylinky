@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.domloge.slinkylinky.linkservice.config.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.AtRiskDemandSiteProjection;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.SupplierOnboardingMonthProjection;
 import com.domloge.slinkylinky.linkservice.repo.DemandSiteRepo;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
@@ -64,9 +67,10 @@ public class SupplierHealthSupportController {
 
     @GetMapping(path = "/atrisk", produces = "application/json")
     public ResponseEntity<AtRiskDemandSiteResponse> atRisk(
-            @RequestParam(defaultValue = "5") int threshold) {
+            @RequestParam(defaultValue = "5") int threshold, HttpServletRequest request) {
 
-        List<AtRiskDemandSiteProjection> projections = supplierRepo.findAtRiskDemandSites(threshold);
+        UUID orgId = TenantFilter.requireOrgId(request);
+        List<AtRiskDemandSiteProjection> projections = supplierRepo.findAtRiskDemandSites(threshold, orgId);
 
         if (projections.isEmpty()) {
             return ResponseEntity.ok(

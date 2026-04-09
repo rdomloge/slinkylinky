@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.hibernate.envers.AuditReader;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.domloge.slinkylinky.linkservice.config.TenantContext;
+import com.domloge.slinkylinky.linkservice.config.TenantFilter;
 
 import com.domloge.slinkylinky.linkservice.ProposalAbortHandler;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
@@ -49,6 +51,7 @@ import com.github.rjeschke.txtmark.Processor;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -114,10 +117,12 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
 
     @GetMapping(path = "/getProposalsWithOriginalSuppliers", produces = "application/json")
     @Transactional
-    public ResponseEntity<Proposal[]> getProposal(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate) {
+    public ResponseEntity<Proposal[]> getProposal(@RequestParam LocalDateTime startDate, @RequestParam LocalDateTime endDate,
+            HttpServletRequest request) {
 
-        List<Proposal> proposals = proposalRepo.findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
-            endDate, startDate);
+        UUID orgId = TenantFilter.requireOrgId(request);
+        List<Proposal> proposals = proposalRepo.findAllByOrganisationIdAndDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
+            orgId, endDate, startDate);
 
         // Only needed for proposals that still lack a JSON snapshot (legacy / first access).
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
@@ -204,8 +209,9 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
 
     @PostMapping(path = "/createProposal", produces = "application/json")
     public ResponseEntity<Object> createProposal(@RequestParam long supplierId,
-            @RequestParam long[] demandIds) throws JsonProcessingException {
+            @RequestParam long[] demandIds, HttpServletRequest request) throws JsonProcessingException {
         String user = TenantContext.getUsername();
+        UUID orgId = TenantFilter.requireOrgId(request);
 
         log.info(user + " is creating a proposal for supplier {} for demands {} ", supplierId, Arrays.toString(demandIds));
 
@@ -237,9 +243,10 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                     return null;
                 }
 
-                // check that there's no paid link already between the supplier and these demands (what if someone already created a proposal?)
+                // check that there's no paid link already between the supplier and these demands (Rule 2 — per-org uniqueness)
                 List<Demand> existingPaidLinks = dbDemands.stream()
-                    .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(d.getDomain(), supplier.getDomain()))
+                    .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomainAndOrganisationId(
+                            d.getDomain(), supplier.getDomain(), orgId))
                     .collect(Collectors.toList());
 
                 if(existingPaidLinks.size() > 0) {
@@ -247,7 +254,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                     errorStatus[0] = 400;
                     return null;
                 }
-                
+
                 LinkedList<PaidLink> paidLinks = new LinkedList<>();
 
                 // create the paid links
@@ -255,6 +262,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                     PaidLink paidLink = new PaidLink();
                     paidLink.setDemand(d);
                     paidLink.setSupplier(supplier);
+                    paidLink.setOrganisationId(orgId);
                     PaidLink dbPaidLink = paidLinkRepo.save(paidLink);
                     paidLinks.add(dbPaidLink);
                 });
@@ -284,6 +292,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 // create the proposal
                 Proposal proposal = new Proposal();
                 proposal.setCreatedBy(user);
+                proposal.setOrganisationId(orgId);
                 proposal.setDateCreated(LocalDateTime.now());
                 proposal.setPaidLinks(paidLinks);
                 proposal.setSupplierSnapshotVersion(supplier.getVersion());
@@ -334,11 +343,12 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
     @PostMapping(path = "/resolveProposal3rdParty", produces = "application/json")
     @Transactional
     public ResponseEntity<Object> resolveDemandWith3rdPartySupplier(
-            @RequestParam String name, @RequestParam int demandId) {
+            @RequestParam String name, @RequestParam int demandId, HttpServletRequest request) {
         String user = TenantContext.getUsername();
+        UUID orgId = TenantFilter.requireOrgId(request);
         log.info(user + " is resolving demand " + demandId + " with 3rd party supplier " + name);
-        
-        // create the 3rd party supplier
+
+        // create the 3rd party supplier (bypasses SupplierWriteGuard — internal use only)
         Supplier supplier = new Supplier();
         supplier.setName(name);
         supplier.setThirdParty(true);
@@ -350,18 +360,19 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         PaidLink paidLink = new PaidLink();
         paidLink.setDemand(demandRepo.findById(demandId));
         paidLink.setSupplier(dbSupplier);
+        paidLink.setOrganisationId(orgId);
         PaidLink dbPaidLink = paidLinkRepo.save(paidLink);
-        
 
         // create the proposal with the paidlink added to it
         Proposal proposal = new Proposal();
         proposal.setCreatedBy(user);
+        proposal.setOrganisationId(orgId);
         proposal.setDateCreated(LocalDateTime.now());
         proposal.setPaidLinks(Arrays.asList(dbPaidLink));
         Proposal dbProposal = proposalRepo.save(proposal);
         proposalAuditor.handleAfterCreate(dbProposal);
         applicationEventPublisher.publishEvent(new AfterCreateEvent(dbProposal));
-        
+
         // make sure the new proposal HREF is in the Location header of the response.
         return ResponseEntity.created(URI.create("/proposals/" + dbProposal.getId())).build();
     }

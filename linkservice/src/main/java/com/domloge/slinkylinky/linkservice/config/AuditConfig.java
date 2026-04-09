@@ -9,7 +9,7 @@ import com.domloge.slinkylinky.linkservice.entity.audit.DemandSiteAuditor;
 public class AuditConfig {
     
     @Bean
-    DemandSiteAuditor demandSiteEventHandler() {
+    DemandSiteAuditor demandSiteAuditor() {
         return new DemandSiteAuditor();
     }
 }
