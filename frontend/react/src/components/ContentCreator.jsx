@@ -25,8 +25,7 @@ export default function ContentCreator({dismissHandler, submitHandler, proposal}
         const url = "/.rest/aisupport/generate";
         fetchWithAuth(url, {
             method: 'POST',
-            headers: {'user': user.email,
-                        'Content-Type':'text/plain',
+            headers: {'Content-Type':'text/plain',
                         'proposalId': parseId(proposal)},
             body: prompt
             })

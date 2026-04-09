@@ -1,15 +1,17 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AuthorizedAccess } from '../AuthorizedAccess';
+import { useAuth } from '@/auth/AuthProvider';
 
 // Entity accent colours for nav items
 const ENTITY_COLORS = {
-    '/demand':      { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
-    '/supplier':    { active: '#10b981', glow: 'rgba(16,185,129,0.25)',  dot: '#10b981' },
-    '/demandsites': { active: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', dot: '#8b5cf6' },
-    '/proposals':   { active: '#60a5fa', glow: 'rgba(96,165,250,0.25)', dot: '#60a5fa' },
-    '/categories':  { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
-    '/orders':      { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
-    '/audit':       { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/demand':         { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
+    '/supplier':       { active: '#10b981', glow: 'rgba(16,185,129,0.25)',  dot: '#10b981' },
+    '/demandsites':    { active: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', dot: '#8b5cf6' },
+    '/proposals':      { active: '#60a5fa', glow: 'rgba(96,165,250,0.25)', dot: '#60a5fa' },
+    '/categories':     { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/orders':         { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
+    '/audit':          { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/organisations':  { active: '#38bdf8', glow: 'rgba(56,189,248,0.25)',  dot: '#38bdf8' },
 };
 
 const navItems = [
@@ -25,10 +27,21 @@ const navItems = [
     {
         to: '/categories',
         label: 'Categories',
+        adminOnly: true,
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+            </svg>
+        ),
+    },
+    {
+        to: '/organisations',
+        label: 'Organisations',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
             </svg>
         ),
     },
@@ -115,15 +128,32 @@ function NavItem({ to, label, icon }) {
 }
 
 export default function Menu() {
+    const { user } = useAuth();
+    const isGlobalAdmin = user?.roles?.includes('global_admin');
+    const isAdmin = isGlobalAdmin || user?.roles?.includes('tenant_admin');
+
+    const publicItems = navItems.filter(i => !i.adminOnly);
+    const ordersItem = navItems.find(i => i.to === '/orders');
+    const globalAdminItems = navItems.filter(i => i.adminOnly && i.to !== '/orders');
+
     return (
         <nav className="flex flex-col gap-0.5 pt-3 px-3 pb-4">
-            {navItems.filter(i => !i.adminOnly).map(item => (
+            {publicItems.map(item => (
                 <NavItem key={item.to} {...item} />
             ))}
-            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                <div className="my-2 border-t border-white/10"/>
-                <NavItem {...navItems.find(i => i.adminOnly)} />
-            </AuthorizedAccess>
+            {isAdmin && (
+                <>
+                    <div className="my-2 border-t border-white/10"/>
+                    <NavItem {...ordersItem} />
+                </>
+            )}
+            {isGlobalAdmin && (
+                <>
+                    {globalAdminItems.map(item => (
+                        <NavItem key={item.to} {...item} />
+                    ))}
+                </>
+            )}
         </nav>
     );
 }

@@ -48,6 +48,8 @@ function getUserFromToken(token) {
       name: decoded.name || decoded.preferred_username,
       email: decoded.email,
       image: decoded.picture || null,
+      orgId: decoded.org_id || null,
+      roles: decoded.realm_access?.roles || [],
     };
   } catch {
     return null;

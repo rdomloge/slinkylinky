@@ -43,7 +43,7 @@ export default function ListCategories() {
         setCategories(categories);
         fetchWithAuth(categoriesUrl, {
             method: 'POST',
-            headers: {'Content-Type':'application/json', 'user': user.email},
+            headers: {'Content-Type':'application/json'},
             body: JSON.stringify(newCategory)
         })
         .then( (resp) => {
@@ -79,7 +79,7 @@ export default function ListCategories() {
         
         fetchWithAuth(categoriesUrl + "/" + editingCategory.id, {
             method: 'PATCH',
-            headers: {'Content-Type':'application/json', 'user': user.email},
+            headers: {'Content-Type':'application/json'},
             body: JSON.stringify({name: editingCategoryName, disabled: editingCategory.disabled, updatedBy: user.email})
         })
     }

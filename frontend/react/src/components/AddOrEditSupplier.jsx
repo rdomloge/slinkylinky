@@ -55,10 +55,10 @@ export default function AddOrEditSupplier({supplier,
     async function supplierWebsiteChangeHandler(e) {
         setSupplierWebsite(e)
         if(validDomain(e)) {
-            const existsAlready = await checkIfSupplierExists(e, user)
+            const existsAlready = await checkIfSupplierExists(e)
             if(existsAlready) { setSupplierAlreadyExists(true) }
 
-            const blacklisted = await checkIfSupplierIsBlacklisted(e, user)
+            const blacklisted = await checkIfSupplierIsBlacklisted(e)
             if(blacklisted) { setSupplierIsBlackListed(true) }
 
             setShowStatsButton(!existsAlready && !blacklisted)
@@ -70,7 +70,7 @@ export default function AddOrEditSupplier({supplier,
 
     function lookupDa(domain) {
         const url = "/.rest/mozsupport/checkdomain?domain="+domain
-        fetchWithAuth(url, {method: 'GET', headers: {'user': user.email}})
+        fetchWithAuth(url, {method: 'GET'})
         .then( (resp) => {
             if(resp.ok) {
                 resp.json().then( (data) => {
@@ -101,7 +101,7 @@ export default function AddOrEditSupplier({supplier,
             + "&da="+supplierDa
             + "&spamRating="+supplierSpamScore
 
-        fetchWithAuth(url, {method: 'POST', headers: {'user': user.email}, body: JSON.stringify(dataPoints)})
+        fetchWithAuth(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dataPoints)})
 
         setSupplierIsBlackListed(true)
     }
