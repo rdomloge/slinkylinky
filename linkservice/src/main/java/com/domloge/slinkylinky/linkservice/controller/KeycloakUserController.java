@@ -2,7 +2,7 @@ package com.domloge.slinkylinky.linkservice.controller;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -74,15 +74,15 @@ public class KeycloakUserController {
 
         @SuppressWarnings("unchecked")
         Map<String, List<String>> attrs = (Map<String, List<String>>) userRepresentation.get("attributes");
-        String targetOrgId = attrs != null && attrs.containsKey("org_id")
-            ? attrs.get("org_id").get(0) : null;
+        List<String> orgIdAttr = attrs != null ? attrs.get("org_id") : null;
+        String targetOrgId = (orgIdAttr != null && !orgIdAttr.isEmpty()) ? orgIdAttr.get(0) : null;
 
         if (!TenantContext.isGlobalAdmin()) {
             if (!TenantContext.isTenantAdmin()) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
             String callerOrgId = TenantContext.getOrganisationId().orElse(null);
-            if (!callerOrgId.equals(targetOrgId)) {
+            if (!Objects.equals(callerOrgId, targetOrgId)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
         }

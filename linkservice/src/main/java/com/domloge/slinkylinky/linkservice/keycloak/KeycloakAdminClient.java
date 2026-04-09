@@ -67,6 +67,9 @@ public class KeycloakAdminClient {
             .retrieve()
             .body(Map.class);
 
+        if (resp == null) {
+            throw new IllegalStateException("Empty response from Keycloak token endpoint");
+        }
         cachedToken = (String) resp.get("access_token");
         int expiresIn = resp.containsKey("expires_in") ? (Integer) resp.get("expires_in") : 60;
         tokenExpiry = Instant.now().plusSeconds(expiresIn - 60);

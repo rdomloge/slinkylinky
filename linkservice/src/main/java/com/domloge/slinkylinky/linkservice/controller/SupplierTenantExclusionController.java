@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.domloge.slinkylinky.linkservice.config.TenantContext;
 import com.domloge.slinkylinky.linkservice.config.TenantFilter;
@@ -76,8 +77,7 @@ public class SupplierTenantExclusionController {
 
     private void requireTenantAdmin() {
         if (!TenantContext.isTenantAdmin() && !TenantContext.isGlobalAdmin()) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                HttpStatus.FORBIDDEN, "Requires tenant_admin or global_admin role");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Requires tenant_admin or global_admin role");
         }
     }
 }

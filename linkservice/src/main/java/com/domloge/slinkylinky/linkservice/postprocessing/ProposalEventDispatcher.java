@@ -12,7 +12,6 @@ import com.domloge.slinkylinky.events.ProposalUpdateEvent;
 import com.domloge.slinkylinky.events.ProposalUpdateEvent.ProposalEventType;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,21 +25,21 @@ public class ProposalEventDispatcher {
 
  
     @HandleAfterSave
-    public void handleAfterSave(Proposal proposal) throws JsonProcessingException {
+    public void handleAfterSave(Proposal proposal) {
         log.info("Proposal {} has been updated", proposal.getId());
         
         doCommon(proposal, new ProposalUpdateEvent(ProposalEventType.UPDATED));
     }
 
     @HandleAfterDelete
-    public void handleAfterDelete(Proposal proposal) throws JsonProcessingException {
+    public void handleAfterDelete(Proposal proposal) {
         log.info("Proposal {} has been deleted", proposal.getId());
         
         doCommon(proposal, new ProposalUpdateEvent(ProposalEventType.DELETED));
     }
 
     @HandleAfterCreate
-    public void handleAfterCreate(Proposal proposal) throws JsonProcessingException {
+    public void handleAfterCreate(Proposal proposal) {
         log.info("Proposal {} has been created", proposal.getId());
         
         doCommon(proposal, new ProposalUpdateEvent(ProposalEventType.CREATED));
