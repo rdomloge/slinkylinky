@@ -18,6 +18,10 @@ secrets:
       # Keycloak client credentials for client credentials
       KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID: "sl-server"
       KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET: "changeme"
+      # Keycloak Admin REST API — service-account client for user management
+      KEYCLOAK_ADMIN_URL: "http://keycloak-service:8100"
+      KEYCLOAK_ADMIN_CLIENT_ID: "sl-admin"
+      KEYCLOAK_ADMIN_CLIENT_SECRET: "changeme"
       KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI: "http://keycloak-service:8100/realms/myrealm/protocol/openid-connect/token"
       # This has to be the external URL otherwise the ISS in the token does not match
       KEYCLOAK_BASE_URL: "changeme"
@@ -134,6 +138,15 @@ deployments:
       ISSUER_URI: # named differently to match app config - is this the same value as KEYCLOAK_ISSUER in adminwebsite?
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+      KEYCLOAK_ADMIN_URL:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_URL
+      KEYCLOAK_ADMIN_CLIENT_ID:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_ID
+      KEYCLOAK_ADMIN_CLIENT_SECRET:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_SECRET
       slinkylinky_rabbitmq_username:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_USERNAME

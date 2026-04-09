@@ -52,6 +52,12 @@ For each user who should have cross-tenant root access:
 
 Each user must have their organisation's UUID set as a user attribute.
 
+# Ramsay Insert
+The instructions are a little out of date and in order to add an attribute to a user, you first have to click 
+Realm Settings >> User Profile >> Create attribute
+..then you'll be able to add values for this attribute key below
+# /Ramsay Insert
+
 For each existing user:
 
 1. Navigate to **Realm → Users → [user] → Attributes**.

@@ -233,3 +233,4 @@ _Source: `entity/validator/DemandValidator.java`_
 | `entity/validator/DemandValidatorTest.java` | All Rule 12 constraints: requested, daNeeded > 0, url/domain, source, createdBy; update path requires updatedBy |
 | `entity/validator/ProposalValidatorTest.java` | Rule 1: null/empty/4 paidLinks rejected; 1–3 paidLinks accepted; createdBy/updatedBy required |
 | `UtilTest.java` | `Util.stripDomain`: www prefix, no-scheme URL, path/query stripped, multi-part TLD (co.uk), subdomain stripping, localhost fallback |
+| `controller/TenantIsolationTest.java` | Data segregation: Demand and DemandSite scoped to caller's org; cross-tenant delete blocked (403); role restrictions: supplier exclusion (tenant_admin+), blacklist (global_admin only), SupplierWriteGuard (global_admin only); X-Tenant-Override honoured for global_admin, ignored for tenant_admin |
