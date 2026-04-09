@@ -42,18 +42,21 @@ public interface DemandRepo extends CrudRepository<Demand, Long> {
                         "       s.da DESC")
         Demand[] findDemandForSupplierId(long supplierId, long demandIdToIgnore, UUID orgId);
 
+        @RestResource(exported = false)
         @Query(nativeQuery = true, value = "SELECT d.* FROM demand d " +
                         "WHERE d.organisation_id = ?1 " +
                         "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl WHERE pl.organisation_id = ?1) " +
                         "ORDER BY d.requested ASC, d.name ASC")
         Demand[] findUnsatisfiedDemandOrderedByRequested(UUID orgId);
 
+        @RestResource(exported = false)
         @Query(nativeQuery = true, value = "SELECT d.* FROM demand d " +
                         "WHERE d.organisation_id = ?2 " +
                         "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl WHERE pl.organisation_id = ?2) " +
                         "AND d.domain = ?1")
         Demand[] findUnsatisfiedDemandByDomain(String domain, UUID orgId);
 
+        @RestResource(exported = false)
         @Query(nativeQuery = true, value = "SELECT d.* FROM demand d " +
                         "WHERE d.organisation_id = ?1 " +
                         "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl WHERE pl.organisation_id = ?1) " +

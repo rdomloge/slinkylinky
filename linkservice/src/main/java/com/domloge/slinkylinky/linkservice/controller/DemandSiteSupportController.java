@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.domloge.slinkylinky.linkservice.config.TenantContext;
 import com.domloge.slinkylinky.linkservice.config.TenantFilter;
@@ -38,6 +39,14 @@ public class DemandSiteSupportController {
     @GetMapping(path = "/topbydemands", produces = "application/json")
     public ResponseEntity<List<DemandSiteCountProjection>> topByDemands(@RequestParam(defaultValue = "5") int limit) {
         return ResponseEntity.ok(demandSiteRepo.findTopByDemandCount(limit));
+    }
+
+    /** Org-scoped demand sites missing categories — replaces the unfiltered Spring Data REST search endpoint. */
+    @GetMapping(path = "/missingCategories", produces = "application/json")
+    @ResponseBody
+    public ResponseEntity<DemandSite[]> missingCategories(HttpServletRequest request) {
+        UUID orgId = TenantFilter.requireOrgId(request);
+        return ResponseEntity.ok(demandSiteRepo.findByMissingCategoriesAndOrg(orgId));
     }
 
     @DeleteMapping(path = "/delete", produces = "text/HTML")
