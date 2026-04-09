@@ -12,6 +12,7 @@ const ENTITY_COLORS = {
     '/orders':         { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
     '/audit':          { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
     '/organisations':  { active: '#38bdf8', glow: 'rgba(56,189,248,0.25)',  dot: '#38bdf8' },
+    '/users':          { active: '#fb923c', glow: 'rgba(251,146,60,0.25)',   dot: '#fb923c' },
 };
 
 const navItems = [
@@ -74,6 +75,16 @@ const navItems = [
         ),
     },
     {
+        to: '/users',
+        label: 'Users',
+        tenantAdminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+        ),
+    },
+    {
         to: '/orders',
         label: 'Orders',
         adminOnly: true,
@@ -132,8 +143,9 @@ export default function Menu() {
     const isGlobalAdmin = user?.roles?.includes('global_admin');
     const isAdmin = isGlobalAdmin || user?.roles?.includes('tenant_admin');
 
-    const publicItems = navItems.filter(i => !i.adminOnly);
+    const publicItems = navItems.filter(i => !i.adminOnly && !i.tenantAdminOnly);
     const ordersItem = navItems.find(i => i.to === '/orders');
+    const tenantAdminItems = navItems.filter(i => i.tenantAdminOnly);
     const globalAdminItems = navItems.filter(i => i.adminOnly && i.to !== '/orders');
 
     return (
@@ -145,6 +157,9 @@ export default function Menu() {
                 <>
                     <div className="my-2 border-t border-white/10"/>
                     <NavItem {...ordersItem} />
+                    {tenantAdminItems.map(item => (
+                        <NavItem key={item.to} {...item} />
+                    ))}
                 </>
             )}
             {isGlobalAdmin && (

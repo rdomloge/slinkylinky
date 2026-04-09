@@ -24,6 +24,7 @@ import ProposalDetail from '@/pages/proposals/[proposalid]';
 import OrdersIndex from '@/pages/orders/index';
 import CategoriesIndex from '@/pages/categories/index';
 import OrganisationsIndex from '@/pages/organisations/index';
+import UsersIndex from '@/pages/users/index';
 import SupplierResponse from '@/pages/public/supplierresponse/index';
 import PaidLinksStaging from '@/pages/paidlinks/staging';
 import Sandbox from '@/pages/sandbox/index';
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="/audit/trace" element={<AuditTrace />} />
           <Route path="/categories" element={<CategoriesIndex />} />
           <Route path="/organisations" element={<OrganisationsIndex />} />
+          <Route path="/users" element={<UsersIndex />} />
           <Route path="/paidlinks/staging" element={<PaidLinksStaging />} />
           <Route path="/sandbox" element={<Sandbox />} />
         </Routes>
