@@ -77,8 +77,7 @@ export default function Proposal() {
     function abortProposal() {
         const url = "/.rest/proposalsupport/abort?proposalId="+proposalid;
         fetchWithAuth(url, {
-                method: 'DELETE',
-                headers: {'user': user.email}})
+                method: 'DELETE'})
             .then( (res) => {
                 if(res.ok) {
                     navigate('/proposals');

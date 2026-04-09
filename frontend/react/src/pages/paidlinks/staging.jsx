@@ -1,7 +1,5 @@
 import React, {useState, useEffect} from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useAuth } from "@/auth/AuthProvider";
-
 import DemandCard from '@/components/DemandCard'
 import SupplierCard from '@/components/SupplierCard'
 import Layout from '@/components/layout/Layout'
@@ -19,7 +17,6 @@ function parseId(entity) {
 }
 
 export default function App() {
-    const { user } = useAuth();
     const [searchParams] = useSearchParams()
 
     const [demand, setDemand] = useState(null);
@@ -38,7 +35,7 @@ export default function App() {
 
         fetchWithAuth(proposalUrl, {
             method: 'POST',
-            headers: {'Content-Type':'application/json', 'user': user.email},
+            headers: {'Content-Type':'application/json'},
         })
         .then( (resp) => {
             if(resp.ok) {

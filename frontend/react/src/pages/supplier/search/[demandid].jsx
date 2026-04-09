@@ -1,5 +1,3 @@
-import { useAuth } from "@/auth/AuthProvider";
-
 import React, {useState, useEffect} from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -14,7 +12,6 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function App() {
     const { demandid } = useParams()
-    const { user } = useAuth();
 
     const [demand, setDemand] = useState(null);
     const [suppliers, setSuppliers] = useState(null);
@@ -71,7 +68,7 @@ export default function App() {
 
         fetchWithAuth(combiUrl, {
             method: 'POST',
-            headers: {'Content-Type':'application/json', 'user': user.email}
+            headers: {'Content-Type':'application/json'}
         })
         .then( (resp) => {
             if(resp.ok) {

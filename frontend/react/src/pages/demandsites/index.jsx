@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import { useAuth } from '@/auth/AuthProvider';
 import { useSearchParams } from 'react-router-dom';
 import Layout from "@/components/layout/Layout";
 import Loading from '@/components/Loading';
@@ -13,7 +12,6 @@ export default function DemandSiteList() {
     const [demandsites, setDemandSites] = useState()
     const [missingCategories, setMissingCategories] = useState([])
     const [error, setError] = useState()
-    const { user } = useAuth();
     const [page, setPage] = useState(0)
     const [total, setTotal] = useState(0)
     const [pageCount, setPageCount] = useState(0)
@@ -21,7 +19,6 @@ export default function DemandSiteList() {
     function deleteDemandSite(ds) {
         fetchWithAuth('/.rest/demandssitesupport/delete?demandSiteId='+ds.id, {
             method: 'DELETE',
-            headers: {'user': user.name}
         })
         .then(response => {
             if(response.ok) {
@@ -46,7 +43,7 @@ export default function DemandSiteList() {
 
     // this fetches the DSs without categories for the top of the page, so only needs to be done once
     useEffect(() => {
-        const missingCategoriesUrl = "/.rest/demandsites/search/findByMissingCategories";
+        const missingCategoriesUrl = "/.rest/demandssitesupport/missingCategories";
 
         fetchWithAuth(missingCategoriesUrl)
             .then((res) => {

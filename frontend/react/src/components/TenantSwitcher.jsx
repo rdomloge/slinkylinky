@@ -17,10 +17,7 @@ export default function TenantSwitcher() {
             .catch(() => {});
     }, []);
 
-    const currentOrg = orgs.find(o => {
-        const id = o._links?.self?.href?.split('/').pop();
-        return id === overrideOrgId;
-    });
+    const currentOrg = orgs.find(o => o.id === overrideOrgId);
 
     return (
         <div className="px-3 py-2 border-b border-white/10">
@@ -31,12 +28,9 @@ export default function TenantSwitcher() {
                 className="w-full text-xs bg-white/5 text-slate-300 border border-white/10 rounded px-2 py-1 focus:outline-none focus:border-violet-400"
             >
                 <option value="">— Platform view —</option>
-                {orgs.map(org => {
-                    const id = org._links?.self?.href?.split('/').pop();
-                    return (
-                        <option key={id} value={id}>{org.name}</option>
-                    );
-                })}
+                {orgs.map(org => (
+                    <option key={org.id} value={org.id}>{org.name}</option>
+                ))}
             </select>
         </div>
     );

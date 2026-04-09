@@ -79,8 +79,8 @@ export default function OrganisationsIndex() {
             {showNewModal && (
                 <Modal title="New Organisation" dismissHandler={() => setShowNewModal(false)}>
                     <div className="flex flex-col gap-3 p-4">
-                        <TextInput label="Name" value={newName} changeHandler={setNewName} />
-                        <TextInput label="Slug" value={newSlug} changeHandler={setNewSlug} />
+                        <TextInput label="Name" binding={newName} changeHandler={setNewName} />
+                        <TextInput label="Slug" binding={newSlug} changeHandler={setNewSlug} />
                         <StyledButton label="Create" type="primary" submitHandler={createOrganisation} enabled={!!newName && !!newSlug} />
                     </div>
                 </Modal>

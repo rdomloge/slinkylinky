@@ -20,8 +20,8 @@ export default function Demand() {
     useEffect(() => {
         if( ! user) return;
         const storedSortOrder = window.localStorage.getItem("demandSortOrder");
-        const requestedOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand";
-        const daNeededOrderUrl = "/.rest/demands/search/findUnsatisfiedDemandOrderedByDaNeeded?projection=fullDemand";
+        const requestedOrderUrl = "/.rest/demandsupport/findUnsatisfied?sort=requested";
+        const daNeededOrderUrl = "/.rest/demandsupport/findUnsatisfied?sort=daNeeded";
         const url = (storedSortOrder) === "daNeeded" ? daNeededOrderUrl : requestedOrderUrl;
 
         fetchWithAuth(url)

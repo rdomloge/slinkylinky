@@ -369,12 +369,12 @@ export default function Dashboard() {
             .catch(() => null);
 
         Promise.all([
-            safeJson('/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand'),
+            safeJson('/.rest/demandsupport/findUnsatisfied?sort=requested'),
             safeJson('/.rest/suppliers/search/countByDisabledFalse'),
             safeJson(`/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${thisMonth.start}&endDate=${thisMonth.end}&projection=fullProposal`),
             safeJson(`/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${sixMonths.start}&endDate=${sixMonths.end}&projection=fullProposal`),
             safeJson('/.rest/paidlinksupport/topbysuppliers?limit=5'),
-            safeJson('/.rest/demandsites/search/findByMissingCategories'),
+            safeJson('/.rest/demandssitesupport/missingCategories'),
             safeJson('/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalse?projection=fullSupplier'),
             safeJson('/.rest/demandssitesupport/topbydemands?limit=5'),
             safeJson('/.rest/supplierHealthSupport/onboarding?months=12'),

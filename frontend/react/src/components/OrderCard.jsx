@@ -3,13 +3,11 @@ import OrderLineItem from "./OrderLineItem"
 import { StyledButton } from "./atoms/Button";
 import { NiceDateTime } from "./atoms/DateTime"
 import Modal from "./atoms/Modal";
-import { useAuth } from "@/auth/AuthProvider";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function OrderCard({order, archiveHandler}) {
 
     const [showModal, setShowModal] = useState(false)
-    const { user } = useAuth();
 
 
     function isOrderComplete() {
@@ -35,9 +33,6 @@ export default function OrderCard({order, archiveHandler}) {
         const orderUrl = "/.rest/orders/archiveorder?id="+order.id
         fetchWithAuth(orderUrl, {
             method: 'GET',
-            headers: {
-                'user': user.email
-            }
         })
         .then( (res) => {
             if(res.ok) {
