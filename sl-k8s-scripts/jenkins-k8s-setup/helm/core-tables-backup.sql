@@ -8839,6 +8839,34 @@ CREATE INDEX idxr9ii2bdptwiwljggtkn44ygkg ON public.supplier USING btree (domain
 
 
 --
+-- Name: idx_demand_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_demand_org ON public.demand USING btree (organisation_id);
+
+
+--
+-- Name: idx_demand_site_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_demand_site_org ON public.demand_site USING btree (organisation_id);
+
+
+--
+-- Name: idx_proposal_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_proposal_org ON public.proposal USING btree (organisation_id);
+
+
+--
+-- Name: idx_paid_link_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_paid_link_org ON public.paid_link USING btree (organisation_id);
+
+
+--
 -- Name: supplier_categories fk4buchj73r1akl6kx2rk2msu2i; Type: FK CONSTRAINT; Schema: public; Owner: slinkylinky
 --
 

@@ -82,6 +82,13 @@ ALTER TABLE ONLY public.engagement
 
 
 --
+-- Name: idx_engagement_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_engagement_org ON public.engagement USING btree (organisation_id);
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
 

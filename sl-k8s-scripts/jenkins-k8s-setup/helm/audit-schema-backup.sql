@@ -60,6 +60,13 @@ ALTER TABLE ONLY public.audit_record
 
 
 --
+-- Name: idx_audit_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_audit_org ON public.audit_record USING btree (organisation_id);
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
 
