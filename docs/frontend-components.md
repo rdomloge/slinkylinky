@@ -193,6 +193,7 @@ A titled panel card with an optional coloured left-border accent, loading skelet
 **File:** `components/SupplierCard.jsx`  
 **Props:** `supplier`, `anchor`  
 **Uses:** CategoriesCard  
+**API calls:** `/.rest/supplierExclusions/isExcluded?supplierId=${supplierId}`, `/.rest/supplierExclusions/${endpoint}?supplierId=${supplierId}`, `/.rest/supplierExclusions/isExcluded?supplierId=…`, `/.rest/supplierExclusions/…`  
 
 ### `SupplierSemRushTraffic`
 **File:** `components/SupplierStats.jsx`  
@@ -201,6 +202,14 @@ A titled panel card with an optional coloured left-border accent, loading skelet
 ### `SupplierSummary`
 **File:** `components/SupplierSummary.jsx`  
 **Props:** `supplier`  
+
+### `TenantBadge`
+**File:** `components/TenantBadge.jsx`  
+**API calls:** `/.rest/organisations/${user.orgId}`, `/.rest/organisations/…`  
+
+### `TenantSwitcher`
+**File:** `components/TenantSwitcher.jsx`  
+**API calls:** `/.rest/organisations`  
 
 ### `TenantWarning`
 **File:** `components/TenantWarning.jsx`  
@@ -237,15 +246,19 @@ Route-level page components in `src/pages/`.
 | `History` | `pages/demandsites/history.jsx` | — |
 | `DemandSiteList` | `pages/demandsites/index.jsx` | calls: /.rest/demandssitesupport/delete?demandSiteId= |
 | `DemandSite` | `pages/demandsites/[demandsiteid].jsx` | — |
+| `LeadsIndex` | `pages/leads/index.jsx` | props: status | calls: /.rest/leads, /.rest/leads/scrape/status |
 | `ListOrders` | `pages/orders/index.jsx` | calls: /.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder |
+| `OrganisationsIndex` | `pages/organisations/index.jsx` | calls: /.rest/organisations |
 | `App` | `pages/paidlinks/staging.jsx` | — |
 | `ListProposals` | `pages/proposals/index.jsx` | — |
 | `Proposal` | `pages/proposals/[proposalid].jsx` | — |
-| `SupplierResponse` | `pages/public/supplierresponse/index.jsx` | calls: /.rest/engagements/accept?guid=, /.rest/engagements/decline?guid= |
+| `LeadResponse` | `pages/public/leadresponse/index.jsx` | props: children, onClick, variant, disabled | calls: /.rest/leads/response?guid=, /.rest/leads/accept?guid=${guid} |
+| `SupplierResponse` | `pages/public/supplierresponse/index.jsx` | props: supplierName | calls: /.rest/engagements/search/findByGuid?guid=, /.rest/engagements/accept?guid= |
 | `Sandbox` | `pages/sandbox/index.jsx` | props: binding, label, onChange |
 | `NewSupplier` | `pages/supplier/Add.jsx` | — |
 | `ListBloggers` | `pages/supplier/index.jsx` | calls: /.rest/stats/responsiveness/all |
 | `SupplierListView` | `pages/supplier/index2.jsx` | props: label, field, sortBy, sortDir, onSort, className | calls: /.rest/stats/responsiveness/all, /.rest/supplierSupport/list?${params} |
 | `App` | `pages/supplier/search/[demandid].jsx` | calls: /.rest/stats/responsiveness/all |
 | `EditSupplier` | `pages/supplier/[supplierid].jsx` | — |
+| `UsersIndex` | `pages/users/index.jsx` | calls: /.rest/organisations, /.rest/keycloak/users?orgId=${orgId} |
 

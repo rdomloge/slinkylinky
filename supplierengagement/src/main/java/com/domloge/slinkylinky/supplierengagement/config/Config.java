@@ -5,16 +5,25 @@ import java.util.Properties;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
+import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 
+import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Configuration
-public class Config {
+public class Config implements RepositoryRestConfigurer {
+
+    @Override
+    public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
+        config.exposeIdsFor(SupplierLead.class);
+    }
 
     @Value("${mail_username}")
     private String username;

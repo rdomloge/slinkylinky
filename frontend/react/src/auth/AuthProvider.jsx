@@ -32,7 +32,7 @@ function getLogoutUrl(idToken) {
   return url;
 }
 
-function isTokenExpired(token) {
+export function isTokenExpired(token) {
   try {
     const decoded = jwtDecode(token);
     return decoded.exp * 1000 < Date.now() + 30000; // 30s buffer
@@ -80,7 +80,7 @@ export async function exchangeCodeForTokens(code) {
   return data;
 }
 
-async function refreshAccessToken() {
+export async function refreshAccessToken() {
   const refreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY);
   if (!refreshToken) return null;
 

@@ -295,7 +295,7 @@ function genFrontendPages(routes, pages) {
   md += `## Route Table\n\nDefined in \`frontend/react/src/App.jsx\`.\n\n`;
   md += `| Path | Component | Page File | Auth |\n|------|-----------|-----------|------|\n`;
 
-  const publicPaths = new Set(['/callback', '/public/supplierresponse']);
+  const publicPaths = new Set(['/callback', '/public/supplierresponse', '/public/leadresponse']);
   for (const r of routes) {
     const auth = publicPaths.has(r.path) ? 'Public' : 'Protected';
     md += `| \`${r.path}\` | \`${r.component}\` | \`${r.file || '?'}\` | ${auth} |\n`;
@@ -323,7 +323,7 @@ function genFrontendPages(routes, pages) {
 
 function genBackendEntities(entities) {
   let md = `# Backend Domain Entities\n\n${GENERATED_NOTE}`;
-  md += `All JPA entities in \`linkservice/src/main/java/.../entity/\`.\n`;
+  md += `All JPA entities across all services.\n`;
   md += `Schema is **not** managed by Hibernate — DDL lives in \`sl-k8s-scripts/jenkins-k8s-setup/helm/*-backup.sql\`.\n\n`;
 
   for (const e of entities) {
@@ -373,6 +373,7 @@ function genBackendApi(controllers) {
   md += `| Category | \`/.rest/categories\` | linkservice |\n`;
   md += `| BlackListedSupplier | \`/.rest/blackListedSuppliers\` | linkservice |\n`;
   md += `| Engagement | \`/.rest/engagements\` | supplierengagement |\n`;
+  md += `| SupplierLead | \`/.rest/leads\` | supplierengagement |\n`;
   md += `| AuditRecord | \`/.rest/auditrecords\` | audit |\n`;
   md += `| Stats | \`/.rest/stats\` | stats |\n`;
 
@@ -397,9 +398,10 @@ const routes = extractRoutes();
 writeDoc('frontend-components.md', genFrontendComponents(components, pages));
 writeDoc('frontend-pages.md', genFrontendPages(routes, pages));
 
-// Backend — linkservice entities
-const entityDir = path.join(ROOT, 'linkservice', 'src', 'main', 'java');
-const javaFiles = walkDir(entityDir, ['.java']);
+// Backend — entities across all services
+const entityDirs = ['linkservice', 'supplierengagement', 'stats', 'audit']
+  .map(svc => path.join(ROOT, svc, 'src', 'main', 'java'));
+const javaFiles = entityDirs.flatMap(d => walkDir(d, ['.java']));
 const entities = javaFiles.map(analyzeJavaEntity).filter(Boolean);
 writeDoc('backend-entities.md', genBackendEntities(entities));
 

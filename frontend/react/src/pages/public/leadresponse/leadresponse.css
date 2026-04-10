@@ -1,0 +1,76 @@
+/*
+ * Slinky Linky — Lead Response Microsite
+ * Shares all visual styles with the Supplier Response page.
+ * Import the shared base and add lead-specific additions below.
+ */
+@import '../supplierresponse/supplierresponse.css';
+
+/* ── Lead-specific hero pane ───────────────────────────────────────────────── */
+.sr-hero-pane--simple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lr-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  animation: sr-fade-up 0.6s 0.2s ease both;
+}
+
+.lr-hero__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: sr-fade-up 0.5s 0.3s ease both;
+}
+
+.lr-hero__headline {
+  font-family: var(--sr-font-ui);
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-weight: 700;
+  color: var(--sr-text);
+  letter-spacing: -0.01em;
+}
+
+.lr-hero__sub {
+  font-size: 0.85rem;
+  color: var(--sr-text-dim);
+  line-height: 1.7;
+  max-width: 280px;
+}
+
+/* ── File input ────────────────────────────────────────────────────────────── */
+.sr-file-input {
+  font-family: var(--sr-font-ui);
+  font-size: 0.8rem;
+  color: var(--sr-text-mid);
+  background: var(--sr-surface);
+  border: 1px dashed var(--sr-border-hi);
+  border-radius: 6px;
+  padding: 0.6rem 0.875rem;
+  cursor: pointer;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+
+.sr-file-input:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.sr-file-name {
+  font-family: var(--sr-font-mono);
+  font-size: 0.65rem;
+  color: var(--sr-text-dim);
+  letter-spacing: 0.04em;
+  margin-top: 0.25rem;
+}

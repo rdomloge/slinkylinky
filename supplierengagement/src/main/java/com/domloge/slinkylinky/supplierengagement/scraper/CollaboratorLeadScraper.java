@@ -81,7 +81,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
     @Override
     @Async
-    public void scrapeAsync(String cookiesOverride) {
+    public void scrapeAsync(String cookiesOverride, int limitOverride) {
         if (!running.compareAndSet(false, true)) {
             log.warn("Scrape already in progress — ignoring duplicate trigger");
             return;
@@ -97,8 +97,11 @@ public class CollaboratorLeadScraper implements LeadScraper {
             return;
         }
 
+        // Use the override limit if provided (> 0), otherwise use the config limit
+        int effectiveLimit = limitOverride > 0 ? limitOverride : scrapeLimit;
+
         log.info("Starting Collaborator.pro API scrape (project_id={}, limit={})",
-                projectId, scrapeLimit > 0 ? scrapeLimit : "unlimited");
+                projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
 
         try {
             HttpClient client = HttpClient.newBuilder()
@@ -151,8 +154,8 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
                 JsonNode items = data.path("items");
                 for (JsonNode item : items) {
-                    if (scrapeLimit > 0 && itemsSeen >= scrapeLimit) {
-                        log.info("Scrape limit of {} reached — stopping early", scrapeLimit);
+                    if (effectiveLimit > 0 && itemsSeen >= effectiveLimit) {
+                        log.info("Scrape limit of {} reached — stopping early", effectiveLimit);
                         return;
                     }
                     itemsSeen++;

@@ -13,6 +13,7 @@ const ENTITY_COLORS = {
     '/audit':          { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
     '/organisations':  { active: '#38bdf8', glow: 'rgba(56,189,248,0.25)',  dot: '#38bdf8' },
     '/users':          { active: '#fb923c', glow: 'rgba(251,146,60,0.25)',   dot: '#fb923c' },
+    '/leads':          { active: '#a78bfa', glow: 'rgba(167,139,250,0.25)', dot: '#a78bfa' },
 };
 
 const navItems = [
@@ -91,6 +92,16 @@ const navItems = [
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+            </svg>
+        ),
+    },
+    {
+        to: '/leads',
+        label: 'Leads',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
             </svg>
         ),
     },

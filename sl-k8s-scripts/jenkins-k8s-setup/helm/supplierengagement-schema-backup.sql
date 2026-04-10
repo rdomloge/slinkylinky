@@ -89,6 +89,76 @@ CREATE INDEX idx_engagement_org ON public.engagement USING btree (organisation_i
 
 
 --
+-- Name: supplier_lead_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.supplier_lead_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: supplier_lead; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.supplier_lead (
+    id             bigint        NOT NULL DEFAULT nextval('public.supplier_lead_seq'),
+    source         varchar(255)  NOT NULL DEFAULT 'collaborator.pro',
+    domain         varchar(512)  NOT NULL,
+    price          numeric(10,2),
+    currency       varchar(10),
+    countries      varchar(512),
+    language       varchar(255),
+    constraints    text,
+    contact_email  varchar(255),
+    outreach_sent  timestamp(6)  without time zone,
+    guid           varchar(255),
+    status         varchar(50)   NOT NULL DEFAULT 'NEW',
+    file_blob      bytea,
+    file_name      varchar(255),
+    google_doc_url varchar(1024),
+    decline_reason varchar(255),
+    scraped_at     timestamp(6)  without time zone NOT NULL DEFAULT now(),
+    CONSTRAINT supplier_lead_pkey PRIMARY KEY (id),
+    CONSTRAINT supplier_lead_guid_unique UNIQUE (guid),
+    CONSTRAINT supplier_lead_status_check CHECK (
+        status IN ('NEW','CONTACT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED')
+    )
+);
+
+
+--
+-- Name: idx_supplier_lead_domain; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_supplier_lead_domain ON public.supplier_lead USING btree (domain);
+
+
+--
+-- Name: idx_supplier_lead_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_supplier_lead_status ON public.supplier_lead USING btree (status);
+
+
+--
+-- Name: idx_supplier_lead_guid; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_supplier_lead_guid ON public.supplier_lead USING btree (guid);
+
+
+--
+-- Name: idx_supplier_lead_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_supplier_lead_source ON public.supplier_lead USING btree (source);
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
 

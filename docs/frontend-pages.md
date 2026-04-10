@@ -10,6 +10,7 @@ Defined in `frontend/react/src/App.jsx`.
 |------|-----------|-----------|------|
 | `/callback` | `Callback` | `?` | Public |
 | `/public/supplierresponse` | `SupplierResponse` | `pages/public/supplierresponse/index.jsx` | Public |
+| `/public/leadresponse` | `LeadResponse` | `pages/public/leadresponse/index.jsx` | Public |
 | `/` | `Dashboard` | `pages/dashboard/index.jsx` | Protected |
 | `/demand` | `DemandIndex` | `pages/demand/index.jsx` | Protected |
 | `/demand/add` | `DemandAdd` | `pages/demand/Add.jsx` | Protected |
@@ -28,8 +29,11 @@ Defined in `frontend/react/src/App.jsx`.
 | `/audit` | `AuditIndex` | `pages/audit/index.jsx` | Protected |
 | `/audit/trace` | `AuditTrace` | `pages/audit/trace.jsx` | Protected |
 | `/categories` | `CategoriesIndex` | `pages/categories/index.jsx` | Protected |
+| `/organisations` | `OrganisationsIndex` | `pages/organisations/index.jsx` | Protected |
+| `/users` | `UsersIndex` | `pages/users/index.jsx` | Protected |
 | `/paidlinks/staging` | `PaidLinksStaging` | `pages/paidlinks/staging.jsx` | Protected |
 | `/sandbox` | `Sandbox` | `pages/sandbox/index.jsx` | Protected |
+| `/leads` | `LeadsIndex` | `pages/leads/index.jsx` | Protected |
 
 ## Auth / Session
 
@@ -63,8 +67,15 @@ Hero stat tile — used inside the dark hero banner
 
 ### `DemandSite` — `/demandsites/:demandsiteid`
 
+### `LeadsIndex` — `/leads`
+**API:** `/.rest/leads`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/…`
+**Props:** status
+
 ### `ListOrders` — `/orders`
 **API:** `/.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder`
+
+### `OrganisationsIndex` — `/organisations`
+**API:** `/.rest/organisations`
 
 ### `App` — `/paidlinks/staging`
 
@@ -72,8 +83,13 @@ Hero stat tile — used inside the dark hero banner
 
 ### `Proposal` — `/proposals/:proposalid`
 
+### `LeadResponse` — `/public/leadresponse`
+**API:** `/.rest/leads/response?guid=`, `/.rest/leads/accept?guid=${guid}`, `/.rest/leads/decline?guid=${guid}`, `/.rest/leads/accept?guid=…`, `/.rest/leads/decline?guid=…`
+**Props:** children, onClick, variant, disabled
+
 ### `SupplierResponse` — `/public/supplierresponse`
-**API:** `/.rest/engagements/accept?guid=`, `/.rest/engagements/decline?guid=`
+**API:** `/.rest/engagements/search/findByGuid?guid=`, `/.rest/engagements/accept?guid=`, `/.rest/engagements/decline?guid=`
+**Props:** supplierName
 
 ### `Sandbox` — `/sandbox`
 **Props:** binding, label, onChange
@@ -91,4 +107,7 @@ Hero stat tile — used inside the dark hero banner
 **API:** `/.rest/stats/responsiveness/all`
 
 ### `EditSupplier` — `/supplier/:supplierid`
+
+### `UsersIndex` — `/users`
+**API:** `/.rest/organisations`, `/.rest/keycloak/users?orgId=${orgId}`, `/.rest/keycloak/users`, `/.rest/keycloak/users/${userId}`, `/.rest/keycloak/users?orgId=…`, `/.rest/keycloak/users/…`
 
