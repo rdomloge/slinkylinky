@@ -32,6 +32,7 @@ import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
+import com.domloge.slinkylinky.supplierengagement.scraper.BrowserDiscoveryQueue;
 import com.domloge.slinkylinky.supplierengagement.scraper.ContactDiscoveryService;
 import com.domloge.slinkylinky.supplierengagement.scraper.LeadOutreachService;
 import com.domloge.slinkylinky.supplierengagement.scraper.LeadScraper;
@@ -54,6 +55,9 @@ public class LeadController {
 
     @Autowired
     private ContactDiscoveryService discoveryService;
+
+    @Autowired
+    private BrowserDiscoveryQueue browserQueue;
 
     @Autowired
     private LeadOutreachService outreachService;
@@ -122,8 +126,8 @@ public class LeadController {
     }
 
     /**
-     * Attempts to discover a contact email from the lead's website.
-     * Updates the lead's contactEmail and status.
+     * Attempts to discover a contact email from the lead's website via plain HTTP.
+     * If no email is found, the lead is automatically queued for headless-browser discovery.
      */
     @PostMapping("/{id}/discover")
     @PreAuthorize("hasRole('global_admin')")
@@ -136,9 +140,44 @@ public class LeadController {
             lead.setContactEmail(email);
             lead.setStatus(LeadStatus.CONTACT_FOUND);
         } else {
-            log.info("No email found for lead {} ({})", id, lead.getDomain());
+            log.info("No email via HTTP for lead {} ({}) — queuing for browser discovery", id, lead.getDomain());
+            lead.setStatus(LeadStatus.BROWSER_QUEUED);
+            leadRepo.save(lead);
+            browserQueue.enqueue(id);
+            return ResponseEntity.ok(lead);
         }
         return ResponseEntity.ok(leadRepo.save(lead));
+    }
+
+    /**
+     * Re-queues a lead for headless-browser contact discovery.
+     * Only permitted when the lead is in CONTACT_NOT_FOUND status.
+     */
+    @PostMapping("/{id}/requeueBrowser")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<SupplierLead> requeueBrowser(@PathVariable long id) {
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+        if (lead.getStatus() != LeadStatus.CONTACT_NOT_FOUND) {
+            return ResponseEntity.badRequest().build();
+        }
+        lead.setStatus(LeadStatus.BROWSER_QUEUED);
+        leadRepo.save(lead);
+        browserQueue.enqueue(id);
+        return ResponseEntity.ok(lead);
+    }
+
+    /**
+     * Returns the current browser discovery queue depth and availability.
+     */
+    @GetMapping("/browser-queue/status")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<Map<String, Object>> browserQueueStatus() {
+        return ResponseEntity.ok(Map.of(
+                "queueDepth",       browserQueue.getQueueDepth(),
+                "processed",        browserQueue.getProcessed(),
+                "browserAvailable", browserQueue.isBrowserAvailable()
+        ));
     }
 
     /**
@@ -189,16 +228,16 @@ public class LeadController {
             String accessToken = httpUtils.fetchAccessToken();
             String url = linkServiceBase + "/suppliers";
 
-            Map<String, Object> payload = Map.of(
-                    "name",               lead.getDomain(),
-                    "email",              lead.getContactEmail() != null ? lead.getContactEmail() : "",
-                    "website",            "https://" + lead.getDomain(),
-                    "domain",             lead.getDomain(),
-                    "weWriteFee",         0,
-                    "weWriteFeeCurrency", lead.getCurrency() != null ? lead.getCurrency() : "",
-                    "thirdParty",         false,
-                    "source",             lead.getSource()
-            );
+            Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("name",               lead.getDomain());
+            payload.put("email",              lead.getContactEmail() != null ? lead.getContactEmail() : "contact@" + lead.getDomain());
+            payload.put("website",            "https://" + lead.getDomain());
+            payload.put("domain",             lead.getDomain());
+            payload.put("weWriteFee",         lead.getPrice() != null ? lead.getPrice() : 0);
+            payload.put("weWriteFeeCurrency", lead.getCurrency() != null && !lead.getCurrency().isBlank() ? lead.getCurrency().substring(0, 1) : "$");
+            payload.put("thirdParty",         false);
+            payload.put("source",             "Automated outreach");
+            payload.put("createdBy",          "supplierengagement-bot");
 
             String json = objectMapper.writeValueAsString(payload);
 

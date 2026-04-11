@@ -10,14 +10,16 @@ import { useToast } from '@/components/atoms/Toasts';
 // ── Status config ─────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG = {
-    NEW:           { label: 'New',           bg: 'bg-slate-100',   text: 'text-slate-600',   dot: '#94a3b8' },
-    CONTACT_FOUND: { label: 'Contact Found', bg: 'bg-amber-100',   text: 'text-amber-700',   dot: '#f59e0b' },
-    OUTREACH_SENT: { label: 'Outreach Sent', bg: 'bg-blue-100',    text: 'text-blue-700',    dot: '#3b82f6' },
-    ACCEPTED:      { label: 'Accepted',      bg: 'bg-emerald-100', text: 'text-emerald-700', dot: '#10b981' },
-    DECLINED:      { label: 'Declined',      bg: 'bg-red-100',     text: 'text-red-600',     dot: '#ef4444' },
+    NEW:               { label: 'New',              bg: 'bg-slate-100',   text: 'text-slate-600',   dot: '#94a3b8' },
+    BROWSER_QUEUED:    { label: 'Browser Queued',   bg: 'bg-violet-100',  text: 'text-violet-700',  dot: '#7c3aed' },
+    CONTACT_FOUND:     { label: 'Contact Found',    bg: 'bg-amber-100',   text: 'text-amber-700',   dot: '#f59e0b' },
+    CONTACT_NOT_FOUND: { label: 'Not Found',        bg: 'bg-rose-100',    text: 'text-rose-600',    dot: '#f43f5e' },
+    OUTREACH_SENT:     { label: 'Outreach Sent',    bg: 'bg-blue-100',    text: 'text-blue-700',    dot: '#3b82f6' },
+    ACCEPTED:          { label: 'Accepted',         bg: 'bg-emerald-100', text: 'text-emerald-700', dot: '#10b981' },
+    DECLINED:          { label: 'Declined',         bg: 'bg-red-100',     text: 'text-red-600',     dot: '#ef4444' },
 };
 
-const PIPELINE_STEPS = ['NEW', 'CONTACT_FOUND', 'OUTREACH_SENT', 'ACCEPTED'];
+const PIPELINE_STEPS = ['NEW', 'BROWSER_QUEUED', 'CONTACT_FOUND', 'OUTREACH_SENT', 'ACCEPTED'];
 
 function StatusBadge({ status }) {
     const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.NEW;
@@ -56,7 +58,7 @@ function PipelineBar({ leads }) {
 
     return (
         <div className="mx-6 mb-5 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="grid grid-cols-4 divide-x divide-slate-100">
+            <div className="grid grid-cols-5 divide-x divide-slate-100">
                 {PIPELINE_STEPS.map((status, i) => {
                     const cfg = STATUS_CONFIG[status];
                     const count = counts[status] || 0;
@@ -104,7 +106,8 @@ export default function LeadsIndex() {
     const [refreshFlash, setRefreshFlash] = useState(false);
     const [confirmModal, setConfirmModal] = useState(null); // { message, confirmLabel, onConfirm }
 
-    const pollRef = useRef(null);
+    const pollRef  = useRef(null);
+    const leadsRef = useRef(null);
 
     useEffect(() => {
         if (user && !isGlobalAdmin) navigate('/');
@@ -117,6 +120,16 @@ export default function LeadsIndex() {
     }, [isGlobalAdmin]);
 
     useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+
+    // Keep leadsRef in sync so the polling interval can read the current value
+    useEffect(() => { leadsRef.current = leads; }, [leads]);
+
+    // Start polling whenever any lead is browser-queued (even if no scrape is running)
+    useEffect(() => {
+        if (leads?.some(l => l.status === 'BROWSER_QUEUED') && !pollRef.current) {
+            startPolling();
+        }
+    }, [leads]);
 
     async function fetchLeads(flash = false) {
         try {
@@ -154,14 +167,17 @@ export default function LeadsIndex() {
                 if (!r?.ok) return;
                 const data = await r.json();
                 setScrapeCount(data.leadsFound);
-                fetchLeads(true);
-                if (!data.running) {
+                await fetchLeads(true);
+                const hasBrowserQueued = leadsRef.current?.some(l => l.status === 'BROWSER_QUEUED');
+                if (!data.running && !hasBrowserQueued) {
                     setScraping(false);
                     clearInterval(pollRef.current);
                     pollRef.current = null;
                     if (data.errorMessage) {
                         toast(`Scrape failed: ${data.errorMessage}`, 'error');
                     }
+                } else if (!data.running) {
+                    setScraping(false);
                 }
             } catch { /* ignore */ }
         }, 5_000);
@@ -195,11 +211,28 @@ export default function LeadsIndex() {
             setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
             if (updated.contactEmail) {
                 toast(`Found contact for ${lead.domain}: ${updated.contactEmail}`, 'success');
+            } else if (updated.status === 'BROWSER_QUEUED') {
+                toast(`${lead.domain} queued for browser discovery`, 'info');
             } else {
                 toast(`No contact email found for ${lead.domain}`, 'info');
             }
         } catch {
             toast(`Contact discovery failed for ${lead.domain}`, 'error');
+        } finally {
+            setBusyId(null);
+        }
+    }
+
+    async function requeueBrowser(lead) {
+        setBusyId(lead.id);
+        try {
+            const r = await fetchWithAuth(`/.rest/leads/${lead.id}/requeueBrowser`, { method: 'POST' });
+            if (!r?.ok) throw new Error(r?.status);
+            const updated = await r.json();
+            setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
+            toast(`${lead.domain} re-queued for browser discovery`, 'info');
+        } catch {
+            toast(`Failed to re-queue ${lead.domain}`, 'error');
         } finally {
             setBusyId(null);
         }
@@ -319,12 +352,19 @@ export default function LeadsIndex() {
                     <>
                         <PipelineBar leads={leads} />
                         <div className="px-6 pb-6">
-                            {scraping && (
-                                <div className="flex items-center gap-1.5 text-[11px] text-slate-400 mb-2 px-0.5">
-                                    <svg className="w-3 h-3 animate-spin shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    Auto-updating every 5s
+                            {(scraping || leads?.some(l => l.status === 'BROWSER_QUEUED')) && (
+                                <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-2 px-0.5">
+                                    <span className="flex items-center gap-1.5">
+                                        <svg className="w-3 h-3 animate-spin shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        Auto-updating every 5s
+                                    </span>
+                                    {leads?.some(l => l.status === 'BROWSER_QUEUED') && (
+                                        <span className="text-violet-500">
+                                            {leads.filter(l => l.status === 'BROWSER_QUEUED').length} domain{leads.filter(l => l.status === 'BROWSER_QUEUED').length !== 1 ? 's' : ''} pending browser discovery
+                                        </span>
+                                    )}
                                 </div>
                             )}
                             <div className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all duration-300 ${refreshFlash ? 'ring-2 ring-orange-300 border-orange-300' : 'border-slate-200'}`}>
@@ -366,8 +406,14 @@ export default function LeadsIndex() {
                                                 </td>
                                                 <td className="px-4 py-2.5">
                                                     <div className="flex items-center gap-1">
-                                                        {!lead.contactEmail && (
+                                                        {lead.status === 'NEW' && (
                                                             <ActionBtn label="Find Contact" onClick={() => discoverContact(lead)} disabled={busyId === lead.id} />
+                                                        )}
+                                                        {lead.status === 'BROWSER_QUEUED' && (
+                                                            <span className="text-xs text-violet-500 italic px-1">Browser queued…</span>
+                                                        )}
+                                                        {lead.status === 'CONTACT_NOT_FOUND' && (
+                                                            <ActionBtn label="Retry Browser" onClick={() => requeueBrowser(lead)} disabled={busyId === lead.id} />
                                                         )}
                                                         {lead.contactEmail && lead.status === 'CONTACT_FOUND' && (
                                                             <ActionBtn label="Send Outreach" variant="primary" onClick={() => sendOutreach(lead)} disabled={busyId === lead.id} />

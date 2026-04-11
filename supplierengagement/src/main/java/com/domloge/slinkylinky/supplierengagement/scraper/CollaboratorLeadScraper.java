@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
@@ -62,6 +63,12 @@ public class CollaboratorLeadScraper implements LeadScraper {
      */
     @Value("${collaborator.session.cookies:}")
     private String sessionCookies;
+
+    @Value("${linkservice_baseurl}")
+    private String linkServiceBase;
+
+    @Autowired
+    private HttpUtils httpUtils;
 
     @Autowired
     private SupplierLeadRepo leadRepo;
@@ -110,7 +117,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
             int page       = 1;
             int totalPages = 1; // updated after first response
-            int itemsSeen  = 0; // counts every item regardless of upsert success
+            int itemsSeen  = 0; // counts items processed against the limit; existing suppliers excluded
 
             do {
                 String url = API_URL + "?project_id=" + projectId
@@ -154,13 +161,18 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
                 JsonNode items = data.path("items");
                 for (JsonNode item : items) {
+                    LeadDto dto = parseItem(item);
+                    if (isKnownSupplier(dto.domain)) {
+                        log.debug("Skipping {} — already a supplier in linkservice", dto.domain);
+                        continue;
+                    }
                     if (effectiveLimit > 0 && itemsSeen >= effectiveLimit) {
                         log.info("Scrape limit of {} reached — stopping early", effectiveLimit);
                         return;
                     }
                     itemsSeen++;
                     try {
-                        upsert(parseItem(item));
+                        upsert(dto);
                     } catch (Exception e) {
                         log.warn("Failed to upsert item {}: {}", itemsSeen, e.getMessage());
                     }
@@ -187,6 +199,21 @@ public class CollaboratorLeadScraper implements LeadScraper {
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
+
+    /**
+     * Returns true if linkservice already has a Supplier for this domain.
+     * A null/blank domain always returns false so the item is processed normally.
+     */
+    private boolean isKnownSupplier(String domain) {
+        if (!StringUtils.hasText(domain)) return false;
+        try {
+            String url = linkServiceBase + "/suppliers/search/findByDomainIgnoreCase?domain=" + domain;
+            return httpUtils.get(url) != null;
+        } catch (Exception e) {
+            log.warn("Could not check linkservice for domain {} — treating as unknown: {}", domain, e.getMessage());
+            return false;
+        }
+    }
 
     private LeadDto parseItem(JsonNode item) {
         LeadDto dto = new LeadDto();

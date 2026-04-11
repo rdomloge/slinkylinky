@@ -125,7 +125,7 @@ CREATE TABLE public.supplier_lead (
     CONSTRAINT supplier_lead_pkey PRIMARY KEY (id),
     CONSTRAINT supplier_lead_guid_unique UNIQUE (guid),
     CONSTRAINT supplier_lead_status_check CHECK (
-        status IN ('NEW','CONTACT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED')
+        status IN ('NEW','BROWSER_QUEUED','CONTACT_FOUND','CONTACT_NOT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED')
     )
 );
 
