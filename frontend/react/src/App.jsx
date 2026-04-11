@@ -29,6 +29,7 @@ import UsersIndex from '@/pages/users/index';
 import SupplierResponse from '@/pages/public/supplierresponse/index';
 import LeadResponse from '@/pages/public/leadresponse/index';
 import LeadsIndex from '@/pages/leads/index';
+import CategoryMappingsIndex from '@/pages/category-mappings/index';
 import PaidLinksStaging from '@/pages/paidlinks/staging';
 import Sandbox from '@/pages/sandbox/index';
 import Dashboard from '@/pages/dashboard/index';
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="/paidlinks/staging" element={<PaidLinksStaging />} />
           <Route path="/sandbox" element={<Sandbox />} />
           <Route path="/leads" element={<LeadsIndex />} />
+          <Route path="/category-mappings" element={<CategoryMappingsIndex />} />
         </Routes>
       </BrowserRouter>
       </ToastProvider>

@@ -159,6 +159,44 @@ CREATE INDEX idx_supplier_lead_source ON public.supplier_lead USING btree (sourc
 
 
 --
+-- Name: collaborator_category_mapping_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.collaborator_category_mapping_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: collaborator_category_mapping; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.collaborator_category_mapping (
+    id                    bigint        NOT NULL DEFAULT nextval('public.collaborator_category_mapping_seq'),
+    collaborator_category varchar(255)  NOT NULL,
+    sl_category_id        bigint,
+    sl_category_name      varchar(255),
+    status                varchar(20)   NOT NULL DEFAULT 'PENDING',
+    created_at            timestamp(6)  NOT NULL DEFAULT now(),
+    updated_at            timestamp(6)  NOT NULL DEFAULT now(),
+    CONSTRAINT collaborator_category_mapping_pkey PRIMARY KEY (id),
+    CONSTRAINT collaborator_category_unique UNIQUE (collaborator_category),
+    CONSTRAINT collaborator_category_mapping_status_check
+        CHECK (status IN ('PENDING', 'MAPPED', 'IGNORED'))
+);
+
+
+--
+-- Name: idx_cat_mapping_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_cat_mapping_status ON public.collaborator_category_mapping USING btree (status);
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
 

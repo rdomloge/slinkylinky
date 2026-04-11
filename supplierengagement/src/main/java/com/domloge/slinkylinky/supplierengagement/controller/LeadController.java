@@ -1,8 +1,10 @@
 package com.domloge.slinkylinky.supplierengagement.controller;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -29,8 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
+import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
+import com.domloge.slinkylinky.supplierengagement.repo.CollaboratorCategoryMappingRepo;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
 import com.domloge.slinkylinky.supplierengagement.scraper.BrowserDiscoveryQueue;
 import com.domloge.slinkylinky.supplierengagement.scraper.ContactDiscoveryService;
@@ -61,6 +65,9 @@ public class LeadController {
 
     @Autowired
     private LeadOutreachService outreachService;
+
+    @Autowired
+    private CollaboratorCategoryMappingRepo mappingRepo;
 
     @Autowired
     private HttpUtils httpUtils;
@@ -134,6 +141,7 @@ public class LeadController {
     public ResponseEntity<SupplierLead> discover(@PathVariable long id) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
         if (lead == null) return ResponseEntity.notFound().build();
+        if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
 
         String email = discoveryService.discoverEmail(lead.getDomain());
         if (email != null) {
@@ -186,6 +194,9 @@ public class LeadController {
     @PostMapping("/{id}/sendOutreach")
     @PreAuthorize("hasRole('global_admin')")
     public ResponseEntity<Void> sendOutreach(@PathVariable long id) {
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+        if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
         try {
             outreachService.sendOutreach(id);
             return ResponseEntity.ok().build();
@@ -223,10 +234,29 @@ public class LeadController {
     public ResponseEntity<Void> convertToSupplier(@PathVariable long id) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
         if (lead == null) return ResponseEntity.notFound().build();
+        if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
 
         try {
             String accessToken = httpUtils.fetchAccessToken();
             String url = linkServiceBase + "/suppliers";
+
+            // Resolve MAPPED categories to linkservice URI references for Spring Data REST
+            List<String> categoryUris = new java.util.ArrayList<>();
+            if (lead.getConstraints() != null && !lead.getConstraints().isBlank()) {
+                Arrays.stream(lead.getConstraints().split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .forEach(cat -> mappingRepo.findByCollaboratorCategory(cat).ifPresent(m -> {
+                        if (m.getStatus() == MappingStatus.MAPPED && m.getSlCategoryId() != null) {
+                            categoryUris.add(linkServiceBase + "/categories/" + m.getSlCategoryId());
+                        }
+                    }));
+            }
+
+            // SupplierValidator requires weWriteFeeCurrency to be exactly 1 character
+            String currency = (lead.getCurrency() != null && !lead.getCurrency().isBlank())
+                    ? lead.getCurrency().substring(0, 1)
+                    : "£";
 
             Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("name",               lead.getDomain());
@@ -234,10 +264,13 @@ public class LeadController {
             payload.put("website",            "https://" + lead.getDomain());
             payload.put("domain",             lead.getDomain());
             payload.put("weWriteFee",         lead.getPrice() != null ? lead.getPrice() : 0);
-            payload.put("weWriteFeeCurrency", lead.getCurrency() != null && !lead.getCurrency().isBlank() ? lead.getCurrency().substring(0, 1) : "$");
+            payload.put("weWriteFeeCurrency", currency);
             payload.put("thirdParty",         false);
             payload.put("source",             "Automated outreach");
             payload.put("createdBy",          "supplierengagement-bot");
+            if (!categoryUris.isEmpty()) {
+                payload.put("categories", categoryUris);
+            }
 
             String json = objectMapper.writeValueAsString(payload);
 
@@ -325,6 +358,38 @@ public class LeadController {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Returns the mapping status for a lead — whether it has any categories that
+     * still need to be mapped or ignored before workflow actions can proceed.
+     */
+    @GetMapping("/{id}/mapping-status")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<Map<String, Object>> mappingStatus(@PathVariable long id) {
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+
+        List<String> pending = pendingCategories(lead);
+        return ResponseEntity.ok(Map.of(
+                "hasPending",         !pending.isEmpty(),
+                "pendingCategories",  pending
+        ));
+    }
+
+    private boolean hasPendingMappings(SupplierLead lead) {
+        return !pendingCategories(lead).isEmpty();
+    }
+
+    private List<String> pendingCategories(SupplierLead lead) {
+        if (lead.getConstraints() == null || lead.getConstraints().isBlank()) return List.of();
+        return Arrays.stream(lead.getConstraints().split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .filter(cat -> mappingRepo.findByCollaboratorCategory(cat)
+                        .map(m -> m.getStatus() == MappingStatus.PENDING)
+                        .orElse(true))
+                .collect(Collectors.toList());
+    }
 
     private LeadScraper findScraper(String source) {
         return scrapers.stream()

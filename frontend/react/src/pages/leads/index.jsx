@@ -31,16 +31,18 @@ function StatusBadge({ status }) {
     );
 }
 
-function ActionBtn({ label, onClick, disabled, variant = 'ghost' }) {
+function ActionBtn({ label, onClick, disabled, variant = 'ghost', title }) {
     const variants = {
         ghost:   'text-slate-500 hover:text-slate-800 hover:bg-slate-100',
         primary: 'text-white bg-indigo-600 hover:bg-indigo-700',
         success: 'text-white bg-emerald-600 hover:bg-emerald-700',
+        warning: 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100',
     };
     return (
         <button
             onClick={onClick}
             disabled={disabled}
+            title={title}
             className={`text-xs px-2.5 py-1 rounded-md font-medium border border-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${variants[variant]}`}
         >
             {label}
@@ -87,6 +89,115 @@ function PipelineBar({ leads }) {
     );
 }
 
+// ── Category mapping modal ────────────────────────────────────────────────────
+
+function CategoryMappingModal({ lead, mappings, onClose, onMapped }) {
+    const toast = useToast();
+    const [slCategories, setSlCategories] = useState([]);
+    const [selections, setSelections]     = useState({});
+    const [saving, setSaving]             = useState(false);
+
+    // Determine which categories for this lead are still pending
+    const pendingCats = (lead.constraints ?? '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .filter(cat => {
+            const m = mappings.find(m => m.collaboratorCategory === cat);
+            return !m || m.status === 'PENDING';
+        });
+
+    useEffect(() => {
+        fetchWithAuth('/.rest/categories')
+            .then(r => r.json())
+            .then(data => setSlCategories(data._embedded?.categories ?? []))
+            .catch(() => {});
+    }, []);
+
+    function setSelection(cat, value) {
+        setSelections(prev => ({ ...prev, [cat]: value }));
+    }
+
+    const allSelected = pendingCats.every(cat => selections[cat]);
+
+    async function submit() {
+        setSaving(true);
+        try {
+            const resolutions = pendingCats.map(cat => {
+                const sel = selections[cat];
+                if (sel === 'IGNORE') {
+                    return { collaboratorCategory: cat, action: 'IGNORE' };
+                }
+                const slCat = slCategories.find(c => String(c.id) === String(sel));
+                return { collaboratorCategory: cat, action: 'MAP', slCategoryId: slCat.id, slCategoryName: slCat.name };
+            });
+
+            const r = await fetchWithAuth('/.rest/engagements/category-mappings/resolve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resolutions),
+            });
+            if (!r.ok) throw new Error(r.status);
+            toast('Category mappings saved', 'success');
+            onMapped();
+        } catch {
+            toast('Failed to save mappings', 'error');
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <Modal title={`Map categories — ${lead.domain}`} dismissHandler={onClose} width="w-full max-w-lg">
+            <div className="flex flex-col gap-4">
+                <p className="text-slate-500 text-xs leading-relaxed">
+                    Map each Collaborator category to a SlinkyLinky category, or choose <strong>Ignore</strong> to skip it.
+                    All categories must be resolved before this lead can be actioned.
+                </p>
+
+                {pendingCats.length === 0 ? (
+                    <p className="text-slate-400 text-sm text-center py-4">No pending categories — this lead is ready to action.</p>
+                ) : (
+                    <div className="flex flex-col gap-3">
+                        {pendingCats.map(cat => (
+                            <div key={cat} className="flex items-center gap-3">
+                                <span className="flex-1 text-sm font-medium text-slate-700 truncate" title={cat}>{cat}</span>
+                                <select
+                                    value={selections[cat] ?? ''}
+                                    onChange={e => setSelection(cat, e.target.value)}
+                                    className="w-48 shrink-0 border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm text-slate-700 bg-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                                >
+                                    <option value="">— select —</option>
+                                    <option value="IGNORE">— Ignore —</option>
+                                    {slCategories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div className="flex justify-end gap-2 pt-1">
+                    <button
+                        onClick={onClose}
+                        className="text-sm px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={submit}
+                        disabled={!allSelected || saving || pendingCats.length === 0}
+                        className="text-sm px-4 py-1.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border border-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        {saving ? 'Saving…' : 'Save Mappings'}
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LeadsIndex() {
@@ -96,6 +207,7 @@ export default function LeadsIndex() {
     const toast = useToast();
 
     const [leads, setLeads]               = useState(null);
+    const [mappings, setMappings]         = useState([]);
     const [error, setError]               = useState(null);
     const [scraping, setScraping]         = useState(false);
     const [scrapeCount, setScrapeCount]   = useState(0);
@@ -105,6 +217,7 @@ export default function LeadsIndex() {
     const [scrapeLimit, setScrapeLimit]   = useState(3);
     const [refreshFlash, setRefreshFlash] = useState(false);
     const [confirmModal, setConfirmModal] = useState(null); // { message, confirmLabel, onConfirm }
+    const [mappingModalLead, setMappingModalLead] = useState(null);
 
     const pollRef  = useRef(null);
     const leadsRef = useRef(null);
@@ -116,6 +229,7 @@ export default function LeadsIndex() {
     useEffect(() => {
         if (!isGlobalAdmin) return;
         fetchLeads();
+        fetchMappings();
         checkScrapeStatus();
     }, [isGlobalAdmin]);
 
@@ -146,6 +260,14 @@ export default function LeadsIndex() {
         }
     }
 
+    async function fetchMappings() {
+        try {
+            const r = await fetchWithAuth('/.rest/engagements/category-mappings');
+            if (!r.ok) return;
+            setMappings(await r.json());
+        } catch { /* non-fatal */ }
+    }
+
     async function checkScrapeStatus() {
         try {
             const r = await fetchWithAuth('/.rest/leads/scrape/status');
@@ -168,6 +290,8 @@ export default function LeadsIndex() {
                 const data = await r.json();
                 setScrapeCount(data.leadsFound);
                 await fetchLeads(true);
+                // Refresh mappings too — new categories may have appeared
+                await fetchMappings();
                 const hasBrowserQueued = leadsRef.current?.some(l => l.status === 'BROWSER_QUEUED');
                 if (!data.running && !hasBrowserQueued) {
                     setScraping(false);
@@ -206,6 +330,7 @@ export default function LeadsIndex() {
         setBusyId(lead.id);
         try {
             const r = await fetchWithAuth(`/.rest/leads/${lead.id}/discover`, { method: 'POST' });
+            if (r?.status === 422) { toast('Resolve category mappings before actioning this lead', 'error'); return; }
             if (!r?.ok) throw new Error(r?.status);
             const updated = await r.json();
             setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
@@ -246,6 +371,7 @@ export default function LeadsIndex() {
                 setBusyId(lead.id);
                 try {
                     const r = await fetchWithAuth(`/.rest/leads/${lead.id}/sendOutreach`, { method: 'POST' });
+                    if (r?.status === 422) { toast('Resolve category mappings before sending outreach', 'error'); return; }
                     if (!r?.ok) throw new Error(r?.status);
                     const r2 = await fetchWithAuth(`/.rest/leads/${lead.id}`);
                     const updated = await r2.json();
@@ -278,6 +404,7 @@ export default function LeadsIndex() {
                 setBusyId(lead.id);
                 try {
                     const r = await fetchWithAuth(`/.rest/leads/${lead.id}/convert`, { method: 'POST' });
+                    if (r?.status === 422) { toast('Resolve category mappings before converting', 'error'); return; }
                     if (!r?.ok) throw new Error(r?.status);
                     toast(`${lead.domain} converted to Supplier`, 'success');
                 } catch {
@@ -307,6 +434,18 @@ export default function LeadsIndex() {
                 }
             },
         });
+    }
+
+    /** Returns category strings for this lead that are still PENDING in the mapping table. */
+    function getPendingCategories(lead) {
+        if (!lead.constraints) return [];
+        return lead.constraints.split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+            .filter(cat => {
+                const m = mappings.find(m => m.collaboratorCategory === cat);
+                return !m || m.status === 'PENDING';
+            });
     }
 
     return (
@@ -380,55 +519,97 @@ export default function LeadsIndex() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                        {leads.map((lead, index) => (
-                                            <tr key={lead.id ?? `${lead.domain ?? 'lead'}-${index}`} className="hover:bg-slate-50 transition-colors group">
-                                                <td className="px-4 py-2.5 font-mono text-xs max-w-[200px] truncate font-medium">
-                                                    <a
-                                                        href={`https://${lead.domain}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors"
-                                                    >
-                                                        {lead.domain}
-                                                    </a>
-                                                </td>
-                                                <td className="px-4 py-2.5 text-slate-700 whitespace-nowrap text-sm font-medium">
-                                                    {lead.price ? `${lead.currency ?? ''} ${lead.price}` : <span className="text-slate-300">—</span>}
-                                                </td>
-                                                <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[180px] truncate" title={lead.constraints}>
-                                                    {lead.constraints || <span className="text-slate-300">—</span>}
-                                                </td>
-                                                <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[160px] truncate">
-                                                    {lead.contactEmail || <span className="text-slate-300">—</span>}
-                                                </td>
-                                                <td className="px-4 py-2.5">
-                                                    <StatusBadge status={lead.status} />
-                                                </td>
-                                                <td className="px-4 py-2.5">
-                                                    <div className="flex items-center gap-1">
-                                                        {lead.status === 'NEW' && (
-                                                            <ActionBtn label="Find Contact" onClick={() => discoverContact(lead)} disabled={busyId === lead.id} />
-                                                        )}
-                                                        {lead.status === 'BROWSER_QUEUED' && (
-                                                            <span className="text-xs text-violet-500 italic px-1">Browser queued…</span>
-                                                        )}
-                                                        {lead.status === 'CONTACT_NOT_FOUND' && (
-                                                            <ActionBtn label="Retry Browser" onClick={() => requeueBrowser(lead)} disabled={busyId === lead.id} />
-                                                        )}
-                                                        {lead.contactEmail && lead.status === 'CONTACT_FOUND' && (
-                                                            <ActionBtn label="Send Outreach" variant="primary" onClick={() => sendOutreach(lead)} disabled={busyId === lead.id} />
-                                                        )}
-                                                        {lead.status === 'ACCEPTED' && lead.fileBlob && (
-                                                            <ActionBtn label="Download File" onClick={() => downloadFile(lead)} disabled={busyId === lead.id} />
-                                                        )}
-                                                        {lead.status === 'ACCEPTED' && (
-                                                            <ActionBtn label="Convert to Supplier" variant="success" onClick={() => convertToSupplier(lead)} disabled={busyId === lead.id} />
-                                                        )}
-                                                        <ActionBtn label="Delete" variant="ghost" onClick={() => deleteLead(lead)} disabled={busyId === lead.id} />
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        {leads.map((lead, index) => {
+                                            const pendingCats = getPendingCategories(lead);
+                                            const hasUnmapped = pendingCats.length > 0;
+                                            return (
+                                                <tr key={lead.id ?? `${lead.domain ?? 'lead'}-${index}`} className="hover:bg-slate-50 transition-colors group">
+                                                    <td className="px-4 py-2.5 font-mono text-xs max-w-[200px] font-medium">
+                                                        <div className="flex items-center gap-1.5 min-w-0">
+                                                            <a
+                                                                href={`https://${lead.domain}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors truncate"
+                                                            >
+                                                                {lead.domain}
+                                                            </a>
+                                                            {hasUnmapped && (
+                                                                <span
+                                                                    title={`${pendingCats.length} unmapped categor${pendingCats.length === 1 ? 'y' : 'ies'}: ${pendingCats.join(', ')}`}
+                                                                    className="shrink-0 inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 border border-amber-200"
+                                                                >
+                                                                    <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                                                    </svg>
+                                                                    {pendingCats.length}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-2.5 text-slate-700 whitespace-nowrap text-sm font-medium">
+                                                        {lead.price ? `${lead.currency ?? ''} ${lead.price}` : <span className="text-slate-300">—</span>}
+                                                    </td>
+                                                    <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[180px] truncate" title={lead.constraints}>
+                                                        {lead.constraints || <span className="text-slate-300">—</span>}
+                                                    </td>
+                                                    <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[160px] truncate">
+                                                        {lead.contactEmail || <span className="text-slate-300">—</span>}
+                                                    </td>
+                                                    <td className="px-4 py-2.5">
+                                                        <StatusBadge status={lead.status} />
+                                                    </td>
+                                                    <td className="px-4 py-2.5">
+                                                        <div className="flex items-center gap-1">
+                                                            {hasUnmapped && (
+                                                                <ActionBtn
+                                                                    label="Map Categories"
+                                                                    variant="warning"
+                                                                    onClick={() => setMappingModalLead(lead)}
+                                                                    disabled={busyId === lead.id}
+                                                                />
+                                                            )}
+                                                            {lead.status === 'NEW' && (
+                                                                <ActionBtn
+                                                                    label="Find Contact"
+                                                                    onClick={() => discoverContact(lead)}
+                                                                    disabled={busyId === lead.id || hasUnmapped}
+                                                                    title={hasUnmapped ? 'Resolve category mappings first' : undefined}
+                                                                />
+                                                            )}
+                                                            {lead.status === 'BROWSER_QUEUED' && (
+                                                                <span className="text-xs text-violet-500 italic px-1">Browser queued…</span>
+                                                            )}
+                                                            {lead.status === 'CONTACT_NOT_FOUND' && (
+                                                                <ActionBtn label="Retry Browser" onClick={() => requeueBrowser(lead)} disabled={busyId === lead.id} />
+                                                            )}
+                                                            {lead.contactEmail && lead.status === 'CONTACT_FOUND' && (
+                                                                <ActionBtn
+                                                                    label="Send Outreach"
+                                                                    variant="primary"
+                                                                    onClick={() => sendOutreach(lead)}
+                                                                    disabled={busyId === lead.id || hasUnmapped}
+                                                                    title={hasUnmapped ? 'Resolve category mappings first' : undefined}
+                                                                />
+                                                            )}
+                                                            {lead.status === 'ACCEPTED' && lead.fileBlob && (
+                                                                <ActionBtn label="Download File" onClick={() => downloadFile(lead)} disabled={busyId === lead.id} />
+                                                            )}
+                                                            {lead.status === 'ACCEPTED' && (
+                                                                <ActionBtn
+                                                                    label="Convert to Supplier"
+                                                                    variant="success"
+                                                                    onClick={() => convertToSupplier(lead)}
+                                                                    disabled={busyId === lead.id || hasUnmapped}
+                                                                    title={hasUnmapped ? 'Resolve category mappings first' : undefined}
+                                                                />
+                                                            )}
+                                                            <ActionBtn label="Delete" variant="ghost" onClick={() => deleteLead(lead)} disabled={busyId === lead.id} />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -528,6 +709,18 @@ export default function LeadsIndex() {
                         </div>
                     </div>
                 </Modal>
+            )}
+
+            {mappingModalLead && (
+                <CategoryMappingModal
+                    lead={mappingModalLead}
+                    mappings={mappings}
+                    onClose={() => setMappingModalLead(null)}
+                    onMapped={async () => {
+                        setMappingModalLead(null);
+                        await fetchMappings();
+                    }}
+                />
             )}
         </Layout>
     );

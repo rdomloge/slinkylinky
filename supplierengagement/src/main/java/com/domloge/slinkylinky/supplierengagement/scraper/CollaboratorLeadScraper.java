@@ -9,6 +9,7 @@ import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,8 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
+import com.domloge.slinkylinky.supplierengagement.entity.CollaboratorCategoryMapping;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
+import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
+import com.domloge.slinkylinky.supplierengagement.repo.CollaboratorCategoryMappingRepo;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +53,15 @@ public class CollaboratorLeadScraper implements LeadScraper {
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
             "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
+    /** Maps Collaborator currency codes to display symbols. */
+    private static final Map<String, String> CURRENCY_SYMBOLS = Map.of(
+        "GBP", "£",
+        "USD", "$",
+        "EUR", "€",
+        "UAH", "₴",
+        "PLN", "zł"
+    );
+
     /** Collaborator.pro project ID. Configurable per deployment; defaults to the known value. */
     @Value("${collaborator.project.id:128180}")
     private String projectId;
@@ -72,6 +85,9 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
     @Autowired
     private SupplierLeadRepo leadRepo;
+
+    @Autowired
+    private CollaboratorCategoryMappingRepo mappingRepo;
 
     private final AtomicBoolean running    = new AtomicBoolean(false);
     private final AtomicInteger leadsFound = new AtomicInteger(0);
@@ -232,7 +248,8 @@ public class CollaboratorLeadScraper implements LeadScraper {
             // Format: "77.62 GBP" — currency code is the last token after the space
             int lastSpace = priceStr.lastIndexOf(' ');
             if (lastSpace >= 0 && lastSpace < priceStr.length() - 1) {
-                dto.currency = priceStr.substring(lastSpace + 1).trim();
+                String code = priceStr.substring(lastSpace + 1).trim();
+                dto.currency = CURRENCY_SYMBOLS.getOrDefault(code, code);
             }
         }
 
@@ -272,6 +289,32 @@ public class CollaboratorLeadScraper implements LeadScraper {
             leadRepo.save(lead);
         }
         leadsFound.incrementAndGet();
+        syncCategoryMappings(dto.constraints);
+    }
+
+    /**
+     * Ensures every category string in the lead's constraints has a row in the mapping
+     * table. New categories are created with status PENDING; existing MAPPED/IGNORED
+     * entries are left unchanged so accumulated mappings are preserved.
+     */
+    private void syncCategoryMappings(String constraints) {
+        if (!StringUtils.hasText(constraints)) return;
+        for (String raw : constraints.split(",")) {
+            String cat = raw.trim();
+            if (cat.isEmpty()) continue;
+            if (mappingRepo.findByCollaboratorCategory(cat).isEmpty()) {
+                CollaboratorCategoryMapping mapping = new CollaboratorCategoryMapping();
+                mapping.setCollaboratorCategory(cat);
+                mapping.setStatus(MappingStatus.PENDING);
+                try {
+                    mappingRepo.save(mapping);
+                } catch (Exception e) {
+                    // Race condition: another thread inserted the same category between the
+                    // findByCollaboratorCategory check and the save — safe to ignore.
+                    log.debug("Category mapping already exists for '{}' — skipping", cat);
+                }
+            }
+        }
     }
 
     // ── Internal DTO ─────────────────────────────────────────────────────────

@@ -13,7 +13,8 @@ const ENTITY_COLORS = {
     '/audit':          { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
     '/organisations':  { active: '#38bdf8', glow: 'rgba(56,189,248,0.25)',  dot: '#38bdf8' },
     '/users':          { active: '#fb923c', glow: 'rgba(251,146,60,0.25)',   dot: '#fb923c' },
-    '/leads':          { active: '#a78bfa', glow: 'rgba(167,139,250,0.25)', dot: '#a78bfa' },
+    '/leads':              { active: '#a78bfa', glow: 'rgba(167,139,250,0.25)', dot: '#a78bfa' },
+    '/category-mappings':  { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
 };
 
 const navItems = [
@@ -102,6 +103,16 @@ const navItems = [
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
+        ),
+    },
+    {
+        to: '/category-mappings',
+        label: 'Cat. Mappings',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
             </svg>
         ),
     },
