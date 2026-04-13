@@ -1,7 +1,6 @@
 package com.domloge.slinkylinky.supplierengagement.controller;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,6 +76,18 @@ public class LeadController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // ── Collection listing ────────────────────────────────────────────────────
+
+    /**
+     * Returns all leads except those already converted to a Supplier.
+     * Overrides the Spring Data REST default GET /.rest/leads collection endpoint.
+     */
+    @GetMapping
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<Iterable<SupplierLead>> list() {
+        return ResponseEntity.ok(leadRepo.findByStatusNotOrderByDomainAsc(LeadStatus.CONVERTED));
+    }
+
     // ── Admin endpoints ───────────────────────────────────────────────────────
 
     /**
@@ -141,7 +152,11 @@ public class LeadController {
     public ResponseEntity<SupplierLead> discover(@PathVariable long id) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
         if (lead == null) return ResponseEntity.notFound().build();
+        if (lead.getStatus() == LeadStatus.SEARCHING) return ResponseEntity.ok(lead);
         if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
+
+        lead.setStatus(LeadStatus.SEARCHING);
+        leadRepo.save(lead);
 
         String email = discoveryService.discoverEmail(lead.getDomain());
         if (email != null) {
@@ -242,10 +257,9 @@ public class LeadController {
 
             // Resolve MAPPED categories to linkservice URI references for Spring Data REST
             List<String> categoryUris = new java.util.ArrayList<>();
-            if (lead.getConstraints() != null && !lead.getConstraints().isBlank()) {
-                Arrays.stream(lead.getConstraints().split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
+            if (lead.getCategories() != null && !lead.getCategories().isEmpty()) {
+                lead.getCategories().stream()
+                    .filter(cat -> !cat.isBlank())
                     .forEach(cat -> mappingRepo.findByCollaboratorCategory(cat).ifPresent(m -> {
                         if (m.getStatus() == MappingStatus.MAPPED && m.getSlCategoryId() != null) {
                             categoryUris.add(linkServiceBase + "/categories/" + m.getSlCategoryId());
@@ -283,6 +297,8 @@ public class LeadController {
                  CloseableHttpResponse response = client.execute(post)) {
                 int code = response.getCode();
                 if (code == 201 || code == 200) {
+                    lead.setStatus(LeadStatus.CONVERTED);
+                    leadRepo.save(lead);
                     log.info("Lead {} ({}) converted to Supplier", id, lead.getDomain());
                     return ResponseEntity.ok().build();
                 } else {
@@ -381,10 +397,9 @@ public class LeadController {
     }
 
     private List<String> pendingCategories(SupplierLead lead) {
-        if (lead.getConstraints() == null || lead.getConstraints().isBlank()) return List.of();
-        return Arrays.stream(lead.getConstraints().split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
+        if (lead.getCategories() == null || lead.getCategories().isEmpty()) return List.of();
+        return lead.getCategories().stream()
+                .filter(cat -> !cat.isBlank())
                 .filter(cat -> mappingRepo.findByCollaboratorCategory(cat)
                         .map(m -> m.getStatus() == MappingStatus.PENDING)
                         .orElse(true))

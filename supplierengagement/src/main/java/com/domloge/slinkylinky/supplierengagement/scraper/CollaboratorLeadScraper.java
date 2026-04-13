@@ -253,15 +253,13 @@ public class CollaboratorLeadScraper implements LeadScraper {
             }
         }
 
-        // Categories → stored in the constraints field (closest semantic match)
+        // Categories: parse at the integration point into a clean list
         JsonNode cats = item.path("columns").path("categories");
         if (cats.isArray() && cats.size() > 0) {
-            List<String> texts = new ArrayList<>();
             cats.forEach(c -> {
                 String t = c.path("text").asText(null);
-                if (StringUtils.hasText(t)) texts.add(t);
+                if (StringUtils.hasText(t)) dto.categories.add(t);
             });
-            if (!texts.isEmpty()) dto.constraints = String.join(", ", texts);
         }
 
         return dto;
@@ -275,7 +273,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
             // Refresh catalog data; never reset outreach progress
             existing.setPrice(dto.price);
             existing.setCurrency(dto.currency);
-            existing.setConstraints(dto.constraints);
+            existing.setCategories(dto.categories);
             leadRepo.save(existing);
         } else {
             SupplierLead lead = new SupplierLead();
@@ -283,13 +281,13 @@ public class CollaboratorLeadScraper implements LeadScraper {
             lead.setDomain(dto.domain);
             lead.setPrice(dto.price);
             lead.setCurrency(dto.currency);
-            lead.setConstraints(dto.constraints);
+            lead.setCategories(dto.categories);
             lead.setStatus(LeadStatus.NEW);
             lead.setScrapedAt(LocalDateTime.now());
             leadRepo.save(lead);
         }
         leadsFound.incrementAndGet();
-        syncCategoryMappings(dto.constraints);
+        syncCategoryMappings(dto.categories);
     }
 
     /**
@@ -297,10 +295,9 @@ public class CollaboratorLeadScraper implements LeadScraper {
      * table. New categories are created with status PENDING; existing MAPPED/IGNORED
      * entries are left unchanged so accumulated mappings are preserved.
      */
-    private void syncCategoryMappings(String constraints) {
-        if (!StringUtils.hasText(constraints)) return;
-        for (String raw : constraints.split(",")) {
-            String cat = raw.trim();
+    private void syncCategoryMappings(List<String> categories) {
+        if (categories == null || categories.isEmpty()) return;
+        for (String cat : categories) {
             if (cat.isEmpty()) continue;
             if (mappingRepo.findByCollaboratorCategory(cat).isEmpty()) {
                 CollaboratorCategoryMapping mapping = new CollaboratorCategoryMapping();
@@ -320,9 +317,9 @@ public class CollaboratorLeadScraper implements LeadScraper {
     // ── Internal DTO ─────────────────────────────────────────────────────────
 
     private static class LeadDto {
-        String     domain;
-        BigDecimal price;
-        String     currency;
-        String     constraints; // categories from the API
+        String       domain;
+        BigDecimal   price;
+        String       currency;
+        List<String> categories = new ArrayList<>();
     }
 }

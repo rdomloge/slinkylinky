@@ -11,6 +11,7 @@ import { useToast } from '@/components/atoms/Toasts';
 
 const STATUS_CONFIG = {
     NEW:               { label: 'New',              bg: 'bg-slate-100',   text: 'text-slate-600',   dot: '#94a3b8' },
+    SEARCHING:         { label: 'Searching',        bg: 'bg-amber-100',   text: 'text-amber-700',   dot: '#f59e0b' },
     BROWSER_QUEUED:    { label: 'Browser Queued',   bg: 'bg-violet-100',  text: 'text-violet-700',  dot: '#7c3aed' },
     CONTACT_FOUND:     { label: 'Contact Found',    bg: 'bg-amber-100',   text: 'text-amber-700',   dot: '#f59e0b' },
     CONTACT_NOT_FOUND: { label: 'Not Found',        bg: 'bg-rose-100',    text: 'text-rose-600',    dot: '#f43f5e' },
@@ -97,15 +98,10 @@ function CategoryMappingModal({ lead, mappings, onClose, onMapped }) {
     const [selections, setSelections]     = useState({});
     const [saving, setSaving]             = useState(false);
 
-    // Determine which categories for this lead are still pending
-    const pendingCats = (lead.constraints ?? '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean)
-        .filter(cat => {
-            const m = mappings.find(m => m.collaboratorCategory === cat);
-            return !m || m.status === 'PENDING';
-        });
+    const pendingCats = (lead.categories ?? []).filter(cat => {
+        const m = mappings.find(m => m.collaboratorCategory === cat);
+        return !m || m.status === 'PENDING';
+    });
 
     useEffect(() => {
         fetchWithAuth('/.rest/categories')
@@ -218,9 +214,12 @@ export default function LeadsIndex() {
     const [refreshFlash, setRefreshFlash] = useState(false);
     const [confirmModal, setConfirmModal] = useState(null); // { message, confirmLabel, onConfirm }
     const [mappingModalLead, setMappingModalLead] = useState(null);
+    const [pendingDiscovery, setPendingDiscovery] = useState(new Set());
+    const [autoDiscovering, setAutoDiscovering]   = useState(false);
 
-    const pollRef  = useRef(null);
-    const leadsRef = useRef(null);
+    const pollRef              = useRef(null);
+    const leadsRef             = useRef(null);
+    const autoDiscoverCancel   = useRef(false);
 
     useEffect(() => {
         if (user && !isGlobalAdmin) navigate('/');
@@ -238,9 +237,9 @@ export default function LeadsIndex() {
     // Keep leadsRef in sync so the polling interval can read the current value
     useEffect(() => { leadsRef.current = leads; }, [leads]);
 
-    // Start polling whenever any lead is browser-queued (even if no scrape is running)
+    // Start polling whenever any lead is searching or browser-queued (even if no scrape is running)
     useEffect(() => {
-        if (leads?.some(l => l.status === 'BROWSER_QUEUED') && !pollRef.current) {
+        if (leads?.some(l => l.status === 'SEARCHING' || l.status === 'BROWSER_QUEUED') && !pollRef.current) {
             startPolling();
         }
     }, [leads]);
@@ -250,7 +249,7 @@ export default function LeadsIndex() {
             const r = await fetchWithAuth('/.rest/leads');
             if (!r.ok) throw new Error(r.status);
             const data = await r.json();
-            setLeads(data._embedded?.leads ?? []);
+            setLeads(Array.isArray(data) ? data : (data._embedded?.leads ?? []));
             if (flash) {
                 setRefreshFlash(true);
                 setTimeout(() => setRefreshFlash(false), 900);
@@ -292,7 +291,7 @@ export default function LeadsIndex() {
                 await fetchLeads(true);
                 // Refresh mappings too — new categories may have appeared
                 await fetchMappings();
-                const hasBrowserQueued = leadsRef.current?.some(l => l.status === 'BROWSER_QUEUED');
+                const hasBrowserQueued = leadsRef.current?.some(l => l.status === 'BROWSER_QUEUED' || l.status === 'SEARCHING');
                 if (!data.running && !hasBrowserQueued) {
                     setScraping(false);
                     clearInterval(pollRef.current);
@@ -328,6 +327,7 @@ export default function LeadsIndex() {
 
     async function discoverContact(lead) {
         setBusyId(lead.id);
+        setPendingDiscovery(prev => new Set([...prev, lead.id]));
         try {
             const r = await fetchWithAuth(`/.rest/leads/${lead.id}/discover`, { method: 'POST' });
             if (r?.status === 422) { toast('Resolve category mappings before actioning this lead', 'error'); return; }
@@ -345,7 +345,27 @@ export default function LeadsIndex() {
             toast(`Contact discovery failed for ${lead.domain}`, 'error');
         } finally {
             setBusyId(null);
+            setPendingDiscovery(prev => { const s = new Set(prev); s.delete(lead.id); return s; });
         }
+    }
+
+    async function startAutoDiscover() {
+        const queue = (leads ?? []).filter(l => l.status === 'NEW' && !pendingDiscovery.has(l.id));
+        if (!queue.length) return;
+        setAutoDiscovering(true);
+        autoDiscoverCancel.current = false;
+        for (const lead of queue) {
+            if (autoDiscoverCancel.current) break;
+            await discoverContact(lead);
+            if (autoDiscoverCancel.current) break;
+            await new Promise(res => setTimeout(res, 2000));
+        }
+        setAutoDiscovering(false);
+    }
+
+    function cancelAutoDiscover() {
+        autoDiscoverCancel.current = true;
+        setAutoDiscovering(false);
     }
 
     async function requeueBrowser(lead) {
@@ -406,6 +426,7 @@ export default function LeadsIndex() {
                     const r = await fetchWithAuth(`/.rest/leads/${lead.id}/convert`, { method: 'POST' });
                     if (r?.status === 422) { toast('Resolve category mappings before converting', 'error'); return; }
                     if (!r?.ok) throw new Error(r?.status);
+                    setLeads(prev => prev.filter(l => l.id !== lead.id));
                     toast(`${lead.domain} converted to Supplier`, 'success');
                 } catch {
                     toast('Conversion failed — domain may already be a Supplier', 'error');
@@ -438,14 +459,10 @@ export default function LeadsIndex() {
 
     /** Returns category strings for this lead that are still PENDING in the mapping table. */
     function getPendingCategories(lead) {
-        if (!lead.constraints) return [];
-        return lead.constraints.split(',')
-            .map(s => s.trim())
-            .filter(Boolean)
-            .filter(cat => {
-                const m = mappings.find(m => m.collaboratorCategory === cat);
-                return !m || m.status === 'PENDING';
-            });
+        return (lead.categories ?? []).filter(cat => {
+            const m = mappings.find(m => m.collaboratorCategory === cat);
+            return !m || m.status === 'PENDING';
+        });
     }
 
     return (
@@ -464,16 +481,42 @@ export default function LeadsIndex() {
                 </span>
             }
             headerActions={
-                <button
-                    onClick={() => setShowScrapeModal(true)}
-                    disabled={scraping}
-                    className="flex items-center gap-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-3 py-1.5 transition-colors border border-indigo-700"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                    {scraping ? 'Scraping…' : 'Scrape Collaborator.pro'}
-                </button>
+                <div className="flex items-center gap-2">
+                    {leads?.some(l => l.status === 'NEW') && (
+                        autoDiscovering ? (
+                            <button
+                                onClick={cancelAutoDiscover}
+                                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg px-3 py-1.5 transition-colors border border-rose-600"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                </svg>
+                                Cancel auto-discover
+                            </button>
+                        ) : (
+                            <button
+                                onClick={startAutoDiscover}
+                                disabled={scraping}
+                                className="flex items-center gap-1.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-3 py-1.5 transition-colors border border-emerald-700"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 15.803m10.607 0A7.5 7.5 0 0 0 5.196 15.803" />
+                                </svg>
+                                Auto-discover contacts
+                            </button>
+                        )
+                    )}
+                    <button
+                        onClick={() => setShowScrapeModal(true)}
+                        disabled={scraping}
+                        className="flex items-center gap-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-3 py-1.5 transition-colors border border-indigo-700"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        {scraping ? 'Scraping…' : 'Scrape Collaborator.pro'}
+                    </button>
+                </div>
             }
         >
             {leads ? (
@@ -491,7 +534,7 @@ export default function LeadsIndex() {
                     <>
                         <PipelineBar leads={leads} />
                         <div className="px-6 pb-6">
-                            {(scraping || leads?.some(l => l.status === 'BROWSER_QUEUED')) && (
+                            {(scraping || leads?.some(l => l.status === 'BROWSER_QUEUED' || l.status === 'SEARCHING')) && (
                                 <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-2 px-0.5">
                                     <span className="flex items-center gap-1.5">
                                         <svg className="w-3 h-3 animate-spin shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -499,6 +542,11 @@ export default function LeadsIndex() {
                                         </svg>
                                         Auto-updating every 5s
                                     </span>
+                                    {leads?.some(l => l.status === 'SEARCHING') && (
+                                        <span className="text-amber-500">
+                                            {leads.filter(l => l.status === 'SEARCHING').length} domain{leads.filter(l => l.status === 'SEARCHING').length !== 1 ? 's' : ''} searching for contact
+                                        </span>
+                                    )}
                                     {leads?.some(l => l.status === 'BROWSER_QUEUED') && (
                                         <span className="text-violet-500">
                                             {leads.filter(l => l.status === 'BROWSER_QUEUED').length} domain{leads.filter(l => l.status === 'BROWSER_QUEUED').length !== 1 ? 's' : ''} pending browser discovery
@@ -550,8 +598,8 @@ export default function LeadsIndex() {
                                                     <td className="px-4 py-2.5 text-slate-700 whitespace-nowrap text-sm font-medium">
                                                         {lead.price ? `${lead.currency ?? ''} ${lead.price}` : <span className="text-slate-300">—</span>}
                                                     </td>
-                                                    <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[180px] truncate" title={lead.constraints}>
-                                                        {lead.constraints || <span className="text-slate-300">—</span>}
+                                                    <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[180px] truncate" title={lead.categories?.join(' | ')}>
+                                                        {lead.categories?.length ? lead.categories.join(' | ') : <span className="text-slate-300">—</span>}
                                                     </td>
                                                     <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[160px] truncate">
                                                         {lead.contactEmail || <span className="text-slate-300">—</span>}
@@ -569,13 +617,16 @@ export default function LeadsIndex() {
                                                                     disabled={busyId === lead.id}
                                                                 />
                                                             )}
-                                                            {lead.status === 'NEW' && (
+                                                            {lead.status === 'NEW' && !pendingDiscovery.has(lead.id) && (
                                                                 <ActionBtn
                                                                     label="Find Contact"
                                                                     onClick={() => discoverContact(lead)}
                                                                     disabled={busyId === lead.id || hasUnmapped}
                                                                     title={hasUnmapped ? 'Resolve category mappings first' : undefined}
                                                                 />
+                                                            )}
+                                                            {lead.status === 'SEARCHING' && (
+                                                                <span className="text-xs text-amber-500 italic px-1">Searching…</span>
                                                             )}
                                                             {lead.status === 'BROWSER_QUEUED' && (
                                                                 <span className="text-xs text-violet-500 italic px-1">Browser queued…</span>

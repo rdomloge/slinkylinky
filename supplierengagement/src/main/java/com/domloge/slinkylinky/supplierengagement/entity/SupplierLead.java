@@ -3,13 +3,20 @@ package com.domloge.slinkylinky.supplierengagement.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,8 +42,10 @@ public class SupplierLead {
     private String countries;
     private String language;
 
-    @Column(columnDefinition = "TEXT")
-    private String constraints;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "supplier_lead_category", joinColumns = @JoinColumn(name = "lead_id"))
+    @Column(name = "category")
+    private List<String> categories = new ArrayList<>();
 
     private String contactEmail;
     private LocalDateTime outreachSent;

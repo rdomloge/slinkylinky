@@ -112,7 +112,6 @@ CREATE TABLE public.supplier_lead (
     currency       varchar(10),
     countries      varchar(512),
     language       varchar(255),
-    constraints    text,
     contact_email  varchar(255),
     outreach_sent  timestamp(6)  without time zone,
     guid           varchar(255),
@@ -125,9 +124,16 @@ CREATE TABLE public.supplier_lead (
     CONSTRAINT supplier_lead_pkey PRIMARY KEY (id),
     CONSTRAINT supplier_lead_guid_unique UNIQUE (guid),
     CONSTRAINT supplier_lead_status_check CHECK (
-        status IN ('NEW','BROWSER_QUEUED','CONTACT_FOUND','CONTACT_NOT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED')
+        status IN ('NEW','SEARCHING','BROWSER_QUEUED','CONTACT_FOUND','CONTACT_NOT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED','CONVERTED')
     )
 );
+
+CREATE TABLE public.supplier_lead_category (
+    lead_id  bigint       NOT NULL REFERENCES public.supplier_lead(id) ON DELETE CASCADE,
+    category varchar(255) NOT NULL
+);
+
+CREATE INDEX idx_supplier_lead_category_lead_id ON public.supplier_lead_category USING btree (lead_id);
 
 
 --
