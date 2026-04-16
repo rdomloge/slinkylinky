@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/auth/AuthProvider';
+import { TenantOverrideProvider } from '@/auth/TenantOverrideContext';
+import { ToastProvider } from '@/components/atoms/Toasts';
 import ReactGA from 'react-ga4';
 import { GA_TRACKING_ID } from '@/config';
 
@@ -22,7 +24,12 @@ import ProposalsIndex from '@/pages/proposals/index';
 import ProposalDetail from '@/pages/proposals/[proposalid]';
 import OrdersIndex from '@/pages/orders/index';
 import CategoriesIndex from '@/pages/categories/index';
+import OrganisationsIndex from '@/pages/organisations/index';
+import UsersIndex from '@/pages/users/index';
 import SupplierResponse from '@/pages/public/supplierresponse/index';
+import LeadResponse from '@/pages/public/leadresponse/index';
+import LeadsIndex from '@/pages/leads/index';
+import CategoryMappingsIndex from '@/pages/category-mappings/index';
 import PaidLinksStaging from '@/pages/paidlinks/staging';
 import Sandbox from '@/pages/sandbox/index';
 import Dashboard from '@/pages/dashboard/index';
@@ -32,11 +39,14 @@ ReactGA.initialize(GA_TRACKING_ID);
 export default function App() {
   return (
     <AuthProvider>
+      <TenantOverrideProvider>
+      <ToastProvider>
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
           <Route path="/callback" element={<Callback />} />
           <Route path="/public/supplierresponse" element={<SupplierResponse />} />
+          <Route path="/public/leadresponse" element={<LeadResponse />} />
 
           {/* Protected routes */}
           <Route path="/" element={<Dashboard />} />
@@ -57,10 +67,16 @@ export default function App() {
           <Route path="/audit" element={<AuditIndex />} />
           <Route path="/audit/trace" element={<AuditTrace />} />
           <Route path="/categories" element={<CategoriesIndex />} />
+          <Route path="/organisations" element={<OrganisationsIndex />} />
+          <Route path="/users" element={<UsersIndex />} />
           <Route path="/paidlinks/staging" element={<PaidLinksStaging />} />
           <Route path="/sandbox" element={<Sandbox />} />
+          <Route path="/leads" element={<LeadsIndex />} />
+          <Route path="/category-mappings" element={<CategoryMappingsIndex />} />
         </Routes>
       </BrowserRouter>
+      </ToastProvider>
+      </TenantOverrideProvider>
     </AuthProvider>
   );
 }

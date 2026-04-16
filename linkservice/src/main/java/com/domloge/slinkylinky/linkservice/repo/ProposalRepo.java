@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.repo;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +32,8 @@ public interface ProposalRepo extends CrudRepository <Proposal, Long>, PagingAnd
     void deleteById(Long id);
     
     @Transactional
-    List<Proposal> findAllByDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
-        LocalDateTime endDate, LocalDateTime startDate);
+    List<Proposal> findAllByOrganisationIdAndDateCreatedLessThanEqualAndDateCreatedGreaterThanEqualOrderByDateCreatedAsc(
+        UUID organisationId, LocalDateTime endDate, LocalDateTime startDate);
 
     Proposal findByLiveLinkUrl(String liveLinkUrl);
 

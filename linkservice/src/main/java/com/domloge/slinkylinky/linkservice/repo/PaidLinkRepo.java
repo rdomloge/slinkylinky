@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.linkservice.repo;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -19,6 +20,10 @@ public interface PaidLinkRepo extends CrudRepository <PaidLink, Long> {
     long countBySupplierId(long supplierId);
 
     PaidLink findByDemandDomainAndSupplierDomain(String demandDomain, String supplierDomain);
+
+    /** Org-scoped duplicate check — Rule 2. Use this in preference to the unscoped variant. */
+    PaidLink findByDemandDomainAndSupplierDomainAndOrganisationId(
+            String demandDomain, String supplierDomain, UUID organisationId);
 
     @Query(nativeQuery = true, value =
         "SELECT s.id as id, s.domain as domain, s.name as name, COUNT(pl.id) as linkCount " +

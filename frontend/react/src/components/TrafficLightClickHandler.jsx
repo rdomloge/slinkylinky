@@ -51,7 +51,7 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
         const url = "/.rest/proposalsupport/addarticle?proposalId="+parseId(proposal);
         fetchWithAuth(url, {
             method: 'PATCH',
-            headers: {'user': user.email, 'Content-Type':'text/plain'},
+            headers: {'Content-Type':'text/plain'},
             body: content
             })
             .then( (res) => {

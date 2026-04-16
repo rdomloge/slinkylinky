@@ -3,7 +3,7 @@ import Menu from './Menu';
 import Footer from './Footer';
 import Header from './Header';
 import { useAuth } from '@/auth/AuthProvider';
-import TenantWarning from '../TenantWarning';
+import TenantBadge from '../TenantBadge';
 import Logo from '@/assets/logo.png';
 
 const ENTITY_CHIPS = [
@@ -65,12 +65,12 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
                 className="flex flex-col h-screen"
                 style={entered ? { animation: 'sl-entry-reveal 0.5s ease-out both' } : undefined}
             >
-                <TenantWarning />
                 <div className="flex flex-1 overflow-hidden">
                     <aside
                         className="w-56 shrink-0 flex flex-col border-r border-white/5 overflow-y-auto"
                         style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%)' }}
                     >
+                        <TenantBadge />
                         <a
                             href="/"
                             className="flex items-center gap-3 px-4 py-[1.1rem] shrink-0 border-b border-white/10 hover:bg-white/5 transition-colors group"

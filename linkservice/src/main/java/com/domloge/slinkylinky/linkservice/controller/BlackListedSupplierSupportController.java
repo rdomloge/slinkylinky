@@ -8,9 +8,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.domloge.slinkylinky.linkservice.config.TenantContext;
+import com.domloge.slinkylinky.linkservice.config.TenantFilter;
 
 import com.domloge.slinkylinky.linkservice.Util;
 import com.domloge.slinkylinky.linkservice.entity.BlackListedSupplier;
@@ -34,6 +36,7 @@ public class BlackListedSupplierSupportController {
     @GetMapping(path = "/isBlackListed", produces = "application/json")
     @Transactional
     public ResponseEntity<Boolean> isBlackListed(@RequestParam String website) {
+        TenantFilter.requireGlobalAdmin();
         log.info("Checking if website is blacklisted: " + website);
 
         String domain = Util.stripDomain(website);
@@ -48,9 +51,10 @@ public class BlackListedSupplierSupportController {
 
     @PostMapping(path = "/addBlackListed", produces = "application/json")
     @Transactional
-    public ResponseEntity<Boolean> addBlackListed(@RequestParam String website, @RequestHeader String user, 
+    public ResponseEntity<Boolean> addBlackListed(@RequestParam String website,
             @RequestBody String dataPointsJson, @RequestParam int da, @RequestParam int spamRating) {
-
+        TenantFilter.requireGlobalAdmin();
+        String user = TenantContext.getUsername();
         log.info("Adding website to blacklist: " + website);
 
         String domain = Util.stripDomain(website);

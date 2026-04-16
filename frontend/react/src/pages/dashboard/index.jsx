@@ -1,13 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/auth/AuthProvider';
-import { fetchWithAuth } from '@/utils/fetchWithAuth';
+import { getTenantOverride } from '@/auth/TenantOverrideContext';
 import { Link } from 'react-router-dom';
 import { AuthorizedAccess } from '@/components/AuthorizedAccess';
 import { PanelCard } from '@/components/PanelCard';
 import { NavCard } from '@/components/NavCard';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Cache helpers ────────────────────────────────────────────────────────────
+
+const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+function getCacheKey(email, orgId) {
+    return `sl_dashboard_${email}_${orgId || 'native'}`;
+}
+
+function readCache(key) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function writeCache(key, displayState) {
+    try {
+        localStorage.setItem(key, JSON.stringify({ fetchedAt: Date.now(), displayState }));
+    } catch {
+        // Ignore quota errors
+    }
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function greeting(name) {
     const hour = new Date().getHours();
@@ -53,7 +78,166 @@ function fastestSuppliers(proposals) {
         .slice(0, 3);
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
+function buildDashboardUrls() {
+    const thisMonth = buildDateRange(0);
+    const sixMonths = buildDateRange(6);
+    return [
+        '/.rest/demandsupport/findUnsatisfied?sort=requested',
+        '/.rest/suppliers/search/countByDisabledFalse',
+        `/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${thisMonth.start}&endDate=${thisMonth.end}&projection=fullProposal`,
+        `/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${sixMonths.start}&endDate=${sixMonths.end}&projection=fullProposal`,
+        '/.rest/paidlinksupport/topbysuppliers?limit=5',
+        '/.rest/demandssitesupport/missingCategories',
+        '/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalse?projection=fullSupplier',
+        '/.rest/demandssitesupport/topbydemands?limit=5',
+        '/.rest/supplierHealthSupport/onboarding?months=12',
+        '/.rest/supplierHealthSupport/atrisk?threshold=5',
+        '/.rest/engagements/expiring-soon',
+    ];
+}
+
+/**
+ * Converts an ISO expiry timestamp into a human-readable countdown label and urgency level.
+ * Levels: 'critical' (<4 h), 'warning' (<12 h), 'caution' (<24 h), 'ok' (>24 h).
+ */
+function formatTimeRemaining(expiresAt) {
+    if (!expiresAt) return { label: '—', level: 'ok' };
+    const ms = new Date(expiresAt) - Date.now();
+    if (ms <= 0) return { label: 'Overdue', level: 'critical' };
+    const hours = ms / 3_600_000;
+    if (hours < 4)  return { label: `${Math.floor(hours)}h ${Math.floor((hours % 1) * 60)}m`, level: 'critical' };
+    if (hours < 12) return { label: `${Math.floor(hours)}h left`, level: 'warning' };
+    const days = Math.floor(hours / 24);
+    const rem  = Math.floor(hours % 24);
+    return { label: rem > 0 ? `${days}d ${rem}h` : `${days}d`, level: 'ok' };
+}
+
+/** Converts raw API results array into a serialisable display-state object */
+function processResults([demands, suppliers, thisMonthProposals, sixMonthProposals, topSuppliersData, missingSites, missingCatSuppliersData, allSitesPage, onboardingData, atRiskData, expiringEngagementsData]) {
+    const s = {
+        demandCount: null,
+        activeSuppliers: null,
+        proposalStats: null,
+        attentionProposals: [],
+        unproposedDemands: [],
+        missingCatSites: [],
+        missingCatSuppliers: [],
+        topSuppliers: [],
+        topUsedSuppliersList: [],
+        topDemandSites: [],
+        supplierHealth: null,
+        atRiskSites: null,
+        expiringEngagements: [],
+    };
+
+    if (demands) {
+        s.demandCount = demands.length;
+        s.unproposedDemands = demands.slice(0, 5);
+    }
+    if (suppliers != null) s.activeSuppliers = suppliers;
+
+    if (thisMonthProposals) {
+        const [waitingForSupplier, waitingForAdmin, complete] = filterProposals(thisMonthProposals);
+        s.proposalStats = {
+            total: thisMonthProposals.length,
+            attention: waitingForAdmin.length,
+            chasing: waitingForSupplier.length,
+            complete: complete.length,
+        };
+        s.attentionProposals = waitingForAdmin.slice(0, 5);
+    }
+
+    if (sixMonthProposals) s.topSuppliers = fastestSuppliers(sixMonthProposals);
+    if (topSuppliersData) s.topUsedSuppliersList = topSuppliersData;
+    if (missingSites) s.missingCatSites = missingSites;
+    s.missingCatSuppliers = missingCatSuppliersData?._embedded?.suppliers ?? missingCatSuppliersData ?? [];
+    s.topDemandSites = allSitesPage ?? [];
+    if (onboardingData) s.supplierHealth = onboardingData;
+    if (atRiskData) s.atRiskSites = atRiskData;
+    s.expiringEngagements = Array.isArray(expiringEngagementsData) ? expiringEngagementsData : [];
+
+    return s;
+}
+
+// ─── CSS animations ───────────────────────────────────────────────────────────
+
+const KEYFRAMES = `
+@keyframes dashOrbit1 {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes dashOrbit2 {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(-360deg); }
+}
+@keyframes dashOrbit3 {
+    from { transform: rotate(45deg); }
+    to   { transform: rotate(405deg); }
+}
+@keyframes dashCorePulse {
+    0%, 100% { opacity: 0.6; transform: scale(1);    box-shadow: 0 0 12px rgba(129,140,248,0.5); }
+    50%       { opacity: 1;   transform: scale(1.25); box-shadow: 0 0 28px rgba(192,132,252,0.8); }
+}
+@keyframes dashDotBounce {
+    0%, 80%, 100% { transform: translateY(0);    opacity: 0.3; }
+    40%            { transform: translateY(-8px); opacity: 1;   }
+}
+@keyframes dashRefreshPillIn {
+    from { opacity: 0; transform: translateY(-8px) scale(0.85); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+@keyframes dashRefreshSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes dashCheckDraw {
+    from { stroke-dashoffset: 22; opacity: 0; }
+    to   { stroke-dashoffset: 0;  opacity: 1; }
+}
+@keyframes dashCheckPop {
+    0%   { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+    60%  { transform: scale(1.2) rotate(4deg);   opacity: 1; }
+    100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+}
+@keyframes dashHeroShine {
+    from { left: -60%;  opacity: 0;    }
+    30%  {              opacity: 0.09; }
+    to   { left: 130%;  opacity: 0;    }
+}
+/* ── Refresh pill enhancements ── */
+@keyframes dashPillGlow {
+    0%, 100% { box-shadow: 0 0 18px rgba(129,140,248,0.45), 0 2px 14px rgba(0,0,0,0.55); }
+    50%       { box-shadow: 0 0 36px rgba(129,140,248,0.85), 0 0 18px rgba(129,140,248,0.35), 0 2px 14px rgba(0,0,0,0.55); }
+}
+@keyframes dashPillPing {
+    0%   { transform: scale(1);    opacity: 0.7; }
+    100% { transform: scale(1.9);  opacity: 0;   }
+}
+@keyframes dashUpdatedBurst {
+    0%   { transform: scale(0.78); opacity: 0; box-shadow: 0 0 0   rgba(52,211,153,0);    }
+    45%  { transform: scale(1.1);  opacity: 1; box-shadow: 0 0 36px rgba(52,211,153,0.6); }
+    100% { transform: scale(1);    opacity: 1; box-shadow: 0 0 24px rgba(52,211,153,0.3); }
+}
+/* ── Data reveal transition ── */
+@keyframes dashScanLine {
+    0%   { top: -2px;  opacity: 0; }
+    6%   {             opacity: 1; }
+    93%  {             opacity: 1; }
+    100% { top: 100%;  opacity: 0; }
+}
+@keyframes dashDataReveal {
+    0%   { opacity: 0.28; transform: translateY(12px) scale(0.995); }
+    55%  { opacity: 1;    transform: translateY(-3px)  scale(1.003); }
+    100% { opacity: 1;    transform: translateY(0)     scale(1);     }
+}
+@keyframes dashHeroFlash {
+    0%   { opacity: 0; }
+    16%  { opacity: 1; }
+    100% { opacity: 0; }
+}
+`;
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
 
 /** Hero stat tile — used inside the dark hero banner */
 function HeroStat({ label, value, sub, loading, to, accentColor }) {
@@ -122,7 +306,6 @@ function ProposalPipeline({ stats, loading }) {
     );
 }
 
-/** Panel card with optional left-bar accent */
 /** Medal rank badge — gold/silver/bronze */
 function RankBadge({ rank }) {
     const styles = [
@@ -144,7 +327,7 @@ function OnboardingBarChart({ history }) {
     const [hovered, setHovered] = useState(null);
     if (!history?.length) return null;
 
-    const data = [...history].slice(-12); // up to last 12 months, oldest→newest
+    const data = [...history].slice(-12);
     const maxCount = Math.max(...data.map(d => d.count), 1);
 
     return (
@@ -164,7 +347,6 @@ function OnboardingBarChart({ history }) {
                          onMouseEnter={() => setHovered(i)}
                          onMouseLeave={() => setHovered(null)}>
 
-                        {/* Tooltip */}
                         {isHovered && (
                             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 z-10
                                             rounded px-1.5 py-0.5 font-bold whitespace-nowrap pointer-events-none"
@@ -180,7 +362,6 @@ function OnboardingBarChart({ history }) {
                         )}
 
                         {isEmpty ? (
-                            /* Zero month — dashed baseline tick */
                             <div className="w-full transition-all duration-150"
                                  style={{
                                      height: 2,
@@ -188,7 +369,6 @@ function OnboardingBarChart({ history }) {
                                      maxHeight: 'calc(100% - 16px)',
                                  }}/>
                         ) : (
-                            /* Normal bar */
                             <div className="w-full rounded-sm transition-all duration-150"
                                  style={{
                                      height: `${barPct}%`,
@@ -200,7 +380,6 @@ function OnboardingBarChart({ history }) {
                                  }}/>
                         )}
 
-                        {/* Month label */}
                         <span className="shrink-0 select-none"
                               style={{
                                   fontSize: '0.55rem',
@@ -298,7 +477,7 @@ function SupplierPipelineHealthPanel({ healthData, atRiskData, loading }) {
     );
 }
 
-// ─── Nav section definitions ─────────────────────────────────────────────────
+// ─── Nav section definitions ──────────────────────────────────────────────────
 
 const navSections = [
     {
@@ -339,291 +518,652 @@ const ordersSection = {
     icon: <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>,
 };
 
-// ─── Dashboard ───────────────────────────────────────────────────────────────
+// ─── Cache-state visual components ────────────────────────────────────────────
+
+/** Full-width banner shown when there is no cached data and the worker is fetching for the first time */
+function FirstLoadBanner() {
+    return (
+        <div style={{
+            borderRadius: 16,
+            overflow: 'hidden',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #2e1065 100%)',
+            boxShadow: '0 20px 40px rgba(15,23,42,0.35)',
+            padding: '4rem 2rem 3.5rem',
+            textAlign: 'center',
+            position: 'relative',
+        }}>
+            {/* Ambient glow blobs */}
+            <div style={{
+                position: 'absolute', top: -60, left: '15%', width: 280, height: 280,
+                borderRadius: '50%', pointerEvents: 'none',
+                background: 'radial-gradient(circle, rgba(129,140,248,0.13) 0%, transparent 68%)',
+            }}/>
+            <div style={{
+                position: 'absolute', bottom: -40, right: '12%', width: 320, height: 320,
+                borderRadius: '50%', pointerEvents: 'none',
+                background: 'radial-gradient(circle, rgba(192,132,252,0.10) 0%, transparent 68%)',
+            }}/>
+
+            {/* Orbital spinner */}
+            <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 32px', flexShrink: 0 }}>
+                {/* Outer ring — slow clockwise */}
+                <div style={{
+                    position: 'absolute', inset: 0, borderRadius: '50%',
+                    border: '1.5px solid transparent',
+                    borderTopColor: '#818cf8',
+                    borderRightColor: 'rgba(129,140,248,0.18)',
+                    animation: 'dashOrbit1 2.2s linear infinite',
+                }}/>
+                {/* Outer ring opposing arc */}
+                <div style={{
+                    position: 'absolute', inset: 0, borderRadius: '50%',
+                    border: '1.5px solid transparent',
+                    borderBottomColor: 'rgba(129,140,248,0.35)',
+                    animation: 'dashOrbit1 2.2s linear infinite',
+                }}/>
+                {/* Mid ring — faster counter-clockwise */}
+                <div style={{
+                    position: 'absolute', inset: 13, borderRadius: '50%',
+                    border: '1.5px solid transparent',
+                    borderTopColor: '#c084fc',
+                    borderLeftColor: 'rgba(192,132,252,0.22)',
+                    animation: 'dashOrbit2 1.5s linear infinite',
+                }}/>
+                {/* Inner ring — medium clockwise offset */}
+                <div style={{
+                    position: 'absolute', inset: 26, borderRadius: '50%',
+                    border: '1.5px solid transparent',
+                    borderTopColor: 'rgba(165,180,252,0.7)',
+                    animation: 'dashOrbit3 1.0s linear infinite',
+                }}/>
+                {/* Core pulsing dot */}
+                <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                    <div style={{
+                        width: 10, height: 10, borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
+                        animation: 'dashCorePulse 1.8s ease-in-out infinite',
+                    }}/>
+                </div>
+            </div>
+
+            {/* Heading */}
+            <h2 style={{
+                fontFamily: "'Outfit', sans-serif",
+                fontSize: '1.65rem', fontWeight: 800,
+                color: 'white', letterSpacing: '-0.03em',
+                margin: '0 0 10px',
+            }}>
+                Loading dashboard data for the first time
+            </h2>
+
+            {/* Subtitle */}
+            <p style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '0.75rem', letterSpacing: '0.06em',
+                color: 'rgba(255,255,255,0.38)',
+                margin: '0 0 28px',
+            }}>
+                Building your workspace overview · just a moment
+            </p>
+
+            {/* Staggered bounce dots */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 7 }}>
+                {[0, 1, 2, 3, 4].map(i => (
+                    <div key={i} style={{
+                        width: 6, height: 6, borderRadius: '50%',
+                        background: `rgba(${i % 2 === 0 ? '129,140,248' : '192,132,252'},0.75)`,
+                        animation: `dashDotBounce 1.3s ease-in-out ${i * 0.13}s infinite`,
+                    }}/>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Small pill shown in the hero when background data is refreshing or has just finished.
+ * phase: 'refreshing' | 'refreshed'
+ */
+function HeroRefreshPill({ phase }) {
+    const isDone = phase === 'refreshed';
+    return (
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+            {/* Sonar ping ring — pulses continuously while refreshing */}
+            {!isDone && (
+                <div style={{
+                    position: 'absolute', inset: -6, borderRadius: 30,
+                    border: '1.5px solid rgba(129,140,248,0.65)',
+                    animation: 'dashPillPing 1.7s ease-out 0.9s infinite',
+                    pointerEvents: 'none',
+                }}/>
+            )}
+
+            <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 9,
+                borderRadius: 22, padding: '8px 18px',
+                backdropFilter: 'blur(16px)',
+                background: isDone ? 'rgba(4,18,10,0.9)' : 'rgba(8,12,26,0.9)',
+                border: `1.5px solid ${isDone ? 'rgba(52,211,153,0.65)' : 'rgba(129,140,248,0.65)'}`,
+                animation: isDone
+                    ? 'dashUpdatedBurst 0.45s cubic-bezier(0.34,1.56,0.64,1) both'
+                    : 'dashRefreshPillIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both, dashPillGlow 2s ease-in-out 0.6s infinite',
+            }}>
+                {isDone ? (
+                    <>
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"
+                             style={{ flexShrink: 0, animation: 'dashCheckPop 0.4s cubic-bezier(0.34,1.56,0.64,1) 0.1s both' }}>
+                            <path d="M2.5 8l4 4 6-7"
+                                  stroke="#34d399" strokeWidth="2.2"
+                                  strokeLinecap="round" strokeLinejoin="round"
+                                  style={{
+                                      strokeDasharray: 22,
+                                      strokeDashoffset: 0,
+                                      animation: 'dashCheckDraw 0.4s ease 0.2s both',
+                                  }}/>
+                        </svg>
+                        <span style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: '0.72rem', letterSpacing: '0.13em', fontWeight: 700,
+                            color: '#34d399',
+                        }}>UPDATED</span>
+                    </>
+                ) : (
+                    <>
+                        <div style={{
+                            width: 13, height: 13, flexShrink: 0, borderRadius: '50%',
+                            border: '2px solid rgba(129,140,248,0.2)',
+                            borderTopColor: '#818cf8',
+                            animation: 'dashRefreshSpin 0.65s linear infinite',
+                        }}/>
+                        <span style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: '0.72rem', letterSpacing: '0.13em', fontWeight: 600,
+                            color: 'rgba(165,180,252,0.95)',
+                        }}>REFRESHING</span>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-    const { user } = useAuth();
+    const { user, accessToken } = useAuth();
 
-    const [demandCount, setDemandCount]         = useState(null);
-    const [activeSuppliers, setActiveSuppliers] = useState(null);
-    const [proposalStats, setProposalStats]     = useState(null);
-    const [attentionProposals, setAttentionProposals] = useState([]);
-    const [unproposedDemands, setUnproposedDemands]   = useState([]);
-    const [missingCatSites, setMissingCatSites] = useState([]);
-    const [missingCatSuppliers, setMissingCatSuppliers] = useState([]);
-    const [topSuppliers, setTopSuppliers]       = useState([]);
+    // ── Data state ──────────────────────────────────────────────────────────
+    const [demandCount, setDemandCount]                   = useState(null);
+    const [activeSuppliers, setActiveSuppliers]           = useState(null);
+    const [proposalStats, setProposalStats]               = useState(null);
+    const [attentionProposals, setAttentionProposals]     = useState([]);
+    const [unproposedDemands, setUnproposedDemands]       = useState([]);
+    const [missingCatSites, setMissingCatSites]           = useState([]);
+    const [missingCatSuppliers, setMissingCatSuppliers]   = useState([]);
+    const [topSuppliers, setTopSuppliers]                 = useState([]);
     const [topUsedSuppliersList, setTopUsedSuppliersList] = useState([]);
-    const [topDemandSites, setTopDemandSites]   = useState([]);
-    const [supplierHealth, setSupplierHealth]   = useState(null);
-    const [atRiskSites, setAtRiskSites]         = useState(null);
-    const [loading, setLoading]                 = useState(true);
+    const [topDemandSites, setTopDemandSites]             = useState([]);
+    const [supplierHealth, setSupplierHealth]             = useState(null);
+    const [atRiskSites, setAtRiskSites]                   = useState(null);
+    const [expiringEngagements, setExpiringEngagements]   = useState([]);
+    const [loading, setLoading]                           = useState(true);
 
+    // ── Cache / phase state ─────────────────────────────────────────────────
+    // 'init' | 'firstLoad' | 'fresh' | 'refreshing' | 'refreshed'
+    const [phase, setPhase]                     = useState('init');
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [dataRevealActive, setDataRevealActive] = useState(false);
+    const workerRef                             = useRef(null);
+
+    // ── Apply a display-state object to all data state setters ─────────────
+    function applyDisplayState(s) {
+        if (s.demandCount           !== undefined) setDemandCount(s.demandCount);
+        if (s.activeSuppliers       !== undefined) setActiveSuppliers(s.activeSuppliers);
+        if (s.proposalStats         !== undefined) setProposalStats(s.proposalStats);
+        setAttentionProposals(s.attentionProposals   ?? []);
+        setUnproposedDemands(s.unproposedDemands     ?? []);
+        setMissingCatSites(s.missingCatSites         ?? []);
+        setMissingCatSuppliers(s.missingCatSuppliers ?? []);
+        setTopSuppliers(s.topSuppliers               ?? []);
+        setTopUsedSuppliersList(s.topUsedSuppliersList ?? []);
+        setTopDemandSites(s.topDemandSites           ?? []);
+        if (s.supplierHealth !== undefined) setSupplierHealth(s.supplierHealth);
+        if (s.atRiskSites    !== undefined) setAtRiskSites(s.atRiskSites);
+        setExpiringEngagements(s.expiringEngagements ?? []);
+        setLoading(false);
+    }
+
+    // ── Cache bootstrap + worker lifecycle ──────────────────────────────────
     useEffect(() => {
-        if (!user) return;
+        if (!user || !accessToken) return;
 
-        const thisMonth = buildDateRange(0);
-        const sixMonths = buildDateRange(6);
+        const orgId    = getTenantOverride();
+        const cacheKey = getCacheKey(user.email, orgId);
+        const cached   = readCache(cacheKey);
+        const isFirstLoad = !cached;
 
-        const safeJson = url => fetchWithAuth(url)
-            .then(r => r.ok ? r.json() : Promise.reject())
-            .catch(() => null);
+        // cancelled + pending timers — cleared if the user leaves the page
+        let cancelled = false;
+        const pendingTimers = [];
 
-        Promise.all([
-            safeJson('/.rest/demands/search/findUnsatisfiedDemandOrderedByRequested?projection=fullDemand'),
-            safeJson('/.rest/suppliers/search/countByDisabledFalse'),
-            safeJson(`/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${thisMonth.start}&endDate=${thisMonth.end}&projection=fullProposal`),
-            safeJson(`/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${sixMonths.start}&endDate=${sixMonths.end}&projection=fullProposal`),
-            safeJson('/.rest/paidlinksupport/topbysuppliers?limit=5'),
-            safeJson('/.rest/demandsites/search/findByMissingCategories'),
-            safeJson('/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalse?projection=fullSupplier'),
-            safeJson('/.rest/demandssitesupport/topbydemands?limit=5'),
-            safeJson('/.rest/supplierHealthSupport/onboarding?months=12'),
-            safeJson('/.rest/supplierHealthSupport/atrisk?threshold=5'),
-        ]).then(([demands, suppliers, thisMonthProposals, sixMonthProposals, topSuppliersData, missingSites, missingCatSuppliersData, allSitesPage, onboardingData, atRiskData]) => {
+        if (cached) {
+            applyDisplayState(cached.displayState);
+            const age = Date.now() - cached.fetchedAt;
+            const ttl = Number(localStorage.getItem('sl_dashboard_debug_ttl') || CACHE_TTL);
+            if (age <= ttl) {
+                setPhase('fresh');
+                return; // data is fresh — no worker needed
+            }
+            setPhase('refreshing'); // stale: show data immediately + start background refresh
+        } else {
+            setPhase('firstLoad');
+        }
 
-            if (demands) { setDemandCount(demands.length); setUnproposedDemands(demands.slice(0, 5)); }
-            if (suppliers != null) setActiveSuppliers(suppliers);
+        // Start Web Worker for background fetch — only runs while this component is mounted
+        const worker = new Worker(
+            new URL('./dashboardWorker.js', import.meta.url),
+            { type: 'module' }
+        );
+        workerRef.current = worker;
 
-            if (thisMonthProposals) {
-                const [waitingForSupplier, waitingForAdmin, complete] = filterProposals(thisMonthProposals);
-                setProposalStats({
-                    total:     thisMonthProposals.length,
-                    attention: waitingForAdmin.length,
-                    chasing:   waitingForSupplier.length,
-                    complete:  complete.length,
-                });
-                setAttentionProposals(waitingForAdmin.slice(0, 5));
+        worker.onmessage = ({ data }) => {
+            workerRef.current = null;
+            // User may have navigated away between the fetch completing and this callback
+            if (cancelled) return;
+
+            if (data.type !== 'SUCCESS') {
+                if (isFirstLoad) setLoading(false);
+                setPhase('fresh');
+                return;
             }
 
-            if (sixMonthProposals) setTopSuppliers(fastestSuppliers(sixMonthProposals));
-            if (topSuppliersData) setTopUsedSuppliersList(topSuppliersData);
+            const displayState = processResults(data.results);
+            writeCache(cacheKey, displayState);
 
-            if (missingSites) setMissingCatSites(missingSites);
-            setMissingCatSuppliers(missingCatSuppliersData?._embedded?.suppliers ?? missingCatSuppliersData ?? []);
-            setTopDemandSites(allSitesPage ?? []);
+            if (isFirstLoad) {
+                // First ever load — apply data and reveal dashboard
+                applyDisplayState(displayState);
+                setPhase('fresh');
+            } else {
+                // Stale refresh — dim → swap data → spring reveal
+                setIsTransitioning(true);
+                const t1 = setTimeout(() => {
+                    if (cancelled) return;
+                    applyDisplayState(displayState);
+                    setIsTransitioning(false);
+                    setDataRevealActive(true);  // triggers scan line + spring animation
+                    setPhase('refreshed');
+                    // Clear reveal animation after it completes
+                    const t2 = setTimeout(() => {
+                        if (cancelled) return;
+                        setDataRevealActive(false);
+                    }, 900);
+                    pendingTimers.push(t2);
+                    // Auto-dismiss the "updated" pill after 3 s
+                    const t3 = setTimeout(() => {
+                        if (cancelled) return;
+                        setPhase('fresh');
+                    }, 3000);
+                    pendingTimers.push(t3);
+                }, 200);
+                pendingTimers.push(t1);
+            }
+        };
 
-            if (onboardingData) setSupplierHealth(onboardingData);
-            if (atRiskData)     setAtRiskSites(atRiskData);
+        worker.onerror = () => {
+            workerRef.current = null;
+            if (cancelled) return;
+            if (isFirstLoad) setLoading(false);
+            setPhase('fresh');
+        };
 
-            setLoading(false);
-        }).catch(() => setLoading(false));
-    }, [user]);
+        worker.postMessage({ token: accessToken, orgId, urls: buildDashboardUrls() });
+
+        return () => {
+            // User navigated away — stop everything immediately
+            cancelled = true;
+            pendingTimers.forEach(clearTimeout);
+            worker.terminate();
+            workerRef.current = null;
+        };
+    }, [user, accessToken]); // re-run if user or token changes
 
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const showRefreshPill = phase === 'refreshing' || phase === 'refreshed';
 
     return (
         <Layout pagetitle="Dashboard" headerTitle="Dashboard">
+            <style>{KEYFRAMES}</style>
+
             <div className="p-6 max-w-5xl space-y-6">
 
-                {/* ── Hero banner ───────────────────────────────────── */}
-                <div className="rounded-2xl overflow-hidden"
-                     style={{background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #2e1065 100%)', boxShadow: '0 20px 40px rgba(15,23,42,0.35)'}}>
+                {/* ── First-time loading banner / Hero ──────────────────── */}
+                {phase === 'firstLoad' ? (
+                    <FirstLoadBanner />
+                ) : (
+                    <div className="rounded-2xl overflow-hidden"
+                         style={{
+                             background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 55%, #2e1065 100%)',
+                             boxShadow: '0 20px 40px rgba(15,23,42,0.35)',
+                             position: 'relative',
+                         }}>
 
-                    {/* Subtle noise texture overlay */}
-                    <div className="px-7 pt-7 pb-5">
-                        <p className="text-xs font-medium mb-1" style={{color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em'}}>
-                            {today.toUpperCase()}
-                        </p>
-                        <h1 className="text-3xl font-extrabold text-white mb-5"
-                            style={{fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.03em'}}>
-                            {greeting(user?.name)}
-                        </h1>
+                        {/* Refresh status pill — top-right corner */}
+                        {showRefreshPill && (
+                            <div style={{ position: 'absolute', top: 14, right: 16, zIndex: 10 }}>
+                                <HeroRefreshPill phase={phase} />
+                            </div>
+                        )}
 
-                        {/* Three key stats */}
-                        <div className="grid grid-cols-3 gap-3 mb-5">
-                            <HeroStat
-                                label="Active demands"
-                                value={demandCount}
-                                loading={loading}
-                                to="/demand"
-                                accentColor="var(--demand-color-light)"
-                            />
-                            <HeroStat
-                                label="Active suppliers"
-                                value={activeSuppliers}
-                                loading={loading}
-                                to="/supplier"
-                                accentColor="var(--supplier-color-light)"
-                            />
-                            <HeroStat
-                                label="Proposals this month"
-                                value={proposalStats?.total}
-                                loading={loading}
-                                to="/proposals"
-                                accentColor="#a5b4fc"
-                            />
+                        {/* Shine sweep during dim-out; flash when new data arrives */}
+                        {isTransitioning && (
+                            <div style={{
+                                position: 'absolute', inset: 0, zIndex: 5,
+                                pointerEvents: 'none', overflow: 'hidden',
+                            }}>
+                                <div style={{
+                                    position: 'absolute', top: 0, bottom: 0, width: '55%',
+                                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)',
+                                    animation: 'dashHeroShine 0.55s ease forwards',
+                                }}/>
+                            </div>
+                        )}
+                        {dataRevealActive && (
+                            <div style={{
+                                position: 'absolute', inset: 0, zIndex: 4,
+                                pointerEvents: 'none',
+                                background: 'rgba(255,255,255,0.055)',
+                                animation: 'dashHeroFlash 0.55s ease forwards',
+                            }}/>
+                        )}
+
+                        <div className="px-7 pt-7 pb-5">
+                            <p className="text-xs font-medium mb-1"
+                               style={{color: 'rgba(255,255,255,0.3)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.12em'}}>
+                                {today.toUpperCase()}
+                            </p>
+                            <h1 className="text-3xl font-extrabold text-white mb-5"
+                                style={{fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.03em'}}>
+                                {greeting(user?.name)}
+                            </h1>
+
+                            {/* Three key stats */}
+                            <div className="grid grid-cols-3 gap-3 mb-5">
+                                <HeroStat
+                                    label="Active demands"
+                                    value={demandCount}
+                                    loading={loading}
+                                    to="/demand"
+                                    accentColor="var(--demand-color-light)"
+                                />
+                                <HeroStat
+                                    label="Active suppliers"
+                                    value={activeSuppliers}
+                                    loading={loading}
+                                    to="/supplier"
+                                    accentColor="var(--supplier-color-light)"
+                                />
+                                <HeroStat
+                                    label="Proposals this month"
+                                    value={proposalStats?.total}
+                                    loading={loading}
+                                    to="/proposals"
+                                    accentColor="#a5b4fc"
+                                />
+                            </div>
+
+                            {/* Proposal pipeline strip */}
+                            <ProposalPipeline stats={proposalStats} loading={loading}/>
                         </div>
-
-                        {/* Proposal pipeline strip */}
-                        <ProposalPipeline stats={proposalStats} loading={loading}/>
                     </div>
-                </div>
+                )}
 
-                {/* ── Insight panels ────────────────────────────────── */}
-                <div className="grid grid-cols-3 gap-4">
+                {/* ── Insight panels + leaderboards (cross-fade on refresh) ─ */}
+                <div style={{
+                    position: 'relative',
+                    opacity: isTransitioning ? 0.28 : 1,
+                    transform: isTransitioning ? 'scale(0.996) translateY(4px)' : undefined,
+                    transition: isTransitioning ? 'opacity 0.2s ease, transform 0.2s ease' : undefined,
+                    animation: dataRevealActive ? 'dashDataReveal 0.65s cubic-bezier(0.22,1,0.36,1) forwards' : undefined,
+                }}>
+                    {/* Scan line sweeps top-to-bottom as new data reveals */}
+                    {dataRevealActive && (
+                        <div style={{
+                            position: 'absolute', left: 0, right: 0, height: 2, zIndex: 20,
+                            background: 'linear-gradient(90deg, transparent 0%, rgba(129,140,248,0.85) 20%, rgba(192,132,252,0.95) 50%, rgba(129,140,248,0.85) 80%, transparent 100%)',
+                            boxShadow: '0 0 18px rgba(129,140,248,0.9), 0 0 8px rgba(192,132,252,0.7)',
+                            animation: 'dashScanLine 0.75s ease-in-out forwards',
+                            pointerEvents: 'none',
+                        }}/>
+                    )}
 
-                    {/* Fastest suppliers */}
-                    <PanelCard title="Fastest to respond" loading={loading} to="/supplier" accentColor="var(--supplier-color)">
-                        {topSuppliers.length === 0
-                            ? <p className="text-xs text-slate-400">Not enough data yet.</p>
-                            : topSuppliers.map((s, i) => (
-                                <div key={s.domain} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <RankBadge rank={i + 1}/>
-                                        <span className="text-sm text-slate-700 truncate">{s.domain}</span>
-                                    </div>
-                                    <span className="text-xs font-semibold shrink-0 ml-2" style={{color: 'var(--supplier-color)', fontFamily: "'JetBrains Mono', monospace"}}>
-                                        {s.avg < 1 ? '<1d' : `${Math.round(s.avg)}d`}
-                                        <span className="text-slate-300 font-normal ml-1">({s.count})</span>
-                                    </span>
-                                </div>
-                            ))
-                        }
-                    </PanelCard>
+                    {/* Insight panels */}
+                    <div className="grid grid-cols-4 gap-4">
 
-                    {/* Missing categories */}
-                    <PanelCard title="Missing categories" loading={loading} accentColor="#f59e0b">
-                        <div>
-                            <p className="text-xs font-medium text-slate-500 mb-1.5">
-                                Demand sites
-                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
-                                      style={missingCatSites.length === 0
-                                          ? {background: '#dcfce7', color: '#15803d'}
-                                          : {background: 'var(--demand-bg)', color: 'var(--demand-color)'}}>
-                                    {missingCatSites.length}
-                                </span>
-                            </p>
-                            {missingCatSites.length === 0
-                                ? <p className="text-xs text-slate-400">All sites have categories</p>
-                                : missingCatSites.slice(0, 3).map(ds => (
-                                    <div key={ds.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                        <div className="min-w-0">
-                                            <p className="text-xs text-slate-700 truncate">{ds.name}</p>
-                                            <p className="text-xs text-slate-400 truncate">{ds.domain}</p>
+                        {/* Fastest suppliers */}
+                        <PanelCard title="Fastest to respond" loading={loading} to="/supplier" accentColor="var(--supplier-color)">
+                            {topSuppliers.length === 0
+                                ? <p className="text-xs text-slate-400">Not enough data yet.</p>
+                                : topSuppliers.map((s, i) => (
+                                    <div key={s.domain} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <RankBadge rank={i + 1}/>
+                                            <span className="text-sm text-slate-700 truncate">{s.domain}</span>
                                         </div>
-                                        <Link to={`/demandsites/${ds.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--demandsite-color)'}}>Edit →</Link>
+                                        <span className="text-xs font-semibold shrink-0 ml-2" style={{color: 'var(--supplier-color)', fontFamily: "'JetBrains Mono', monospace"}}>
+                                            {s.avg < 1 ? '<1d' : `${Math.round(s.avg)}d`}
+                                            <span className="text-slate-300 font-normal ml-1">({s.count})</span>
+                                        </span>
                                     </div>
                                 ))
                             }
-                        </div>
-                        <div className="mt-3 pt-3 border-t border-slate-100">
-                            <p className="text-xs font-medium text-slate-500 mb-1.5">
-                                Suppliers
-                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
-                                      style={missingCatSuppliers.length === 0
-                                          ? {background: '#dcfce7', color: '#15803d'}
-                                          : {background: 'var(--supplier-bg)', color: 'var(--supplier-color)'}}>
-                                    {missingCatSuppliers.length}
-                                </span>
-                            </p>
-                            {missingCatSuppliers.length === 0
-                                ? <p className="text-xs text-slate-400">All active suppliers have categories</p>
-                                : missingCatSuppliers.slice(0, 3).map(s => (
-                                    <div key={s.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                        <span className="text-xs text-slate-700 truncate">{s.domain || s.name}</span>
-                                        <Link to={`/supplier/${s.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--supplier-color)'}}>Edit →</Link>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    </PanelCard>
+                        </PanelCard>
 
-                    {/* Action items */}
-                    <PanelCard title="Needs attention" loading={loading} accentColor="#ef4444">
-                        <div>
-                            <p className="text-xs font-medium text-slate-500 mb-1.5">
-                                Demand to fulfil
-                                {demandCount !== null &&
+                        {/* Missing categories */}
+                        <PanelCard title="Missing categories" loading={loading} accentColor="#f59e0b">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 mb-1.5">
+                                    Demand sites
                                     <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
-                                          style={{background: 'var(--demand-bg)', color: 'var(--demand-color)'}}>
-                                        {demandCount}
+                                          style={missingCatSites.length === 0
+                                              ? {background: '#dcfce7', color: '#15803d'}
+                                              : {background: 'var(--demand-bg)', color: 'var(--demand-color)'}}>
+                                        {missingCatSites.length}
                                     </span>
-                                }
-                            </p>
-                            {unproposedDemands.length === 0
-                                ? <p className="text-xs text-slate-400">None outstanding</p>
-                                : unproposedDemands.map(d => (
-                                    <div key={d.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                        <span className="text-xs text-slate-700 truncate">{d.name}</span>
-                                        <Link to={`/supplier/search/${d.id}`} className="shrink-0 ml-2 text-xs font-semibold hover:underline" style={{color: 'var(--demand-color)'}}>Fulfil →</Link>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                        <div className="mt-3 pt-3 border-t border-slate-100">
-                            <p className="text-xs font-medium text-slate-500 mb-1.5">
-                                Proposals needing attention
-                                {proposalStats &&
-                                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
-                                          style={{background: '#ede9fe', color: '#7c3aed'}}>
-                                        {proposalStats.attention}
-                                    </span>
-                                }
-                            </p>
-                            {attentionProposals.length === 0
-                                ? <p className="text-xs text-slate-400">None this month</p>
-                                : attentionProposals.map(p => (
-                                    <div key={p.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                        <span className="text-xs text-slate-700 truncate">{p.paidLinks[0].supplier.domain || p.paidLinks[0].supplier.name}</span>
-                                        <Link to={`/proposals/${p.id}`} className="shrink-0 ml-2 text-xs font-semibold hover:underline" style={{color: '#6366f1'}}>View →</Link>
-                                    </div>
-                                ))
-                            }
-                        </div>
-                    </PanelCard>
-
-                </div>
-
-                {/* ── Supplier pipeline health ───────────────────────── */}
-                <SupplierPipelineHealthPanel
-                    healthData={supplierHealth}
-                    atRiskData={atRiskSites}
-                    loading={loading}
-                />
-
-                {/* ── Usage leaderboards ────────────────────────────── */}
-                <div className="grid grid-cols-2 gap-4">
-
-                    <PanelCard title="Most used suppliers" loading={loading} to="/supplier" accentColor="var(--supplier-color)">
-                        {topUsedSuppliersList.length === 0
-                            ? <p className="text-xs text-slate-400">Not enough data yet.</p>
-                            : topUsedSuppliersList.map((s, i) => (
-                                <div key={s.domain} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <RankBadge rank={i + 1}/>
-                                        <span className="text-sm text-slate-700 truncate">{s.domain}</span>
-                                    </div>
-                                    <span className="text-xs font-semibold shrink-0 ml-2" style={{color: 'var(--supplier-color)', fontFamily: "'JetBrains Mono', monospace"}}>
-                                        {s.linkCount} {s.linkCount === 1 ? 'link' : 'links'}
-                                    </span>
-                                </div>
-                            ))
-                        }
-                    </PanelCard>
-
-                    <PanelCard title="Most active demand sites" loading={loading} to="/demandsites" accentColor="var(--demandsite-color)">
-                        {topDemandSites.length === 0
-                            ? <p className="text-xs text-slate-400">No data yet.</p>
-                            : topDemandSites.map((ds, i) => (
-                                <div key={ds.id} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                        <RankBadge rank={i + 1}/>
-                                        <div className="min-w-0">
-                                            <p className="text-sm text-slate-700 truncate">{ds.name}</p>
-                                            <p className="text-xs text-slate-400 truncate">{ds.domain}</p>
+                                </p>
+                                {missingCatSites.length === 0
+                                    ? <p className="text-xs text-slate-400">All sites have categories</p>
+                                    : missingCatSites.slice(0, 3).map(ds => (
+                                        <div key={ds.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                                            <div className="min-w-0">
+                                                <p className="text-xs text-slate-700 truncate">{ds.name}</p>
+                                                <p className="text-xs text-slate-400 truncate">{ds.domain}</p>
+                                            </div>
+                                            <Link to={`/demandsites/${ds.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--demandsite-color)'}}>Edit →</Link>
                                         </div>
-                                    </div>
-                                    <span className="text-xs font-semibold shrink-0 ml-2" style={{color: 'var(--demandsite-color)', fontFamily: "'JetBrains Mono', monospace"}}>
-                                        {ds.demandCount ?? 0} {(ds.demandCount ?? 0) === 1 ? 'demand' : 'demands'}
+                                    ))
+                                }
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-slate-100">
+                                <p className="text-xs font-medium text-slate-500 mb-1.5">
+                                    Suppliers
+                                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                                          style={missingCatSuppliers.length === 0
+                                              ? {background: '#dcfce7', color: '#15803d'}
+                                              : {background: 'var(--supplier-bg)', color: 'var(--supplier-color)'}}>
+                                        {missingCatSuppliers.length}
                                     </span>
-                                </div>
-                            ))
-                        }
-                    </PanelCard>
+                                </p>
+                                {missingCatSuppliers.length === 0
+                                    ? <p className="text-xs text-slate-400">All active suppliers have categories</p>
+                                    : missingCatSuppliers.slice(0, 3).map(s => (
+                                        <div key={s.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                                            <span className="text-xs text-slate-700 truncate">{s.domain || s.name}</span>
+                                            <Link to={`/supplier/${s.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--supplier-color)'}}>Edit →</Link>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </PanelCard>
 
-                </div>
+                        {/* Action items */}
+                        <PanelCard title="Needs attention" loading={loading} accentColor="#ef4444">
+                            <div>
+                                <p className="text-xs font-medium text-slate-500 mb-1.5">
+                                    Demand to fulfil
+                                    {demandCount !== null &&
+                                        <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                                              style={{background: 'var(--demand-bg)', color: 'var(--demand-color)'}}>
+                                            {demandCount}
+                                        </span>
+                                    }
+                                </p>
+                                {unproposedDemands.length === 0
+                                    ? <p className="text-xs text-slate-400">None outstanding</p>
+                                    : unproposedDemands.map(d => (
+                                        <div key={d.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                                            <span className="text-xs text-slate-700 truncate">{d.name}</span>
+                                            <Link to={`/supplier/search/${d.id}`} className="shrink-0 ml-2 text-xs font-semibold hover:underline" style={{color: 'var(--demand-color)'}}>Fulfil →</Link>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-slate-100">
+                                <p className="text-xs font-medium text-slate-500 mb-1.5">
+                                    Proposals needing attention
+                                    {proposalStats &&
+                                        <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                                              style={{background: '#ede9fe', color: '#7c3aed'}}>
+                                            {proposalStats.attention}
+                                        </span>
+                                    }
+                                </p>
+                                {attentionProposals.length === 0
+                                    ? <p className="text-xs text-slate-400">None this month</p>
+                                    : attentionProposals.map(p => (
+                                        <div key={p.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                                            <span className="text-xs text-slate-700 truncate">{p.paidLinks[0].supplier.domain || p.paidLinks[0].supplier.name}</span>
+                                            <Link to={`/proposals/${p.id}`} className="shrink-0 ml-2 text-xs font-semibold hover:underline" style={{color: '#6366f1'}}>View →</Link>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                        </PanelCard>
 
-                {/* ── Quick nav ─────────────────────────────────────── */}
+                        {/* Expiring proposals */}
+                        <PanelCard title="Expiring soon" loading={loading} accentColor="#f97316" to="/proposals" linkLabel="All proposals →">
+                            {(() => {
+                                const expiringSoon = expiringEngagements.filter(e => {
+                                    const ms = new Date(e.expiresAt) - Date.now();
+                                    const hours = ms / 3_600_000;
+                                    return hours < 12;
+                                });
+                                return expiringSoon.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-4 gap-2">
+                                        <div className="w-7 h-7 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                                            <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                        </div>
+                                        <p className="text-[11px] text-slate-400 text-center leading-relaxed">All clear — nothing<br/>expiring in 12 hours</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col">
+                                        {expiringSoon.slice(0, 5).map(e => {
+                                            const { label, level } = formatTimeRemaining(e.expiresAt);
+                                            const badge = {
+                                                critical: { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', pulse: true  },
+                                                warning:  { color: '#ea580c', bg: '#fff7ed', border: '#fed7aa', pulse: false },
+                                                caution:  { color: '#ca8a04', bg: '#fefce8', border: '#fde68a', pulse: false },
+                                                ok:       { color: '#4f46e5', bg: '#eef2ff', border: '#c7d2fe', pulse: false },
+                                            }[level];
+                                            return (
+                                                <div key={e.id} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0 gap-2">
+                                                    <Link
+                                                        to={`/proposals/${e.proposalId}`}
+                                                        className="text-xs text-slate-700 truncate hover:text-indigo-600 hover:underline min-w-0 transition-colors"
+                                                        title={e.supplierName}
+                                                    >
+                                                        {e.supplierName}
+                                                    </Link>
+                                                    <span
+                                                        className={`text-[10px] font-bold shrink-0 px-1.5 py-0.5 rounded border tabular-nums ${badge.pulse ? 'animate-pulse' : ''}`}
+                                                        style={{
+                                                            color: badge.color,
+                                                            background: badge.bg,
+                                                            border: `1px solid ${badge.border}`,
+                                                            fontFamily: "'JetBrains Mono', monospace",
+                                                        }}
+                                                    >
+                                                        {label}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })()}
+                        </PanelCard>
+
+                    </div>
+
+                    {/* ── Supplier pipeline health ───────────────────────── */}
+                    <div className="mt-4">
+                        <SupplierPipelineHealthPanel
+                            healthData={supplierHealth}
+                            atRiskData={atRiskSites}
+                            loading={loading}
+                        />
+                    </div>
+
+                    {/* ── Usage leaderboards ────────────────────────────── */}
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+
+                        <PanelCard title="Most used suppliers" loading={loading} to="/supplier" accentColor="var(--supplier-color)">
+                            {topUsedSuppliersList.length === 0
+                                ? <p className="text-xs text-slate-400">Not enough data yet.</p>
+                                : topUsedSuppliersList.map((s, i) => (
+                                    <div key={s.domain} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <RankBadge rank={i + 1}/>
+                                            <span className="text-sm text-slate-700 truncate">{s.domain}</span>
+                                        </div>
+                                        <span className="text-xs font-semibold shrink-0 ml-2" style={{color: 'var(--supplier-color)', fontFamily: "'JetBrains Mono', monospace"}}>
+                                            {s.linkCount} {s.linkCount === 1 ? 'link' : 'links'}
+                                        </span>
+                                    </div>
+                                ))
+                            }
+                        </PanelCard>
+
+                        <PanelCard title="Most active demand sites" loading={loading} to="/demandsites" accentColor="var(--demandsite-color)">
+                            {topDemandSites.length === 0
+                                ? <p className="text-xs text-slate-400">No data yet.</p>
+                                : topDemandSites.map((ds, i) => (
+                                    <div key={ds.id} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <RankBadge rank={i + 1}/>
+                                            <div className="min-w-0">
+                                                <p className="text-sm text-slate-700 truncate">{ds.name}</p>
+                                                <p className="text-xs text-slate-400 truncate">{ds.domain}</p>
+                                            </div>
+                                        </div>
+                                        <span className="text-xs font-semibold shrink-0 ml-2" style={{color: 'var(--demandsite-color)', fontFamily: "'JetBrains Mono', monospace"}}>
+                                            {ds.demandCount ?? 0} {(ds.demandCount ?? 0) === 1 ? 'demand' : 'demands'}
+                                        </span>
+                                    </div>
+                                ))
+                            }
+                        </PanelCard>
+
+                    </div>
+
+                </div>{/* end cross-fade wrapper */}
+
+                {/* ── Quick nav ─────────────────────────────────────────── */}
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-widest mb-3"
                        style={{color: '#94a3b8', fontFamily: "'JetBrains Mono', monospace", fontSize: '0.6rem'}}>

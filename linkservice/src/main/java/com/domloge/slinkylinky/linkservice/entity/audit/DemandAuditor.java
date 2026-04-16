@@ -11,7 +11,6 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.linkservice.entity.Demand;
-import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RepositoryEventHandler({DemandSite.class})
+@RepositoryEventHandler({Demand.class})
 public class DemandAuditor {
  
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -65,6 +64,7 @@ public class DemandAuditor {
         auditRecord.setEventTime(LocalDateTime.now());
         auditRecord.setEntityId(demand.getId());
         auditRecord.setEntityType(Demand.class.getSimpleName());
+        auditRecord.setOrganisationId(demand.getOrganisationId());
         try {
             auditRecord.setDetail(objectMapper.writeValueAsString(demand));
         } catch (JsonProcessingException e) {

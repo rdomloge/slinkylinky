@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
  */
 @DataJpaTest
 public class SupplierHealthRepoTest {
+
+    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private SupplierRepo supplierRepo;
@@ -68,6 +71,7 @@ public class SupplierHealthRepoTest {
         site.setName("Crypto News");
         site.setDomain("cryptonews.com");
         site.setCategories(Set.of(crypto));
+        site.setOrganisationId(TEST_ORG_ID);
         demandSiteRepo.save(site);
 
         List<Supplier> suppliers = createSuppliers(8, crypto);
@@ -78,6 +82,7 @@ public class SupplierHealthRepoTest {
         demand.setUrl("https://cryptonews.com/get-a-link");
         demand.setCategories(Set.of(crypto));
         demand.setDaNeeded(20);
+        demand.setOrganisationId(TEST_ORG_ID);
         demandRepo.save(demand);
 
         // Use up 5 suppliers by creating paid links
@@ -85,11 +90,12 @@ public class SupplierHealthRepoTest {
             PaidLink pl = new PaidLink();
             pl.setSupplier(suppliers.get(i));
             pl.setDemand(demand);
+            pl.setOrganisationId(TEST_ORG_ID);
             paidLinkRepo.save(pl);
         }
 
         // When — 3 suppliers remain; threshold is 5
-        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5);
+        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5, TEST_ORG_ID);
 
         // Then — the site must appear with availableCount=3
         assertThat(result).hasSize(1);
@@ -113,12 +119,13 @@ public class SupplierHealthRepoTest {
         site.setName("Crypto Blog");
         site.setDomain("cryptoblog.com");
         site.setCategories(Set.of(crypto));
+        site.setOrganisationId(TEST_ORG_ID);
         demandSiteRepo.save(site);
 
         supplierRepo.saveAll(createSuppliers(6, crypto));
 
         // When — 6 suppliers available, threshold 5 → not at risk
-        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5);
+        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5, TEST_ORG_ID);
 
         // Then
         assertThat(result).isEmpty();
@@ -139,12 +146,13 @@ public class SupplierHealthRepoTest {
         site.setName("Crypto Wire");
         site.setDomain("cryptowire.com");
         site.setCategories(Set.of(crypto));
+        site.setOrganisationId(TEST_ORG_ID);
         demandSiteRepo.save(site);
 
         supplierRepo.saveAll(createSuppliers(5, crypto));   // exactly 5 = threshold
 
         // When
-        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5);
+        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5, TEST_ORG_ID);
 
         // Then — COUNT < 5 is false when count == 5
         assertThat(result).isEmpty();
@@ -171,6 +179,7 @@ public class SupplierHealthRepoTest {
         atRiskSite.setName("Crypto Daily");
         atRiskSite.setDomain("cryptodaily.com");
         atRiskSite.setCategories(Set.of(crypto));
+        atRiskSite.setOrganisationId(TEST_ORG_ID);
         demandSiteRepo.save(atRiskSite);
 
         List<Supplier> cryptoSuppliers = createSuppliers(7, crypto);
@@ -180,6 +189,7 @@ public class SupplierHealthRepoTest {
         atRiskDemand.setUrl("https://cryptodaily.com/link-request");
         atRiskDemand.setCategories(Set.of(crypto));
         atRiskDemand.setDaNeeded(10);
+        atRiskDemand.setOrganisationId(TEST_ORG_ID);
         demandRepo.save(atRiskDemand);
 
         // Use 5 of the 7 crypto suppliers → 2 remaining
@@ -187,6 +197,7 @@ public class SupplierHealthRepoTest {
             PaidLink pl = new PaidLink();
             pl.setSupplier(cryptoSuppliers.get(i));
             pl.setDemand(atRiskDemand);
+            pl.setOrganisationId(TEST_ORG_ID);
             paidLinkRepo.save(pl);
         }
 
@@ -195,12 +206,13 @@ public class SupplierHealthRepoTest {
         healthySite.setName("Finance Hub");
         healthySite.setDomain("financehub.com");
         healthySite.setCategories(Set.of(finance));
+        healthySite.setOrganisationId(TEST_ORG_ID);
         demandSiteRepo.save(healthySite);
 
         supplierRepo.saveAll(createSuppliers(8, finance));
 
         // When
-        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5);
+        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5, TEST_ORG_ID);
 
         // Then — only cryptodaily.com appears
         assertThat(result).hasSize(1);
@@ -223,6 +235,7 @@ public class SupplierHealthRepoTest {
         site.setName("Crypto Today");
         site.setDomain("cryptotoday.com");
         site.setCategories(Set.of(crypto));
+        site.setOrganisationId(TEST_ORG_ID);
         demandSiteRepo.save(site);
 
         // 3 valid suppliers (not disabled, not third-party)
@@ -247,7 +260,7 @@ public class SupplierHealthRepoTest {
         supplierRepo.save(thirdParty);
 
         // When — only 3 valid suppliers → below threshold of 5
-        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5);
+        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5, TEST_ORG_ID);
 
         // Then
         assertThat(result).hasSize(1);

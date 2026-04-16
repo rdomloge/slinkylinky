@@ -59,11 +59,13 @@ public class RestConfig implements RepositoryRestConfigurer {
           LiteProposalProjection.class
           );
 
-          // Allow CORS for localhost and host.docker.internal
+          // Allow CORS for localhost and host.docker.internal.
+          // X-Tenant-Override is included so global_admin callers can switch tenant context.
           cors.addMapping("/*")
             .allowedOrigins(
                 "http://host.docker.internal:3000", "http://localhost:3000"
             )
-            .allowedMethods("*");
+            .allowedMethods("*")
+            .allowedHeaders("*");
     }
 }

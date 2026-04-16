@@ -32,17 +32,19 @@ CREATE FUNCTION public.paid_link_duplicate_check() RETURNS trigger
                         join demand d on pl.demand_id = d.id
                         join demand_site ds on d.demand_site_id = ds.id
                         join supplier s on s.id=pl.supplier_id
-                        where s.id = new.supplier_id and ds.domain = (
-                                select innerds.domain 
-                                from demand_site innerds 
+                        where s.id = new.supplier_id
+                          and pl.organisation_id = new.organisation_id
+                          and ds.domain = (
+                                select innerds.domain
+                                from demand_site innerds
                                 join demand innerd on innerd.demand_site_id = innerds.id
                                 where innerd.id = new.demand_id
                             )
                         ) then
-                raise exception 'A paid link already exists between the supplier domain and the demand site domain';
+                raise exception 'A paid link already exists between the supplier domain and the demand site domain within this organisation';
             end if;
-        end if; 
-       return new; 
+        end if;
+       return new;
     end;
     $$;
 
@@ -62,6 +64,66 @@ CREATE SEQUENCE public.audit_record_seq
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
+
+--
+-- Name: organisation; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.organisation (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    slug character varying(100) NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    active boolean NOT NULL DEFAULT true
+);
+
+
+--
+-- Name: organisation organisation_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- (added inline for readability; constraint section below also lists it)
+
+ALTER TABLE ONLY public.organisation
+    ADD CONSTRAINT organisation_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.organisation
+    ADD CONSTRAINT organisation_slug_unique UNIQUE (slug);
+
+
+--
+-- Name: supplier_tenant_exclusion_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.supplier_tenant_exclusion_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: supplier_tenant_exclusion; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.supplier_tenant_exclusion (
+    id bigint NOT NULL DEFAULT nextval('public.supplier_tenant_exclusion_seq'),
+    supplier_id bigint NOT NULL,
+    organisation_id uuid NOT NULL
+);
+
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT supplier_tenant_exclusion_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT ste_supplier_org_unique UNIQUE (supplier_id, organisation_id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT fk_ste_supplier FOREIGN KEY (supplier_id) REFERENCES public.supplier(id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT fk_ste_organisation FOREIGN KEY (organisation_id) REFERENCES public.organisation(id);
+
 
 --
 -- Name: black_listed_supplier; Type: TABLE; Schema: public; Owner: -
@@ -147,7 +209,8 @@ CREATE TABLE public.demand (
     url character varying(255),
     demand_site_id bigint,
     source character varying(255),
-    word_count integer DEFAULT 0
+    word_count integer DEFAULT 0,
+    organisation_id uuid
 );
 
 
@@ -184,7 +247,8 @@ CREATE TABLE public.demand_site (
     email character varying(255),
     name character varying(255),
     updated_by character varying(255),
-    url character varying(255)
+    url character varying(255),
+    organisation_id uuid
 );
 
 
@@ -230,7 +294,8 @@ CREATE TABLE public.paid_link (
     id bigint NOT NULL,
     demand_id bigint NOT NULL,
     supplier_id bigint NOT NULL,
-    version bigint DEFAULT 0
+    version bigint DEFAULT 0,
+    organisation_id uuid
 );
 
 
@@ -242,7 +307,8 @@ CREATE TABLE public.paid_link_aud (
     id bigint NOT NULL,
     rev integer NOT NULL,
     revtype smallint,
-    supplier_id bigint
+    supplier_id bigint,
+    organisation_id uuid
 );
 
 
@@ -287,7 +353,8 @@ CREATE TABLE public.proposal (
     date_validated timestamp(6) without time zone,
     do_not_expire boolean DEFAULT false,
     supplier_snapshot_revision bigint DEFAULT 0,
-    supplier_snapshot text
+    supplier_snapshot text,
+    organisation_id uuid
 );
 
 
@@ -321,7 +388,8 @@ CREATE TABLE public.proposal_aud (
     date_validated timestamp(6) without time zone,
     do_not_expire boolean DEFAULT false,
     supplier_snapshot text,
-    supplier_snapshot_revision bigint DEFAULT 0
+    supplier_snapshot_revision bigint DEFAULT 0,
+    organisation_id uuid
 );
 
 
@@ -871,6 +939,14 @@ ALTER TABLE ONLY public.demand_site_categories
 
 ALTER TABLE ONLY public.demand_categories
     ADD CONSTRAINT fktip66e4fne5up6c2n02gn4l7s FOREIGN KEY (categories_id) REFERENCES public.category(id);
+
+
+--
+-- Name: paid_link_dup_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER paid_link_dup_trigger BEFORE INSERT ON public.paid_link
+    FOR EACH ROW EXECUTE FUNCTION public.paid_link_duplicate_check();
 
 
 --

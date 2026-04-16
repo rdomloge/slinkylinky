@@ -10,8 +10,9 @@ import ResponsivenessLabel from './ResponsivenessLabel'
 import SupplierSemRushTraffic from './SupplierStats'
 import { addProtocol } from './Util'
 import { AuthorizedAccess } from './AuthorizedAccess'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { fetchWithAuth } from '@/utils/fetchWithAuth'
 
 
 function SupplierStatsPopover({ supplier, anchor }) {
@@ -44,6 +45,37 @@ function SupplierStatsPopover({ supplier, anchor }) {
             <SupplierSemRushTraffic supplier={supplier} showTrafficAnalysis={false} showSpamScore={true}/>
         </div>,
         document.body
+    );
+}
+
+function ExcludeButton({ supplierId }) {
+    const [excluded, setExcluded] = useState(null);
+
+    useEffect(() => {
+        fetchWithAuth(`/.rest/supplierExclusions/isExcluded?supplierId=${supplierId}`)
+            .then(r => r?.ok ? r.json() : null)
+            .then(v => { if (v !== null) setExcluded(v); })
+            .catch(() => {});
+    }, [supplierId]);
+
+    function toggle() {
+        const method = excluded ? 'DELETE' : 'POST';
+        const endpoint = excluded ? 'unexclude' : 'exclude';
+        fetchWithAuth(`/.rest/supplierExclusions/${endpoint}?supplierId=${supplierId}`, { method })
+            .then(r => { if (r?.ok || r?.status === 204 || r?.status === 201) setExcluded(!excluded); })
+            .catch(() => {});
+    }
+
+    if (excluded === null) return null;
+
+    return (
+        <button
+            onClick={toggle}
+            title={excluded ? 'Un-exclude supplier for your org' : 'Exclude supplier from your org\'s matching'}
+            className={`text-xs transition-colors ${excluded ? 'text-amber-500 hover:text-amber-700' : 'text-slate-400 hover:text-amber-500'}`}
+        >
+            {excluded ? 'Excluded' : 'Exclude'}
+        </button>
     );
 }
 
@@ -126,8 +158,11 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
                 <ResponsivenessLabel avgResponseDays={responsiveness?.avgResponseDays} />
             </div>
 
-            {/* Edit */}
-            <div className="w-10 shrink-0 text-right">
+            {/* Exclude / Edit */}
+            <div className="flex items-center gap-3 shrink-0">
+                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                    <ExcludeButton supplierId={supplier.id} />
+                </AuthorizedAccess>
                 <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                     <Link to={'/supplier/' + supplier.id} rel='nofollow'
                           className="text-xs text-slate-400 hover:text-indigo-600 transition-colors">

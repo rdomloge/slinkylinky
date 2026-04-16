@@ -34,7 +34,8 @@ CREATE TABLE public.audit_record (
     entity_type character varying(255),
     what character varying(255),
     who character varying(255),
-    detail text
+    detail text,
+    organisation_id uuid
 );
 
 
@@ -56,6 +57,13 @@ CREATE SEQUENCE public.audit_record_seq
 
 ALTER TABLE ONLY public.audit_record
     ADD CONSTRAINT audit_record_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: idx_audit_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_audit_org ON public.audit_record USING btree (organisation_id);
 
 
 --

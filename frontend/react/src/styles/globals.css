@@ -254,3 +254,13 @@ body {
   from { opacity: 0; transform: translateY(-5px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes sl-toast-progress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+@keyframes sl-login-progress {
+  0%   { left: -55%; }
+  100% { left: 110%; }
+}

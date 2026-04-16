@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -62,6 +63,9 @@ public class Proposal {
     private String createdBy;
 
     private String updatedBy;
+
+    @Column(name = "organisation_id")
+    private UUID organisationId;
 
     @Column(columnDefinition = "bigint default 0")
     private long supplierSnapshotVersion;

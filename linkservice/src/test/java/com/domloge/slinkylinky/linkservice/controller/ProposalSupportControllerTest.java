@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -21,6 +23,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.domloge.slinkylinky.linkservice.config.TenantContextTest;
 
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
@@ -41,6 +47,8 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 @AutoConfigureTestDatabase( replace = AutoConfigureTestDatabase.Replace.NONE )
 public class ProposalSupportControllerTest {
+
+    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Autowired
     private ProposalSupportController controller;
@@ -63,6 +71,8 @@ public class ProposalSupportControllerTest {
     @Autowired
     private EntityManager em;
 
+    private MockHttpServletRequest mockRequest;
+
     // Prevent actual RabbitMQ connections: tests call the controller directly and don't
     // need messaging side-effects. All three templates used by auditors and dispatchers
     // are replaced with no-op mocks.
@@ -77,8 +87,15 @@ public class ProposalSupportControllerTest {
 
 
     @BeforeEach
-    void cleanupBeforeEach() {
+    void setup() {
         cleanup();
+        TenantContextTest.setSecurityContext("testuser", "00000000-0000-0000-0000-000000000001", List.of("global_admin"));
+        mockRequest = new MockHttpServletRequest();
+    }
+
+    @AfterEach
+    void clearContext() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -105,7 +122,7 @@ public class ProposalSupportControllerTest {
 
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
         List<String> locationHeaders = response.getHeaders().get("Location");
         String location = locationHeaders.get(0);
         String[] parts = location.split("/");
@@ -125,7 +142,7 @@ public class ProposalSupportControllerTest {
         supplierRepo.save(dbSupplier);
 
         
-        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
         Supplier latestSupplier = supplierRepo.findById(dbSupplier.getId()).get();
         
         // Then
@@ -182,6 +199,7 @@ public class ProposalSupportControllerTest {
 
         Proposal proposal = new Proposal();
         proposal.setDateCreated(LocalDateTime.now());
+        proposal.setOrganisationId(TEST_ORG_ID);
         Demand demand = new Demand();
         demandRepo.save(demand);
         PaidLink paidLink = new PaidLink();
@@ -203,7 +221,7 @@ public class ProposalSupportControllerTest {
         supplierRepo.save(dbSupplier);
 
         
-        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
         Supplier latestSupplier = supplierRepo.findById(dbSupplier.getId()).get();
         
         // Then
@@ -233,7 +251,7 @@ public class ProposalSupportControllerTest {
 
         cleanup();
     }
-    
+
 
     @Test
     @Transactional
@@ -242,8 +260,8 @@ public class ProposalSupportControllerTest {
         // nothing to do here
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", 23L, new long[]{1,2,3});
-        
+        ResponseEntity<Object> response = controller.createProposal(23L, new long[]{1,2,3}, mockRequest);
+
         // Then
         assertTrue(response.getStatusCode() == HttpStatusCode.valueOf(404));
     }
@@ -257,8 +275,8 @@ public class ProposalSupportControllerTest {
         Supplier dbSupplier = supplierRepo.save(supplier);
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", dbSupplier.getId(), new long[]{1,2,3});
-        
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{1,2,3}, mockRequest);
+
         // Then
         assertEquals(response.getStatusCode(), HttpStatusCode.valueOf(404));
     }
@@ -286,11 +304,12 @@ public class ProposalSupportControllerTest {
         PaidLink paidLink = new PaidLink();
         paidLink.setDemand(dbDemand);
         paidLink.setSupplier(dbSupplier);
+        paidLink.setOrganisationId(TEST_ORG_ID);
         paidLinkRepo.save(paidLink);
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("somebody", dbSupplier.getId(), new long[]{dbDemand.getId()});
-        
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
+
         // Then
         assertEquals(response.getStatusCode(), HttpStatusCode.valueOf(400));
     }
@@ -311,10 +330,10 @@ public class ProposalSupportControllerTest {
 
         Demand demand = new Demand();
         Demand dbDemand = demandRepo.save(demand);
-        controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
 
         // When – supplier NOT updated, fetch immediately
-        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
 
         // Then – current supplier data returned unchanged; snapshot restoration not triggered
         assertEquals(HttpStatusCode.valueOf(200), resp.getStatusCode());
@@ -360,6 +379,7 @@ public class ProposalSupportControllerTest {
 
         Proposal proposal = new Proposal();
         proposal.setDateCreated(LocalDateTime.now());
+        proposal.setOrganisationId(TEST_ORG_ID);
         proposal.setPaidLinks(List.of(paidLink));
         // supplierSnapshot and supplierSnapshotRevision left at defaults (null / 0) — legacy state
         Proposal dbProposal = proposalRepo.save(proposal);
@@ -369,7 +389,7 @@ public class ProposalSupportControllerTest {
         supplierRepo.save(dbSupplier);
 
         // When – first access: Envers fallback used, snapshot lazily written to DB
-        ResponseEntity<Proposal[]> firstResp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        ResponseEntity<Proposal[]> firstResp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
 
         // Then – original supplier returned
         Proposal[] firstProposals = firstResp.getBody();
@@ -382,7 +402,7 @@ public class ProposalSupportControllerTest {
         assertNotNull(storedSnapshot, "Supplier snapshot should have been lazily backfilled after first Envers access");
 
         // When – second access: snapshot exists, JSON fast path used
-        ResponseEntity<Proposal[]> secondResp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        ResponseEntity<Proposal[]> secondResp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
 
         // Then – same original supplier data returned, now from JSON snapshot
         Proposal[] secondProposals = secondResp.getBody();
@@ -421,15 +441,15 @@ public class ProposalSupportControllerTest {
         demand2.setDomain("site-b.com");
         Demand dbDemand2 = demandRepo.save(demand2);
 
-        controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand1.getId()});
-        controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand2.getId()});
+        controller.createProposal(dbSupplier.getId(), new long[]{dbDemand1.getId()}, mockRequest);
+        controller.createProposal(dbSupplier.getId(), new long[]{dbDemand2.getId()}, mockRequest);
 
         dbSupplier.setDa(300);
         dbSupplier.setName("updated-shared-supplier");
         supplierRepo.save(dbSupplier);
 
         // When
-        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now());
+        ResponseEntity<Proposal[]> resp = controller.getProposal(LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
 
         // Then – both proposals show the original supplier, not the updated one
         Proposal[] proposals = resp.getBody();
@@ -467,7 +487,7 @@ public class ProposalSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         LocalDateTime beforeCreate = LocalDateTime.now();
-        ResponseEntity<Object> createResp = controller.createProposal("testuser", dbSupplier.getId(), new long[]{dbDemand.getId()});
+        ResponseEntity<Object> createResp = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
         LocalDateTime afterCreate = LocalDateTime.now();
@@ -479,7 +499,7 @@ public class ProposalSupportControllerTest {
 
         // When – narrow window matching exactly when this proposal was created (detail-page style)
         ResponseEntity<Proposal[]> resp = controller.getProposal(
-            beforeCreate.minusSeconds(1), afterCreate.plusSeconds(1));
+            beforeCreate.minusSeconds(1), afterCreate.plusSeconds(1), mockRequest);
 
         // Then – exactly one proposal returned with original supplier data
         assertEquals(HttpStatusCode.valueOf(200), resp.getStatusCode());
@@ -528,13 +548,14 @@ public class ProposalSupportControllerTest {
         PaidLink existing = new PaidLink();
         existing.setSupplier(dbSupplier);
         existing.setDemand(dbDemandConflict);
+        existing.setOrganisationId(TEST_ORG_ID);
         paidLinkRepo.save(existing);
 
         long paidLinkCountBefore = paidLinkRepo.count(); // 1
 
         // When
-        ResponseEntity<Object> response = controller.createProposal("testuser",
-                dbSupplier.getId(), new long[]{dbDemandOk.getId(), dbDemandConflict.getId()});
+        ResponseEntity<Object> response = controller.createProposal(
+                dbSupplier.getId(), new long[]{dbDemandOk.getId(), dbDemandConflict.getId()}, mockRequest);
 
         // Then
         assertEquals(HttpStatusCode.valueOf(400), response.getStatusCode());
@@ -562,8 +583,8 @@ public class ProposalSupportControllerTest {
         demand2.setUrl("http://www.abort-site-b.com");
         Demand dbDemand2 = demandRepo.save(demand2);
 
-        ResponseEntity<Object> createResp = controller.createProposal("testuser",
-                dbSupplier.getId(), new long[]{dbDemand1.getId(), dbDemand2.getId()});
+        ResponseEntity<Object> createResp = controller.createProposal(
+                dbSupplier.getId(), new long[]{dbDemand1.getId(), dbDemand2.getId()}, mockRequest);
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
 
@@ -571,7 +592,7 @@ public class ProposalSupportControllerTest {
         assertEquals(2, paidLinkRepo.count(), "Two PaidLinks should exist before abort");
 
         // When
-        ResponseEntity<Object> abortResp = controller.delete(proposalId, "testuser");
+        ResponseEntity<Object> abortResp = controller.delete(proposalId);
 
         // Then
         assertEquals(HttpStatusCode.valueOf(200), abortResp.getStatusCode());
@@ -593,7 +614,7 @@ public class ProposalSupportControllerTest {
         Demand dbDemand = demandRepo.save(demand);
 
         ResponseEntity<Object> createResp = controller.resolveDemandWith3rdPartySupplier(
-                "3rd Party Blogger", "testuser", (int) dbDemand.getId());
+                "3rd Party Blogger", (int) dbDemand.getId(), mockRequest);
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
 
@@ -604,7 +625,7 @@ public class ProposalSupportControllerTest {
         assertTrue(supplierRepo.findById(thirdPartySupplierId).isPresent(), "3rd-party supplier should exist before abort");
 
         // When
-        ResponseEntity<Object> abortResp = controller.delete(proposalId, "testuser");
+        ResponseEntity<Object> abortResp = controller.delete(proposalId);
 
         // Then
         assertEquals(HttpStatusCode.valueOf(200), abortResp.getStatusCode());
@@ -640,8 +661,8 @@ public class ProposalSupportControllerTest {
         Demand demand = new Demand();
         Demand dbDemand = demandRepo.save(demand);
 
-        ResponseEntity<Object> createResp = controller.createProposal("testuser",
-                dbSupplier.getId(), new long[]{dbDemand.getId()});
+        ResponseEntity<Object> createResp = controller.createProposal(
+                dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
         String location = createResp.getHeaders().get("Location").get(0);
         long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
 
@@ -656,7 +677,7 @@ public class ProposalSupportControllerTest {
 
         // When
         ResponseEntity<Proposal[]> resp = controller.getProposal(
-                LocalDateTime.now().minusHours(1), LocalDateTime.now());
+                LocalDateTime.now().minusHours(1), LocalDateTime.now(), mockRequest);
 
         // Then — original supplier data restored via Envers direct-find
         assertEquals(HttpStatusCode.valueOf(200), resp.getStatusCode());

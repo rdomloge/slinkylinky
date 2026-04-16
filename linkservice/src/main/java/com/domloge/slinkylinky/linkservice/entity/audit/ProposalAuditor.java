@@ -62,6 +62,7 @@ public class ProposalAuditor {
     private void common(AuditRecord ar, Proposal p) {
         ar.setEntityId(p.getId());
         ar.setEntityType(p.getClass().getSimpleName());
+        ar.setOrganisationId(p.getOrganisationId());
         try {
             ar.setDetail(objectMapper.writeValueAsString(p));
         } catch (Exception e) {

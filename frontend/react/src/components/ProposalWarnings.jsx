@@ -105,7 +105,7 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
         const mozUrl = "/.rest/mozsupport/checklink?demandurl="+demand.domain+"&supplierDomain="+supplier.domain
         return fetchWithAuth(mozUrl, {
                     method: 'GET',
-                    headers: {'user': user.email, 'demandId': demand.id}
+                    headers: {'demandId': demand.id}
                 })
             .then((resp) => {
                 if(resp.ok) return resp.json();

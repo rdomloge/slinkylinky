@@ -8839,6 +8839,34 @@ CREATE INDEX idxr9ii2bdptwiwljggtkn44ygkg ON public.supplier USING btree (domain
 
 
 --
+-- Name: idx_demand_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_demand_org ON public.demand USING btree (organisation_id);
+
+
+--
+-- Name: idx_demand_site_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_demand_site_org ON public.demand_site USING btree (organisation_id);
+
+
+--
+-- Name: idx_proposal_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_proposal_org ON public.proposal USING btree (organisation_id);
+
+
+--
+-- Name: idx_paid_link_org; Type: INDEX; Schema: public; Owner: slinkylinky
+--
+
+CREATE INDEX idx_paid_link_org ON public.paid_link USING btree (organisation_id);
+
+
+--
 -- Name: supplier_categories fk4buchj73r1akl6kx2rk2msu2i; Type: FK CONSTRAINT; Schema: public; Owner: slinkylinky
 --
 
@@ -8877,6 +8905,42 @@ ALTER TABLE ONLY public.supplier_aud
 ALTER TABLE ONLY public.supplier_categories
     ADD CONSTRAINT fkk2mqj6ffc0ppgcpw7w40n3kbm FOREIGN KEY (supplier_id) REFERENCES public.supplier(id);
 
+
+--
+-- Multi-tenancy v6.0: Organisation and SupplierTenantExclusion tables
+--
+
+CREATE TABLE IF NOT EXISTS public.organisation (
+    id uuid NOT NULL,
+    name character varying(255) NOT NULL,
+    slug character varying(100) NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    active boolean NOT NULL DEFAULT true,
+    CONSTRAINT organisation_pkey PRIMARY KEY (id),
+    CONSTRAINT organisation_slug_unique UNIQUE (slug)
+);
+
+CREATE SEQUENCE IF NOT EXISTS public.supplier_tenant_exclusion_seq
+    START WITH 1
+    INCREMENT BY 50
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE IF NOT EXISTS public.supplier_tenant_exclusion (
+    id bigint NOT NULL DEFAULT nextval('public.supplier_tenant_exclusion_seq'),
+    supplier_id bigint NOT NULL,
+    organisation_id uuid NOT NULL,
+    CONSTRAINT supplier_tenant_exclusion_pkey PRIMARY KEY (id),
+    CONSTRAINT ste_supplier_org_unique UNIQUE (supplier_id, organisation_id),
+    CONSTRAINT fk_ste_supplier FOREIGN KEY (supplier_id) REFERENCES public.supplier(id),
+    CONSTRAINT fk_ste_organisation FOREIGN KEY (organisation_id) REFERENCES public.organisation(id)
+);
+
+--
+-- Multi-tenancy v6.2: organisation_id indexes (already present above for demand/demand_site/proposal/paid_link)
+-- supplierengagement and audit indexes are applied separately to their respective databases.
+--
 
 --
 -- PostgreSQL database dump complete

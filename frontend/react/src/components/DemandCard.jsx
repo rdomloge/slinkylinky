@@ -12,14 +12,12 @@ import { Link } from 'react-router-dom'
 import { SessionBlock, StyledButton } from './atoms/Button'
 import { useState } from 'react'
 import Modal from './atoms/Modal'
-import { useAuth } from '@/auth/AuthProvider'
 import { addProtocol } from './Util'
 import { fetchWithAuth } from '@/utils/fetchWithAuth'
 
 export default function DemandCard({demand, fullfilable=false, editable=false, id, deleteCascader, deletable=false, editHandler}) {
 
     const [showDeleteModal, setShowDeleteModal] = useState(false)
-    const { user } = useAuth();
 
     function deleteHandler() {
         setShowDeleteModal(false)
@@ -27,7 +25,6 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'user': user.email
             },
             body: JSON.stringify({id: demand.id})
         })

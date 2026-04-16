@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.supplierengagement.entity;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -54,5 +55,8 @@ public class Engagement {
     @Lob
     @Column(columnDefinition="TEXT")
     private String article;
-    
+
+    @Column(name = "organisation_id")
+    private UUID organisationId;
+
 }

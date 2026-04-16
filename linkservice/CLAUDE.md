@@ -6,10 +6,37 @@ This document captures the business rules that govern Proposal creation and Supp
 
 ## Domain Primer
 
-- **Supplier**: a website owner who can place a guest-post/link on their site.
+- **Organisation**: the tenant — all data except Suppliers/Categories is scoped to one Organisation via `organisation_id`.
+- **Supplier**: a website owner who can place a guest-post/link on their site. **Global shared resource** — no `organisation_id`.
+- **SupplierTenantExclusion**: per-tenant suppression of a Supplier from matching. Stored in `supplier_tenant_exclusion(supplier_id, organisation_id)`. Set by `tenant_admin`.
 - **Demand**: a monthly work order from a customer (DemandSite) requesting an inbound link.
 - **PaidLink**: the permanent record of a link placed between a Supplier domain and a Demand domain.
 - **Proposal**: a transient workflow entity that groups one Supplier with 1–3 Demands. It is backed by 1–3 `PaidLink` rows, one per Demand.
+
+## Role Hierarchy
+
+| Keycloak Role | Capabilities in linkservice |
+|---|---|
+| `global_admin` | Full access to all orgs; Supplier CRUD; Blacklist; Categories; can pass `X-Tenant-Override` header |
+| `tenant_admin` | Full access within own org; can exclude Suppliers via `SupplierTenantExclusion` |
+| *(default)* | Read/create within own org; cannot manage users or write Suppliers |
+
+The effective `organisation_id` for a request is resolved by `TenantContext.getEffectiveOrgId()`:
+- `global_admin` with `X-Tenant-Override: <uuid>` header → uses the override
+- Everyone else → reads `org_id` claim from JWT
+
+## Auth Pattern
+
+JWT is validated by Spring Security OAuth2 Resource Server. Username and org_id are extracted from `SecurityContextHolder` via `TenantContext` — **not** from the `user` HTTP header (that pattern is being removed).
+
+```java
+// Correct pattern (Phase 1+)
+String user = TenantContext.getUsername();
+UUID orgId  = TenantFilter.requireOrgId(request);
+
+// Old pattern (being removed)
+// @RequestHeader String user  ← DO NOT USE
+```
 
 ---
 
@@ -24,16 +51,18 @@ _Source: `entity/validator/ProposalValidator.java:21`_
 
 ## Rule 2 — Cross-domain uniqueness (the core SEO constraint)
 
-A Supplier must **never** be matched to the same DemandSite domain more than once, across all time.  
+A Supplier must **never** be matched to the same DemandSite domain more than once **within the same Organisation**, across all time.  
 Multiple links between the same two domains provide zero additional SEO value.
 
 **`PaidLink` is the authoritative history** that enforces this. Before creating a Proposal the system checks:
 
 ```
-paidLinkRepo.findByDemandDomainAndSupplierDomain(demand.getDomain(), supplier.getDomain())
+paidLinkRepo.findByDemandDomainAndSupplierDomainAndOrganisationId(...)
 ```
 
 If any existing PaidLink is found → HTTP 400, proposal rejected.
+
+> **Multi-tenancy note:** uniqueness is scoped per Organisation. The same Supplier may have PaidLinks to the same domain for different tenants — that is permitted and expected.
 
 _Source: `controller/ProposalSupportController.java:234–242`_
 
@@ -45,11 +74,12 @@ When the UI asks "which suppliers can satisfy this demand?", ALL of the followin
 
 | # | Rule | Detail |
 |---|------|--------|
-| 3a | **No prior link** | Supplier has no PaidLink for any Demand whose domain equals the target Demand's domain |
+| 3a | **No prior link** | Supplier has no PaidLink for any Demand whose domain equals the target Demand's domain **within the same Organisation** |
 | 3b | **DA meets threshold** | `supplier.da >= demand.daNeeded` |
 | 3c | **Category overlap** | Supplier and Demand share ≥ 1 **enabled** (non-disabled) Category |
 | 3d | **Not third-party** | `supplier.thirdParty = false` |
-| 3e | **Not disabled** | `supplier.disabled = false` |
+| 3e | **Not globally disabled** | `supplier.disabled = false` (set by `global_admin`, hides from all orgs) |
+| 3f | **Not tenant-excluded** | No `SupplierTenantExclusion` row exists for (supplier_id, org_id) — set by `tenant_admin` |
 
 **Ordering**: results sorted `weWriteFee ASC` then `da DESC` — cheapest first, then highest authority.
 
@@ -143,6 +173,8 @@ _Source: `repo/SupplierRepo.java:45` and `repo/DemandRepo.java:31–33` (SQL: `c
 
 The `BlackListedSupplier` table records domains that have been identified as low-quality or spammy.
 
+**Blacklisting is a global `global_admin`-only feature.** The blacklist has no `organisation_id` — it is a platform-wide gate, not a per-tenant one. Only platform admins can add/view blacklisted domains.
+
 **Blacklisting happens during supplier onboarding**, not at proposal-matching time:
 
 1. **Bulk upload** (`NewSupplierBulkUpload.jsx`): when a CSV of candidate domains is loaded, each domain is checked against `isBlackListed` before any Moz/SemRush lookup is made. Blacklisted domains are silently skipped — no external API call is made (saving per-query cost).
@@ -201,3 +233,4 @@ _Source: `entity/validator/DemandValidator.java`_
 | `entity/validator/DemandValidatorTest.java` | All Rule 12 constraints: requested, daNeeded > 0, url/domain, source, createdBy; update path requires updatedBy |
 | `entity/validator/ProposalValidatorTest.java` | Rule 1: null/empty/4 paidLinks rejected; 1–3 paidLinks accepted; createdBy/updatedBy required |
 | `UtilTest.java` | `Util.stripDomain`: www prefix, no-scheme URL, path/query stripped, multi-part TLD (co.uk), subdomain stripping, localhost fallback |
+| `controller/TenantIsolationTest.java` | Data segregation: Demand and DemandSite scoped to caller's org; cross-tenant delete blocked (403); role restrictions: supplier exclusion (tenant_admin+), blacklist (global_admin only), SupplierWriteGuard (global_admin only); X-Tenant-Override honoured for global_admin, ignored for tenant_admin |

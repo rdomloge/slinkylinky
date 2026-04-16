@@ -28,13 +28,9 @@ export function url_domain(data) {
     }
 }
 
-export function checkIfSupplierIsBlacklisted(website, user) {
-    if(null == user || null == user.email) {
-        console.warn("No user found")
-        throw new Error("Missing user parameter")
-    }
+export function checkIfSupplierIsBlacklisted(website) {
     const url = "/.rest/blackListedSupplierSupport/isBlackListed?website="+url_domain(website)
-    return fetchWithAuth(url, { method: 'GET', headers: {'user': user.email}})
+    return fetchWithAuth(url, { method: 'GET'})
             .then( (resp) => {
                 if(resp.ok) {
                     return resp.json().then( (data) => {
@@ -53,9 +49,9 @@ export function checkIfSupplierIsBlacklisted(website, user) {
             });
 }
 
-export function checkIfSupplierExists(website, user) {
+export function checkIfSupplierExists(website) {
     const url = "/.rest/supplierSupport/exists?supplierWebsite="+website
-    return fetchWithAuth(url, {method: 'GET', headers: {'user': user.email}})
+    return fetchWithAuth(url, {method: 'GET'})
         .then( (resp) => {
             if(resp.ok) {
                 return resp.json().then( (data) => {

@@ -10,6 +10,7 @@ import { fetchWithAuth } from "@/utils/fetchWithAuth";
 import { InfoMessage, WarningMessage } from "@/components/atoms/Messages";
 import DisableToggle from "@/components/atoms/Toggle";
 import { AuthorizedAccess } from "@/components/AuthorizedAccess";
+import { Navigate } from "react-router-dom";
 
 export default function ListCategories() {
     const [categories, setCategories] = useState()
@@ -18,6 +19,10 @@ export default function ListCategories() {
     const [showEditModal, setShowEditModal] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState();
     const { user } = useAuth();
+
+    if (user && !user.roles?.includes('global_admin')) {
+        return <Navigate to="/" replace />;
+    }
     
     const [editingCategory, setEditingCategory] = useState();
     const [editingCategoryName, setEditingCategoryName] = useState();
@@ -43,7 +48,7 @@ export default function ListCategories() {
         setCategories(categories);
         fetchWithAuth(categoriesUrl, {
             method: 'POST',
-            headers: {'Content-Type':'application/json', 'user': user.email},
+            headers: {'Content-Type':'application/json'},
             body: JSON.stringify(newCategory)
         })
         .then( (resp) => {
@@ -79,7 +84,7 @@ export default function ListCategories() {
         
         fetchWithAuth(categoriesUrl + "/" + editingCategory.id, {
             method: 'PATCH',
-            headers: {'Content-Type':'application/json', 'user': user.email},
+            headers: {'Content-Type':'application/json'},
             body: JSON.stringify({name: editingCategoryName, disabled: editingCategory.disabled, updatedBy: user.email})
         })
     }

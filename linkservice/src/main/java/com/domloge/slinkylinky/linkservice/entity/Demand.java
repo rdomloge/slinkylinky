@@ -11,6 +11,9 @@ import org.hibernate.annotations.FetchMode;
 
 import com.domloge.slinkylinky.linkservice.Util;
 
+import java.util.UUID;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -49,6 +52,9 @@ public class Demand {
     private String updatedBy;
     private String source;
     private int wordCount;
+
+    @Column(name = "organisation_id")
+    private UUID organisationId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @Fetch(FetchMode.SUBSELECT)

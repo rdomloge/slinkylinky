@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.supplierengagement.repo;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -32,4 +33,7 @@ public interface EngagementRepo extends CrudRepository <Engagement, Long> {
     
     @Transactional
     public Engagement[] findByStatusAndSupplierEmailSentBefore(EngagementStatus status, LocalDateTime dateTime);
+
+    @Transactional
+    public List<Engagement> findByStatusAndSupplierEmailSentAfterOrderBySupplierEmailSentAsc(EngagementStatus status, LocalDateTime dateTime);
 }

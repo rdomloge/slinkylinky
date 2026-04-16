@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.audit;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -37,5 +38,8 @@ public class AuditRecord {
     @Lob
     @Column(columnDefinition="TEXT")
     private String detail;
+
+    @Column(name = "organisation_id")
+    private UUID organisationId;
 
 }

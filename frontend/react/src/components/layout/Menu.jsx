@@ -1,15 +1,20 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AuthorizedAccess } from '../AuthorizedAccess';
+import { useAuth } from '@/auth/AuthProvider';
 
 // Entity accent colours for nav items
 const ENTITY_COLORS = {
-    '/demand':      { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
-    '/supplier':    { active: '#10b981', glow: 'rgba(16,185,129,0.25)',  dot: '#10b981' },
-    '/demandsites': { active: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', dot: '#8b5cf6' },
-    '/proposals':   { active: '#60a5fa', glow: 'rgba(96,165,250,0.25)', dot: '#60a5fa' },
-    '/categories':  { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
-    '/orders':      { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
-    '/audit':       { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/demand':         { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
+    '/supplier':       { active: '#10b981', glow: 'rgba(16,185,129,0.25)',  dot: '#10b981' },
+    '/demandsites':    { active: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', dot: '#8b5cf6' },
+    '/proposals':      { active: '#60a5fa', glow: 'rgba(96,165,250,0.25)', dot: '#60a5fa' },
+    '/categories':     { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/orders':         { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
+    '/audit':          { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
+    '/organisations':  { active: '#38bdf8', glow: 'rgba(56,189,248,0.25)',  dot: '#38bdf8' },
+    '/users':          { active: '#fb923c', glow: 'rgba(251,146,60,0.25)',   dot: '#fb923c' },
+    '/leads':              { active: '#a78bfa', glow: 'rgba(167,139,250,0.25)', dot: '#a78bfa' },
+    '/category-mappings':  { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
 };
 
 const navItems = [
@@ -25,10 +30,21 @@ const navItems = [
     {
         to: '/categories',
         label: 'Categories',
+        adminOnly: true,
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+            </svg>
+        ),
+    },
+    {
+        to: '/organisations',
+        label: 'Organisations',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
             </svg>
         ),
     },
@@ -61,12 +77,42 @@ const navItems = [
         ),
     },
     {
+        to: '/users',
+        label: 'Users',
+        tenantAdminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+        ),
+    },
+    {
         to: '/orders',
         label: 'Orders',
         adminOnly: true,
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+            </svg>
+        ),
+    },
+    {
+        to: '/leads',
+        label: 'Leads',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
+        ),
+    },
+    {
+        to: '/category-mappings',
+        label: 'Cat. Mappings',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
             </svg>
         ),
     },
@@ -115,15 +161,36 @@ function NavItem({ to, label, icon }) {
 }
 
 export default function Menu() {
+    const { user } = useAuth();
+    const isGlobalAdmin = user?.roles?.includes('global_admin');
+    const isAdmin = isGlobalAdmin || user?.roles?.includes('tenant_admin');
+
+    const publicItems = navItems.filter(i => !i.adminOnly && !i.tenantAdminOnly);
+    const ordersItem = navItems.find(i => i.to === '/orders');
+    const tenantAdminItems = navItems.filter(i => i.tenantAdminOnly);
+    const globalAdminItems = navItems.filter(i => i.adminOnly && i.to !== '/orders');
+
     return (
         <nav className="flex flex-col gap-0.5 pt-3 px-3 pb-4">
-            {navItems.filter(i => !i.adminOnly).map(item => (
+            {publicItems.map(item => (
                 <NavItem key={item.to} {...item} />
             ))}
-            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                <div className="my-2 border-t border-white/10"/>
-                <NavItem {...navItems.find(i => i.adminOnly)} />
-            </AuthorizedAccess>
+            {isAdmin && (
+                <>
+                    <div className="my-2 border-t border-white/10"/>
+                    <NavItem {...ordersItem} />
+                    {tenantAdminItems.map(item => (
+                        <NavItem key={item.to} {...item} />
+                    ))}
+                </>
+            )}
+            {isGlobalAdmin && (
+                <>
+                    {globalAdminItems.map(item => (
+                        <NavItem key={item.to} {...item} />
+                    ))}
+                </>
+            )}
         </nav>
     );
 }

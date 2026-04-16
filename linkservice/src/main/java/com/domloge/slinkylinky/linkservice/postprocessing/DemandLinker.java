@@ -6,13 +6,20 @@ import java.util.LinkedList;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.core.annotation.HandleAfterCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeCreate;
+import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.domloge.slinkylinky.linkservice.config.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.repo.DemandSiteRepo;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Component
@@ -26,9 +33,25 @@ public class DemandLinker {
     private AmqpTemplate auditRabbitTemplate;
 
 
+    @HandleBeforeCreate
+    public void handleBeforeCreate(Demand demand) {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        demand.setOrganisationId(TenantFilter.requireOrgId(request));
+    }
+
+    @HandleBeforeSave
+    public void handleBeforeSave(Demand demand) {
+        if (demand.getOrganisationId() == null) {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+            demand.setOrganisationId(TenantFilter.requireOrgId(request));
+        }
+    }
+
     @HandleAfterCreate
     public void handleAfterCreate(Demand demand) {
-        DemandSite demandSite = demandSiteRepo.findByDomainIgnoreCase(demand.getDomain());
+        DemandSite demandSite = demand.getOrganisationId() != null
+            ? demandSiteRepo.findByDomainIgnoreCaseAndOrganisationId(demand.getDomain(), demand.getOrganisationId())
+            : demandSiteRepo.findByDomainIgnoreCase(demand.getDomain());
         if(null == demandSite) {
             AuditRecord auditRecord = new AuditRecord();
             auditRecord.setEntityId(demand.getId());

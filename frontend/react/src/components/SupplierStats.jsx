@@ -48,7 +48,7 @@ export default function SupplierSemRushTraffic({ supplier, adhoc = false, dataLi
             url = "/.rest/stats/fordomain?domain=" + supplier.domain + "&startDate=" + startDate + "&endDate=" + endDate;
         }
 
-        fetchWithAuth(url, { headers: { 'user': user.email } })
+        fetchWithAuth(url)
             .then(resp => {
                 if (!resp.ok) { console.log("Unknown error: " + resp.status); return; }
                 resp.json().then(data => {

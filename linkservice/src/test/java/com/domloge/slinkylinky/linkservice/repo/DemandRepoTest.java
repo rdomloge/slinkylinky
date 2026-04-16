@@ -21,6 +21,8 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 @DataJpaTest
 public class DemandRepoTest {
 
+    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     @Autowired
     private DemandRepo demandRepo;
 
@@ -50,7 +52,7 @@ public class DemandRepoTest {
         demandRepo.save(testDemand);
 
         // Then
-        assertThat(demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testDemand.getId()).length).isEqualTo(0);
+        assertThat(demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testDemand.getId(), TEST_ORG_ID).length).isEqualTo(0);
     }
 
     @Test
@@ -87,7 +89,7 @@ public class DemandRepoTest {
         demandRepo.saveAll(Arrays.asList(nonMatchingDemand, matchingDemand, ignoreDemand));
 
         // Then
-        Demand[] matchingDemandResults = demandRepo.findDemandForSupplierId(testSupplier.getId(), ignoreDemand.getId());
+        Demand[] matchingDemandResults = demandRepo.findDemandForSupplierId(testSupplier.getId(), ignoreDemand.getId(), TEST_ORG_ID);
         assertThat(matchingDemandResults.length).isEqualTo(1);
         assertThat(matchingDemandResults[0].getName()).isEqualTo(matchingDemand.getName());
     }
@@ -113,7 +115,7 @@ public class DemandRepoTest {
         
         // WHEN
         // Call the method under test
-        Demand[] result = demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)selectedDemand.getId());
+        Demand[] result = demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)selectedDemand.getId(), TEST_ORG_ID);
 
         // THEN        
         assertThat(result.length).isEqualTo(0);
@@ -161,6 +163,7 @@ public class DemandRepoTest {
         PaidLink paidLink = new PaidLink();
         paidLink.setDemand(historicalDemandForSupplier);
         paidLink.setSupplier(testSupplier);
+        paidLink.setOrganisationId(TEST_ORG_ID);
         paidLinkRepo.save(paidLink);
 
         Demand newDemandFromHistorical = createTestDemand();
@@ -171,7 +174,7 @@ public class DemandRepoTest {
         
         // WHEN
         // Call the method under test
-        Demand[] result = demandRepo.findDemandForSupplierId(testSupplier.getId(), testLinkDemand.getId());
+        Demand[] result = demandRepo.findDemandForSupplierId(testSupplier.getId(), testLinkDemand.getId(), TEST_ORG_ID);
 
         // THEN        
         assertThat(result.length).isEqualTo(1);
@@ -205,7 +208,7 @@ public class DemandRepoTest {
         
         // WHEN
         // Call the method under test
-        Demand[] result = demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+        Demand[] result = demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId(), TEST_ORG_ID);
 
         // THEN        
         assertThat(result.length).isEqualTo(1);
@@ -239,7 +242,7 @@ public class DemandRepoTest {
         
         // WHEN
         // Call the method under test
-        Demand[] result = demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId());
+        Demand[] result = demandRepo.findDemandForSupplierId((int)testSupplier.getId(), (int)testLinkDemand.getId(), TEST_ORG_ID);
 
         // THEN        
         assertThat(result.length).isEqualTo(1);
@@ -254,7 +257,7 @@ public class DemandRepoTest {
         linkDemand.setAnchorText("Test Anchor Text");
         linkDemand.setCreatedBy("Test User");
         linkDemand.setDaNeeded(10);
-        
+        linkDemand.setOrganisationId(TEST_ORG_ID);
         return linkDemand;
     }
     

@@ -1,12 +1,13 @@
 package com.domloge.slinkylinky.linkservice.entity.audit;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-@Getter 
+@Getter
 @Setter
 @ToString
 public class AuditRecord {
@@ -22,5 +23,7 @@ public class AuditRecord {
     private LocalDateTime eventTime;
 
     private String detail;
+
+    private UUID organisationId;
 
 }

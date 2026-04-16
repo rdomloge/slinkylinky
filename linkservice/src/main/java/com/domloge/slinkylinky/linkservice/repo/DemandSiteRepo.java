@@ -1,5 +1,7 @@
 package com.domloge.slinkylinky.linkservice.repo;
 
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -12,11 +14,36 @@ import com.domloge.slinkylinky.linkservice.entity.DemandSiteCountProjection;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+
 @RepositoryRestResource(collectionResourceRel = "demandsites", path = "demandsites")
 // @CrossOrigin(originPatterns = {"*host.docker.internal*"})
 public interface DemandSiteRepo extends CrudRepository <DemandSite, Long>, PagingAndSortingRepository<DemandSite, Long> {
 
+    /** Hidden from Spring Data REST — exposed via TenantAwareDemandSiteController */
+    @Override
+    @RestResource(exported = false)
+    Page<DemandSite> findAll(Pageable pageable);
+
+    /** Org-scoped paged listing; categories eagerly loaded for the fullDemandSite projection */
+    @EntityGraph(attributePaths = {"categories"})
+    @RestResource(exported = false)
+    Page<DemandSite> findAllByOrganisationId(UUID organisationId, Pageable pageable);
+
+    /** Org-scoped demand sites that have no categories assigned */
+    @Query(nativeQuery = true, value =
+        "SELECT ds.* FROM demand_site ds " +
+        "WHERE ds.organisation_id = ?1 " +
+        "AND ds.id NOT IN (SELECT demand_site_id FROM demand_site_categories) " +
+        "ORDER BY ds.domain ASC")
+    @RestResource(exported = false)
+    DemandSite[] findByMissingCategoriesAndOrg(UUID organisationId);
+
     DemandSite findByDomainIgnoreCase(String domain);
+
+    DemandSite findByDomainIgnoreCaseAndOrganisationId(String domain, UUID organisationId);
 
     DemandSite[] findByEmailContainsIgnoreCaseOrNameContainsIgnoreCase(String email, String name);
 

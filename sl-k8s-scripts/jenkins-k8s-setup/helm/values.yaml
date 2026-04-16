@@ -18,6 +18,10 @@ secrets:
       # Keycloak client credentials for client credentials
       KEYCLOAK_CLIENTCREDENTIALS_CLIENT_ID: "sl-server"
       KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET: "changeme"
+      # Keycloak Admin REST API — service-account client for user management
+      KEYCLOAK_ADMIN_URL: "http://keycloak-service:8100"
+      KEYCLOAK_ADMIN_CLIENT_ID: "sl-admin"
+      KEYCLOAK_ADMIN_CLIENT_SECRET: "changeme"
       KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI: "http://keycloak-service:8100/realms/myrealm/protocol/openid-connect/token"
       # This has to be the external URL otherwise the ISS in the token does not match
       KEYCLOAK_BASE_URL: "changeme"
@@ -40,6 +44,17 @@ secrets:
       SUPPLIERENGAGEMENT_DB_USERNAME: "supplierengagement_user"
       POSTGRES_BACKUP_USER: "postgres"
       POSTGRES_BACKUP_PASSWORD: "CHANGEME"
+
+  - name: collaborator-secret
+    type: Opaque
+    data:
+      COLLABORATOR_USERNAME: "changeme"
+      COLLABORATOR_PASSWORD: "changeme"
+      # Path to system Chromium binary inside the container
+      COLLABORATOR_BROWSER_PATH: "/usr/bin/chromium"
+      # Raw Cookie header value from Chrome DevTools after a manual login (bypasses Cloudflare).
+      # Open DevTools → Network → any request to collaborator.pro → Request Headers → copy the Cookie value.
+      COLLABORATOR_SESSION_COOKIES: "changeme"
 
   - name: stats-secret
     type: Opaque
@@ -134,6 +149,15 @@ deployments:
       ISSUER_URI: # named differently to match app config - is this the same value as KEYCLOAK_ISSUER in adminwebsite?
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ISSUER
+      KEYCLOAK_ADMIN_URL:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_URL
+      KEYCLOAK_ADMIN_CLIENT_ID:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_ID
+      KEYCLOAK_ADMIN_CLIENT_SECRET:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_SECRET
       slinkylinky_rabbitmq_username:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_USERNAME
@@ -265,14 +289,15 @@ deployments:
 
   - name: supplierengagement
     imageName: "supplierengagement"
-    cpuLimit: "250m"
-    memoryLimit: "512Mi"
+    cpuLimit: "500m"
+    memoryLimit: "1024Mi"
     ports:
       - 8080
     explicitEnv:
       server_port: "8080"
       slinkylinky_vhost: "slinkylinky"
       linkservice_baseurl: "http://linkservice-service:8090/.rest"
+      collaborator_flaresolverr_url: "http://localhost:8191"
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
@@ -286,6 +311,9 @@ deployments:
       spring_mail_testing:
         configMapName: supplierengagement-config
         configMapKey: SPRING_MAIL_TESTING
+      spring_mail_testing_addresses:
+        configMapName: supplierengagement-config
+        configMapKey: SPRING_MAIL_TESTING_ADDRESSES
       mail_from:
         configMapName: supplierengagement-config
         configMapKey: MAIL_FROM
@@ -350,6 +378,12 @@ deployments:
       slinkylinky_rabbitmq_password:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_PASSWORD
+      collaborator_browser_path:
+        secretName: collaborator-secret
+        secretKey: COLLABORATOR_BROWSER_PATH
+      collaborator_session_cookies:
+        secretName: collaborator-secret
+        secretKey: COLLABORATOR_SESSION_COOKIES
 
 services:
   - name: postgres-service
