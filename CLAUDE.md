@@ -144,6 +144,43 @@ Schema is managed externally (not by Hibernate). The `slinkylinky` role must own
 - **Docker builds**: Multi-arch (amd64/arm64) via `docker buildx`; frontend uses multi-stage Node→Nginx build
 - **Environment config**: Backend uses Spring property placeholders (`${spring_datasource_url}` etc.); frontend uses Vite env vars (`VITE_*`) — see `.env.example` files
 
+## Frontend Auth Flow (detail)
+
+Auth lives entirely in `frontend/react/src/auth/`:
+
+- **`AuthProvider.jsx`** — React context. Reads tokens from `sessionStorage` on mount (`isLoading = true` while checking), exposes `{ user, accessToken, signIn, signOut, isAuthenticated, isLoading }`. Tokens are stored under keys `sl_access_token`, `sl_refresh_token`, `sl_id_token`. Sets `sl_return_to` before redirecting so the callback can return the user to the page they were on. Sets `sl_just_authenticated` after a fresh login so Layout can play the entry animation.
+- **`Callback.jsx`** — handles the `/callback` route; exchanges the OAuth `code` for tokens, calls `loadSession()`, then navigates to `sl_return_to` (default `/`).
+- **`Layout.jsx`** — the auth gate for all protected pages. Renders three distinct states: loading spinner (`isLoading`), the full login page (`!isAuthenticated`), or the authenticated app shell. The login page includes the Keycloak redirect animation (portal circle-expand from button) and is self-contained here — there is no separate `/login` route.
+
+## Frontend CSS Animations
+
+All custom keyframe animations are defined in `frontend/react/src/styles/globals.css` and use the `sl-` prefix:
+
+| Keyframe | Used for |
+|---|---|
+| `sl-fade-up` | Page/element entrance |
+| `sl-callback-breathe` | Logo pulse on loading screens |
+| `sl-ping-ring` | Expanding ring around logo |
+| `sl-loading-dot` | Three-dot bouncing loader |
+| `sl-entry-reveal` | Authenticated app shell entry |
+| `sl-orb-drift-a/b/c` | Ambient background orbs on login page |
+| `sl-toast-progress` | Toast auto-dismiss progress bar |
+| `sl-login-progress` | Sweeping progress bar during Collaborator.pro login |
+
+When adding new animations, define them here with the `sl-` prefix.
+
+## Leads / Collaborator.pro Scraper
+
+The Leads page (`pages/leads/index.jsx`) is `global_admin`-only and drives the Collaborator.pro lead-scraping workflow:
+
+1. **Authenticate** — user enters Collaborator.pro credentials in the scrape modal; the frontend POSTs to `/.rest/leads/collaborator/session/login`. The backend drives a real browser login (Playwright/Selenium) which takes several seconds. 2FA is supported via `/.rest/leads/collaborator/session/login/verify`. Manual cookie fallback available via `/.rest/leads/collaborator/session/import`.
+2. **Scrape** — once authenticated, POST `/.rest/leads/scrape` with `{ authSessionId, limit }`. Polling every 5s via `/.rest/leads/scrape/status`.
+3. **Discover contacts** — per-lead POST `/.rest/leads/{id}/discover`; may queue for browser-based discovery (`BROWSER_QUEUED` status).
+4. **Outreach** — POST `/.rest/leads/{id}/sendOutreach` once a contact email is found.
+5. **Convert** — POST `/.rest/leads/{id}/convert` to promote an accepted lead to a Supplier.
+
+Key state vars in the page component: `autoLoggingIn`, `submittingTwoFactor`, `scraping`, `collabConnectStatus`, `collabAuthSessionId`.
+
 ## Routing: Development vs Production
 
 ### Development

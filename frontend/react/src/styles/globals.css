@@ -259,3 +259,8 @@ body {
   from { transform: scaleX(1); }
   to   { transform: scaleX(0); }
 }
+
+@keyframes sl-login-progress {
+  0%   { left: -55%; }
+  100% { left: 110%; }
+}

@@ -5,3 +5,4 @@
 linkservice/.claude/*
 .mcp.json
 sl-k8s-scripts/jenkins-k8s-setup/workers/.env
+.tmp/*

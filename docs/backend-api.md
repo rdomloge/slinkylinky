@@ -124,14 +124,32 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | `GET` | `/.rest/stats/fordomain` | `findByDomainInTimeRange()` |
 | `GET` | `/.rest/stats/responsiveness` | `getResponsiveness()` |
 
+## `CategoryMappingController`
+**Base path:** `/.rest/engagements/category-mappings`  
+**File:** `supplierengagement/src/main/java/com/domloge/slinkylinky/supplierengagement/controller/CategoryMappingController.java`
+
+| Method | Path | Handler |
+|--------|------|--------|
+| `GET` | `/.rest/engagements/category-mappings` | `listAll()` |
+| `GET` | `/.rest/engagements/category-mappings/pending` | `listPending()` |
+| `POST` | `/.rest/engagements/category-mappings/{id}/map` | `map()` |
+| `POST` | `/.rest/engagements/category-mappings/{id}/ignore` | `ignore()` |
+| `POST` | `/.rest/engagements/category-mappings/resolve` | `resolve()` |
+| `DELETE` | `/.rest/engagements/category-mappings/{id}` | `delete()` |
+
 ## `LeadController`
 **Base path:** `/.rest/leads`  
 **File:** `supplierengagement/src/main/java/com/domloge/slinkylinky/supplierengagement/controller/LeadController.java`
 
 | Method | Path | Handler |
 |--------|------|--------|
+| `GET` | `/.rest/leads` | `list()` |
+| `POST` | `/.rest/leads/collaborator/session/import` | `importCollaboratorCookies()` |
+| `POST` | `/.rest/leads/collaborator/session/login` | `autoLogin()` |
+| `POST` | `/.rest/leads/collaborator/session/login/verify` | `verify2fa()` |
 | `GET` | `/.rest/leads/scrape/status` | `scrapeStatus()` |
 | `POST` | `/.rest/leads/{id}/discover` | `discover()` |
+| `POST` | `/.rest/leads/{id}/requeueBrowser` | `requeueBrowser()` |
 | `POST` | `/.rest/leads/{id}/sendOutreach` | `sendOutreach()` |
 | `GET` | `/.rest/leads/{id}/downloadFile` | `downloadFile()` |
 | `POST` | `/.rest/leads/{id}/convert` | `convertToSupplier()` |

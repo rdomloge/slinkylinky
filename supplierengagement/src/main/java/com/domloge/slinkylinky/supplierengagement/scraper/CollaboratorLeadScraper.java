@@ -24,8 +24,10 @@ import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
 import com.domloge.slinkylinky.supplierengagement.entity.CollaboratorCategoryMapping;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
+import com.domloge.slinkylinky.supplierengagement.entity.ScrapingMetadata;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.repo.CollaboratorCategoryMappingRepo;
+import com.domloge.slinkylinky.supplierengagement.repo.ScrapingMetadataRepo;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,6 +91,9 @@ public class CollaboratorLeadScraper implements LeadScraper {
     @Autowired
     private CollaboratorCategoryMappingRepo mappingRepo;
 
+    @Autowired
+    private ScrapingMetadataRepo scrapingMetadataRepo;
+
     private final AtomicBoolean running    = new AtomicBoolean(false);
     private final AtomicInteger leadsFound = new AtomicInteger(0);
     private final AtomicReference<String> lastError = new AtomicReference<>(null);
@@ -104,7 +109,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
     @Override
     @Async
-    public void scrapeAsync(String cookiesOverride, int limitOverride) {
+    public void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental) {
         if (!running.compareAndSet(false, true)) {
             log.warn("Scrape already in progress — ignoring duplicate trigger");
             return;
@@ -123,21 +128,43 @@ public class CollaboratorLeadScraper implements LeadScraper {
         // Use the override limit if provided (> 0), otherwise use the config limit
         int effectiveLimit = limitOverride > 0 ? limitOverride : scrapeLimit;
 
-        log.info("Starting Collaborator.pro API scrape (project_id={}, limit={})",
-                projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
+        // Load offset from metadata if incremental; otherwise start from 0
+        int startOffset = 0;
+        if (incremental) {
+            ScrapingMetadata metadata = scrapingMetadataRepo.findById(SOURCE_KEY).orElse(null);
+            if (metadata != null) {
+                startOffset = metadata.getLastOffset();
+                log.info("Incremental scrape: resuming from offset {} — project_id={}, limit={}",
+                        startOffset, projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
+            } else {
+                log.info("Incremental scrape requested but no metadata found; starting from offset 0 — project_id={}, limit={}",
+                        projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
+            }
+        } else {
+            log.info("Starting fresh scrape from offset 0 — project_id={}, limit={}",
+                    projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
+        }
 
         try {
             HttpClient client = HttpClient.newBuilder()
                     .followRedirects(HttpClient.Redirect.NORMAL)
                     .build();
 
-            int page       = 1;
-            int totalPages = 1; // updated after first response
-            int itemsSeen  = 0; // counts items processed against the limit; existing suppliers excluded
+            // Calculate page size: use requested limit if smaller than PAGE_SIZE, otherwise use PAGE_SIZE
+            int pageSize = (effectiveLimit > 0 && effectiveLimit < PAGE_SIZE) ? effectiveLimit : PAGE_SIZE;
+
+            // Calculate starting page and skip count from offset
+            int startPage = (startOffset / pageSize) + 1;
+            int skipWithinFirstPage = startOffset % pageSize;
+
+            int page = startPage;
+            int totalPages = startPage; // updated after first response
+            int totalConsumed = 0; // all items seen from API (including known suppliers)
+            int newLeadsFound = 0; // items actually upserted
 
             do {
                 String url = API_URL + "?project_id=" + projectId
-                        + "&page=" + page + "&per-page=" + PAGE_SIZE;
+                        + "&page=" + page + "&per-page=" + pageSize;
 
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
@@ -164,37 +191,53 @@ public class CollaboratorLeadScraper implements LeadScraper {
                     break;
                 }
 
-                JsonNode data       = root.path("data");
+                JsonNode data = root.path("data");
                 JsonNode pagination = data.path("pagination");
                 totalPages = pagination.path("totalPageCount").asInt(1);
 
-                if (page == 1) {
+                if (page == startPage) {
                     log.info("Catalog has {} items across {} pages (page size {})",
                             pagination.path("totalCount").asInt(),
                             totalPages,
-                            PAGE_SIZE);
+                            pageSize);
                 }
 
                 JsonNode items = data.path("items");
+                int itemsOnThisPage = 0;
                 for (JsonNode item : items) {
+                    // Skip items that are before our offset position on the first page
+                    if (page == startPage && itemsOnThisPage < skipWithinFirstPage) {
+                        itemsOnThisPage++;
+                        totalConsumed++;
+                        continue;
+                    }
+                    itemsOnThisPage++;
+                    totalConsumed++;
+
                     LeadDto dto = parseItem(item);
                     if (isKnownSupplier(dto.domain)) {
                         log.debug("Skipping {} — already a supplier in linkservice", dto.domain);
                         continue;
                     }
-                    if (effectiveLimit > 0 && itemsSeen >= effectiveLimit) {
+                    if (effectiveLimit > 0 && newLeadsFound >= effectiveLimit) {
                         log.info("Scrape limit of {} reached — stopping early", effectiveLimit);
+                        // Save metadata before returning
+                        saveScrapingMetadata(startOffset, totalConsumed);
                         return;
                     }
-                    itemsSeen++;
+                    newLeadsFound++;
                     try {
                         upsert(dto);
                     } catch (Exception e) {
-                        log.warn("Failed to upsert item {}: {}", itemsSeen, e.getMessage());
+                        log.warn("Failed to upsert item {}: {}", newLeadsFound, e.getMessage());
                     }
                 }
-                log.info("Page {}/{} done — {} items seen, {} upserted",
-                        page, totalPages, itemsSeen, leadsFound.get());
+
+                log.info("Page {}/{} done — {} consumed, {} new leads found, {} total upserted",
+                        page, totalPages, totalConsumed, newLeadsFound, leadsFound.get());
+
+                // Save metadata after each page
+                saveScrapingMetadata(startOffset, totalConsumed);
 
                 page++;
 
@@ -211,6 +254,25 @@ public class CollaboratorLeadScraper implements LeadScraper {
         } finally {
             running.set(false);
             log.info("Collaborator.pro scrape finished. Total leads upserted: {}", leadsFound.get());
+        }
+    }
+
+    /**
+     * Saves or updates the scraping metadata with the new offset.
+     * @param startOffset The initial offset at the start of this scrape run
+     * @param totalConsumed The total items consumed during this scrape run
+     */
+    private void saveScrapingMetadata(int startOffset, int totalConsumed) {
+        try {
+            int newOffset = startOffset + totalConsumed;
+            ScrapingMetadata metadata = scrapingMetadataRepo.findById(SOURCE_KEY)
+                    .orElseGet(() -> new ScrapingMetadata());
+            metadata.setSource(SOURCE_KEY);
+            metadata.setLastOffset(newOffset);
+            metadata.setLastScrapedAt(LocalDateTime.now());
+            scrapingMetadataRepo.save(metadata);
+        } catch (Exception e) {
+            log.warn("Failed to save scraping metadata: {}", e.getMessage());
         }
     }
 

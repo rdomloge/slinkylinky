@@ -297,6 +297,7 @@ deployments:
       server_port: "8080"
       slinkylinky_vhost: "slinkylinky"
       linkservice_baseurl: "http://linkservice-service:8090/.rest"
+      collaborator_flaresolverr_url: "http://localhost:8191"
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
@@ -377,12 +378,6 @@ deployments:
       slinkylinky_rabbitmq_password:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_PASSWORD
-      collaborator_username:
-        secretName: collaborator-secret
-        secretKey: COLLABORATOR_USERNAME
-      collaborator_password:
-        secretName: collaborator-secret
-        secretKey: COLLABORATOR_PASSWORD
       collaborator_browser_path:
         secretName: collaborator-secret
         secretKey: COLLABORATOR_BROWSER_PATH

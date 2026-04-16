@@ -150,6 +150,17 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 ## `DemandSiteRepo`
 **Table:** `demandsiterepos`
 
+## `CollaboratorCategoryMapping`
+**Table:** `collaborator_category_mapping`
+
+**Fields:**
+- `id: long`
+- `collaboratorCategory: String`
+- `slCategoryId: Long`
+- `slCategoryName: String`
+- `createdAt: LocalDateTime`
+- `updatedAt: LocalDateTime`
+
 ## `Engagement`
 **Table:** `engagements`
 
@@ -180,7 +191,6 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - `currency: String`
 - `countries: String`
 - `language: String`
-- `constraints: String`
 - `contactEmail: String`
 - `outreachSent: LocalDateTime`
 - `guid: String`

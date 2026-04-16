@@ -34,6 +34,7 @@ Defined in `frontend/react/src/App.jsx`.
 | `/paidlinks/staging` | `PaidLinksStaging` | `pages/paidlinks/staging.jsx` | Protected |
 | `/sandbox` | `Sandbox` | `pages/sandbox/index.jsx` | Protected |
 | `/leads` | `LeadsIndex` | `pages/leads/index.jsx` | Protected |
+| `/category-mappings` | `CategoryMappingsIndex` | `pages/category-mappings/index.jsx` | Protected |
 
 ## Auth / Session
 
@@ -50,8 +51,12 @@ Defined in `frontend/react/src/App.jsx`.
 
 ### `ListCategories` — `/categories`
 
+### `CategoryMappingsIndex` — `/category-mappings`
+**API:** `/.rest/engagements/category-mappings`, `/.rest/engagements/category-mappings/${mapping.id}`, `/.rest/engagements/category-mappings/…`
+**Props:** status
+
 ### `Dashboard` — `/`
-Hero stat tile — used inside the dark hero banner
+Converts raw API results array into a serialisable display-state object
 **Props:** label, value, sub, loading, to, accentColor
 
 ### `NewDemand` — `/demand/add`
@@ -68,7 +73,8 @@ Hero stat tile — used inside the dark hero banner
 ### `DemandSite` — `/demandsites/:demandsiteid`
 
 ### `LeadsIndex` — `/leads`
-**API:** `/.rest/leads`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/…`
+Returns category strings for this lead that are still PENDING in the mapping table.
+**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/leads`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/…`
 **Props:** status
 
 ### `ListOrders` — `/orders`

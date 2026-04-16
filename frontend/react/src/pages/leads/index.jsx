@@ -194,6 +194,78 @@ function CategoryMappingModal({ lead, mappings, onClose, onMapped }) {
     );
 }
 
+// ── Manual email entry modal ──────────────────────────────────────────────────
+
+function ManualEmailModal({ lead, onClose, onSaved }) {
+    const toast = useToast();
+    const [email, setEmail]   = useState('');
+    const [saving, setSaving] = useState(false);
+
+    async function submit(e) {
+        e.preventDefault();
+        const trimmed = email.trim();
+        if (!trimmed) return;
+        setSaving(true);
+        try {
+            const r = await fetchWithAuth(`/.rest/leads/${lead.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contactEmail: trimmed, status: 'CONTACT_FOUND' }),
+            });
+            if (!r.ok) throw new Error(r.status);
+            const updated = await r.json();
+            toast(`Contact email set for ${lead.domain}`, 'success');
+            onSaved(updated);
+        } catch {
+            toast('Failed to save contact email', 'error');
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <Modal title={`Enter contact email — ${lead.domain}`} dismissHandler={onClose} width="w-full max-w-md">
+            <form onSubmit={submit} className="flex flex-col gap-4">
+                <p className="text-slate-500 text-xs leading-relaxed">
+                    Automated discovery couldn't find a contact email for this domain.
+                    Enter one manually to continue the outreach process.
+                </p>
+                <div className="flex flex-col gap-1.5">
+                    <label htmlFor="manual-email" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        Email address
+                    </label>
+                    <input
+                        id="manual-email"
+                        type="email"
+                        required
+                        autoFocus
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        placeholder={`contact@${lead.domain}`}
+                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-300 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+                    />
+                </div>
+                <div className="flex justify-end gap-2 pt-1">
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="text-sm px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        disabled={!email.trim() || saving}
+                        className="text-sm px-4 py-1.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border border-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        {saving ? 'Saving…' : 'Save Email'}
+                    </button>
+                </div>
+            </form>
+        </Modal>
+    );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LeadsIndex() {
@@ -209,13 +281,26 @@ export default function LeadsIndex() {
     const [scrapeCount, setScrapeCount]   = useState(0);
     const [busyId, setBusyId]             = useState(null);
     const [showScrapeModal, setShowScrapeModal] = useState(false);
-    const [cookieInput, setCookieInput]   = useState('');
+    const [collabAuthSessionId, setCollabAuthSessionId] = useState(null);
+    const [collabConnectStatus, setCollabConnectStatus] = useState('IDLE');
+    const [collabConnectError, setCollabConnectError] = useState(null);
+    const [collabUsername, setCollabUsername] = useState('');
+    const [collabPassword, setCollabPassword] = useState('');
+    const [cookieInput, setCookieInput] = useState('');
+    const [showManualCookieFallback, setShowManualCookieFallback] = useState(false);
+    const [manualCookieImporting, setManualCookieImporting] = useState(false);
+    const [autoLoggingIn, setAutoLoggingIn] = useState(false);
+    const [awaitingTwoFactor, setAwaitingTwoFactor] = useState(false);
+    const [twoFactorCode, setTwoFactorCode] = useState('');
+    const [submittingTwoFactor, setSubmittingTwoFactor] = useState(false);
     const [scrapeLimit, setScrapeLimit]   = useState(3);
+    const [incremental, setIncremental]   = useState(true);
     const [refreshFlash, setRefreshFlash] = useState(false);
     const [confirmModal, setConfirmModal] = useState(null); // { message, confirmLabel, onConfirm }
     const [mappingModalLead, setMappingModalLead] = useState(null);
     const [pendingDiscovery, setPendingDiscovery] = useState(new Set());
     const [autoDiscovering, setAutoDiscovering]   = useState(false);
+    const [manualEmailLead, setManualEmailLead]   = useState(null);
 
     const pollRef              = useRef(null);
     const leadsRef             = useRef(null);
@@ -232,7 +317,9 @@ export default function LeadsIndex() {
         checkScrapeStatus();
     }, [isGlobalAdmin]);
 
-    useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+    useEffect(() => () => {
+        if (pollRef.current) clearInterval(pollRef.current);
+    }, []);
 
     // Keep leadsRef in sync so the polling interval can read the current value
     useEffect(() => { leadsRef.current = leads; }, [leads]);
@@ -314,7 +401,12 @@ export default function LeadsIndex() {
             const r = await fetchWithAuth('/.rest/leads/scrape', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cookies: cookieInput.trim() || null, limit: scrapeLimit }),
+                body: JSON.stringify({
+                    authSessionId: collabAuthSessionId,
+                    cookies: null,
+                    limit: scrapeLimit,
+                    incremental,
+                }),
             });
             if (r?.status === 409) { setScraping(false); toast('A scrape is already running', 'info'); return; }
             if (!r?.ok) throw new Error(r?.status);
@@ -322,6 +414,110 @@ export default function LeadsIndex() {
         } catch {
             setScraping(false);
             toast('Failed to start scrape', 'error');
+        }
+    }
+
+    async function importManualCookies() {
+        const cookieHeader = cookieInput.trim();
+        if (!cookieHeader) {
+            toast('Paste your Collaborator Cookie header first', 'error');
+            return;
+        }
+
+        setManualCookieImporting(true);
+        setCollabConnectError(null);
+        try {
+            const r = await fetchWithAuth('/.rest/leads/collaborator/session/import', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cookieHeader }),
+            });
+            const data = await r.json();
+            if (!r.ok || !data?.authSessionId) {
+                throw new Error(data?.errorMessage || data?.error || 'Cookie import failed');
+            }
+
+            setCollabAuthSessionId(data.authSessionId);
+            localStorage.setItem('sl_collab_session_id', data.authSessionId);
+            setCollabConnectStatus('AUTHENTICATED');
+            setCookieInput('');
+            toast('Manual cookies imported and validated', 'success');
+        } catch (e) {
+            const msg = e?.message || 'Cookie import failed';
+            setCollabConnectStatus('FAILED');
+            setCollabConnectError(msg);
+            localStorage.removeItem('sl_collab_session_id');
+            toast(msg, 'error');
+        } finally {
+            setManualCookieImporting(false);
+        }
+    }
+
+    async function autoLogin() {
+        setAutoLoggingIn(true);
+        setCollabConnectError(null);
+        setAwaitingTwoFactor(false);
+        setTwoFactorCode('');
+        try {
+            const r = await fetchWithAuth('/.rest/leads/collaborator/session/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: collabUsername, password: collabPassword }),
+            });
+            const data = await r.json();
+            if (data?.status === 'AWAITING_2FA') {
+                setCollabConnectStatus('AWAITING_2FA');
+                setAwaitingTwoFactor(true);
+                toast('Check your email for a verification code', 'info');
+                return;
+            }
+            if (!r.ok || !data?.authSessionId) {
+                throw new Error(data?.errorMessage || data?.error || 'Auto-login failed');
+            }
+            setCollabAuthSessionId(data.authSessionId);
+            localStorage.setItem('sl_collab_session_id', data.authSessionId);
+            setCollabConnectStatus('AUTHENTICATED');
+            toast('Logged in to Collaborator.pro automatically', 'success');
+        } catch (e) {
+            const msg = e?.message || 'Auto-login failed';
+            setCollabConnectStatus('FAILED');
+            setCollabConnectError(msg);
+            localStorage.removeItem('sl_collab_session_id');
+            toast(msg, 'error');
+        } finally {
+            setAutoLoggingIn(false);
+        }
+    }
+
+    async function submitTwoFactor() {
+        if (!twoFactorCode.trim()) return;
+        setSubmittingTwoFactor(true);
+        setCollabConnectError(null);
+        try {
+            const r = await fetchWithAuth('/.rest/leads/collaborator/session/login/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: twoFactorCode.trim() }),
+            });
+            const data = await r.json();
+            if (!r.ok || !data?.authSessionId) {
+                throw new Error(data?.errorMessage || data?.error || 'Verification failed');
+            }
+            setCollabAuthSessionId(data.authSessionId);
+            localStorage.setItem('sl_collab_session_id', data.authSessionId);
+            setCollabConnectStatus('AUTHENTICATED');
+            setAwaitingTwoFactor(false);
+            setTwoFactorCode('');
+            toast('Logged in to Collaborator.pro successfully', 'success');
+        } catch (e) {
+            const msg = e?.message || 'Verification failed';
+            setCollabConnectStatus('FAILED');
+            setCollabConnectError(msg);
+            setAwaitingTwoFactor(false);
+            localStorage.removeItem('sl_collab_session_id');
+            toast(msg, 'error');
+        } finally {
+            setSubmittingTwoFactor(false);
         }
     }
 
@@ -507,7 +703,33 @@ export default function LeadsIndex() {
                         )
                     )}
                     <button
-                        onClick={() => setShowScrapeModal(true)}
+                        onClick={async () => {
+                            const savedId = localStorage.getItem('sl_collab_session_id');
+                            if (savedId) {
+                                try {
+                                    const r = await fetchWithAuth(`/.rest/leads/collaborator/session/status?sessionId=${encodeURIComponent(savedId)}`);
+                                    if (r.ok) {
+                                        const data = await r.json();
+                                        if (data.status === 'AUTHENTICATED') {
+                                            setCollabAuthSessionId(savedId);
+                                            setCollabConnectStatus('AUTHENTICATED');
+                                            setCollabConnectError(null);
+                                            setAwaitingTwoFactor(false);
+                                            setTwoFactorCode('');
+                                            setShowScrapeModal(true);
+                                            return;
+                                        }
+                                    }
+                                } catch { /* fall through to fresh login */ }
+                                localStorage.removeItem('sl_collab_session_id');
+                            }
+                            setCollabConnectStatus('IDLE');
+                            setCollabConnectError(null);
+                            setAwaitingTwoFactor(false);
+                            setTwoFactorCode('');
+                            setCollabAuthSessionId(null);
+                            setShowScrapeModal(true);
+                        }}
                         disabled={scraping}
                         className="flex items-center gap-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-3 py-1.5 transition-colors border border-indigo-700"
                     >
@@ -632,7 +854,10 @@ export default function LeadsIndex() {
                                                                 <span className="text-xs text-violet-500 italic px-1">Browser queued…</span>
                                                             )}
                                                             {lead.status === 'CONTACT_NOT_FOUND' && (
-                                                                <ActionBtn label="Retry Browser" onClick={() => requeueBrowser(lead)} disabled={busyId === lead.id} />
+                                                                <>
+                                                                    <ActionBtn label="Retry Browser" onClick={() => requeueBrowser(lead)} disabled={busyId === lead.id} />
+                                                                    <ActionBtn label="Enter Email" variant="primary" onClick={() => setManualEmailLead(lead)} disabled={busyId === lead.id} />
+                                                                </>
                                                             )}
                                                             {lead.contactEmail && lead.status === 'CONTACT_FOUND' && (
                                                                 <ActionBtn
@@ -695,8 +920,188 @@ export default function LeadsIndex() {
                 <Modal title="Scrape Collaborator.pro" dismissHandler={() => setShowScrapeModal(false)} width="w-full max-w-lg">
                     <div className="flex flex-col gap-4">
                         <p className="text-slate-600 text-sm leading-relaxed">
-                            Paste your session cookies below to bypass the Cloudflare challenge.
+                            Enter your Collaborator.pro credentials to log in and start scraping.
                         </p>
+
+                        <div
+                            className="rounded-lg border border-slate-200 bg-white p-3 flex flex-col gap-2"
+                            style={{ position: 'relative', overflow: 'hidden' }}
+                        >
+                            {/* Sweeping progress bar during login/verify */}
+                            {(autoLoggingIn || submittingTwoFactor) && (
+                                <div style={{
+                                    position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+                                    background: 'rgba(99,102,241,0.1)',
+                                }}>
+                                    <div style={{
+                                        position: 'absolute', top: 0, height: '100%',
+                                        width: '50%',
+                                        background: 'linear-gradient(90deg, transparent 0%, #6366f1 50%, transparent 100%)',
+                                        animation: 'sl-login-progress 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                                    }} />
+                                </div>
+                            )}
+                            <div className="flex items-center justify-between gap-3">
+                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Collaborator Login</span>
+                                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                                    autoLoggingIn || submittingTwoFactor
+                                        ? 'bg-indigo-50 text-indigo-600'
+                                        : collabConnectStatus === 'AUTHENTICATED'
+                                            ? 'bg-emerald-100 text-emerald-700'
+                                            : collabConnectStatus === 'FAILED' || collabConnectStatus === 'EXPIRED'
+                                                ? 'bg-rose-100 text-rose-700'
+                                                : collabConnectStatus === 'AWAITING_2FA'
+                                                    ? 'bg-amber-100 text-amber-700'
+                                                    : 'bg-slate-100 text-slate-600'
+                                }`}>
+                                    {autoLoggingIn ? (
+                                        <>
+                                            Connecting
+                                            {[0, 150, 300].map(d => (
+                                                <span key={d} style={{
+                                                    width: 3, height: 3, borderRadius: '50%',
+                                                    background: 'currentColor', display: 'inline-block',
+                                                    animation: 'sl-loading-dot 1.2s ease-in-out infinite',
+                                                    animationDelay: `${d}ms`,
+                                                }} />
+                                            ))}
+                                        </>
+                                    ) : submittingTwoFactor ? (
+                                        <>
+                                            Verifying
+                                            {[0, 150, 300].map(d => (
+                                                <span key={d} style={{
+                                                    width: 3, height: 3, borderRadius: '50%',
+                                                    background: 'currentColor', display: 'inline-block',
+                                                    animation: 'sl-loading-dot 1.2s ease-in-out infinite',
+                                                    animationDelay: `${d}ms`,
+                                                }} />
+                                            ))}
+                                        </>
+                                    ) : (
+                                        collabConnectStatus === 'IDLE' ? 'Not logged in'
+                                        : collabConnectStatus === 'AUTHENTICATED' ? 'Ready to scrape'
+                                        : collabConnectStatus === 'AWAITING_2FA' ? 'Check email for code'
+                                        : collabConnectStatus
+                                    )}
+                                </span>
+                            </div>
+
+                            {collabConnectError && (
+                                <p className="text-xs text-rose-600">{collabConnectError}</p>
+                            )}
+
+                            {/* Credential fields — wrapped in a form so Chrome's password manager can save/fill them */}
+                            <form
+                                action="https://collaborator.pro"
+                                method="post"
+                                onSubmit={e => { e.preventDefault(); autoLogin(); }}
+                                className="flex flex-col gap-2 pt-1"
+                            >
+                                <div className="flex flex-col gap-1">
+                                    <label htmlFor="collab-username" className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+                                        Collaborator.pro email
+                                    </label>
+                                    <input
+                                        id="collab-username"
+                                        type="email"
+                                        autoComplete="username"
+                                        value={collabUsername}
+                                        onChange={e => setCollabUsername(e.target.value)}
+                                        disabled={autoLoggingIn || submittingTwoFactor || collabConnectStatus === 'AUTHENTICATED'}
+                                        placeholder="you@example.com"
+                                        className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 placeholder-slate-300 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400"
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label htmlFor="collab-password" className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">
+                                        Password
+                                    </label>
+                                    <input
+                                        id="collab-password"
+                                        type="password"
+                                        autoComplete="current-password"
+                                        value={collabPassword}
+                                        onChange={e => setCollabPassword(e.target.value)}
+                                        disabled={autoLoggingIn || submittingTwoFactor || collabConnectStatus === 'AUTHENTICATED'}
+                                        placeholder="••••••••"
+                                        className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 placeholder-slate-300 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:bg-slate-50 disabled:text-slate-400"
+                                    />
+                                </div>
+
+                                <div className="flex gap-2 pt-1 flex-wrap">
+                                    <button
+                                        type="submit"
+                                        disabled={autoLoggingIn || submittingTwoFactor || collabConnectStatus === 'AUTHENTICATED' || !collabUsername.trim() || !collabPassword}
+                                        className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        {autoLoggingIn ? 'Logging in…' : 'Auto Login'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowManualCookieFallback(v => !v)}
+                                        className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                                    >
+                                        {showManualCookieFallback ? 'Hide Manual Cookie Fallback' : 'Use Manual Cookie Fallback'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => window.open('https://collaborator.pro/catalog/creator/article', '_blank', 'noopener,noreferrer')}
+                                        className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                                    >
+                                        Open Collaborator
+                                    </button>
+                                </div>
+                            </form>
+
+                            {awaitingTwoFactor && (
+                                <div className="mt-2 flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        value={twoFactorCode}
+                                        onChange={e => setTwoFactorCode(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && submitTwoFactor()}
+                                        placeholder="Enter verification code from email"
+                                        className="text-xs px-2 py-1.5 rounded border border-indigo-300 flex-1 font-mono focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                                        maxLength={12}
+                                        autoFocus
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={submitTwoFactor}
+                                        disabled={submittingTwoFactor || !twoFactorCode.trim()}
+                                        className="text-xs px-3 py-1.5 rounded-lg border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 transition-colors font-semibold disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                                    >
+                                        {submittingTwoFactor ? 'Verifying…' : 'Submit Code'}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {showManualCookieFallback && (
+                            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 flex flex-col gap-2">
+                                <p className="text-xs text-amber-800">
+                                    Fallback mode: paste the Cookie header value, then import it for server-side validation.
+                                </p>
+                                <textarea
+                                    value={cookieInput}
+                                    onChange={e => setCookieInput(e.target.value)}
+                                    placeholder="langCode=en; cf_clearance=...; _identity-user=..."
+                                    rows={4}
+                                    className="w-full bg-white border border-amber-200 rounded-lg px-3 py-2 text-xs text-slate-700 font-mono placeholder-slate-300 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 resize-none"
+                                />
+                                <div className="flex justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={importManualCookies}
+                                        disabled={!cookieInput.trim() || manualCookieImporting}
+                                        className="text-xs px-3 py-1.5 rounded-lg font-semibold text-amber-900 bg-amber-200 hover:bg-amber-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                    >
+                                        {manualCookieImporting ? 'Importing…' : 'Import Cookies'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Limit selector */}
                         <div className="flex flex-col gap-2">
@@ -732,18 +1137,21 @@ export default function LeadsIndex() {
                             </div>
                         </div>
 
-                        <ol className="text-slate-500 text-xs leading-relaxed list-decimal list-inside space-y-1 bg-slate-50 rounded-lg p-3 border border-slate-100">
-                            <li>Log in to <span className="font-mono text-slate-600">collaborator.pro</span> in Chrome</li>
-                            <li>Open DevTools → Network → click any request to collaborator.pro</li>
-                            <li>Under <span className="font-mono text-slate-600">Request Headers</span>, copy the full <span className="font-mono text-slate-600">Cookie</span> value</li>
-                        </ol>
-                        <textarea
-                            value={cookieInput}
-                            onChange={e => setCookieInput(e.target.value)}
-                            placeholder="langCode=en; cf_clearance=...; _identity-user=..."
-                            rows={5}
-                            className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 font-mono placeholder-slate-300 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-none"
-                        />
+                        {/* Incremental toggle */}
+                        <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-xs font-semibold text-slate-700">Incremental mode</span>
+                                <span className="text-[11px] text-slate-400">Skip pages already in the database</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIncremental(v => !v)}
+                                className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${incremental ? 'bg-indigo-600' : 'bg-slate-200'}`}
+                            >
+                                <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${incremental ? 'translate-x-4' : 'translate-x-1'}`} />
+                            </button>
+                        </div>
+
                         <div className="flex justify-end gap-2 pt-1">
                             <button
                                 onClick={() => setShowScrapeModal(false)}
@@ -753,13 +1161,25 @@ export default function LeadsIndex() {
                             </button>
                             <button
                                 onClick={triggerScrape}
-                                className="text-sm px-4 py-1.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border border-indigo-700"
+                                disabled={collabConnectStatus !== 'AUTHENTICATED'}
+                                className="text-sm px-4 py-1.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border border-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                                 Start Scrape
                             </button>
                         </div>
                     </div>
                 </Modal>
+            )}
+
+            {manualEmailLead && (
+                <ManualEmailModal
+                    lead={manualEmailLead}
+                    onClose={() => setManualEmailLead(null)}
+                    onSaved={(updated) => {
+                        setManualEmailLead(null);
+                        setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
+                    }}
+                />
             )}
 
             {mappingModalLead && (

@@ -203,6 +203,18 @@ CREATE INDEX idx_cat_mapping_status ON public.collaborator_category_mapping USIN
 
 
 --
+-- Name: scraping_metadata; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.scraping_metadata (
+    source            varchar(100)  NOT NULL,
+    last_offset       integer       NOT NULL DEFAULT 0,
+    last_scraped_at   timestamp(6)  without time zone,
+    CONSTRAINT scraping_metadata_pkey PRIMARY KEY (source)
+);
+
+
+--
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
 --
 

@@ -30,4 +30,6 @@ public interface SupplierLeadRepo extends CrudRepository<SupplierLead, Long> {
 
     @Transactional
     Iterable<SupplierLead> findByStatusNotOrderByDomainAsc(LeadStatus status);
+
+    long countBySource(String source);
 }

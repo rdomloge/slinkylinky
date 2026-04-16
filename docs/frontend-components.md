@@ -19,6 +19,7 @@ Small, reusable UI primitives in `src/components/atoms/`.
 | `Select` | `components/atoms/Select.jsx` | label, options, changeHandler, selected |  |
 | `TextInput` | `components/atoms/TextInput.jsx` | changeHandler, label, binding, disabled, maxLen, id |  |
 | `TimelineEntry` | `components/atoms/TimelineEntry.jsx` | — |  |
+| `Toasts` | `components/atoms/Toasts.jsx` | toast, onDismiss |  |
 | `DisableToggle` | `components/atoms/Toggle.jsx` | changeHandler, initialValue |  |
 
 ## Layout
@@ -239,6 +240,7 @@ Route-level page components in `src/pages/`.
 | `AuditIndexPage` | `pages/audit/index.jsx` | — |
 | `EntityAuditTrail` | `pages/audit/trace.jsx` | — |
 | `ListCategories` | `pages/categories/index.jsx` | — |
+| `CategoryMappingsIndex` | `pages/category-mappings/index.jsx` | props: status | calls: /.rest/engagements/category-mappings, /.rest/engagements/category-mappings/${mapping.id} |
 | `Dashboard` | `pages/dashboard/index.jsx` | props: label, value, sub, loading, to, accentColor |
 | `NewDemand` | `pages/demand/Add.jsx` | — |
 | `Demand` | `pages/demand/index.jsx` | — |
@@ -246,7 +248,7 @@ Route-level page components in `src/pages/`.
 | `History` | `pages/demandsites/history.jsx` | — |
 | `DemandSiteList` | `pages/demandsites/index.jsx` | calls: /.rest/demandssitesupport/delete?demandSiteId= |
 | `DemandSite` | `pages/demandsites/[demandsiteid].jsx` | — |
-| `LeadsIndex` | `pages/leads/index.jsx` | props: status | calls: /.rest/leads, /.rest/leads/scrape/status |
+| `LeadsIndex` | `pages/leads/index.jsx` | props: status | calls: /.rest/categories, /.rest/engagements/category-mappings/resolve |
 | `ListOrders` | `pages/orders/index.jsx` | calls: /.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder |
 | `OrganisationsIndex` | `pages/organisations/index.jsx` | calls: /.rest/organisations |
 | `App` | `pages/paidlinks/staging.jsx` | — |

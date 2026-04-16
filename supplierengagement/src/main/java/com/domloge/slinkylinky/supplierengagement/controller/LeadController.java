@@ -1,8 +1,14 @@
 package com.domloge.slinkylinky.supplierengagement.controller;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 import org.apache.hc.client5.http.classic.methods.HttpPost;
@@ -18,6 +24,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +44,8 @@ import com.domloge.slinkylinky.supplierengagement.email.HttpUtils;
 import com.domloge.slinkylinky.supplierengagement.repo.CollaboratorCategoryMappingRepo;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
 import com.domloge.slinkylinky.supplierengagement.scraper.BrowserDiscoveryQueue;
+import com.domloge.slinkylinky.supplierengagement.scraper.CollaboratorAuthSessionService;
+import com.domloge.slinkylinky.supplierengagement.scraper.CollaboratorLoginService;
 import com.domloge.slinkylinky.supplierengagement.scraper.ContactDiscoveryService;
 import com.domloge.slinkylinky.supplierengagement.scraper.LeadOutreachService;
 import com.domloge.slinkylinky.supplierengagement.scraper.LeadScraper;
@@ -71,8 +81,22 @@ public class LeadController {
     @Autowired
     private HttpUtils httpUtils;
 
+    @Autowired
+    private CollaboratorAuthSessionService collaboratorAuthSessionService;
+
+    @Autowired
+    private CollaboratorLoginService collaboratorLoginService;
+
     @Value("${linkservice_baseurl}")
     private String linkServiceBase;
+
+    @Value("${collaborator.session.import.max.attempts:5}")
+    private int collaboratorImportMaxAttempts;
+
+    @Value("${collaborator.session.import.window.seconds:60}")
+    private int collaboratorImportWindowSeconds;
+
+    private final ConcurrentMap<String, Deque<Instant>> collaboratorImportAttempts = new ConcurrentHashMap<>();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -111,6 +135,20 @@ public class LeadController {
                     .body(Map.of("error", "Scrape already in progress for " + source));
         }
         String cookies = body != null ? (String) body.get("cookies") : null;
+        String authSessionId = body != null ? (String) body.get("authSessionId") : null;
+        if (StringUtils.hasText(cookies) && "collaborator.pro".equalsIgnoreCase(source)) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "error", "Raw cookies are no longer accepted here. Import cookies first via /collaborator/session/import"
+            ));
+        }
+        if ((cookies == null || cookies.isBlank()) && "collaborator.pro".equalsIgnoreCase(source)
+                && authSessionId != null && !authSessionId.isBlank()) {
+            cookies = collaboratorAuthSessionService.consumeCookies(authSessionId);
+            if (cookies == null) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "Collaborator session is not ready or has expired"));
+            }
+        }
         int scrapeLimit = 0;
         if (body != null && body.get("limit") != null) {
             Object limitObj = body.get("limit");
@@ -124,8 +162,118 @@ public class LeadController {
                 }
             }
         }
-        scraper.scrapeAsync(cookies, scrapeLimit);
+        boolean incremental = body != null && Boolean.TRUE.equals(body.get("incremental"));
+        scraper.scrapeAsync(cookies, scrapeLimit, incremental);
         return ResponseEntity.accepted().body(Map.of("started", true, "source", source));
+    }
+
+    /**
+     * Imports a manually copied Collaborator Cookie header into a short-lived
+     * authenticated session after server-side validation.
+     */
+    @PostMapping("/collaborator/session/import")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<CollaboratorAuthSessionService.SessionSnapshot> importCollaboratorCookies(
+            @RequestBody(required = false) Map<String, Object> body,
+            Authentication authentication) {
+
+        String importedBy = authentication != null ? authentication.getName() : "unknown";
+        if (!isImportAllowed(importedBy)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(
+                new CollaboratorAuthSessionService.SessionSnapshot(
+                    null,
+                    "FAILED",
+                    "Too many cookie import attempts. Please wait a minute and retry.",
+                    null
+                )
+            );
+        }
+
+        String cookieHeader = body != null ? (String) body.get("cookieHeader") : null;
+        CollaboratorAuthSessionService.SessionSnapshot snapshot =
+                collaboratorAuthSessionService.importCookies(cookieHeader, importedBy);
+
+        if (!"AUTHENTICATED".equals(snapshot.getStatus())) {
+            return ResponseEntity.badRequest().body(snapshot);
+        }
+        return ResponseEntity.accepted().body(snapshot);
+    }
+
+    /**
+     * Triggers an automated headless-browser login to Collaborator.pro using credentials
+     * supplied in the request body. Uses Playwright + FlareSolverr to bypass Cloudflare.
+     *
+     * <p>Returns 202 with status {@code AUTHENTICATED} on immediate success, or
+     * {@code AWAITING_2FA} when Collaborator.pro requires an email verification code
+     * (the browser session is held open; call {@code /collaborator/session/login/verify}
+     * with the code to complete login). Returns 400 on failure.
+     */
+    @PostMapping("/collaborator/session/login")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<CollaboratorAuthSessionService.SessionSnapshot> autoLogin(
+            @RequestBody(required = false) Map<String, String> body) {
+        String username = body != null ? body.get("username") : null;
+        String password = body != null ? body.get("password") : null;
+        CollaboratorAuthSessionService.SessionSnapshot snapshot = collaboratorLoginService.login(username, password);
+        if ("AUTHENTICATED".equals(snapshot.getStatus()) || "AWAITING_2FA".equals(snapshot.getStatus())) {
+            return ResponseEntity.accepted().body(snapshot);
+        }
+        return ResponseEntity.badRequest().body(snapshot);
+    }
+
+    /**
+     * Returns the status of a specific Collaborator auth session by ID.
+     * Used by the frontend to re-validate a previously obtained session without re-logging in.
+     */
+    @GetMapping("/collaborator/session/status")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<CollaboratorAuthSessionService.SessionSnapshot> sessionStatus(
+            @RequestParam("sessionId") String sessionId) {
+        if (!StringUtils.hasText(sessionId)) {
+            return ResponseEntity.badRequest().body(
+                new CollaboratorAuthSessionService.SessionSnapshot(null, "FAILED", "sessionId is required", null)
+            );
+        }
+        return ResponseEntity.ok(collaboratorAuthSessionService.getStatus(sessionId));
+    }
+
+    /**
+     * Completes a pending 2FA login by submitting the verification code from email.
+     * Must be called after {@code /collaborator/session/login} returned {@code AWAITING_2FA}.
+     */
+    @PostMapping("/collaborator/session/login/verify")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<CollaboratorAuthSessionService.SessionSnapshot> verify2fa(
+            @RequestBody Map<String, String> body) {
+        String code = body != null ? body.get("code") : null;
+        if (!StringUtils.hasText(code)) {
+            return ResponseEntity.badRequest().body(
+                new CollaboratorAuthSessionService.SessionSnapshot(null, "FAILED", "Verification code is required", null)
+            );
+        }
+        CollaboratorAuthSessionService.SessionSnapshot snapshot = collaboratorLoginService.submitTwoFactorCode(code.trim());
+        if ("AUTHENTICATED".equals(snapshot.getStatus())) {
+            return ResponseEntity.accepted().body(snapshot);
+        }
+        return ResponseEntity.badRequest().body(snapshot);
+    }
+
+    private boolean isImportAllowed(String principal) {
+        String key = StringUtils.hasText(principal) ? principal : "unknown";
+        Instant now = Instant.now();
+        Instant cutoff = now.minus(Duration.ofSeconds(Math.max(1, collaboratorImportWindowSeconds)));
+        Deque<Instant> attempts = collaboratorImportAttempts.computeIfAbsent(key, k -> new ArrayDeque<>());
+
+        synchronized (attempts) {
+            while (!attempts.isEmpty() && attempts.peekFirst().isBefore(cutoff)) {
+                attempts.pollFirst();
+            }
+            if (attempts.size() >= Math.max(1, collaboratorImportMaxAttempts)) {
+                return false;
+            }
+            attempts.addLast(now);
+            return true;
+        }
     }
 
     /**
