@@ -25,15 +25,18 @@ CREATE TRIGGER paid_link_duplicate_check_trigger
     BEFORE INSERT ON public.paid_link
     FOR EACH ROW EXECUTE FUNCTION public.paid_link_duplicate_check();
 
--- Step 3: Add supplier snapshot columns to proposal / proposal_aud.
+-- Step 3: Add missing columns to proposal / proposal_aud and paid_link_aud.
 --   supplier_snapshot_version was added in v2.3 and is present in production.
 --   supplier_snapshot and supplier_snapshot_revision were added later and may
---   be absent from older production backups. All IF NOT EXISTS — no-ops when
---   columns already exist.
+--   be absent from older production backups.
+--   organisation_id was added for multi-tenancy but was never added to the audit tables.
+--   All IF NOT EXISTS — no-ops when columns already exist.
 ALTER TABLE IF EXISTS public.proposal     ADD COLUMN IF NOT EXISTS supplier_snapshot          TEXT;
 ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snapshot          TEXT;
 ALTER TABLE IF EXISTS public.proposal     ADD COLUMN IF NOT EXISTS supplier_snapshot_revision BIGINT DEFAULT 0;
 ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snapshot_revision BIGINT DEFAULT 0;
+ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS organisation_id UUID;
+ALTER TABLE IF EXISTS public.paid_link_aud ADD COLUMN IF NOT EXISTS organisation_id UUID;
 
 -- -----------------------------------------------------------------------
 -- stats database

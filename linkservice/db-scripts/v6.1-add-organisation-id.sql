@@ -25,6 +25,13 @@ ALTER TABLE public.proposal
 ALTER TABLE public.paid_link
     ADD COLUMN IF NOT EXISTS organisation_id uuid;
 
+-- ─── Step 1b: Patch Envers audit tables ──────────────────────────────────────
+-- Both Proposal and PaidLink are @Audited. Envers mirrors every mapped column
+-- into the _aud shadow table. organisation_id must be added here too.
+
+ALTER TABLE IF EXISTS public.proposal_aud  ADD COLUMN IF NOT EXISTS organisation_id uuid;
+ALTER TABLE IF EXISTS public.paid_link_aud ADD COLUMN IF NOT EXISTS organisation_id uuid;
+
 -- ─── Step 2: Backfill ─────────────────────────────────────────────────────────
 -- Replace '<existing-org-uuid>' with the real UUID before running.
 

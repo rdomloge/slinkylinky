@@ -307,7 +307,8 @@ CREATE TABLE public.paid_link_aud (
     id bigint NOT NULL,
     rev integer NOT NULL,
     revtype smallint,
-    supplier_id bigint
+    supplier_id bigint,
+    organisation_id uuid
 );
 
 
@@ -387,7 +388,8 @@ CREATE TABLE public.proposal_aud (
     date_validated timestamp(6) without time zone,
     do_not_expire boolean DEFAULT false,
     supplier_snapshot text,
-    supplier_snapshot_revision bigint DEFAULT 0
+    supplier_snapshot_revision bigint DEFAULT 0,
+    organisation_id uuid
 );
 
 
