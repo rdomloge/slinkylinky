@@ -72,6 +72,11 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.KC_ADMIN_SECRET = sh(
+                        script: "tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 10",
+                        returnStdout: true
+                    ).trim()
+
                     env.RABBITMQ_PASSWORD = sh(
                         script: "openssl rand -base64 24 | tr -d '\\n'",
                         returnStdout: true
@@ -534,6 +539,28 @@ EOF
                             -d '{"clientId": "sl-server", "enabled": true, "publicClient": false, "secret": "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''", "serviceAccountsEnabled": true}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients"
 
+                            # Create sl-admin service-account client for KeycloakAdminClient (user management API)
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"clientId": "sl-admin", "enabled": true, "publicClient": false, "secret": "'''+"${KC_ADMIN_SECRET}"+'''", "serviceAccountsEnabled": true, "standardFlowEnabled": false, "directAccessGrantsEnabled": false}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients"
+
+                            # Grant sl-admin the manage-users and view-users roles from realm-management
+                            REALM_MGMT_CLIENT_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=realm-management" | jq -r '.[0].id')
+
+                            ADMIN_SERVICE_ACCOUNT_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-admin" | jq -r '.[0].id')
+
+                            SA_USER_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/${ADMIN_SERVICE_ACCOUNT_ID}/service-account-user" | jq -r '.id')
+
+                            REALM_MGMT_ROLES=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/${REALM_MGMT_CLIENT_ID}/roles" | jq '[.[] | select(.name=="manage-users" or .name=="view-users")]')
+
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "$REALM_MGMT_ROLES" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/${SA_USER_ID}/role-mappings/clients/${REALM_MGMT_CLIENT_ID}"
+
                             # Create Avatar URI user attribute (using client mappers instead of user-profile)
                             # Get the sl-webapp client ID first
                             CLIENT_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
@@ -617,12 +644,14 @@ EOF
                             kill $KUBE_PID
                             '''
 
-                            // Update the secret with the client secret
+                            // Update the secret with the client secrets and realm name
                             sh '''
                             kubectl -n ${TENANT} patch secret keycloak-credentials \\
                               --type='merge' \\
                               -p='{"data":{"KEYCLOAK_SECRET":"'$(echo -n "'''+"${KC_CLIENT_SECRET}"+'''" | base64 -w 0)'",
-                                      "KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET":"'$(echo -n "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''" | base64 -w 0)'"}}'
+                                      "KEYCLOAK_CLIENTCREDENTIALS_CLIENT_SECRET":"'$(echo -n "'''+"${KC_CLIENT_CREDENTIALS_SECRET}"+'''" | base64 -w 0)'",
+                                      "KEYCLOAK_ADMIN_CLIENT_SECRET":"'$(echo -n "'''+"${KC_ADMIN_SECRET}"+'''" | base64 -w 0)'",
+                                      "KEYCLOAK_REALM":"'$(echo -n "${TENANT}" | base64 -w 0)'"}}'
                             '''
 
                             // Update the backup-ssh-credentials secret with the rsync user from the BACKUP_SSH_USERNAME env var
