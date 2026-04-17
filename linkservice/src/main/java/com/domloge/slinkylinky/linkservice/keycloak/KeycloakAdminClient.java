@@ -1,5 +1,6 @@
 package com.domloge.slinkylinky.linkservice.keycloak;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -86,16 +88,22 @@ public class KeycloakAdminClient {
             .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {});
     }
 
-    /** Create a Keycloak user with the given org_id attribute. */
-    public void createUser(Map<String, Object> userRepresentation) {
+    /** Create a Keycloak user with the given org_id attribute. Returns the new user's UUID. */
+    public String createUser(Map<String, Object> userRepresentation) {
         String url = adminUrl + "/admin/realms/" + realm + "/users";
-        restClient.post()
+        ResponseEntity<Void> response = restClient.post()
             .uri(url)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
             .contentType(MediaType.APPLICATION_JSON)
             .body(userRepresentation)
             .retrieve()
             .toBodilessEntity();
+        URI location = response.getHeaders().getLocation();
+        if (location == null) {
+            throw new IllegalStateException("Keycloak did not return a Location header after user creation");
+        }
+        String path = location.getPath();
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 
     /** Disable (not delete) a Keycloak user. */
@@ -106,6 +114,29 @@ public class KeycloakAdminClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
             .contentType(MediaType.APPLICATION_JSON)
             .body(Map.of("enabled", false))
+            .retrieve()
+            .toBodilessEntity();
+    }
+
+    /** Get a Keycloak realm role by name. */
+    public Map<String, Object> getRoleByName(String roleName) {
+        String url = adminUrl + "/admin/realms/" + realm + "/roles/" + roleName;
+        return restClient.get()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .retrieve()
+            .body(new ParameterizedTypeReference<Map<String, Object>>() {});
+    }
+
+    /** Assign a realm role to a user. */
+    public void assignRealmRole(String userId, Map<String, Object> roleRepresentation) {
+        String url = adminUrl + "/admin/realms/" + realm
+                   + "/users/" + userId + "/role-mappings/realm";
+        restClient.post()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(List.of(roleRepresentation))
             .retrieve()
             .toBodilessEntity();
     }

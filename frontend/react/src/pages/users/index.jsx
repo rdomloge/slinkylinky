@@ -17,6 +17,12 @@ export default function UsersIndex() {
         return <Navigate to="/" replace />;
     }
 
+    const roleOptions = [
+        { value: '', label: 'Default user (no role)' },
+        { value: 'tenant_admin', label: 'Tenant admin' },
+        ...(isGlobalAdmin ? [{ value: 'global_admin', label: 'Global admin' }] : []),
+    ];
+
     const [users, setUsers] = useState(null);
     const [error, setError] = useState(null);
     const [orgId, setOrgId] = useState(null);
@@ -26,6 +32,7 @@ export default function UsersIndex() {
     const [newLastName, setNewLastName] = useState('');
     const [newEmail, setNewEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [newRole, setNewRole] = useState('');
     const [creating, setCreating] = useState(false);
     const [createError, setCreateError] = useState(null);
 
@@ -68,6 +75,7 @@ export default function UsersIndex() {
         setNewLastName('');
         setNewEmail('');
         setNewPassword('');
+        setNewRole('');
         setCreateError(null);
         setShowNewModal(true);
     }
@@ -84,6 +92,7 @@ export default function UsersIndex() {
             enabled: true,
             credentials: [{ type: 'password', value: newPassword, temporary: true }],
             attributes: { org_id: [orgId] },
+            ...(newRole ? { role: newRole } : {}),
         };
         fetchWithAuth('/.rest/keycloak/users', {
             method: 'POST',
@@ -224,6 +233,18 @@ export default function UsersIndex() {
                         </div>
                         <TextInput label="Email (used as username)" binding={newEmail} changeHandler={setNewEmail} />
                         <TextInput label="Temporary password" binding={newPassword} changeHandler={setNewPassword} />
+                        <div className="flex flex-col gap-1">
+                            <label className="text-sm font-medium text-slate-700">Role</label>
+                            <select
+                                className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                                value={newRole}
+                                onChange={e => setNewRole(e.target.value)}
+                            >
+                                {roleOptions.map(o => (
+                                    <option key={o.value} value={o.value}>{o.label}</option>
+                                ))}
+                            </select>
+                        </div>
                         <p className="text-xs text-slate-400">The user will be prompted to change their password on first login.</p>
                         {createError && <p className="text-xs text-red-600">{createError}</p>}
                         <div className="flex justify-end pt-1">

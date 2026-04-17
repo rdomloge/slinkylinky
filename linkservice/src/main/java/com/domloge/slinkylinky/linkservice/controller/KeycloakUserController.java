@@ -3,6 +3,7 @@ package com.domloge.slinkylinky.linkservice.controller;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/.rest/keycloak/users")
 public class KeycloakUserController {
+
+    private static final Set<String> ASSIGNABLE_ROLES = Set.of("tenant_admin", "global_admin");
 
     @Autowired
     private KeycloakAdminClient keycloakAdminClient;
@@ -66,7 +69,7 @@ public class KeycloakUserController {
 
     /**
      * Create a user in Keycloak for a given org. global_admin can create for any org;
-     * tenant_admin for their own org only.
+     * tenant_admin for their own org only. Optionally assigns a realm role.
      */
     @PostMapping
     public ResponseEntity<Void> createUser(@RequestBody Map<String, Object> userRepresentation) {
@@ -87,8 +90,25 @@ public class KeycloakUserController {
             }
         }
 
-        keycloakAdminClient.createUser(userRepresentation);
-        log.info("Created Keycloak user for org {}", targetOrgId);
+        String requestedRole = (String) userRepresentation.remove("role");
+        validateRoleAssignment(requestedRole);
+
+        String newUserId = keycloakAdminClient.createUser(userRepresentation);
+        log.info("Created Keycloak user {} for org {}", newUserId, targetOrgId);
+
+        if (requestedRole != null && !requestedRole.isBlank()) {
+            try {
+                Map<String, Object> roleRep = keycloakAdminClient.getRoleByName(requestedRole);
+                keycloakAdminClient.assignRealmRole(newUserId, roleRep);
+                log.info("Assigned role '{}' to user {}", requestedRole, newUserId);
+            } catch (Exception e) {
+                log.error("Role assignment failed for user {}, disabling orphan", newUserId, e);
+                keycloakAdminClient.disableUser(newUserId);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "User created but role assignment failed; user has been disabled");
+            }
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -103,5 +123,18 @@ public class KeycloakUserController {
         keycloakAdminClient.disableUser(userId);
         log.info("Disabled Keycloak user {}", userId);
         return ResponseEntity.noContent().build();
+    }
+
+    private void validateRoleAssignment(String role) {
+        if (role == null || role.isBlank()) return;
+
+        if (!ASSIGNABLE_ROLES.contains(role)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown role: " + role);
+        }
+
+        if ("global_admin".equals(role) && !TenantContext.isGlobalAdmin()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Only a global_admin can assign the global_admin role");
+        }
     }
 }
