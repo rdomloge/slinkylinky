@@ -7,7 +7,6 @@ import Layout from "@/components/layout/Layout";
 import MonthsBack from "@/components/MonthsBack";
 import Loading from '@/components/Loading';
 import Divider from '@/components/Divider';
-import { Link } from 'react-router-dom';
 import FiltersPanel from '@/components/Filters';
 import { Toggle } from '@/components/atoms/Toggle';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
@@ -143,18 +142,47 @@ export default function ListProposals() {
 
             {/* Sticky counts nav */}
             {!isLoading &&
-                <nav className="sticky top-0 bg-slate-50/95 backdrop-blur border-b border-slate-200 px-6 py-2.5 flex items-center gap-5 text-sm z-10">
-                    <Link to={"#waiting-for-us"} className="flex items-center gap-1.5 text-amber-600 font-medium hover:text-amber-800 transition-colors">
-                        <span className="text-base font-bold">{waitingForAdmin.length}</span> needing attention
-                    </Link>
-                    <span className="text-slate-300">·</span>
-                    <Link to={"#waiting-for-them"} className="flex items-center gap-1.5 text-slate-500 font-medium hover:text-slate-700 transition-colors">
-                        <span className="text-base font-bold">{waitingForSupplier.length}</span> need chasing
-                    </Link>
-                    <span className="text-slate-300">·</span>
-                    <Link to={"#complete-proposals"} className="flex items-center gap-1.5 text-emerald-600 font-medium hover:text-emerald-800 transition-colors">
-                        <span className="text-base font-bold">{completeProposals.length}</span> complete
-                    </Link>
+                <nav
+                    className="sticky top-0 px-6 py-2.5 flex items-center gap-5 text-sm z-20"
+                    style={{
+                        background: 'var(--bg-primary)',
+                        borderBottom: '1px solid var(--ink-hair)',
+                        boxShadow:
+                            '0 1px 0 0 rgba(255,255,255,0.5) inset, 0 2px 8px -2px rgba(42,36,35,0.06)',
+                    }}
+                >
+                    <a
+                        href="#waiting-for-us"
+                        className="flex items-baseline gap-1.5 font-medium transition-colors cursor-pointer"
+                        style={{ color: '#0c4a6e' }}
+                    >
+                        <span className="text-base font-bold font-mono tabular-nums" style={{ color: '#0369a1' }}>
+                            {waitingForAdmin.length}
+                        </span>
+                        needing attention
+                    </a>
+                    <span style={{ color: 'var(--ink-hair)' }}>·</span>
+                    <a
+                        href="#waiting-for-them"
+                        className="flex items-baseline gap-1.5 font-medium transition-colors cursor-pointer"
+                        style={{ color: 'var(--ink-secondary)' }}
+                    >
+                        <span className="text-base font-bold font-mono tabular-nums" style={{ color: 'var(--ink-primary)' }}>
+                            {waitingForSupplier.length}
+                        </span>
+                        need chasing
+                    </a>
+                    <span style={{ color: 'var(--ink-hair)' }}>·</span>
+                    <a
+                        href="#complete-proposals"
+                        className="flex items-baseline gap-1.5 font-medium transition-colors cursor-pointer"
+                        style={{ color: '#2e6a55' }}
+                    >
+                        <span className="text-base font-bold font-mono tabular-nums" style={{ color: '#3f8d73' }}>
+                            {completeProposals.length}
+                        </span>
+                        complete
+                    </a>
                 </nav>
             }
 

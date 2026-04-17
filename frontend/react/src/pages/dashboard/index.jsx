@@ -88,7 +88,7 @@ function buildDashboardUrls() {
         `/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${sixMonths.start}&endDate=${sixMonths.end}&projection=fullProposal`,
         '/.rest/paidlinksupport/topbysuppliers?limit=5',
         '/.rest/demandssitesupport/missingCategories',
-        '/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalse?projection=fullSupplier',
+        '/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalseAndThirdPartyFalse?projection=fullSupplier',
         '/.rest/demandssitesupport/topbydemands?limit=5',
         '/.rest/supplierHealthSupport/onboarding?months=12',
         '/.rest/supplierHealthSupport/atrisk?threshold=5',

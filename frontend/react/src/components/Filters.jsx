@@ -2,8 +2,26 @@ import React from 'react';
 
 function FiltersPanel({ children }) {
     return (
-        <div className="mx-6 mb-4 px-4 py-3 bg-white rounded-xl border border-slate-200">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Filters</p>
+        <div
+            className="mx-6 mb-4 px-4 py-3 rounded-xl"
+            style={{
+                background: 'var(--bg-paper)',
+                border: '1px solid var(--ink-hair)',
+                boxShadow:
+                    '0 1px 0 0 rgba(255,255,255,0.6) inset, 0 1px 2px 0 rgba(42,36,35,0.03)',
+            }}
+        >
+            <p
+                className="text-xs uppercase mb-2"
+                style={{
+                    fontFamily: "'DM Mono', monospace",
+                    letterSpacing: '0.22em',
+                    color: 'var(--ink-tertiary)',
+                    fontWeight: 500,
+                }}
+            >
+                Filters
+            </p>
             {children}
         </div>
     );

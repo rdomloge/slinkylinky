@@ -1,59 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Entity Color System ───────────────────────────────────────────────────── */
+/* ─── Entity Color System (Pastel, Connection-Inspired) ───────────────────── */
 :root {
-  /* Supplier — emerald: they supply, they grow */
-  --supplier-color:       #059669;
-  --supplier-color-light: #10b981;
-  --supplier-bg:          #ecfdf5;
-  --supplier-border:      #a7f3d0;
-  --supplier-glow:        rgba(5, 150, 105, 0.18);
+  /* Base palette — off-white, soft greys, minimal accent */
+  --bg-primary:           #fafbfc;
+  --bg-secondary:         #f5f5f5;
+  --bg-tertiary:          #efefef;
+  --text-primary:         #2c3e50;
+  --text-secondary:       #5a6c7d;
+  --border-light:         #e8e8e8;
+  --border-softer:        #f0f0f0;
 
-  /* Demand — amber/orange: urgency, heat, want */
-  --demand-color:         #d97706;
-  --demand-color-light:   #f59e0b;
-  --demand-bg:            #fffbeb;
-  --demand-border:        #fde68a;
-  --demand-glow:          rgba(217, 119, 6, 0.18);
+  /* Supplier — soft mint: growth, connection */
+  --supplier-color:       #6db89d;
+  --supplier-color-light: #8dcbb3;
+  --supplier-bg:          #e8f6f0;
+  --supplier-border:      #c9efda;
+  --supplier-glow:        rgba(109, 184, 157, 0.12);
 
-  /* DemandSite — violet: aspiration, destination */
-  --demandsite-color:         #7c3aed;
-  --demandsite-color-light:   #8b5cf6;
-  --demandsite-bg:            #f5f3ff;
-  --demandsite-border:        #ddd6fe;
-  --demandsite-glow:          rgba(124, 58, 237, 0.18);
+  /* Demand — soft peach: warmth, movement */
+  --demand-color:         #d4a574;
+  --demand-color-light:   #e0b89a;
+  --demand-bg:            #faf2e8;
+  --demand-border:        #f5dcc9;
+  --demand-glow:          rgba(212, 165, 116, 0.12);
+
+  /* DemandSite — soft lavender: aspiration, elegance */
+  --demandsite-color:         #a89dbd;
+  --demandsite-color-light:   #b9afe5;
+  --demandsite-bg:            #f1ebe8;
+  --demandsite-border:        #e8d7f0;
+  --demandsite-glow:          rgba(168, 157, 189, 0.12);
+
+  /* Connection accents */
+  --accent-blue:          #c5dff5;
+  --accent-rose:          #f5d7d7;
 }
 
 /* ─── Fonts ─────────────────────────────────────────────────────────────────── */
 body {
-  font-family: 'Outfit', system-ui, sans-serif;
-  background-color: #f0f2f7;
+  font-family: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .font-mono-data {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'DM Mono', monospace;
 }
 
 /* ─── Base Card ──────────────────────────────────────────────────────────────── */
 .colourOfBackground {
-  background-color: #f0f2f7;
+  background-color: var(--bg-primary);
 }
 
 @layer components {
   .card {
     background-color: white;
     border-radius: theme(borderRadius.xl);
-    border-color: #e2e8f0;
+    border-color: var(--border-light);
     border-width: 1px;
     border-style: solid;
     padding: theme(spacing.5);
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.03), 0 1px 2px 0 rgb(0 0 0 / 0.02);
     transition: box-shadow 0.25s ease, transform 0.2s ease, border-color 0.2s ease;
   }
   .card:hover {
-    box-shadow: 0 8px 24px 0 rgb(0 0 0 / 0.10), 0 2px 8px 0 rgb(0 0 0 / 0.06);
+    box-shadow: 0 8px 24px 0 rgb(0 0 0 / 0.06), 0 2px 8px 0 rgb(0 0 0 / 0.03);
     transform: translateY(-2px);
   }
 
@@ -219,48 +235,70 @@ body {
   font-size: 83%;
 }
 
-/* ─── Auth / Login Animations ────────────────────────────────────────────────── */
-@keyframes sl-orb-drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(60px, -40px) scale(1.15); }
-  66% { transform: translate(-20px, 30px) scale(0.92); }
-}
-@keyframes sl-orb-drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-50px, 55px) scale(1.12); }
-}
-@keyframes sl-orb-drift-c {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(45px, -55px) scale(0.88); }
-  75% { transform: translate(-25px, 20px) scale(1.08); }
-}
-@keyframes sl-fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-@keyframes sl-callback-breathe {
-  0%, 100% { opacity: 0.55; transform: scale(1); }
-  50%       { opacity: 0.9;  transform: scale(1.08); }
-}
-@keyframes sl-ping-ring {
-  0%   { transform: scale(1); opacity: 0.65; }
-  100% { transform: scale(2.4); opacity: 0; }
-}
-@keyframes sl-loading-dot {
-  0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
-  40%            { transform: scale(1);   opacity: 1; }
-}
-@keyframes sl-entry-reveal {
-  from { opacity: 0; transform: translateY(-5px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ─── Refined Connection Animations ───────────────────────────────────────── */
+
+/* Soft node drifting — creates ambient network feel */
+@keyframes sl-node-drift-a {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+  50% { transform: translate(40px, -50px) scale(0.95); opacity: 0.5; }
 }
 
+@keyframes sl-node-drift-b {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+  50% { transform: translate(-60px, 40px) scale(1.05); opacity: 0.45; }
+}
+
+@keyframes sl-node-drift-c {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.35; }
+  50% { transform: translate(50px, 30px) scale(0.92); opacity: 0.48; }
+}
+
+/* Elegant fade in with slight upward movement */
+@keyframes sl-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Soft breathing pulse */
+@keyframes sl-callback-breathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.05); }
+}
+
+/* Gentle expanding ring (subtle) */
+@keyframes sl-ping-ring {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2.0); opacity: 0; }
+}
+
+/* Refined loading dots */
+@keyframes sl-loading-dot {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* App entry animation */
+@keyframes sl-entry-reveal {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toast progress bar */
 @keyframes sl-toast-progress {
   from { transform: scaleX(1); }
-  to   { transform: scaleX(0); }
+  to { transform: scaleX(0); }
 }
 
+/* Smooth progress sweep */
 @keyframes sl-login-progress {
-  0%   { left: -55%; }
-  100% { left: 110%; }
+  0% { left: -45%; }
+  100% { left: 100%; }
+}
+
+/* Connection line flowing */
+@keyframes sl-line-flow {
+  0% { stroke-dashoffset: 100; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
 }
