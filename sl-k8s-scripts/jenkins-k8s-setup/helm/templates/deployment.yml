@@ -76,5 +76,30 @@ spec:
             failureThreshold: 2
             periodSeconds: 10
             timeoutSeconds: 1
+        {{- if $deployment.sidecars }}
+        {{- range $sidecar := $deployment.sidecars }}
+        - name: {{ $sidecar.name }}
+          image: {{ $sidecar.image | quote }}
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: {{ $sidecar.cpuLimit | default "200m" }}
+              memory: {{ $sidecar.memoryLimit | default "256Mi" }}
+          {{- range $port := $sidecar.ports }}
+          ports:
+            - containerPort: {{ $port }}
+          {{- end }}
+          {{- if $sidecar.env }}
+          env:
+          {{- range $key, $value := $sidecar.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- end }}
 
 {{- end }}

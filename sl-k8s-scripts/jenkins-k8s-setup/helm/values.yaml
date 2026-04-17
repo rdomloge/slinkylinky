@@ -51,8 +51,8 @@ secrets:
     data:
       COLLABORATOR_USERNAME: "changeme"
       COLLABORATOR_PASSWORD: "changeme"
-      # Path to system Chromium binary inside the container
-      COLLABORATOR_BROWSER_PATH: "/usr/bin/chromium"
+      # Path to system Chromium binary inside the container (use Playwright's auto-downloaded browser if empty)
+      COLLABORATOR_BROWSER_PATH: ""
       # Raw Cookie header value from Chrome DevTools after a manual login (bypasses Cloudflare).
       # Open DevTools → Network → any request to collaborator.pro → Request Headers → copy the Cookie value.
       COLLABORATOR_SESSION_COOKIES: "changeme"
@@ -303,6 +303,16 @@ deployments:
       slinkylinky_vhost: "slinkylinky"
       linkservice_baseurl: "http://linkservice-service:8090/.rest"
       collaborator_flaresolverr_url: "http://localhost:8191"
+    sidecars:
+      - name: flaresolverr
+        image: "ghcr.io/flaresolverr/flaresolverr:latest"
+        cpuLimit: "500m"
+        memoryLimit: "512Mi"
+        ports:
+          - 8191
+        env:
+          LOG_LEVEL: "info"
+          HEADLESS: "true"
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
@@ -383,9 +393,6 @@ deployments:
       slinkylinky_rabbitmq_password:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_PASSWORD
-      collaborator_browser_path:
-        secretName: collaborator-secret
-        secretKey: COLLABORATOR_BROWSER_PATH
       collaborator_session_cookies:
         secretName: collaborator-secret
         secretKey: COLLABORATOR_SESSION_COOKIES
