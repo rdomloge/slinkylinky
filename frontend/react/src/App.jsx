@@ -32,6 +32,7 @@ import LeadsIndex from '@/pages/leads/index';
 import CategoryMappingsIndex from '@/pages/category-mappings/index';
 import PaidLinksStaging from '@/pages/paidlinks/staging';
 import Sandbox from '@/pages/sandbox/index';
+import DesignPreview from '@/pages/sandbox/design-preview';
 import Dashboard from '@/pages/dashboard/index';
 
 ReactGA.initialize(GA_TRACKING_ID);
@@ -71,6 +72,7 @@ export default function App() {
           <Route path="/users" element={<UsersIndex />} />
           <Route path="/paidlinks/staging" element={<PaidLinksStaging />} />
           <Route path="/sandbox" element={<Sandbox />} />
+          <Route path="/sandbox/design" element={<DesignPreview />} />
           <Route path="/leads" element={<LeadsIndex />} />
           <Route path="/category-mappings" element={<CategoryMappingsIndex />} />
         </Routes>
