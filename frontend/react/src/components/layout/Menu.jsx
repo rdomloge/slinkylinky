@@ -2,19 +2,19 @@ import { Link, useLocation } from 'react-router-dom';
 import { AuthorizedAccess } from '../AuthorizedAccess';
 import { useAuth } from '@/auth/AuthProvider';
 
-// Entity accent colours for nav items
+// Entity accent colours for nav items (updated to pastel palette)
 const ENTITY_COLORS = {
-    '/demand':         { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
-    '/supplier':       { active: '#10b981', glow: 'rgba(16,185,129,0.25)',  dot: '#10b981' },
-    '/demandsites':    { active: '#8b5cf6', glow: 'rgba(139,92,246,0.25)', dot: '#8b5cf6' },
-    '/proposals':      { active: '#60a5fa', glow: 'rgba(96,165,250,0.25)', dot: '#60a5fa' },
-    '/categories':     { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
-    '/orders':         { active: '#f472b6', glow: 'rgba(244,114,182,0.25)', dot: '#f472b6' },
-    '/audit':          { active: '#94a3b8', glow: 'rgba(148,163,184,0.2)', dot: '#94a3b8' },
-    '/organisations':  { active: '#38bdf8', glow: 'rgba(56,189,248,0.25)',  dot: '#38bdf8' },
-    '/users':          { active: '#fb923c', glow: 'rgba(251,146,60,0.25)',   dot: '#fb923c' },
-    '/leads':              { active: '#a78bfa', glow: 'rgba(167,139,250,0.25)', dot: '#a78bfa' },
-    '/category-mappings':  { active: '#f59e0b', glow: 'rgba(245,158,11,0.25)',  dot: '#f59e0b' },
+    '/demand':         { active: '#d4a574', glow: 'rgba(212, 165, 116, 0.15)', dot: '#d4a574' },
+    '/supplier':       { active: '#6db89d', glow: 'rgba(109, 184, 157, 0.15)', dot: '#6db89d' },
+    '/demandsites':    { active: '#a89dbd', glow: 'rgba(168, 157, 189, 0.15)', dot: '#a89dbd' },
+    '/proposals':      { active: '#8dcbb3', glow: 'rgba(141, 203, 179, 0.15)', dot: '#8dcbb3' },
+    '/categories':     { active: '#a89dbd', glow: 'rgba(168, 157, 189, 0.1)', dot: '#a89dbd' },
+    '/orders':         { active: '#d4a574', glow: 'rgba(212, 165, 116, 0.15)', dot: '#d4a574' },
+    '/audit':          { active: '#8dcbb3', glow: 'rgba(141, 203, 179, 0.1)', dot: '#8dcbb3' },
+    '/organisations':  { active: '#a89dbd', glow: 'rgba(168, 157, 189, 0.15)', dot: '#a89dbd' },
+    '/users':          { active: '#d4a574', glow: 'rgba(212, 165, 116, 0.15)', dot: '#d4a574' },
+    '/leads':          { active: '#a89dbd', glow: 'rgba(168, 157, 189, 0.15)', dot: '#a89dbd' },
+    '/category-mappings': { active: '#6db89d', glow: 'rgba(109, 184, 157, 0.15)', dot: '#6db89d' },
 };
 
 const navItems = [
@@ -137,16 +137,16 @@ function NavItem({ to, label, icon }) {
             to={to}
             rel="nofollow"
             style={active ? {
-                backgroundColor: 'rgba(255,255,255,0.08)',
+                backgroundColor: `rgba(${colors.active.match(/\w\w/g).map(x => parseInt(x, 16)).join(', ')}, 0.1)`,
                 borderLeft: `3px solid ${colors.active}`,
                 boxShadow: `0 0 12px ${colors.glow}`,
-                color: 'white',
+                color: 'var(--text-primary)',
                 paddingLeft: '9px',
             } : {}}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150
                 ${active
-                    ? 'text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5 border-l-3 border-transparent'
+                    ? 'text-slate-900'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/50 border-l-3 border-transparent'
                 }`}
         >
             <span style={active ? {color: colors.active} : {}} className={`shrink-0 transition-colors ${!active ? 'text-slate-500' : ''}`}>
@@ -177,7 +177,7 @@ export default function Menu() {
             ))}
             {isAdmin && (
                 <>
-                    <div className="my-2 border-t border-white/10"/>
+                    <div className="my-2" style={{ borderTopColor: 'var(--border-light)', borderTopWidth: '1px' }} />
                     <NavItem {...ordersItem} />
                     {tenantAdminItems.map(item => (
                         <NavItem key={item.to} {...item} />
