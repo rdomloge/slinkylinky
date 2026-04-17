@@ -718,7 +718,7 @@ EOF
 
                             # Insert default organisation row
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky \\
-                            -c "INSERT INTO public.organisation (id, name, slug, created_at, active) VALUES (''''+"${ORG_ID}"+'''', 'default', '${TENANT}', NOW(), true) ON CONFLICT DO NOTHING;"
+                            -c "INSERT INTO public.organisation (id, name, slug, created_at, active) VALUES ('''+"'${ORG_ID}'"+''', 'default', '${TENANT}', NOW(), true) ON CONFLICT DO NOTHING;"
 
                             # Kill the port-forward
                             kill $KUBE_PID

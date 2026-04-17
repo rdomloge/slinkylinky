@@ -10,7 +10,6 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -110,19 +109,6 @@ CREATE TABLE public.supplier_tenant_exclusion (
     supplier_id bigint NOT NULL,
     organisation_id uuid NOT NULL
 );
-
-
-ALTER TABLE ONLY public.supplier_tenant_exclusion
-    ADD CONSTRAINT supplier_tenant_exclusion_pkey PRIMARY KEY (id);
-
-ALTER TABLE ONLY public.supplier_tenant_exclusion
-    ADD CONSTRAINT ste_supplier_org_unique UNIQUE (supplier_id, organisation_id);
-
-ALTER TABLE ONLY public.supplier_tenant_exclusion
-    ADD CONSTRAINT fk_ste_supplier FOREIGN KEY (supplier_id) REFERENCES public.supplier(id);
-
-ALTER TABLE ONLY public.supplier_tenant_exclusion
-    ADD CONSTRAINT fk_ste_organisation FOREIGN KEY (organisation_id) REFERENCES public.organisation(id);
 
 
 --
@@ -942,18 +928,56 @@ ALTER TABLE ONLY public.demand_categories
 
 
 --
+-- Name: supplier_tenant_exclusion constraints; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT supplier_tenant_exclusion_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT ste_supplier_org_unique UNIQUE (supplier_id, organisation_id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT fk_ste_supplier FOREIGN KEY (supplier_id) REFERENCES public.supplier(id);
+
+ALTER TABLE ONLY public.supplier_tenant_exclusion
+    ADD CONSTRAINT fk_ste_organisation FOREIGN KEY (organisation_id) REFERENCES public.organisation(id);
+
+
+--
+-- Name: idx_demand_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_demand_org ON public.demand USING btree (organisation_id);
+
+
+--
+-- Name: idx_demand_site_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_demand_site_org ON public.demand_site USING btree (organisation_id);
+
+
+--
+-- Name: idx_proposal_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_proposal_org ON public.proposal USING btree (organisation_id);
+
+
+--
+-- Name: idx_paid_link_org; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_paid_link_org ON public.paid_link USING btree (organisation_id);
+
+
+--
 -- Name: paid_link_dup_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER paid_link_dup_trigger BEFORE INSERT ON public.paid_link
     FOR EACH ROW EXECUTE FUNCTION public.paid_link_duplicate_check();
-
-
---
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: -
---
-
-GRANT ALL ON SCHEMA public TO slinkylinky;
 
 
 --

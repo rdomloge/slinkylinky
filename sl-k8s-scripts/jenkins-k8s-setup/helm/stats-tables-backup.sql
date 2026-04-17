@@ -10,7 +10,6 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -36,8 +35,6 @@ CREATE TABLE public.da_monthly_data (
 );
 
 
-ALTER TABLE public.da_monthly_data OWNER TO slinkylinky;
-
 --
 -- Name: da_monthly_data_seq; Type: SEQUENCE; Schema: public; Owner: slinkylinky
 --
@@ -49,8 +46,6 @@ CREATE SEQUENCE public.da_monthly_data_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER SEQUENCE public.da_monthly_data_seq OWNER TO slinkylinky;
 
 --
 -- Name: sem_rush_monthly_data; Type: TABLE; Schema: public; Owner: slinkylinky
@@ -66,8 +61,6 @@ CREATE TABLE public.sem_rush_monthly_data (
 );
 
 
-ALTER TABLE public.sem_rush_monthly_data OWNER TO slinkylinky;
-
 --
 -- Name: sem_rush_monthly_data_seq; Type: SEQUENCE; Schema: public; Owner: slinkylinky
 --
@@ -79,8 +72,6 @@ CREATE SEQUENCE public.sem_rush_monthly_data_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER SEQUENCE public.sem_rush_monthly_data_seq OWNER TO slinkylinky;
 
 --
 -- Name: spam_monthly_data; Type: TABLE; Schema: public; Owner: slinkylinky
@@ -95,8 +86,6 @@ CREATE TABLE public.spam_monthly_data (
 );
 
 
-ALTER TABLE public.spam_monthly_data OWNER TO slinkylinky;
-
 --
 -- Name: spam_monthly_data_seq; Type: SEQUENCE; Schema: public; Owner: slinkylinky
 --
@@ -108,8 +97,6 @@ CREATE SEQUENCE public.spam_monthly_data_seq
     NO MAXVALUE
     CACHE 1;
 
-
-ALTER SEQUENCE public.spam_monthly_data_seq OWNER TO slinkylinky;
 
 --
 -- Data for Name: da_monthly_data; Type: TABLE DATA; Schema: public; Owner: slinkylinky
