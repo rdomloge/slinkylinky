@@ -77,6 +77,11 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.ORG_ID = sh(
+                        script: "cat /proc/sys/kernel/random/uuid",
+                        returnStdout: true
+                    ).trim()
+
                     // Optional: verify variable exists but don't echo it
                     echo "Passwords generated and stored in env var (not printing it for security)"
                 }
@@ -533,14 +538,28 @@ EOF
                             # Get the sl-webapp client ID first
                             CLIENT_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-webapp" | jq -r '.[0].id')
-                            
+
+                            # Create org_id client scope with user-attribute mapper
+                            SCOPE_ID=$(curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "org_id", "protocol": "openid-connect", "attributes": {"include.in.token.scope": "true"}}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/client-scopes" \\
+                            -D - | grep -i '^location:' | sed 's|.*/||' | tr -d '\r')
+
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d '{"name": "org_id", "protocol": "openid-connect", "protocolMapper": "oidc-usermodel-attribute-mapper", "config": {"user.attribute": "org_id", "claim.name": "org_id", "jsonType.label": "String", "access.token.claim": "true", "id.token.claim": "true", "userinfo.token.claim": "true"}}' \\
+                            "http://localhost:9090/admin/realms/${TENANT}/client-scopes/${SCOPE_ID}/protocol-mappers/models"
+
+                            # Assign org_id scope as a default scope on sl-webapp
+                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/${CLIENT_ID}/default-client-scopes/${SCOPE_ID}"
+
                             # Create a user attribute mapper for avatar_uri
                             ##   First need to get the current model
                             MODEL=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/profile")
                             
-                            ##   Now add a new attribute to the model
-                            UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "picture", "displayName": "Avatar URI", "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}, "multivalued": false}]')
+                            ##   Now add new attributes to the model
+                            UPDATED_MODEL=$(echo $MODEL | jq '.attributes += [{"name": "picture", "displayName": "Avatar URI", "permissions": {"view": ["admin","user"], "edit": ["admin","user"]}, "validations": {}, "multivalued": false}, {"name": "org_id", "displayName": "Organisation ID", "permissions": {"view": ["admin"], "edit": ["admin"]}, "validations": {}, "multivalued": false}]')
                             ##   Update the user profile with the new model
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d "$UPDATED_MODEL" \\
@@ -577,10 +596,22 @@ EOF
                             # Next, get the role representations for tenant_admin and global_admin
                             ROLE_REPRESENTATIONS=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/roles" | jq '[.[] | select(.name=="tenant_admin" or .name=="global_admin")]')
-                            # Finally, assign the roles to the user 
+                            # Finally, assign the roles to the user
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d "$ROLE_REPRESENTATIONS" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID/role-mappings/realm"
+
+                            # Set org_id attribute on admin user
+                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "{\"attributes\": {\"org_id\": [\"'''+"${ORG_ID}"+'''\"]}}" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID"
+
+                            # Set org_id attribute on default 'user' user
+                            USER_USER_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users?username=user" | jq -r '.[0].id')
+                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            -d "{\"attributes\": {\"org_id\": [\"'''+"${ORG_ID}"+'''\"]}}" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/users/$USER_USER_ID"
 
                             # Kill the port-forward
                             kill $KUBE_PID
@@ -682,6 +713,10 @@ EOF
                             PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${AUDIT_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${SUPPLIERENGAGEMENT_DB_PASSWORD}"+''' psql -h localhost -U supplierengagement_user -d supplierengagement -f '''+"${SUPPLIERENGAGEMENT_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MIGRATION_FILE}"+'''
+
+                            # Insert default organisation row
+                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky \\
+                            -c "INSERT INTO public.organisation (id, name, slug, created_at, active) VALUES (''''+"${ORG_ID}"+'''', 'default', '${TENANT}', NOW(), true) ON CONFLICT DO NOTHING;"
 
                             # Kill the port-forward
                             kill $KUBE_PID
