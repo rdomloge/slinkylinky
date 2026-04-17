@@ -555,7 +555,7 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients/${ADMIN_SERVICE_ACCOUNT_ID}/service-account-user" | jq -r '.id')
 
                             REALM_MGMT_ROLES=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients/${REALM_MGMT_CLIENT_ID}/roles" | jq '[.[] | select(.name=="manage-users" or .name=="view-users")]')
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/${REALM_MGMT_CLIENT_ID}/roles" | jq '[.[] | select(.name=="manage-users" or .name=="view-users" or .name=="manage-realm")]')
 
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d "$REALM_MGMT_ROLES" \\
