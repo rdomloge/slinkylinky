@@ -38,23 +38,3 @@ ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS supplier_snap
 ALTER TABLE IF EXISTS public.proposal_aud ADD COLUMN IF NOT EXISTS organisation_id UUID;
 ALTER TABLE IF EXISTS public.paid_link_aud ADD COLUMN IF NOT EXISTS organisation_id UUID;
 
--- -----------------------------------------------------------------------
--- stats database
--- -----------------------------------------------------------------------
-\connect stats
-
--- Step 4: Create supplier_responsiveness table if absent.
---   Added after the production stats database was last backed up, so it is
---   missing from restored tenants. IF NOT EXISTS — no-op on new tenants.
-CREATE TABLE IF NOT EXISTS public.supplier_responsiveness (
-    id bigserial PRIMARY KEY,
-    supplier_id bigint NOT NULL UNIQUE,
-    domain character varying(255),
-    avg_response_days double precision NOT NULL DEFAULT 0,
-    sample_size integer NOT NULL DEFAULT 0,
-    last_calculated timestamp without time zone
-);
-CREATE INDEX IF NOT EXISTS idx_responsiveness_supplier_id ON public.supplier_responsiveness (supplier_id);
-CREATE INDEX IF NOT EXISTS idx_responsiveness_domain      ON public.supplier_responsiveness (domain);
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.supplier_responsiveness TO stats_user;
-GRANT USAGE, SELECT ON SEQUENCE public.supplier_responsiveness_id_seq TO stats_user;
