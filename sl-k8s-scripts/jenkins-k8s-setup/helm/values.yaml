@@ -22,6 +22,7 @@ secrets:
       KEYCLOAK_ADMIN_URL: "http://keycloak-service:8100"
       KEYCLOAK_ADMIN_CLIENT_ID: "sl-admin"
       KEYCLOAK_ADMIN_CLIENT_SECRET: "changeme"
+      KEYCLOAK_REALM: "changeme"
       KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI: "http://keycloak-service:8100/realms/myrealm/protocol/openid-connect/token"
       # This has to be the external URL otherwise the ISS in the token does not match
       KEYCLOAK_BASE_URL: "changeme"
@@ -159,6 +160,9 @@ deployments:
       KEYCLOAK_ADMIN_CLIENT_SECRET:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_ADMIN_CLIENT_SECRET
+      KEYCLOAK_REALM:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_REALM
       slinkylinky_rabbitmq_username:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_USERNAME
