@@ -108,7 +108,8 @@ configMaps:
       SLINKYLINKY_RABBITMQ_PORT: "5672"
   - name: supplierengagement-config
     data:
-      SPRING_MAIL_TESTING: "false"
+      SPRING_MAIL_TESTING: "true"
+      SPRING_MAIL_TESTING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
       MAIL_FROM: "no-reply@slinkylinky.uk"
       MAIL_DECLINE_EMAIL_RECIPIENT_NAME: "Support Team"
       MAIL_DECLINED_WARNING_ADDRESSES: "slinkyexternal@frontpageadvantage.com,rdomloge@gmail.com"
