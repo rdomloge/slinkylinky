@@ -21,23 +21,6 @@ pipeline {
             }
         }
 
-        stage('Uninstall tenant using Helm') {
-            steps {
-                script {
-                    withFolderProperties() {
-                        withKubeConfig(credentialsId: 'prod-k8s',
-                                        serverUrl: "${env.K8S_SERVER_URL}") {
-
-                            sh '''
-                            helm uninstall \\
-                            helm-${TENANT}
-                            '''
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Delete PostgreSQL storage') {
             steps {
                 script {
@@ -64,6 +47,23 @@ pipeline {
                             -H "Authorization: Bearer ${LINODE_API_TOKEN}" \\
                             -H "Content-Type: application/json" \\
                             "https://api.linode.com/v4/volumes/${LINODE_VOLUME_ID}"
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Uninstall tenant using Helm') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s',
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            helm uninstall \\
+                            helm-${TENANT}
                             '''
                         }
                     }
