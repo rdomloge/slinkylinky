@@ -195,11 +195,14 @@ pipeline {
                             # with grep + cut — no external tools required on the agent.
                             DEMO_ORG_ID="00000000-0000-0000-0000-000000000001"
 
+                            # Wait for the statefulset rollout before looking up the pod name —
+                            # the pod may not be scheduled yet immediately after scale-up.
+                            echo "==> Waiting for Keycloak statefulset to roll out..."
+                            kubectl -n ${TENANT} rollout status statefulset/keycloak --timeout=180s
+
                             KEYCLOAK_POD=$(kubectl -n ${TENANT} get pod -l app=keycloak \
                                 -o jsonpath='{.items[0].metadata.name}')
-                            echo "==> Waiting for Keycloak pod: ${KEYCLOAK_POD}"
-                            kubectl -n ${TENANT} wait pod/${KEYCLOAK_POD} \
-                                --for=condition=Ready --timeout=120s
+                            echo "==> Keycloak pod: ${KEYCLOAK_POD}"
 
                             echo "==> Obtaining Keycloak admin token..."
                             KC_TOKEN=$(kubectl exec -n ${TENANT} ${KEYCLOAK_POD} -- \
