@@ -137,19 +137,18 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s',
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             sh '''
-                            # Re-apply grants. DROP SCHEMA CASCADE removes all ACLs;
-                            # linkservice_user loses access without this.
-                            echo "==> Re-applying grants to linkservice_user..."
-                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
-                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -f /tmp/grants.sql'
-
-                            # Run the idempotent schema migration as postgres superuser.
-                            # The migration contains only DDL (ALTER TABLE, DROP/CREATE TRIGGER).
-                            # Tables are owned by the slinkylinky role from the production backup,
-                            # so linkservice_user cannot alter them — only postgres can.
+                            # Run the idempotent schema migration first so all new tables exist
+                            # before grants are applied. GRANT ALL ON ALL TABLES only covers
+                            # tables present at grant time — migration must run first.
                             echo "==> Running schema migration..."
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
                                 sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -f /tmp/migration.sql'
+
+                            # Re-apply grants. DROP SCHEMA CASCADE removes all ACLs, and
+                            # the migration creates new tables that also need grants.
+                            echo "==> Re-applying grants..."
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d slinkylinky -f /tmp/grants.sql'
 
                             # Clean up files from the pod and local temp files.
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
@@ -167,12 +166,73 @@ pipeline {
                 }
             }
         }
-    }
+
+        stage('Configure Keycloak for Demo') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s',
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+                            sh '''
+                            # Set org_id on every Keycloak user in this realm to the demo org UUID
+                            # so that JWT claims match the data seeded by schema-migration.sql.
+                            DEMO_ORG_ID="00000000-0000-0000-0000-000000000001"
+
+                            KEYCLOAK_POD=$(kubectl -n ${TENANT} get pod -l app=keycloak \
+                                -o jsonpath='{.items[0].metadata.name}')
+                            echo "==> Waiting for Keycloak pod: ${KEYCLOAK_POD}"
+                            kubectl -n ${TENANT} wait pod/${KEYCLOAK_POD} \
+                                --for=condition=Ready --timeout=120s
+
+                            echo "==> Port-forwarding Keycloak..."
+                            kubectl port-forward -n ${TENANT} pod/${KEYCLOAK_POD} 18100:8100 &
+                            KC_PF_PID=$!
+                            sleep 5
+
+                            echo "==> Obtaining Keycloak admin token..."
+                            KC_TOKEN=$(curl -sf -X POST \
+                                http://localhost:18100/realms/master/protocol/openid-connect/token \
+                                -d "grant_type=password&client_id=admin-cli&username=admin&password=admin" \
+                                | jq -r .access_token)
+
+                            echo "==> Listing users in realm: ${TENANT}"
+                            USER_IDS=$(curl -sf \
+                                -H "Authorization: Bearer ${KC_TOKEN}" \
+                                "http://localhost:18100/admin/realms/${TENANT}/users?max=1000" \
+                                | jq -r '.[].id')
+
+                            for USER_ID in ${USER_IDS}; do
+                                USER_JSON=$(curl -sf \
+                                    -H "Authorization: Bearer ${KC_TOKEN}" \
+                                    "http://localhost:18100/admin/realms/${TENANT}/users/${USER_ID}")
+                                UPDATED=$(echo "${USER_JSON}" \
+                                    | jq --arg org "${DEMO_ORG_ID}" \
+                                        '.attributes.org_id = [$org]')
+                                curl -sf -X PUT \
+                                    -H "Authorization: Bearer ${KC_TOKEN}" \
+                                    -H "Content-Type: application/json" \
+                                    -d "${UPDATED}" \
+                                    "http://localhost:18100/admin/realms/${TENANT}/users/${USER_ID}"
+                                echo "  Updated user ${USER_ID}"
+                            done
+
+                            kill ${KC_PF_PID} || true
+                            echo "==> Keycloak users configured for demo org."
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+    } // end stages
 
     post {
         always {
-            // Clean up temp files in case the build failed mid-flight.
-            sh 'rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE} || true'
+            // Clean up temp files and any leftover Keycloak port-forward in case the build failed.
+            sh '''
+            rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE} || true
+            pkill -f "kubectl port-forward.*18100" || true
+            '''
         }
         failure {
             script {
