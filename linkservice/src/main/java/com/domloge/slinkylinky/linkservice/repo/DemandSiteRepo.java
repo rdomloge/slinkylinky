@@ -41,6 +41,23 @@ public interface DemandSiteRepo extends CrudRepository <DemandSite, Long>, Pagin
     @RestResource(exported = false)
     DemandSite[] findByMissingCategoriesAndOrg(UUID organisationId);
 
+    /** Org-scoped demand sites that have no categories assigned, with limit */
+    @Query(nativeQuery = true, value =
+        "SELECT ds.* FROM demand_site ds " +
+        "WHERE ds.organisation_id = ?1 " +
+        "AND ds.id NOT IN (SELECT demand_site_id FROM demand_site_categories) " +
+        "ORDER BY ds.domain ASC LIMIT ?2")
+    @RestResource(exported = false)
+    DemandSite[] findByMissingCategoriesAndOrg(UUID organisationId, int limit);
+
+    /** Count of org-scoped demand sites that have no categories assigned */
+    @Query(nativeQuery = true, value =
+        "SELECT COUNT(*) FROM demand_site ds " +
+        "WHERE ds.organisation_id = ?1 " +
+        "AND ds.id NOT IN (SELECT demand_site_id FROM demand_site_categories)")
+    @RestResource(exported = false)
+    long countByMissingCategoriesAndOrg(UUID organisationId);
+
     DemandSite findByDomainIgnoreCase(String domain);
 
     DemandSite findByDomainIgnoreCaseAndOrganisationId(String domain, UUID organisationId);

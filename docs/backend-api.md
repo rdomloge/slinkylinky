@@ -146,6 +146,7 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | `GET` | `/.rest/leads` | `list()` |
 | `POST` | `/.rest/leads/collaborator/session/import` | `importCollaboratorCookies()` |
 | `POST` | `/.rest/leads/collaborator/session/login` | `autoLogin()` |
+| `GET` | `/.rest/leads/collaborator/session/status` | `sessionStatus()` |
 | `POST` | `/.rest/leads/collaborator/session/login/verify` | `verify2fa()` |
 | `GET` | `/.rest/leads/scrape/status` | `scrapeStatus()` |
 | `POST` | `/.rest/leads/{id}/discover` | `discover()` |

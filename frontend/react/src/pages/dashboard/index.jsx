@@ -87,8 +87,8 @@ function buildDashboardUrls() {
         `/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${thisMonth.start}&endDate=${thisMonth.end}&projection=fullProposal`,
         `/.rest/proposalsupport/getProposalsWithOriginalSuppliers?startDate=${sixMonths.start}&endDate=${sixMonths.end}&projection=fullProposal`,
         '/.rest/paidlinksupport/topbysuppliers?limit=5',
-        '/.rest/demandssitesupport/missingCategories',
-        '/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalseAndThirdPartyFalse?projection=fullSupplier',
+        '/.rest/demandssitesupport/missingCategories?limit=8',
+        '/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalseAndThirdPartyFalse?projection=fullSupplier&size=8&page=0',
         '/.rest/demandssitesupport/topbydemands?limit=5',
         '/.rest/supplierHealthSupport/onboarding?months=12',
         '/.rest/supplierHealthSupport/atrisk?threshold=5',
@@ -121,7 +121,9 @@ function processResults([demands, suppliers, thisMonthProposals, sixMonthProposa
         attentionProposals: [],
         unproposedDemands: [],
         missingCatSites: [],
+        missingCatSitesTotal: 0,
         missingCatSuppliers: [],
+        missingCatSuppliersTotal: 0,
         topSuppliers: [],
         topUsedSuppliersList: [],
         topDemandSites: [],
@@ -149,8 +151,13 @@ function processResults([demands, suppliers, thisMonthProposals, sixMonthProposa
 
     if (sixMonthProposals) s.topSuppliers = fastestSuppliers(sixMonthProposals);
     if (topSuppliersData) s.topUsedSuppliersList = topSuppliersData;
-    if (missingSites) s.missingCatSites = missingSites;
-    s.missingCatSuppliers = missingCatSuppliersData?._embedded?.suppliers ?? missingCatSuppliersData ?? [];
+    if (missingSites) {
+        s.missingCatSites = missingSites.items ?? [];
+        s.missingCatSitesTotal = missingSites.total ?? 0;
+    }
+    const suppliersArr = missingCatSuppliersData?._embedded?.suppliers ?? missingCatSuppliersData ?? [];
+    s.missingCatSuppliers = suppliersArr;
+    s.missingCatSuppliersTotal = missingCatSuppliersData?.page?.totalElements ?? suppliersArr.length;
     s.topDemandSites = allSitesPage ?? [];
     if (onboardingData) s.supplierHealth = onboardingData;
     if (atRiskData) s.atRiskSites = atRiskData;
@@ -702,7 +709,9 @@ export default function Dashboard() {
     const [attentionProposals, setAttentionProposals]     = useState([]);
     const [unproposedDemands, setUnproposedDemands]       = useState([]);
     const [missingCatSites, setMissingCatSites]           = useState([]);
+    const [missingCatSitesTotal, setMissingCatSitesTotal] = useState(0);
     const [missingCatSuppliers, setMissingCatSuppliers]   = useState([]);
+    const [missingCatSuppliersTotal, setMissingCatSuppliersTotal] = useState(0);
     const [topSuppliers, setTopSuppliers]                 = useState([]);
     const [topUsedSuppliersList, setTopUsedSuppliersList] = useState([]);
     const [topDemandSites, setTopDemandSites]             = useState([]);
@@ -726,7 +735,9 @@ export default function Dashboard() {
         setAttentionProposals(s.attentionProposals   ?? []);
         setUnproposedDemands(s.unproposedDemands     ?? []);
         setMissingCatSites(s.missingCatSites         ?? []);
+        setMissingCatSitesTotal(s.missingCatSitesTotal ?? 0);
         setMissingCatSuppliers(s.missingCatSuppliers ?? []);
+        setMissingCatSuppliersTotal(s.missingCatSuppliersTotal ?? 0);
         setTopSuppliers(s.topSuppliers               ?? []);
         setTopUsedSuppliersList(s.topUsedSuppliersList ?? []);
         setTopDemandSites(s.topDemandSites           ?? []);
@@ -964,49 +975,58 @@ export default function Dashboard() {
 
                         {/* Missing categories */}
                         <PanelCard title="Missing categories" loading={loading} accentColor="#f59e0b">
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 mb-1.5">
-                                    Demand sites
-                                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
-                                          style={missingCatSites.length === 0
-                                              ? {background: '#dcfce7', color: '#15803d'}
-                                              : {background: 'var(--demand-bg)', color: 'var(--demand-color)'}}>
-                                        {missingCatSites.length}
-                                    </span>
-                                </p>
-                                {missingCatSites.length === 0
-                                    ? <p className="text-xs text-slate-400">All sites have categories</p>
-                                    : missingCatSites.slice(0, 3).map(ds => (
-                                        <div key={ds.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                            <div className="min-w-0">
-                                                <p className="text-xs text-slate-700 truncate">{ds.name}</p>
-                                                <p className="text-xs text-slate-400 truncate">{ds.domain}</p>
-                                            </div>
-                                            <Link to={`/demandsites/${ds.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--demandsite-color)'}}>Edit →</Link>
+                            {(() => {
+                                const showBoth = missingCatSites.length > 0 && missingCatSuppliers.length > 0;
+                                const siteSlice = showBoth ? 4 : 8;
+                                const supplierSlice = showBoth ? 4 : 8;
+                                return (
+                                    <>
+                                        <div>
+                                            <p className="text-xs font-medium text-slate-500 mb-1.5">
+                                                Demand sites
+                                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                                                      style={missingCatSitesTotal === 0
+                                                          ? {background: '#dcfce7', color: '#15803d'}
+                                                          : {background: 'var(--demand-bg)', color: 'var(--demand-color)'}}>
+                                                    {missingCatSitesTotal}
+                                                </span>
+                                            </p>
+                                            {missingCatSitesTotal === 0
+                                                ? <p className="text-xs text-slate-400">All sites have categories</p>
+                                                : missingCatSites.slice(0, siteSlice).map(ds => (
+                                                    <div key={ds.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                                                        <div className="min-w-0">
+                                                            <p className="text-xs text-slate-700 truncate">{ds.name}</p>
+                                                            <p className="text-xs text-slate-400 truncate">{ds.domain}</p>
+                                                        </div>
+                                                        <Link to={`/demandsites/${ds.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--demandsite-color)'}}>Edit →</Link>
+                                                    </div>
+                                                ))
+                                            }
                                         </div>
-                                    ))
-                                }
-                            </div>
-                            <div className="mt-3 pt-3 border-t border-slate-100">
-                                <p className="text-xs font-medium text-slate-500 mb-1.5">
-                                    Suppliers
-                                    <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
-                                          style={missingCatSuppliers.length === 0
-                                              ? {background: '#dcfce7', color: '#15803d'}
-                                              : {background: 'var(--supplier-bg)', color: 'var(--supplier-color)'}}>
-                                        {missingCatSuppliers.length}
-                                    </span>
-                                </p>
-                                {missingCatSuppliers.length === 0
-                                    ? <p className="text-xs text-slate-400">All active suppliers have categories</p>
-                                    : missingCatSuppliers.slice(0, 3).map(s => (
-                                        <div key={s.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
-                                            <span className="text-xs text-slate-700 truncate">{s.domain || s.name}</span>
-                                            <Link to={`/supplier/${s.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--supplier-color)'}}>Edit →</Link>
+                                        <div className="mt-3 pt-3 border-t border-slate-100">
+                                            <p className="text-xs font-medium text-slate-500 mb-1.5">
+                                                Suppliers
+                                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs font-semibold"
+                                                      style={missingCatSuppliersTotal === 0
+                                                          ? {background: '#dcfce7', color: '#15803d'}
+                                                          : {background: 'var(--supplier-bg)', color: 'var(--supplier-color)'}}>
+                                                    {missingCatSuppliersTotal}
+                                                </span>
+                                            </p>
+                                            {missingCatSuppliersTotal === 0
+                                                ? <p className="text-xs text-slate-400">All active suppliers have categories</p>
+                                                : missingCatSuppliers.slice(0, supplierSlice).map(s => (
+                                                    <div key={s.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
+                                                        <span className="text-xs text-slate-700 truncate">{s.domain || s.name}</span>
+                                                        <Link to={`/supplier/${s.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--supplier-color)'}}>Edit →</Link>
+                                                    </div>
+                                                ))
+                                            }
                                         </div>
-                                    ))
-                                }
-                            </div>
+                                    </>
+                                );
+                            })()}
                         </PanelCard>
 
                         {/* Action items */}

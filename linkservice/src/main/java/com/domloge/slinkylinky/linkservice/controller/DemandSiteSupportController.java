@@ -25,6 +25,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
+record MissingCategoriesResult(List<DemandSite> items, long total) {}
+
 @Controller
 @RequestMapping(".rest/demandssitesupport")
 @Slf4j
@@ -41,12 +43,16 @@ public class DemandSiteSupportController {
         return ResponseEntity.ok(demandSiteRepo.findTopByDemandCount(limit));
     }
 
-    /** Org-scoped demand sites missing categories — replaces the unfiltered Spring Data REST search endpoint. */
+    /** Org-scoped demand sites missing categories — returns items with total count. */
     @GetMapping(path = "/missingCategories", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<DemandSite[]> missingCategories(HttpServletRequest request) {
+    public ResponseEntity<MissingCategoriesResult> missingCategories(
+            HttpServletRequest request,
+            @RequestParam(defaultValue = "8") int limit) {
         UUID orgId = TenantFilter.requireOrgId(request);
-        return ResponseEntity.ok(demandSiteRepo.findByMissingCategoriesAndOrg(orgId));
+        long total = demandSiteRepo.countByMissingCategoriesAndOrg(orgId);
+        DemandSite[] items = demandSiteRepo.findByMissingCategoriesAndOrg(orgId, limit);
+        return ResponseEntity.ok(new MissingCategoriesResult(List.of(items), total));
     }
 
     @DeleteMapping(path = "/delete", produces = "text/HTML")

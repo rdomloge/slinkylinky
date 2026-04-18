@@ -242,6 +242,8 @@ Frontend expects (in `.env.development` for dev, injected via `window.__CONFIG__
 
 The Jenkinsfile (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) loads the schema for each new tenant from these SQL files in `sl-k8s-scripts/jenkins-k8s-setup/helm/`:
 
+**Initial Schema (backup dumps):**
+
 | File | Database / owner |
 |---|---|
 | `slinkylinky-schema-backup.sql` | `slinkylinky` DB — base schema (roles, sequences, etc.) |
@@ -250,4 +252,16 @@ The Jenkinsfile (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) loads the 
 | `audit-schema-backup.sql` | `audit` DB (loaded as `audit_user`) |
 | `supplierengagement-schema-backup.sql` | `supplierengagement` DB (loaded as `supplierengagement_user`) |
 
-**Whenever you add or change a column/table/index on a JPA entity, you must also update the corresponding SQL file(s) above** so that new tenant deployments via CI get the correct schema.
+**Idempotent Migrations (applied after backups to upgrade older schemas):**
+
+| File | Database | Purpose |
+|---|---|---|
+| `schema-migration.sql` | `slinkylinky` + `supplierengagement` | Core tables multi-tenancy support, organisation table, table/function updates |
+| `schema-migration-stats.sql` | `stats` | Stats service schema upgrades |
+| `schema-migration-audit.sql` | `audit` | Audit service schema upgrades (organisation_id column) |
+
+**Note:** Migrations use `IF NOT EXISTS`/`IF EXISTS` for idempotence — safe to run on old or new schema.
+
+**Whenever you add or change a column/table/index on a JPA entity:**
+1. Update the corresponding `*-schema-backup.sql` for new deployments
+2. Add an idempotent migration step to the appropriate `schema-migration*.sql` for older installations

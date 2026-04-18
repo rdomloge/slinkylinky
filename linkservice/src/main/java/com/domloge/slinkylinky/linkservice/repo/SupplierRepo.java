@@ -28,6 +28,9 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
     @Query("SELECT s FROM Supplier s WHERE SIZE(s.categories) = 0 AND s.disabled = false AND s.thirdParty = false")
     List<Supplier> findByCategoriesIsEmptyAndDisabledFalseAndThirdPartyFalse();
 
+    @Query("SELECT s FROM Supplier s WHERE SIZE(s.categories) = 0 AND s.disabled = false AND s.thirdParty = false")
+    Page<Supplier> findByCategoriesIsEmptyAndDisabledFalseAndThirdPartyFalse(Pageable pageable);
+
     @Query("SELECT s FROM Supplier s WHERE " +
            "(:search = '' OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
            "OR LOWER(s.email) LIKE LOWER(CONCAT('%', :search, '%')) " +

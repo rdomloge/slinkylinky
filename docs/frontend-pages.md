@@ -33,6 +33,7 @@ Defined in `frontend/react/src/App.jsx`.
 | `/users` | `UsersIndex` | `pages/users/index.jsx` | Protected |
 | `/paidlinks/staging` | `PaidLinksStaging` | `pages/paidlinks/staging.jsx` | Protected |
 | `/sandbox` | `Sandbox` | `pages/sandbox/index.jsx` | Protected |
+| `/sandbox/design` | `DesignPreview` | `pages/sandbox/design-preview.jsx` | Protected |
 | `/leads` | `LeadsIndex` | `pages/leads/index.jsx` | Protected |
 | `/category-mappings` | `CategoryMappingsIndex` | `pages/category-mappings/index.jsx` | Protected |
 
@@ -56,7 +57,7 @@ Defined in `frontend/react/src/App.jsx`.
 **Props:** status
 
 ### `Dashboard` — `/`
-Converts raw API results array into a serialisable display-state object
+Converts an ISO expiry timestamp into a human-readable countdown label and urgency level. Levels: 'critical' (<4 h), 'warning' (<12 h), 'caution' (<24 h), 'ok' (>24 h).
 **Props:** label, value, sub, loading, to, accentColor
 
 ### `NewDemand` — `/demand/add`
@@ -74,7 +75,7 @@ Converts raw API results array into a serialisable display-state object
 
 ### `LeadsIndex` — `/leads`
 Returns category strings for this lead that are still PENDING in the mapping table.
-**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/leads`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/…`
+**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/leads`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/collaborator/session/status?sessionId=${encodeURIComponent(savedId)}`, `/.rest/leads/…`, `/.rest/leads/collaborator/session/status?sessionId=…`
 **Props:** status
 
 ### `ListOrders` — `/orders`
@@ -96,6 +97,8 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 ### `SupplierResponse` — `/public/supplierresponse`
 **API:** `/.rest/engagements/search/findByGuid?guid=`, `/.rest/engagements/accept?guid=`, `/.rest/engagements/decline?guid=`
 **Props:** supplierName
+
+### `DesignPreview` — `/sandbox/design`
 
 ### `Sandbox` — `/sandbox`
 **Props:** binding, label, onChange

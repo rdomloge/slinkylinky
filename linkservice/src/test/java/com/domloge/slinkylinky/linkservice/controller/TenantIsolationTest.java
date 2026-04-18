@@ -175,17 +175,30 @@ public class TenantIsolationTest {
 
         TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of());
 
-        ResponseEntity<DemandSite[]> resp = demandSiteSupportController.missingCategories(mockRequest);
+        ResponseEntity<?> resp = demandSiteSupportController.missingCategories(mockRequest, 8);
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
-        DemandSite[] result = resp.getBody();
-        assertNotNull(result);
+        Object resultObj = resp.getBody();
+        assertNotNull(resultObj);
+
+        // Extract items list from MissingCategoriesResult record via reflection
+        java.util.List<DemandSite> items;
+        try {
+            java.lang.reflect.Field field = resultObj.getClass().getDeclaredField("items");
+            field.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            java.util.List<DemandSite> fieldValue = (java.util.List<DemandSite>) field.get(resultObj);
+            items = fieldValue;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        assertNotNull(items);
 
         long siteAId = siteA.getId();
         long siteBId = siteB.getId();
-        assertTrue(Arrays.stream(result).anyMatch(ds -> ds.getId() == siteAId),
+        assertTrue(items.stream().anyMatch(ds -> ds.getId() == siteAId),
                 "Org A's site must appear in results");
-        assertFalse(Arrays.stream(result).anyMatch(ds -> ds.getId() == siteBId),
+        assertFalse(items.stream().anyMatch(ds -> ds.getId() == siteBId),
                 "Org B's site must not appear in org A's results");
     }
 

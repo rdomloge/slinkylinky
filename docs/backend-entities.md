@@ -181,6 +181,13 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - `doNotContact: boolean`
 - `article: String`
 
+## `ScrapingMetadata`
+**Table:** `scraping_metadata`
+
+**Fields:**
+- `source: String`
+- `lastScrapedAt: LocalDateTime`
+
 ## `SupplierLead`
 **Table:** `supplier_lead`
 
