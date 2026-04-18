@@ -130,3 +130,18 @@ CREATE INDEX IF NOT EXISTS idx_demand_site_org ON public.demand_site(organisatio
 CREATE INDEX IF NOT EXISTS idx_proposal_org    ON public.proposal(organisation_id);
 CREATE INDEX IF NOT EXISTS idx_paid_link_org   ON public.paid_link(organisation_id);
 
+-- -----------------------------------------------------------------------
+-- supplierengagement database
+-- -----------------------------------------------------------------------
+\connect supplierengagement
+
+-- Step 9 (v6.1): Add organisation_id to engagement table.
+--   Pre-v6.1 production backups will not have this column.
+ALTER TABLE IF EXISTS public.engagement ADD COLUMN IF NOT EXISTS organisation_id uuid;
+
+-- Backfill: stamp all un-scoped rows with the demo org UUID.
+UPDATE public.engagement SET organisation_id = '00000000-0000-0000-0000-000000000001' WHERE organisation_id IS NULL;
+
+-- Step 10 (v6.2): Performance index.
+CREATE INDEX IF NOT EXISTS idx_engagement_org ON public.engagement USING btree (organisation_id);
+
