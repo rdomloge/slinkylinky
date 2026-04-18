@@ -306,8 +306,8 @@ deployments:
     sidecars:
       - name: flaresolverr
         image: "ghcr.io/flaresolverr/flaresolverr:latest"
-        cpuLimit: "500m"
-        memoryLimit: "512Mi"
+        cpuLimit: "2000m"
+        memoryLimit: "1024Mi"
         ports:
           - 8191
         env:
