@@ -301,7 +301,7 @@ public class CollaboratorLoginService {
     private FlareSolverrResult callFlareSolverr() throws Exception {
         String apiUrl = flareSolverrUrl.replaceAll("/+$", "") + "/v1";
         String body = """
-                {"cmd":"request.get","url":"https://collaborator.pro/login","maxTimeout":60000}
+                {"cmd":"request.get","url":"https://collaborator.pro/login","maxTimeout":120000}
                 """;
 
         log.info("Calling FlareSolverr at {}", apiUrl);
@@ -310,7 +310,7 @@ public class CollaboratorLoginService {
                 .uri(URI.create(apiUrl))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(body))
-                .timeout(Duration.ofSeconds(90))
+                .timeout(Duration.ofSeconds(150))
                 .build();
 
         HttpResponse<String> response = HttpClient.newHttpClient()
