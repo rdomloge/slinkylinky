@@ -12,10 +12,6 @@ pipeline {
         string(name: 'TENANT', description: 'Tenant to remove')
     }
 
-    options {
-        deleteDir()
-    }
-
     stages {
         stage('Checkout') {
             steps {
