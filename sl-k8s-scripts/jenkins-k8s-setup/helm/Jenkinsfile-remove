@@ -48,7 +48,7 @@ pipeline {
                             sh '''
                             # Capture PV name and Linode volume ID BEFORE deleting the PVC
                             PV_NAME=$(kubectl get pvc sl-postgres-data-${TENANT} -n ${TENANT} -o jsonpath='{.spec.volumeName}')
-                            LINODE_VOLUME_ID=$(kubectl get pv ${PV_NAME} -o jsonpath='{.spec.csi.volumeHandle}')
+                            LINODE_VOLUME_ID=$(kubectl get pv ${PV_NAME} -o jsonpath='{.spec.csi.volumeHandle}' | cut -d'-' -f1)
 
                             echo "Deleting PVC sl-postgres-data-${TENANT} and PV ${PV_NAME}"
 
