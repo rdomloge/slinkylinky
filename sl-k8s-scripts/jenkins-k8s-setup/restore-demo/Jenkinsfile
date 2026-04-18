@@ -184,8 +184,8 @@ pipeline {
                             kubectl -n ${TENANT} wait pod/${KEYCLOAK_POD} \
                                 --for=condition=Ready --timeout=120s
 
-                            echo "==> Port-forwarding Keycloak..."
-                            kubectl port-forward -n ${TENANT} pod/${KEYCLOAK_POD} 18100:8100 &
+                            echo "==> Port-forwarding Keycloak (container port 8080)..."
+                            kubectl port-forward -n ${TENANT} pod/${KEYCLOAK_POD} 18100:8080 &
                             KC_PF_PID=$!
                             sleep 5
 
@@ -193,21 +193,24 @@ pipeline {
                             KC_TOKEN=$(curl -sf -X POST \
                                 http://localhost:18100/realms/master/protocol/openid-connect/token \
                                 -d "grant_type=password&client_id=admin-cli&username=admin&password=admin" \
-                                | jq -r .access_token)
+                                | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
 
                             echo "==> Listing users in realm: ${TENANT}"
                             USER_IDS=$(curl -sf \
                                 -H "Authorization: Bearer ${KC_TOKEN}" \
                                 "http://localhost:18100/admin/realms/${TENANT}/users?max=1000" \
-                                | jq -r '.[].id')
+                                | python3 -c "import sys,json; [print(u['id']) for u in json.load(sys.stdin)]")
 
                             for USER_ID in ${USER_IDS}; do
                                 USER_JSON=$(curl -sf \
                                     -H "Authorization: Bearer ${KC_TOKEN}" \
                                     "http://localhost:18100/admin/realms/${TENANT}/users/${USER_ID}")
                                 UPDATED=$(echo "${USER_JSON}" \
-                                    | jq --arg org "${DEMO_ORG_ID}" \
-                                        '.attributes.org_id = [$org]')
+                                    | python3 -c "
+import sys, json
+user = json.load(sys.stdin)
+user.setdefault('attributes', {})['org_id'] = ['${DEMO_ORG_ID}']
+print(json.dumps(user))")
                                 curl -sf -X PUT \
                                     -H "Authorization: Bearer ${KC_TOKEN}" \
                                     -H "Content-Type: application/json" \
@@ -231,7 +234,7 @@ pipeline {
             // Clean up temp files and any leftover Keycloak port-forward in case the build failed.
             sh '''
             rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE} || true
-            pkill -f "kubectl port-forward.*18100" || true
+            ps aux | grep 'port-forward.*18100' | grep -v grep | awk '{print $2}' | xargs -r kill 2>/dev/null || true
             '''
         }
         failure {
