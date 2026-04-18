@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS public.supplier_tenant_exclusion (
 
 -- Seed the demo organisation (no-op if one already exists from the backup).
 INSERT INTO public.organisation (id, name, slug, created_at, active)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Demo', 'demo', NOW(), true)
+VALUES ('00000000-0000-0000-0000-000000000001', 'FPA', 'Front Page Advantage', NOW(), true)
 ON CONFLICT DO NOTHING;
 
 -- Step 5 (v6.1): Add organisation_id to all tenant-scoped tables.
