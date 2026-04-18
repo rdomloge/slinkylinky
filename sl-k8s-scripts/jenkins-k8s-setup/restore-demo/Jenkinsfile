@@ -174,8 +174,25 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s',
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             sh '''
-                            # Set org_id on every Keycloak user in this realm to the demo org UUID
-                            # so that JWT claims match the data seeded by schema-migration.sql.
+                            # After restoring a production DB backup, the slinkylinky database is
+                            # backfilled so that all rows belong to the demo org UUID
+                            # (00000000-0000-0000-0000-000000000001) by schema-migration.sql.
+                            # However, Keycloak is separate from the DB restore — its users retain
+                            # whatever org_id attribute they had before (set during provisioning or
+                            # a prior restore). The org_id attribute is emitted as a JWT claim by
+                            # the Keycloak org_id mapper; if it doesn't match the demo org UUID,
+                            # TenantFilter.requireOrgId() returns 403 on every tenant-scoped
+                            # endpoint. This stage stamps every user in the realm with the demo
+                            # org UUID so tokens align with the restored data.
+                            #
+                            # Implementation note — why kubectl exec instead of port-forwarding:
+                            # The psql-worker Jenkins agent has very few tools available (no jq,
+                            # no python3, no ps/pkill). Rather than depend on anything on the
+                            # agent, we run all Keycloak Admin API calls inside the Keycloak pod
+                            # itself via kubectl exec. curl is always present in the Keycloak
+                            # image, and Keycloak listens on localhost:8080 within the pod (8100
+                            # is the K8s service port, not the container port). JSON is parsed
+                            # with grep + cut — no external tools required on the agent.
                             DEMO_ORG_ID="00000000-0000-0000-0000-000000000001"
 
                             KEYCLOAK_POD=$(kubectl -n ${TENANT} get pod -l app=keycloak \
@@ -184,8 +201,6 @@ pipeline {
                             kubectl -n ${TENANT} wait pod/${KEYCLOAK_POD} \
                                 --for=condition=Ready --timeout=120s
 
-                            # Run all Keycloak Admin API calls via kubectl exec so we have
-                            # no dependency on tools beyond curl (present in the Keycloak image).
                             echo "==> Obtaining Keycloak admin token..."
                             KC_TOKEN=$(kubectl exec -n ${TENANT} ${KEYCLOAK_POD} -- \
                                 curl -sf -X POST \
@@ -221,11 +236,8 @@ pipeline {
 
     post {
         always {
-            // Clean up temp files and any leftover Keycloak port-forward in case the build failed.
-            sh '''
-            rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE} || true
-            ps aux | grep 'port-forward.*18100' | grep -v grep | awk '{print $2}' | xargs -r kill 2>/dev/null || true
-            '''
+            // Clean up local temp files in case the build failed mid-flight.
+            sh 'rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE} || true'
         }
         failure {
             script {
