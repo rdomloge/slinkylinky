@@ -415,4 +415,35 @@ for (const svc of services) {
 }
 writeDoc('backend-api.md', genBackendApi(controllers));
 
+// ─────────────────────────────────────────────
+// Sync CLAUDE.md Quick Reference table
+// ─────────────────────────────────────────────
+
+const GENERATED_DOCS = [
+  { file: 'docs/frontend-components.md', desc: 'Every React component: file path, props, API calls, sub-components used' },
+  { file: 'docs/frontend-pages.md',      desc: 'Full route table (path → component → file, auth status) and per-page API calls' },
+  { file: 'docs/backend-entities.md',    desc: 'All JPA entities with fields and relationships' },
+  { file: 'docs/backend-api.md',         desc: 'All custom REST endpoints by controller + Spring Data REST auto-exposed resources' },
+];
+
+function buildGeneratedTable() {
+  const rows = GENERATED_DOCS
+    .map(({ file, desc }) => `| [\`${file}\`](${file}) | ${desc} |`)
+    .join('\n');
+  return `<!-- GENERATED-DOCS-TABLE:START — managed by scripts/gen-docs.js; do not edit this block manually -->\n| File | What it covers |\n|------|----------------|\n${rows}\n<!-- GENERATED-DOCS-TABLE:END -->`;
+}
+
+const claudeMdPath = path.join(ROOT, 'CLAUDE.md');
+const claudeSrc = readFile(claudeMdPath);
+if (claudeSrc) {
+  const updated = claudeSrc.replace(
+    /<!-- GENERATED-DOCS-TABLE:START[\s\S]*?GENERATED-DOCS-TABLE:END -->/,
+    buildGeneratedTable()
+  );
+  if (updated !== claudeSrc) {
+    fs.writeFileSync(claudeMdPath, updated, 'utf8');
+    console.log('  updated CLAUDE.md Quick Reference table');
+  }
+}
+
 console.log('\nDone. Reference these in CLAUDE.md under docs/');

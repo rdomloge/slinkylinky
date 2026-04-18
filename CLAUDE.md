@@ -2,16 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Quick Reference — Generated Index Files
+## Quick Reference — Index Files
 
-These files are auto-generated and kept up to date. Read them at the start of any task instead of scanning source files directly.
-
+<!-- GENERATED-DOCS-TABLE:START — managed by scripts/gen-docs.js; do not edit this block manually -->
 | File | What it covers |
 |------|----------------|
 | [`docs/frontend-components.md`](docs/frontend-components.md) | Every React component: file path, props, API calls, sub-components used |
 | [`docs/frontend-pages.md`](docs/frontend-pages.md) | Full route table (path → component → file, auth status) and per-page API calls |
 | [`docs/backend-entities.md`](docs/backend-entities.md) | All JPA entities with fields and relationships |
 | [`docs/backend-api.md`](docs/backend-api.md) | All custom REST endpoints by controller + Spring Data REST auto-exposed resources |
+<!-- GENERATED-DOCS-TABLE:END -->
 
 Regenerate after significant structural changes:
 ```bash
@@ -19,6 +19,13 @@ node scripts/gen-docs.js
 # or from frontend/react:
 npm run gen-docs
 ```
+
+### Operational & Static Reference
+
+| File | What it covers |
+|------|----------------|
+| [`docs/supplierengagement-ops.md`](docs/supplierengagement-ops.md) | FlareSolverr resource requirements, timeout config, proxy setup, manual cookie fallback |
+| [`docs/multi-tenancy-keycloak-setup.md`](docs/multi-tenancy-keycloak-setup.md) | Keycloak configuration steps for multi-tenancy |
 
 ## Project Overview
 
