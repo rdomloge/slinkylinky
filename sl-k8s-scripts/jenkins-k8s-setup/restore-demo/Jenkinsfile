@@ -184,42 +184,32 @@ pipeline {
                             kubectl -n ${TENANT} wait pod/${KEYCLOAK_POD} \
                                 --for=condition=Ready --timeout=120s
 
-                            echo "==> Port-forwarding Keycloak (container port 8080)..."
-                            kubectl port-forward -n ${TENANT} pod/${KEYCLOAK_POD} 18100:8080 &
-                            KC_PF_PID=$!
-                            sleep 5
-
+                            # Run all Keycloak Admin API calls via kubectl exec so we have
+                            # no dependency on tools beyond curl (present in the Keycloak image).
                             echo "==> Obtaining Keycloak admin token..."
-                            KC_TOKEN=$(curl -sf -X POST \
-                                http://localhost:18100/realms/master/protocol/openid-connect/token \
-                                -d "grant_type=password&client_id=admin-cli&username=admin&password=admin" \
-                                | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+                            KC_TOKEN=$(kubectl exec -n ${TENANT} ${KEYCLOAK_POD} -- \
+                                curl -sf -X POST \
+                                    http://localhost:8080/realms/master/protocol/openid-connect/token \
+                                    -d "grant_type=password&client_id=admin-cli&username=admin&password=admin" \
+                                | grep -oE '"access_token":"[^"]*"' | cut -d'"' -f4)
 
                             echo "==> Listing users in realm: ${TENANT}"
-                            USER_IDS=$(curl -sf \
-                                -H "Authorization: Bearer ${KC_TOKEN}" \
-                                "http://localhost:18100/admin/realms/${TENANT}/users?max=1000" \
-                                | python3 -c "import sys,json; [print(u['id']) for u in json.load(sys.stdin)]")
+                            USER_IDS=$(kubectl exec -n ${TENANT} ${KEYCLOAK_POD} -- \
+                                curl -sf \
+                                    -H "Authorization: Bearer ${KC_TOKEN}" \
+                                    "http://localhost:8080/admin/realms/${TENANT}/users?max=1000" \
+                                | grep -oE '"id":"[0-9a-f-]+"' | cut -d'"' -f4)
 
                             for USER_ID in ${USER_IDS}; do
-                                USER_JSON=$(curl -sf \
-                                    -H "Authorization: Bearer ${KC_TOKEN}" \
-                                    "http://localhost:18100/admin/realms/${TENANT}/users/${USER_ID}")
-                                UPDATED=$(echo "${USER_JSON}" \
-                                    | python3 -c "
-import sys, json
-user = json.load(sys.stdin)
-user.setdefault('attributes', {})['org_id'] = ['${DEMO_ORG_ID}']
-print(json.dumps(user))")
-                                curl -sf -X PUT \
-                                    -H "Authorization: Bearer ${KC_TOKEN}" \
-                                    -H "Content-Type: application/json" \
-                                    -d "${UPDATED}" \
-                                    "http://localhost:18100/admin/realms/${TENANT}/users/${USER_ID}"
+                                kubectl exec -n ${TENANT} ${KEYCLOAK_POD} -- \
+                                    curl -sf -X PUT \
+                                        -H "Authorization: Bearer ${KC_TOKEN}" \
+                                        -H "Content-Type: application/json" \
+                                        -d "{\"attributes\":{\"org_id\":[\"${DEMO_ORG_ID}\"]}}" \
+                                        "http://localhost:8080/admin/realms/${TENANT}/users/${USER_ID}"
                                 echo "  Updated user ${USER_ID}"
                             done
 
-                            kill ${KC_PF_PID} || true
                             echo "==> Keycloak users configured for demo org."
                             '''
                         }
