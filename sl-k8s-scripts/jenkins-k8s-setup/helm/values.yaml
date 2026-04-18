@@ -135,6 +135,7 @@ deployments:
       chatgpt_model: "gpt-3.5-turbo"
       chatgpt_api_key: "<SPECIFY>"
       slinkylinky_vhost: "slinkylinky"
+      stats_url: "http://stats-service:8093"
     secretEnv:
       spring_datasource_url: 
         secretName: db-connection-secret
@@ -163,6 +164,18 @@ deployments:
       KEYCLOAK_REALM:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_REALM
+      keycloak_clientcredentials_client_id:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_ID
+      keycloak_clientcredentials_client_secret:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_SECRET
+      keycloak_clientcredentials_base_url:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_URL
+      keycloak_clientcredentials_token_uri:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
       slinkylinky_rabbitmq_username:
         secretName: rabbitmq-credentials
         secretKey: RABBITMQ_USERNAME

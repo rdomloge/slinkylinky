@@ -29,6 +29,7 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.audit.SupplierAuditor;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
+import com.domloge.slinkylinky.linkservice.service.StatsClient;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -59,6 +60,9 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
     @Autowired
     private ProposalAbortHandler proposalAbortHandler;
 
+    @Autowired
+    private StatsClient statsClient;
+
 
     @GetMapping(path = "/list", produces = "application/json")
     public ResponseEntity<Page<Supplier>> list(
@@ -67,7 +71,9 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "") String sortBy,
-            @RequestParam(defaultValue = "asc") String direction) {
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "true") boolean filterHighSpam,
+            @RequestParam(defaultValue = "6") int maxSpamScore) {
 
         Sort sort = sortBy.isBlank()
                 ? Sort.by("name").ascending()
@@ -75,8 +81,19 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
                     ? Sort.by(sortBy).descending()
                     : Sort.by(sortBy).ascending();
 
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+
+        if (filterHighSpam) {
+            List<String> highSpamDomains = statsClient.getHighSpamDomains(maxSpamScore);
+            if (!highSpamDomains.isEmpty()) {
+                return ResponseEntity.ok(
+                    supplierRepo.findBySearchAndFilterExcludingDomains(
+                        search, includeDisabled, highSpamDomains, pageRequest));
+            }
+        }
+
         return ResponseEntity.ok(
-                supplierRepo.findBySearchAndFilter(search, includeDisabled, PageRequest.of(page, size, sort)));
+                supplierRepo.findBySearchAndFilter(search, includeDisabled, pageRequest));
     }
 
     @PatchMapping(path = "/updateSupplierDa", produces = "application/json")

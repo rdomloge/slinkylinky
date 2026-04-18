@@ -101,4 +101,10 @@ public class StatsController {
             .collect(Collectors.toMap(SupplierResponsiveness::getSupplierId, Function.identity()));
         return ResponseEntity.ok(map);
     }
+
+    @GetMapping(path = "/spam/abovethreshold", produces = "application/json")
+    public ResponseEntity<List<String>> getDomainsAboveSpamThreshold(
+            @RequestParam(defaultValue = "6") int threshold) {
+        return ResponseEntity.ok(spamRepo.findDomainsAboveSpamThreshold(threshold));
+    }
 }

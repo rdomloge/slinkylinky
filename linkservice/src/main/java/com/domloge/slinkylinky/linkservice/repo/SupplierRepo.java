@@ -40,6 +40,18 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
                                          @Param("includeDisabled") boolean includeDisabled,
                                          Pageable pageable);
 
+    @Query("SELECT s FROM Supplier s WHERE " +
+           "(:search = '' OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(s.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
+           "OR LOWER(s.domain) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "AND (:includeDisabled = true OR s.disabled = false) " +
+           "AND s.domain NOT IN :excludedDomains")
+    Page<Supplier> findBySearchAndFilterExcludingDomains(
+            @Param("search") String search,
+            @Param("includeDisabled") boolean includeDisabled,
+            @Param("excludedDomains") List<String> excludedDomains,
+            Pageable pageable);
+
 
     @Query(nativeQuery = true,
         value = "select s.* from supplier s "+

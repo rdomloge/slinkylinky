@@ -33,6 +33,7 @@ export default function SupplierListView() {
     const [searchInput, setSearchInput]         = useState('');
     const [search, setSearch]                   = useState('');
     const [includeDisabled, setIncludeDisabled] = useState(false);
+    const [filterHighSpam, setFilterHighSpam]   = useState(true);
     const [sortBy, setSortBy]                   = useState('');
     const [sortDir, setSortDir]                 = useState('asc');
     const [isLoading, setIsLoading]             = useState(false);
@@ -59,7 +60,7 @@ export default function SupplierListView() {
 
     const fetchPage = useCallback((page, append) => {
         setIsLoading(true);
-        const params = new URLSearchParams({ page, size: PAGE_SIZE, search, includeDisabled });
+        const params = new URLSearchParams({ page, size: PAGE_SIZE, search, includeDisabled, filterHighSpam, maxSpamScore: 6 });
         if (sortBy) { params.set('sortBy', sortBy); params.set('direction', sortDir); }
 
         fetchWithAuth(`/.rest/supplierSupport/list?${params}`)
@@ -81,7 +82,7 @@ export default function SupplierListView() {
                 }
             })
             .catch(() => setIsLoading(false));
-    }, [search, includeDisabled, sortBy, sortDir]);
+    }, [search, includeDisabled, sortBy, sortDir, filterHighSpam]);
 
     // Reset and load page 0 when filters / sort change
     useEffect(() => {
@@ -148,6 +149,10 @@ export default function SupplierListView() {
                 <div className="flex flex-col gap-1 pb-1">
                     <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Show disabled</span>
                     <Toggle changeHandler={setIncludeDisabled} initialValue={includeDisabled} label=""/>
+                </div>
+                <div className="flex flex-col gap-1 pb-1">
+                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Hide high spam</span>
+                    <Toggle changeHandler={setFilterHighSpam} initialValue={filterHighSpam} label=""/>
                 </div>
             </div>
 
