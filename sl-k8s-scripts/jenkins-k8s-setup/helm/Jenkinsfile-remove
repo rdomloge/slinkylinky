@@ -99,7 +99,7 @@ pipeline {
                             sh '''
 
                             # Wait for the tunnel to be deleted
-                            kubectl wait --for=condition=Ready=false pod -l app=cloudflared -n ${TENANT} --timeout=60s
+                            kubectl wait --for=condition=Ready=false pod -l app=cloudflared -n ${TENANT} --timeout=60s --ignore-not-found
 
                             echo "Removing tunnel for tenant ${TENANT}"
 
