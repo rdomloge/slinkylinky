@@ -720,6 +720,7 @@ EOF
                 SUPPLIERENGAGEMENT_TABLES_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/supplierengagement-schema-backup.sql"
                 MIGRATION_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql"
                 MIGRATION_STATS_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-stats.sql"
+                MIGRATION_AUDIT_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-audit.sql"
             }
 
             steps {
@@ -744,6 +745,7 @@ EOF
                             PGPASSWORD='''+"${SUPPLIERENGAGEMENT_DB_PASSWORD}"+''' psql -h localhost -U supplierengagement_user -d supplierengagement -f '''+"${SUPPLIERENGAGEMENT_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MIGRATION_FILE}"+'''
                             PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${MIGRATION_STATS_FILE}"+'''
+                            PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${MIGRATION_AUDIT_FILE}"+'''
 
                             # Insert default organisation row
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky \\
