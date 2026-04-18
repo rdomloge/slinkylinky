@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Delete PostgreSQL storage') {
+        stage('Capture PostgreSQL storage info') {
             steps {
                 script {
                     withFolderProperties() {
@@ -29,24 +29,11 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
 
                             sh '''
-                            # Capture PV name and Linode volume ID BEFORE deleting the PVC
                             PV_NAME=$(kubectl get pvc sl-postgres-data-${TENANT} -n ${TENANT} -o jsonpath='{.spec.volumeName}')
                             LINODE_VOLUME_ID=$(kubectl get pv ${PV_NAME} -o jsonpath='{.spec.csi.volumeHandle}' | cut -d'-' -f1)
-
-                            echo "Deleting PVC sl-postgres-data-${TENANT} and PV ${PV_NAME}"
-
-                            # Delete PVC, then PV
-                            kubectl delete pvc sl-postgres-data-${TENANT} -n ${TENANT}
-                            kubectl delete pv ${PV_NAME}
-
-                            echo "Deleting Akamai/Linode block storage volume ${LINODE_VOLUME_ID}"
-
-                            # Delete Akamai/Linode block storage volume
-                            curl -sS \\
-                            -X DELETE \\
-                            -H "Authorization: Bearer ${LINODE_API_TOKEN}" \\
-                            -H "Content-Type: application/json" \\
-                            "https://api.linode.com/v4/volumes/${LINODE_VOLUME_ID}"
+                            echo "${PV_NAME}" > pv-name.txt
+                            echo "${LINODE_VOLUME_ID}" > linode-volume-id.txt
+                            echo "Captured PV=${PV_NAME}, Linode volume=${LINODE_VOLUME_ID}"
                             '''
                         }
                     }
@@ -64,6 +51,38 @@ pipeline {
                             sh '''
                             helm uninstall \\
                             helm-${TENANT}
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Delete PostgreSQL storage') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s',
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh '''
+                            PV_NAME=$(cat pv-name.txt)
+                            LINODE_VOLUME_ID=$(cat linode-volume-id.txt)
+
+                            echo "Deleting PVC sl-postgres-data-${TENANT} and PV ${PV_NAME}"
+
+                            # Delete PVC, then PV (ignore if already deleted by Helm)
+                            kubectl delete pvc sl-postgres-data-${TENANT} -n ${TENANT} --ignore-not-found
+                            kubectl delete pv ${PV_NAME} --ignore-not-found
+
+                            echo "Deleting Akamai/Linode block storage volume ${LINODE_VOLUME_ID}"
+
+                            # Delete Akamai/Linode block storage volume
+                            curl -sS \\
+                            -X DELETE \\
+                            -H "Authorization: Bearer ${LINODE_API_TOKEN}" \\
+                            -H "Content-Type: application/json" \\
+                            "https://api.linode.com/v4/volumes/${LINODE_VOLUME_ID}"
                             '''
                         }
                     }
