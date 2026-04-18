@@ -98,8 +98,8 @@ pipeline {
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             sh '''
 
-                            # Wait for the tunnel to be deleted
-                            kubectl wait --for=condition=Ready=false pod -l app=cloudflared -n ${TENANT} --timeout=60s --ignore-not-found
+                            # Wait for the tunnel to be deleted (ignore if already gone)
+                            kubectl wait --for=condition=Ready=false pod -l app=cloudflared -n ${TENANT} --timeout=60s || true
 
                             echo "Removing tunnel for tenant ${TENANT}"
 
