@@ -212,3 +212,10 @@ CREATE TABLE IF NOT EXISTS public.scraping_metadata (
     CONSTRAINT scraping_metadata_pkey PRIMARY KEY (source)
 );
 
+-- Step 12: Grant supplierengagement_user access to all tables and sequences.
+--   Tables created above are owned by the postgres superuser; the application
+--   user has no access until explicitly granted. Run here (same \connect session)
+--   rather than relying on a separate grants file to \connect correctly.
+GRANT ALL ON ALL TABLES    IN SCHEMA public TO supplierengagement_user;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO supplierengagement_user;
+
