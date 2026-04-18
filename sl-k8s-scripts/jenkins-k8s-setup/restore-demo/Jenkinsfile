@@ -9,11 +9,6 @@ pipeline {
             name: 'TENANT',
             description: 'Target tenant K8s namespace (e.g. abc12345). Must already be provisioned.'
         )
-        string(
-            name: 'RESTORE_BRANCH',
-            defaultValue: 'restore-demo-pipeline',
-            description: 'Git branch to check out for SQL scripts. Update to main after this branch is merged.'
-        )
         stashedFile(
             name: 'BACKUP_FILE',
             description: 'Upload the production slinkylinky SQL backup file (.sql). ' +
@@ -42,7 +37,7 @@ pipeline {
                 }
 
                 withFolderProperties() {
-                    git branch: "${params.RESTORE_BRANCH}",
+                    git branch: 'main',
                         url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinkylinky.git"
                 }
             }
