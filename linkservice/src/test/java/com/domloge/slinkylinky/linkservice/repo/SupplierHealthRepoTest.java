@@ -31,7 +31,8 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 @DataJpaTest
 public class SupplierHealthRepoTest {
 
-    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID TEST_ORG_ID    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID ANOTHER_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Autowired
     private SupplierRepo supplierRepo;
@@ -266,6 +267,53 @@ public class SupplierHealthRepoTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getDomain()).isEqualTo("cryptotoday.com");
         assertThat(result.get(0).getAvailableCount()).isEqualTo(3);
+    }
+
+    /**
+     * Suppliers used by a different organisation must be counted as unavailable —
+     * the domain pair is consumed globally regardless of which org placed the link.
+     */
+    @Test
+    public void atRisk_supplierUsedByAnotherOrg_isCountedAsUsed() {
+        // Given
+        Category crypto = new Category();
+        crypto.setName("Cryptocurrency6");
+        categoryRepo.save(crypto);
+
+        DemandSite site = new DemandSite();
+        site.setName("Crypto Cross");
+        site.setDomain("cryptocross.com");
+        site.setCategories(Set.of(crypto));
+        site.setOrganisationId(TEST_ORG_ID);
+        demandSiteRepo.save(site);
+
+        List<Supplier> suppliers = createSuppliers(5, crypto);
+        supplierRepo.saveAll(suppliers);
+
+        // Demand on that site owned by a DIFFERENT organisation — used to hang PaidLinks on
+        Demand otherOrgDemand = new Demand();
+        otherOrgDemand.setUrl("https://cryptocross.com/link");
+        otherOrgDemand.setCategories(Set.of(crypto));
+        otherOrgDemand.setDaNeeded(20);
+        otherOrgDemand.setOrganisationId(ANOTHER_ORG_ID);
+        demandRepo.save(otherOrgDemand);
+
+        // 3 suppliers consumed by the other org's paid links
+        for (int i = 0; i < 3; i++) {
+            PaidLink pl = new PaidLink();
+            pl.setSupplier(suppliers.get(i));
+            pl.setDemand(otherOrgDemand);
+            pl.setOrganisationId(ANOTHER_ORG_ID);
+            paidLinkRepo.save(pl);
+        }
+
+        // When — TEST_ORG_ID queries at-risk sites; only 2 suppliers remain available
+        List<AtRiskDemandSiteProjection> result = supplierRepo.findAtRiskDemandSites(5, TEST_ORG_ID);
+
+        // Then — site is at-risk with 2 available (cross-org paid links counted as used)
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getDomain()).isEqualTo("cryptocross.com");
+        assertThat(result.get(0).getAvailableCount()).isEqualTo(2);
     }
 
     // ─── Helpers ────────────────────────────────────────────────────────────────

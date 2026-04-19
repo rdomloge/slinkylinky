@@ -21,7 +21,8 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 @DataJpaTest
 public class SupplierRepoTest {
 
-    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID TEST_ORG_ID    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID ANOTHER_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Autowired
     private SupplierRepo supplierRepo;
@@ -320,6 +321,47 @@ public class SupplierRepoTest {
         Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbLd.getId(), TEST_ORG_ID);
 
         // THEN
+        assertThat(result.length).isEqualTo(testSuppliers.size() - 1);
+    }
+
+    @Test
+    public void testFindSuppliersForLinkDemandId_previousSupplierFromAnotherOrgNotSuggested() {
+        // A PaidLink created by a different organisation still uses up the domain pair
+        // globally — Google SEO sees the same link regardless of which org placed it.
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setDa(35);
+            s.setCategories(new HashSet<>(testCategories));
+            s.setThirdParty(false);
+            s.setDisabled(false);
+        });
+        supplierRepo.saveAll(testSuppliers);
+
+        Demand currentDemand = new Demand();
+        currentDemand.setDaNeeded(20);
+        currentDemand.setCategories(new HashSet<>(testCategories));
+        currentDemand.setUrl("https://www.disney.com");
+        currentDemand.setOrganisationId(TEST_ORG_ID);
+        Demand dbCurrentDemand = demandRepo.save(currentDemand);
+
+        // PaidLink belongs to a DIFFERENT organisation
+        Demand otherOrgDemand = new Demand();
+        otherOrgDemand.setUrl("https://www.disney.com");
+        otherOrgDemand.setCategories(new HashSet<>(testCategories));
+        otherOrgDemand.setDaNeeded(20);
+        otherOrgDemand.setOrganisationId(ANOTHER_ORG_ID);
+        demandRepo.save(otherOrgDemand);
+        PaidLink pl = new PaidLink();
+        pl.setSupplier(testSuppliers.get(0));
+        pl.setDemand(otherOrgDemand);
+        pl.setOrganisationId(ANOTHER_ORG_ID);
+        paidLinkRepo.save(pl);
+
+        Supplier[] result = supplierRepo.findSuppliersForDemandId((int) dbCurrentDemand.getId(), TEST_ORG_ID);
+
         assertThat(result.length).isEqualTo(testSuppliers.size() - 1);
     }
 

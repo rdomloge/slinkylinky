@@ -21,7 +21,7 @@ public interface PaidLinkRepo extends CrudRepository <PaidLink, Long> {
 
     PaidLink findByDemandDomainAndSupplierDomain(String demandDomain, String supplierDomain);
 
-    /** Org-scoped duplicate check — Rule 2. Use this in preference to the unscoped variant. */
+    /** Org-scoped lookup — use only when you need to find a specific org's PaidLink record, not for duplicate checking. */
     PaidLink findByDemandDomainAndSupplierDomainAndOrganisationId(
             String demandDomain, String supplierDomain, UUID organisationId);
 

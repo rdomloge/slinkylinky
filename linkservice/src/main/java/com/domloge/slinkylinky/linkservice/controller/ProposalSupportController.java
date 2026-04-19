@@ -243,10 +243,10 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                     return null;
                 }
 
-                // check that there's no paid link already between the supplier and these demands (Rule 2 — per-org uniqueness)
+                // check that there's no paid link already between the supplier and these demands (Rule 2 — cross-org: same two domains give no extra SEO value)
                 List<Demand> existingPaidLinks = dbDemands.stream()
-                    .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomainAndOrganisationId(
-                            d.getDomain(), supplier.getDomain(), orgId))
+                    .filter(d -> null != paidLinkRepo.findByDemandDomainAndSupplierDomain(
+                            d.getDomain(), supplier.getDomain()))
                     .collect(Collectors.toList());
 
                 if(existingPaidLinks.size() > 0) {

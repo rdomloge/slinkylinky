@@ -56,8 +56,7 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
         "    select pl.supplier_id from paid_link pl "+
         "        where pl.demand_id in "+
         "            (select demand.id from demand demand where demand.domain = "+
-        "                (select demand.domain from demand demand where demand.id=?1)) "+
-        "        AND pl.organisation_id = ?2) "+                                               // exclude suppliers already linked for this org
+        "                (select demand.domain from demand demand where demand.id=?1))) "+     // exclude suppliers already linked to this domain (cross-org: same two domains give no extra SEO value)
         "AND s.DA >= (select demand.da_needed from demand demand where demand.id=?1) "+         // match DA
         "AND s.id in (select sc.supplier_id from supplier_categories sc where sc.categories_id in "+ // match categories
         "                (select ldc.categories_id from demand_categories ldc join category c on c.id=ldc.categories_id where ldc.demand_id=?1 and c.disabled=false)) "+
@@ -99,8 +98,7 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
                 "        SELECT pl.supplier_id FROM paid_link pl " +
                 "        JOIN demand d ON pl.demand_id = d.id " +
                 "        WHERE d.domain = ds.domain " +
-                "        AND pl.organisation_id = :orgId " +
-                "    ) " +
+                "    ) " +                                                                        // cross-org: domain pair is used up globally
                 "    AND NOT EXISTS ( " +
                 "        SELECT 1 FROM supplier_tenant_exclusion ste " +
                 "        WHERE ste.supplier_id = s.id AND ste.organisation_id = :orgId " +

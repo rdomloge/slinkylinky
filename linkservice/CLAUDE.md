@@ -51,18 +51,18 @@ _Source: `entity/validator/ProposalValidator.java:21`_
 
 ## Rule 2 — Cross-domain uniqueness (the core SEO constraint)
 
-A Supplier must **never** be matched to the same DemandSite domain more than once **within the same Organisation**, across all time.  
-Multiple links between the same two domains provide zero additional SEO value.
+A Supplier must **never** be matched to the same DemandSite domain more than once **across all organisations**, across all time.  
+Multiple links between the same two domains provide zero additional SEO value to Google, regardless of which organisation paid for the link.
 
 **`PaidLink` is the authoritative history** that enforces this. Before creating a Proposal the system checks:
 
 ```
-paidLinkRepo.findByDemandDomainAndSupplierDomainAndOrganisationId(...)
+paidLinkRepo.findByDemandDomainAndSupplierDomain(...)
 ```
 
-If any existing PaidLink is found → HTTP 400, proposal rejected.
+If any existing PaidLink is found (from any organisation) → HTTP 400, proposal rejected.
 
-> **Multi-tenancy note:** uniqueness is scoped per Organisation. The same Supplier may have PaidLinks to the same domain for different tenants — that is permitted and expected.
+> **Multi-tenancy note:** Domain-pair uniqueness is enforced globally. A Supplier can never link to the same DemandSite domain twice, regardless of which Organisation facilitated the link. This is a physical web constraint, not a per-tenant one.
 
 _Source: `controller/ProposalSupportController.java:234–242`_
 
@@ -74,7 +74,7 @@ When the UI asks "which suppliers can satisfy this demand?", ALL of the followin
 
 | # | Rule | Detail |
 |---|------|--------|
-| 3a | **No prior link** | Supplier has no PaidLink for any Demand whose domain equals the target Demand's domain **within the same Organisation** |
+| 3a | **No prior link** | Supplier has no PaidLink for any Demand whose domain equals the target Demand's domain (cross-org: domain pairs are globally unique) |
 | 3b | **DA meets threshold** | `supplier.da >= demand.daNeeded` |
 | 3c | **Category overlap** | Supplier and Demand share ≥ 1 **enabled** (non-disabled) Category |
 | 3d | **Not third-party** | `supplier.thirdParty = false` |

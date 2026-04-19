@@ -48,7 +48,8 @@ import jakarta.transaction.Transactional;
 @AutoConfigureTestDatabase( replace = AutoConfigureTestDatabase.Replace.NONE )
 public class ProposalSupportControllerTest {
 
-    private static final UUID TEST_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID TEST_ORG_ID    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID ANOTHER_ORG_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Autowired
     private ProposalSupportController controller;
@@ -312,6 +313,39 @@ public class ProposalSupportControllerTest {
 
         // Then
         assertEquals(response.getStatusCode(), HttpStatusCode.valueOf(400));
+    }
+
+    @Test
+    @Transactional
+    void testCreateProposal_crossOrgPaidLinkBlocksProposal() throws JsonProcessingException {
+        // A PaidLink placed by a different organisation for the same domain pair must
+        // block proposal creation — the SEO link between those two domains already exists.
+        Supplier supplier = new Supplier();
+        supplier.setName("cross-org-supplier");
+        supplier.setWebsite("www.supplier-x.com");
+        supplier.setDomain("supplier-x.com");
+        Supplier dbSupplier = supplierRepo.save(supplier);
+
+        Demand demand = new Demand();
+        demand.setUrl("http://www.example.com");
+        demand.setDomain("example.com");
+        demand.setCreatedBy("somebody");
+        demand.setDaNeeded(1);
+        demand.setRequested(LocalDateTime.now());
+        Demand dbDemand = demandRepo.save(demand);
+
+        // PaidLink from a DIFFERENT organisation for the same domain pair
+        PaidLink paidLink = new PaidLink();
+        paidLink.setDemand(dbDemand);
+        paidLink.setSupplier(dbSupplier);
+        paidLink.setOrganisationId(ANOTHER_ORG_ID);
+        paidLinkRepo.save(paidLink);
+
+        // When — current org tries to create a proposal for the same pair
+        ResponseEntity<Object> response = controller.createProposal(dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
+
+        // Then — rejected: cross-org paid links are honoured globally
+        assertEquals(HttpStatusCode.valueOf(400), response.getStatusCode());
     }
 
     /**
