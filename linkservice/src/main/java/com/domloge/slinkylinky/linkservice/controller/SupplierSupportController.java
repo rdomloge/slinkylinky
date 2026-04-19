@@ -85,11 +85,9 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
 
         if (filterHighSpam) {
             List<String> highSpamDomains = statsClient.getHighSpamDomains(maxSpamScore);
-            if (!highSpamDomains.isEmpty()) {
-                return ResponseEntity.ok(
-                    supplierRepo.findBySearchAndFilterExcludingDomains(
-                        search, includeDisabled, highSpamDomains, pageRequest));
-            }
+            return ResponseEntity.ok(
+                supplierRepo.findBySearchAndFilterExcludingDomains(
+                    search, includeDisabled, highSpamDomains, pageRequest));
         }
 
         return ResponseEntity.ok(

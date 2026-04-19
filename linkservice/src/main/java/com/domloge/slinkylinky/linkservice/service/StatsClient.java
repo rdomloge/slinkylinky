@@ -26,19 +26,16 @@ public class StatsClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public List<String> getHighSpamDomains(int threshold) {
-        try {
-            String url = statsUrl + "/.rest/stats/spam/abovethreshold?threshold=" + threshold;
-            String token = keycloakTokenProvider.fetchAccessToken();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
-            List<String> domains = restTemplate.exchange(
-                url, HttpMethod.GET, new HttpEntity<>(headers),
-                new ParameterizedTypeReference<List<String>>() {}
-            ).getBody();
-            return domains != null ? domains : Collections.emptyList();
-        } catch (Exception e) {
-            log.warn("Failed to fetch high-spam domains from stats service — spam filtering skipped: {}", e.getMessage());
-            return Collections.emptyList();
-        }
+        
+        String url = statsUrl + "/.rest/stats/spam/abovethreshold?threshold=" + threshold;
+        String token = keycloakTokenProvider.fetchAccessToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        List<String> domains = restTemplate.exchange(
+            url, HttpMethod.GET, new HttpEntity<>(headers),
+            new ParameterizedTypeReference<List<String>>() {}
+        ).getBody();
+        return domains != null ? domains : Collections.emptyList();
+        
     }
 }
