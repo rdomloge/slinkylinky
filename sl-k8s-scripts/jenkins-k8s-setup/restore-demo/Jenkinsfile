@@ -17,9 +17,10 @@ pipeline {
     }
 
     environment {
-        MIGRATION_FILE        = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql"
-        MIGRATION_STATS_FILE  = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-stats.sql"
-        MIGRATION_AUDIT_FILE  = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-audit.sql"
+        MIGRATION_FILE                   = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration.sql"
+        MIGRATION_STATS_FILE             = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-stats.sql"
+        MIGRATION_AUDIT_FILE             = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-audit.sql"
+        MIGRATION_SUPPLIERENGAGEMENT_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-supplierengagement.sql"
         GRANTS_FILE           = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/restore-demo/post-restore-grants.sql"
         // Use a build-number-scoped path in /tmp so concurrent builds don't clash,
         // and so the file survives the git checkout step that cleans the workspace.
@@ -95,7 +96,8 @@ pipeline {
                             kubectl cp ${GRANTS_FILE}       ${TENANT}/${POSTGRES_POD}:/tmp/grants.sql
                             kubectl cp ${MIGRATION_FILE}    ${TENANT}/${POSTGRES_POD}:/tmp/migration.sql
                             kubectl cp ${MIGRATION_STATS_FILE} ${TENANT}/${POSTGRES_POD}:/tmp/migration-stats.sql
-                            kubectl cp ${MIGRATION_AUDIT_FILE} ${TENANT}/${POSTGRES_POD}:/tmp/migration-audit.sql
+                            kubectl cp ${MIGRATION_AUDIT_FILE}             ${TENANT}/${POSTGRES_POD}:/tmp/migration-audit.sql
+                            kubectl cp ${MIGRATION_SUPPLIERENGAGEMENT_FILE} ${TENANT}/${POSTGRES_POD}:/tmp/migration-supplierengagement.sql
                             echo "==> Copy complete."
                             '''
                         }
@@ -158,6 +160,11 @@ pipeline {
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
                                 sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d audit -f /tmp/migration-audit.sql'
 
+                            # Run supplierengagement database migration.
+                            echo "==> Running supplierengagement schema migration..."
+                            kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
+                                sh -c 'PGPASSWORD=CHANGEME psql -U postgres -d supplierengagement -f /tmp/migration-supplierengagement.sql'
+
                             # Re-apply grants. DROP SCHEMA CASCADE removes all ACLs, and
                             # the migration creates new tables that also need grants.
                             echo "==> Re-applying grants..."
@@ -166,7 +173,7 @@ pipeline {
 
                             # Clean up files from the pod and local temp files.
                             kubectl exec -n ${TENANT} ${POSTGRES_POD} -- \
-                                rm -f /tmp/restore.sql /tmp/grants.sql /tmp/migration.sql /tmp/migration-stats.sql /tmp/migration-audit.sql
+                                rm -f /tmp/restore.sql /tmp/grants.sql /tmp/migration.sql /tmp/migration-stats.sql /tmp/migration-audit.sql /tmp/migration-supplierengagement.sql
                             rm -f ${BACKUP_TEMP_FILE} ${BACKUP_CLEAN_FILE}
 
                             echo "==> Scaling services back up..."
