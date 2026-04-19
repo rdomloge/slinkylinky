@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import { jwtDecode } from 'jwt-decode';
 
 import Layout from "@/components/layout/Layout";
 import Loading from '@/components/Loading';
@@ -7,10 +6,8 @@ import { AuditLine } from '@/components/AuditCard';
 import Paging from '@/components/Paging';
 import { useSearchParams } from 'react-router-dom';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import { getAccessToken } from '@/auth/AuthProvider';
 
 export default function AuditIndexPage() {
-
     const [searchParams] = useSearchParams()
     const [audits, setAudits] = useState()
     const [error, setError] = useState()
@@ -21,12 +18,7 @@ export default function AuditIndexPage() {
     useEffect( () => {
         const page = searchParams.get('page') ? parseInt(searchParams.get('page')) : 1
         setPage(page)
-        const token = getAccessToken()
-        const decoded = token ? jwtDecode(token) : {}
-        const orgId = decoded.org_id
-        const auditUrl = orgId
-            ? `/.rest/auditrecords/search/findAllByOrganisationIdOrderByEventTimeDesc?organisationId=${orgId}&size=10&page=${page-1}`
-            : `/.rest/auditrecords?size=10&page=${page-1}`
+        const auditUrl = `/.rest/auditrecords?size=10&page=${page-1}`
         fetchWithAuth(auditUrl)
             .then((resp)=>resp.json())
             .then((data)=> {

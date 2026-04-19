@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.linkservice.config;
+package com.domloge.slinkylinky.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,7 +59,6 @@ public class TenantContextTest {
 
     @Test
     void getOrganisationId_jwtWithoutOrgId_returnsEmpty() {
-        // JWT with no org_id claim
         Jwt jwt = Jwt.withTokenValue("test")
             .header("alg", "none")
             .claim("preferred_username", TEST_USERNAME)
@@ -140,7 +138,6 @@ public class TenantContextTest {
     @Test
     void getEffectiveOrgId_regularUserWithOverrideHeader_ignoresOverrideReturnsJwtOrgId() {
         String overrideOrgId = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-        // tenant_admin — not a global_admin, so override must be ignored
         setSecurityContext(TEST_USERNAME, TEST_ORG_ID, List.of("tenant_admin"));
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(TenantContext.TENANT_OVERRIDE_HEADER, overrideOrgId);
@@ -174,17 +171,59 @@ public class TenantContextTest {
         assertEquals(UUID.fromString(TEST_ORG_ID), orgId.get());
     }
 
-    // ── helper ───────────────────────────────────────────────────────────────
+    // ── TenantFilter ─────────────────────────────────────────────────────────
 
-    public static void setSecurityContext(String username, String orgId, List<String> roles) {
-        Jwt jwt = Jwt.withTokenValue("test-token")
+    @Test
+    void requireOrgId_userWithOrgId_returnsOrgId() {
+        setSecurityContext(TEST_USERNAME, TEST_ORG_ID, List.of());
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        UUID orgId = TenantFilter.requireOrgId(request);
+
+        assertEquals(UUID.fromString(TEST_ORG_ID), orgId);
+    }
+
+    @Test
+    void requireOrgId_noOrgId_throws403() {
+        Jwt jwt = Jwt.withTokenValue("test")
             .header("alg", "none")
-            .claim("preferred_username", username)
-            .claim("org_id", orgId)
-            .claim("realm_access", Map.of("roles", roles))
+            .claim("preferred_username", TEST_USERNAME)
             .issuedAt(Instant.now())
             .expiresAt(Instant.now().plusSeconds(3600))
             .build();
         SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        org.springframework.web.server.ResponseStatusException ex =
+            org.junit.jupiter.api.Assertions.assertThrows(
+                org.springframework.web.server.ResponseStatusException.class,
+                () -> TenantFilter.requireOrgId(request)
+            );
+        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex.getStatusCode());
+    }
+
+    @Test
+    void requireGlobalAdmin_globalAdmin_doesNotThrow() {
+        setSecurityContext(TEST_USERNAME, TEST_ORG_ID, List.of("global_admin"));
+
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(TenantFilter::requireGlobalAdmin);
+    }
+
+    @Test
+    void requireGlobalAdmin_regularUser_throws403() {
+        setSecurityContext(TEST_USERNAME, TEST_ORG_ID, List.of("tenant_admin"));
+
+        org.springframework.web.server.ResponseStatusException ex =
+            org.junit.jupiter.api.Assertions.assertThrows(
+                org.springframework.web.server.ResponseStatusException.class,
+                TenantFilter::requireGlobalAdmin
+            );
+        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex.getStatusCode());
+    }
+
+    // ── helper ───────────────────────────────────────────────────────────────
+
+    private static void setSecurityContext(String username, String orgId, List<String> roles) {
+        TenantTestHelper.setSecurityContext(username, orgId, roles);
     }
 }

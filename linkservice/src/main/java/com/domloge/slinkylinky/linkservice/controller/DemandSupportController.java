@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.domloge.slinkylinky.linkservice.config.TenantContext;
-import com.domloge.slinkylinky.linkservice.config.TenantFilter;
+import com.domloge.slinkylinky.common.TenantContext;
+import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.audit.DemandAuditor;
 import com.domloge.slinkylinky.linkservice.repo.DemandRepo;

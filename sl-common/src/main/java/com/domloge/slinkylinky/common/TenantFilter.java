@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.linkservice.config;
+package com.domloge.slinkylinky.common;
 
 import java.util.Optional;
 import java.util.UUID;

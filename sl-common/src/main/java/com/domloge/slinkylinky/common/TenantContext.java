@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.linkservice.config;
+package com.domloge.slinkylinky.common;
 
 import java.util.List;
 import java.util.Map;

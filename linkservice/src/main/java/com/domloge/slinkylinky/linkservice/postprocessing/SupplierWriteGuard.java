@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import com.domloge.slinkylinky.linkservice.config.TenantFilter;
+import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 
 /**

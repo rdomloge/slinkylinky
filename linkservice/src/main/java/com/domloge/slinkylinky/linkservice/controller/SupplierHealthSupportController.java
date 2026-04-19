@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.domloge.slinkylinky.linkservice.config.TenantFilter;
+import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.AtRiskDemandSiteProjection;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.SupplierOnboardingMonthProjection;

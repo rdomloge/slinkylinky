@@ -12,6 +12,7 @@
 
 	<modules>
 		<module>events</module>
+		<module>sl-common</module>
 		<module>linkservice</module>
 		<module>stats</module>
 		<module>audit</module>

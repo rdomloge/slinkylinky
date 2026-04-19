@@ -1,0 +1,60 @@
+package com.domloge.slinkylinky.audit;
+
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.rest.webmvc.RepositoryRestController;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import com.domloge.slinkylinky.common.TenantContext;
+import com.domloge.slinkylinky.common.TenantFilter;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+/**
+ * Overrides the default Spring Data REST collection endpoint for AuditRecord.
+ *
+ * - global_admin: returns all records (or filtered via X-Tenant-Override).
+ * - All other callers: filtered to their org_id from the JWT (403 if none present).
+ */
+@RepositoryRestController
+public class AuditRecordController {
+
+    @Autowired
+    private AuditRecordRepo repo;
+
+    @Autowired
+    private PagedResourcesAssembler<AuditRecord> assembler;
+
+    @GetMapping("/auditrecords")
+    public ResponseEntity<PagedModel<EntityModel<AuditRecord>>> list(
+            Pageable pageable,
+            HttpServletRequest request) {
+
+        if (TenantContext.isGlobalAdmin()) {
+            String overrideHeader = request.getHeader(TenantContext.TENANT_OVERRIDE_HEADER);
+            Page<AuditRecord> page;
+            if (overrideHeader != null && !overrideHeader.isBlank()) {
+                try {
+                    UUID overrideId = UUID.fromString(overrideHeader.trim());
+                    page = repo.findAllByOrganisationIdOrderByEventTimeDesc(overrideId, pageable);
+                } catch (IllegalArgumentException ignored) {
+                    page = repo.findAll(pageable);
+                }
+            } else {
+                page = repo.findAll(pageable);
+            }
+            return ResponseEntity.ok(assembler.toModel(page));
+        }
+
+        UUID orgId = TenantFilter.requireOrgId(request);
+        Page<AuditRecord> page = repo.findAllByOrganisationIdOrderByEventTimeDesc(orgId, pageable);
+        return ResponseEntity.ok(assembler.toModel(page));
+    }
+}

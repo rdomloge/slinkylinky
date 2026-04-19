@@ -25,8 +25,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.domloge.slinkylinky.linkservice.config.TenantContext;
-import com.domloge.slinkylinky.linkservice.config.TenantContextTest;
+import com.domloge.slinkylinky.common.TenantContext;
+import com.domloge.slinkylinky.common.TenantTestHelper;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
@@ -132,7 +132,7 @@ public class TenantIsolationTest {
         demandB.setOrganisationId(ORG_B);
         demandRepo.save(demandB);
 
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of());
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of());
 
         ResponseEntity<Demand[]> resp = demandSupportController.findUnsatisfied("requested", mockRequest);
 
@@ -152,7 +152,7 @@ public class TenantIsolationTest {
         demandB.setOrganisationId(ORG_B);
         demandB = demandRepo.save(demandB);
 
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of("tenant_admin"));
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of("tenant_admin"));
 
         ResponseEntity<Object> resp = demandSupportController.delete(demandB.getId(), mockRequest);
 
@@ -173,7 +173,7 @@ public class TenantIsolationTest {
         siteB.setOrganisationId(ORG_B);
         siteB = demandSiteRepo.save(siteB);
 
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of());
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of());
 
         ResponseEntity<?> resp = demandSiteSupportController.missingCategories(mockRequest, 8);
 
@@ -211,7 +211,7 @@ public class TenantIsolationTest {
         siteB.setOrganisationId(ORG_B);
         siteB = demandSiteRepo.save(siteB);
 
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of("tenant_admin"));
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of("tenant_admin"));
 
         ResponseEntity<Object> resp = demandSiteSupportController.delete(siteB.getId(), mockRequest);
 
@@ -224,7 +224,7 @@ public class TenantIsolationTest {
     void supplierExclusion_exclude_asDefaultUserReturns403() {
         Supplier supplier = savedSupplier("supplier-exclusion-block.com");
 
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of());
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> exclusionController.exclude(supplier.getId(), mockRequest));
@@ -237,7 +237,7 @@ public class TenantIsolationTest {
     void supplierExclusion_exclude_asTenantAdminSucceeds() {
         Supplier supplier = savedSupplier("supplier-exclusion-ok.com");
 
-        TenantContextTest.setSecurityContext("admin", ORG_A_STR, List.of("tenant_admin"));
+        TenantTestHelper.setSecurityContext("admin", ORG_A_STR, List.of("tenant_admin"));
 
         ResponseEntity<Void> resp = exclusionController.exclude(supplier.getId(), mockRequest);
 
@@ -251,7 +251,7 @@ public class TenantIsolationTest {
     void supplierExclusion_unexclude_asDefaultUserReturns403() {
         Supplier supplier = savedSupplier("supplier-unexclude-block.com");
 
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of());
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> exclusionController.unexclude(supplier.getId(), mockRequest));
@@ -268,7 +268,7 @@ public class TenantIsolationTest {
         exclusion.setOrganisationId(ORG_A);
         exclusionRepo.save(exclusion);
 
-        TenantContextTest.setSecurityContext("root", ORG_A_STR, List.of("global_admin"));
+        TenantTestHelper.setSecurityContext("root", ORG_A_STR, List.of("global_admin"));
 
         ResponseEntity<Void> resp = exclusionController.unexclude(supplier.getId(), mockRequest);
 
@@ -280,7 +280,7 @@ public class TenantIsolationTest {
 
     @Test
     void blacklist_isBlackListed_asDefaultUserReturns403() {
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of());
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of());
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> blacklistController.isBlackListed("example.com"));
@@ -291,7 +291,7 @@ public class TenantIsolationTest {
 
     @Test
     void blacklist_addBlackListed_asTenantAdminReturns403() {
-        TenantContextTest.setSecurityContext("admin", ORG_A_STR, List.of("tenant_admin"));
+        TenantTestHelper.setSecurityContext("admin", ORG_A_STR, List.of("tenant_admin"));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> blacklistController.addBlackListed("badsite.com", "{}", 10, 5));
@@ -302,7 +302,7 @@ public class TenantIsolationTest {
 
     @Test
     void blacklist_addBlackListed_asGlobalAdminSucceeds() {
-        TenantContextTest.setSecurityContext("root", ORG_A_STR, List.of("global_admin"));
+        TenantTestHelper.setSecurityContext("root", ORG_A_STR, List.of("global_admin"));
 
         ResponseEntity<Boolean> resp = blacklistController.addBlackListed("blacklistedsite.com", "{}", 20, 3);
 
@@ -314,7 +314,7 @@ public class TenantIsolationTest {
 
     @Test
     void supplierWriteGuard_nonGlobalAdmin_create_throwsForbidden() {
-        TenantContextTest.setSecurityContext("user", ORG_A_STR, List.of("tenant_admin"));
+        TenantTestHelper.setSecurityContext("user", ORG_A_STR, List.of("tenant_admin"));
 
         ResponseStatusException ex = assertThrows(ResponseStatusException.class,
                 () -> supplierWriteGuard.beforeCreate(new Supplier()));
@@ -325,7 +325,7 @@ public class TenantIsolationTest {
 
     @Test
     void supplierWriteGuard_globalAdmin_create_doesNotThrow() {
-        TenantContextTest.setSecurityContext("root", ORG_A_STR, List.of("global_admin"));
+        TenantTestHelper.setSecurityContext("root", ORG_A_STR, List.of("global_admin"));
 
         assertDoesNotThrow(() -> supplierWriteGuard.beforeCreate(new Supplier()));
     }
@@ -345,7 +345,7 @@ public class TenantIsolationTest {
         demandRepo.save(demandB);
 
         // JWT org is ORG_B, but override header points to ORG_A
-        TenantContextTest.setSecurityContext("root", ORG_B_STR, List.of("global_admin"));
+        TenantTestHelper.setSecurityContext("root", ORG_B_STR, List.of("global_admin"));
         mockRequest.addHeader(TenantContext.TENANT_OVERRIDE_HEADER, ORG_A_STR);
 
         ResponseEntity<Demand[]> resp = demandSupportController.findUnsatisfied("requested", mockRequest);
@@ -372,7 +372,7 @@ public class TenantIsolationTest {
         demandRepo.save(demandB);
 
         // tenant_admin in ORG_A tries to use override header to see ORG_B — must be ignored
-        TenantContextTest.setSecurityContext("admin", ORG_A_STR, List.of("tenant_admin"));
+        TenantTestHelper.setSecurityContext("admin", ORG_A_STR, List.of("tenant_admin"));
         mockRequest.addHeader(TenantContext.TENANT_OVERRIDE_HEADER, ORG_B_STR);
 
         ResponseEntity<Demand[]> resp = demandSupportController.findUnsatisfied("requested", mockRequest);

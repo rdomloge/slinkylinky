@@ -18,7 +18,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.domloge.slinkylinky.linkservice.config.TenantContextTest;
+import com.domloge.slinkylinky.common.TenantTestHelper;
 import com.domloge.slinkylinky.linkservice.repo.BlackListedSupplierRepo;
 
 /**
@@ -50,7 +50,7 @@ public class BlackListedSupplierSupportControllerTest {
     @BeforeEach
     void setup() {
         blackListedSupplierRepo.deleteAll();
-        TenantContextTest.setSecurityContext("testuser", "00000000-0000-0000-0000-000000000001", List.of("global_admin"));
+        TenantTestHelper.setSecurityContext("testuser", "00000000-0000-0000-0000-000000000001", List.of("global_admin"));
     }
 
     @org.junit.jupiter.api.AfterEach

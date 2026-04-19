@@ -10,7 +10,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
-import com.domloge.slinkylinky.linkservice.config.TenantContext;
+import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;

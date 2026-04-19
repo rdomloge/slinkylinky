@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.domloge.slinkylinky.linkservice.config.TenantContext;
-import com.domloge.slinkylinky.linkservice.config.TenantFilter;
+import com.domloge.slinkylinky.common.TenantContext;
+import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.SupplierTenantExclusion;
 import com.domloge.slinkylinky.linkservice.repo.SupplierTenantExclusionRepo;
 
