@@ -22,7 +22,7 @@ export default function AuditIndexPage() {
         fetchWithAuth(auditUrl)
             .then((resp)=>resp.json())
             .then((data)=> {
-                setAudits(data._embedded.auditrecords)
+                setAudits(data._embedded?.auditrecords || [])
                 setTotal(data.page.totalElements)
                 setPageCount(data.page.totalPages)
             })
