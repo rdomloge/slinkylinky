@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.linkservice.entity.audit;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.linkservice.config.TenantContext;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +61,9 @@ public class SupplierAuditor {
             log.error("Failed to serialize supplier", e);
         }
         ar.setEventTime(LocalDateTime.now());
+        TenantContext.getOrganisationId()
+            .map(UUID::fromString)
+            .ifPresent(ar::setOrganisationId);
         auditRabbitTemplate.convertAndSend(ar);
         log.info("Sent audit record {}", ar);
     }
