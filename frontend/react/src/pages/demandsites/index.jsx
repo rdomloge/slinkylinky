@@ -53,7 +53,7 @@ export default function DemandSiteList() {
                 return res.json()
             })
             .then((data) => {
-                setMissingCategories(data)
+                setMissingCategories(data.items)
             })
             .catch((err) => setError(err.message))
             
