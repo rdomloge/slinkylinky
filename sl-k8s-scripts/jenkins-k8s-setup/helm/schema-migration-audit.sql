@@ -10,3 +10,7 @@ ALTER TABLE IF EXISTS public.audit_record ADD COLUMN IF NOT EXISTS organisation_
 
 -- Step 2 (v6.2): Create performance index for organisation_id.
 CREATE INDEX IF NOT EXISTS idx_audit_org ON public.audit_record USING btree (organisation_id);
+
+-- Step 3 (v6.3): Explicitly ensure organisation_id is nullable.
+--   Guards against any environment where a NOT NULL constraint was manually added.
+ALTER TABLE IF EXISTS public.audit_record ALTER COLUMN organisation_id DROP NOT NULL;
