@@ -17,6 +17,7 @@ import com.domloge.slinkylinky.stats.moz.LinkChecker;
 import com.domloge.slinkylinky.stats.moz.MozDomain;
 import com.domloge.slinkylinky.stats.moz.MozPageLink;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,8 +50,8 @@ public class MozController {
     }
     
     @GetMapping(path = "/checklink", produces = "application/json")
-    public @ResponseBody MozPageLink check(@RequestParam String demandurl, @RequestParam String supplierDomain, 
-            @RequestHeader long demandId, @RequestHeader String user)  throws JsonProcessingException {
+    public @ResponseBody MozPageLink check(@RequestParam String demandurl, @RequestParam String supplierDomain,
+            @RequestHeader long demandId, @RequestHeader String user, @RequestHeader UUID organisationId)  throws JsonProcessingException {
 
         log.info("Checking " + demandurl);
 
@@ -67,6 +68,7 @@ public class MozController {
         auditRecord.setDetail(supplierDomain +" => "+ demandurl);
         auditRecord.setEntityId(demandId);
         auditRecord.setEntityType("Demand");
+        auditRecord.setOrganisationId(organisationId);
         auditRabbitTemplate.convertAndSend(auditRecord);
 
         // constantcontact.com -> gerryoleary.com

@@ -3,6 +3,7 @@ package com.domloge.slinkylinky.supplierengagement;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.UUID;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ public class ProposalAutoCanceller  {
             audit.setEventTime(LocalDateTime.now());
             audit.setWho("supplier-engagement-bot");
             audit.setDetail("Engagement "+engagement.getId()+" expired for proposal " + engagement.getProposalId());
+            audit.setOrganisationId(engagement.getOrganisationId());
             auditRabbitTemplate.convertAndSend(audit);
 
             try {

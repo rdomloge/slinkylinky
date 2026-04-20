@@ -149,6 +149,15 @@ public class ProposalEventReceiver {
             auditRecord.setWho("supplier-engagement-bot");
             auditRecord.setWhat("Email sent to supplier");
             auditRecord.setDetail(content);
+            if (engagement.getOrganisationId() != null) {
+                auditRecord.setOrganisationId(engagement.getOrganisationId());
+            } else if (event.getOrganisationId() != null) {
+                try {
+                    auditRecord.setOrganisationId(java.util.UUID.fromString(event.getOrganisationId()));
+                } catch (IllegalArgumentException ignored) {
+                    log.warn("Unparseable organisationId on ProposalUpdateEvent: {}", event.getOrganisationId());
+                }
+            }
             auditRabbitTemplate.convertAndSend(auditRecord);
         }
         catch(MessagingException e) {

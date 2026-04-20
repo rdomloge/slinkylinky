@@ -1,11 +1,15 @@
 package com.domloge.slinkylinky.audit;
 
+import java.util.Set;
+
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component("beforeCreateAuditRecordValidator")
 public class AuditValidator implements Validator {
+
+    private static final Set<String> GLOBAL_ENTITY_TYPES = Set.of("BlackListedSupplier", "Category");
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -20,5 +24,9 @@ public class AuditValidator implements Validator {
         if(null == ar.getWhat()) errors.rejectValue("what", "missing");
         if(null == ar.getWho() || ar.getWho().trim().isEmpty()) errors.rejectValue("who", "missing");
         if(null == ar.getEntityType()) errors.rejectValue("entityType", "missing");
+        if (null == ar.getOrganisationId() && (ar.getEntityType() == null || !GLOBAL_ENTITY_TYPES.contains(ar.getEntityType()))) {
+            errors.rejectValue("organisationId", "missing",
+                "organisationId is required for entity type: " + ar.getEntityType());
+        }
     }
 }

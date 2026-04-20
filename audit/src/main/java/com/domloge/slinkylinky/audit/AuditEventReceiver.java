@@ -15,6 +15,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.BeanPropertyBindingResult;
 
 @Slf4j
 @Component
@@ -25,6 +26,9 @@ public class AuditEventReceiver {
     @Autowired
     private AuditRecordRepo repo;
 
+    @Autowired
+    private AuditValidator validator;
+
     @PostConstruct
     public void init() {
         mapper = new ObjectMapper();
@@ -32,10 +36,17 @@ public class AuditEventReceiver {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         mapper.setSerializationInclusion(Include.NON_NULL);
     }
-    
+
     public void receiveMessage(String message) {
         try {
             AuditRecord auditRecord = mapper.readValue(message, AuditRecord.class);
+            BeanPropertyBindingResult errors = new BeanPropertyBindingResult(auditRecord, "auditRecord");
+            validator.validate(auditRecord, errors);
+            if (errors.hasErrors()) {
+                log.error("Rejecting invalid audit record — validation errors: {} — message: {}",
+                    errors.getAllErrors(), message);
+                return;
+            }
             repo.save(auditRecord);
             log.debug("Received audit record: {}", message);
         } catch (JsonProcessingException e) {

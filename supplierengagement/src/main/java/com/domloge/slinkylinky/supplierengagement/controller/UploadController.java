@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.supplierengagement.controller;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,7 @@ public class UploadController {
         auditRecord.setWho("Supplier through public API");
         auditRecord.setWhat("Proposal declined by supplier");
         auditRecord.setDetail("DNC: "+engagement.isDoNotContact()+" // Reason: " + engagement.getDeclinedReason());
+        auditRecord.setOrganisationId(dbEngagement.getOrganisationId());
         auditRabbitTemplate.convertAndSend(auditRecord);
 
         log.info("Engagement {} declined. DNC: {} Reason: {}", dbEngagement.getId(), engagement.isDoNotContact(), engagement.getDeclinedReason());
@@ -131,6 +133,7 @@ public class UploadController {
             auditRecord.setWho("system");
             auditRecord.setWhat("Supplier-declined warning email sent");
             auditRecord.setDetail(content);
+            auditRecord.setOrganisationId(engagement.getOrganisationId());
             auditRabbitTemplate.convertAndSend(auditRecord);
         }
         catch(MessagingException e) {
@@ -160,6 +163,7 @@ public class UploadController {
         auditRecord.setWho("Supplier through public API");
         auditRecord.setWhat("Proposal accepted by supplier");
         auditRecord.setDetail("Blog title: " + dbEngagement.getBlogTitle() + ", Blog URL: " + dbEngagement.getBlogUrl());
+        auditRecord.setOrganisationId(dbEngagement.getOrganisationId());
         auditRabbitTemplate.convertAndSend(auditRecord);
 
         /**

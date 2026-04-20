@@ -1,6 +1,7 @@
 package com.domloge.slinkylinky.stats.amqp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +23,7 @@ public class AuditRecord {
     private LocalDateTime eventTime;
 
     private String detail;
+
+    private UUID organisationId;
 
 }
