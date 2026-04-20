@@ -39,6 +39,11 @@
   /* Connection accents */
   --accent-blue:          #c5dff5;
   --accent-rose:          #f5d7d7;
+
+  /* Category pills — soft powder blue to complement mint, peach and lavender */
+  --category-color:       #5f7f99;
+  --category-bg:          #edf5fb;
+  --category-border:      #d6e6f2;
 }
 
 /* ─── Fonts ─────────────────────────────────────────────────────────────────── */
@@ -210,15 +215,17 @@ body {
 }
 
 .lozenge {
-  background: rgb(238, 237, 255);
-  color: #4338ca;
+  display: inline-flex;
+  align-items: center;
   width: fit-content;
-  border-radius: 15px;
+  border-radius: 9999px;
   padding: 0.3em 0.75em;
-  margin: 0.2em;
+  margin: 0;
   font-size: 0.75rem;
   font-weight: 500;
-  border: 1px solid #c7d2fe;
+  background: var(--category-bg);
+  color: var(--category-color);
+  border: 1px solid var(--category-border);
 }
 
 .in-pig-sd {
