@@ -172,7 +172,7 @@ deployments:
         secretKey: KEYCLOAK_ADMIN_CLIENT_SECRET
       keycloak_clientcredentials_base_url:
         secretName: keycloak-credentials
-        secretKey: KEYCLOAK_ADMIN_URL
+        secretKey: KEYCLOAK_BASE_URL
       keycloak_clientcredentials_token_uri:
         secretName: keycloak-credentials
         secretKey: KEYCLOAK_CLIENTCREDENTIALS_TOKEN_URI
