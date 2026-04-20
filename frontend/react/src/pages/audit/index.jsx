@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 
 import Layout from "@/components/layout/Layout";
 import Loading from '@/components/Loading';
-import { AuditLine } from '@/components/AuditCard';
+import AuditListItem from '@/components/AuditListItem';
 import Paging from '@/components/Paging';
 import { useSearchParams } from 'react-router-dom';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
@@ -32,11 +32,15 @@ export default function AuditIndexPage() {
     return (
         <Layout pagetitle='Audit trail' headerTitle={<>Audit {audits && <span className="font-normal text-slate-400">({audits.length})</span>}</>}>
             <Paging page={page} pageCount={pageCount} total={total} baseUrl={"/audit"}/>
-            { !error && audits ? 
-                <div className="grid grid-cols-4 gap-2">
-                {audits.map( (a,index) => {
-                    return <AuditLine auditrecord={a} key={index}/>
-                })}
+            { !error && audits ?
+                <div className="px-6 pb-6">
+                    <ul className="flex flex-col gap-0.5">
+                        {audits.map( (a,index) => {
+                            return <li key={index}>
+                                <AuditListItem auditrecord={a}/>
+                            </li>
+                        })}
+                    </ul>
                 </div>
             :
                 <Loading error={error}/>
