@@ -1,0 +1,71 @@
+pipeline {
+    agent { label 'kubectl-worker' }
+
+    parameters {
+        string(
+            name: 'IMAGE_VERSION',
+            defaultValue: '',
+            description: 'Docker image tag to roll out to the tenant workloads'
+        )
+        string(
+            name: 'TENANT',
+            defaultValue: '',
+            description: 'Tenant namespace to update (for example: abc12345)'
+        )
+    }
+
+    environment {
+        IMAGE_REPOSITORY = 'rdomloge/slinky-linky'
+    }
+
+    stages {
+        stage('Validate parameters') {
+            steps {
+                script {
+                    if (!params.IMAGE_VERSION?.trim()) {
+                        error 'IMAGE_VERSION is required.'
+                    }
+
+                    if (!params.TENANT?.trim()) {
+                        error 'TENANT is required.'
+                    }
+
+                    env.TARGET_IMAGE_VERSION = params.IMAGE_VERSION.trim()
+                    env.TARGET_TENANT = params.TENANT.trim()
+
+                    echo "Updating tenant ${env.TARGET_TENANT} to image tag ${env.TARGET_IMAGE_VERSION}"
+                }
+            }
+        }
+
+        stage('Roll deployments') {
+            steps {
+                script {
+                    def workloads = [
+                        [displayName: 'audit', deployment: 'audit', container: 'audit', imageSuffix: 'audit'],
+                        [displayName: 'frontend', deployment: 'adminwebsite', container: 'adminwebsite', imageSuffix: 'adminwebsite'],
+                        [displayName: 'linkservice', deployment: 'linkservice', container: 'linkservice', imageSuffix: 'linkservice'],
+                        [displayName: 'stats', deployment: 'stats', container: 'stats', imageSuffix: 'stats'],
+                        [displayName: 'supplierengagement', deployment: 'supplierengagement', container: 'supplierengagement', imageSuffix: 'supplierengagement']
+                    ]
+
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s', serverUrl: "${env.K8S_SERVER_URL}") {
+                            sh "kubectl get namespace ${env.TARGET_TENANT}"
+
+                            workloads.each { workload ->
+                                def image = "${env.IMAGE_REPOSITORY}-${workload.imageSuffix}:${env.TARGET_IMAGE_VERSION}"
+
+                                echo "Rolling ${workload.displayName} using image ${image}"
+                                sh """
+                                    kubectl -n ${env.TARGET_TENANT} set image deployment/${workload.deployment} ${workload.container}=${image}
+                                    kubectl -n ${env.TARGET_TENANT} rollout status deployment/${workload.deployment} --timeout=5m
+                                """
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
