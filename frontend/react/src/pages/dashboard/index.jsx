@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useToast } from '@/components/atoms/Toasts';
+import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/auth/AuthProvider';
 import { getTenantOverride } from '@/auth/TenantOverrideContext';
@@ -76,6 +78,94 @@ function fastestSuppliers(proposals) {
         .map(([domain, { total, count }]) => ({ domain, avg: total / count, count }))
         .sort((a, b) => a.avg - b.avg)
         .slice(0, 3);
+}
+
+function csvEscape(value) {
+    const text = value == null ? '' : String(value);
+    return `"${text.replaceAll('"', '""')}"`;
+}
+
+function rowsToCsv(rows) {
+    return rows.map(row => row.map(csvEscape).join(',')).join('\n');
+}
+
+async function fetchAllMissingCategorySuppliers() {
+    const pageSize = 200;
+    const suppliers = [];
+    let page = 0;
+    let totalPages = 1;
+
+    while (page < totalPages) {
+        const url = `/.rest/suppliers/search/findByCategoriesIsEmptyAndDisabledFalseAndThirdPartyFalse?projection=fullSupplier&size=${pageSize}&page=${page}`;
+        const response = await fetchWithAuth(url);
+        if (!response?.ok) {
+            throw new Error("Can't fetch suppliers with missing categories.");
+        }
+
+        const data = await response.json();
+        const pageSuppliers = data._embedded?.suppliers ?? [];
+        suppliers.push(...pageSuppliers);
+
+        totalPages = data.page?.totalPages ?? 1;
+        page += 1;
+    }
+
+    return suppliers;
+}
+
+async function fetchMissingCategoriesCsvRows() {
+    const [siteResponse, supplierRows] = await Promise.all([
+        fetchWithAuth('/.rest/demandssitesupport/missingCategories'),
+        fetchAllMissingCategorySuppliers(),
+    ]);
+
+    if (!siteResponse?.ok) {
+        throw new Error("Can't fetch demand sites with missing categories.");
+    }
+
+    const siteData = await siteResponse.json();
+    const missingSites = siteData.items ?? [];
+
+    return {
+        missingSites,
+        missingSuppliers: supplierRows,
+    };
+}
+
+async function downloadCsv(filename, rows) {
+    const blob = new Blob([`\uFEFF${rowsToCsv(rows)}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+}
+
+function buildMissingCategoriesCsvRows(missingSites, missingSuppliers) {
+    const rows = [['type', 'id', 'name', 'domain', 'editPath']];
+
+    missingSites.forEach(ds => {
+        rows.push([
+            'demand site',
+            ds.id ?? '',
+            ds.name ?? '',
+            ds.domain ?? '',
+            `/demandsites/${ds.id}`,
+        ]);
+    });
+
+    missingSuppliers.forEach(s => {
+        rows.push([
+            'supplier',
+            s.id ?? '',
+            s.name ?? '',
+            s.domain ?? s.name ?? '',
+            `/supplier/${s.id}`,
+        ]);
+    });
+
+    return rows;
 }
 
 function buildDashboardUrls() {
@@ -701,6 +791,7 @@ function HeroRefreshPill({ phase }) {
 
 export default function Dashboard() {
     const { user, accessToken } = useAuth();
+    const toast = useToast();
 
     // ── Data state ──────────────────────────────────────────────────────────
     const [demandCount, setDemandCount]                   = useState(null);
@@ -719,6 +810,7 @@ export default function Dashboard() {
     const [atRiskSites, setAtRiskSites]                   = useState(null);
     const [expiringEngagements, setExpiringEngagements]   = useState([]);
     const [loading, setLoading]                           = useState(true);
+    const [downloadingMissingCategories, setDownloadingMissingCategories] = useState(false);
 
     // ── Cache / phase state ─────────────────────────────────────────────────
     // 'init' | 'firstLoad' | 'fresh' | 'refreshing' | 'refreshed'
@@ -745,6 +837,22 @@ export default function Dashboard() {
         if (s.atRiskSites    !== undefined) setAtRiskSites(s.atRiskSites);
         setExpiringEngagements(s.expiringEngagements ?? []);
         setLoading(false);
+    }
+
+    async function handleDownloadMissingCategories() {
+        if (downloadingMissingCategories) return;
+
+        setDownloadingMissingCategories(true);
+        try {
+            const { missingSites, missingSuppliers } = await fetchMissingCategoriesCsvRows();
+            const rows = buildMissingCategoriesCsvRows(missingSites, missingSuppliers);
+            await downloadCsv('missing-categories.csv', rows);
+            toast(`Downloaded ${rows.length - 1} missing categories`, 'success');
+        } catch (error) {
+            toast(error?.message || 'Failed to download missing categories CSV', 'error');
+        } finally {
+            setDownloadingMissingCategories(false);
+        }
     }
 
     // ── Cache bootstrap + worker lifecycle ──────────────────────────────────
@@ -974,7 +1082,31 @@ export default function Dashboard() {
                         </PanelCard>
 
                         {/* Missing categories */}
-                        <PanelCard title="Missing categories" loading={loading} accentColor="#f59e0b">
+                        <PanelCard
+                            title="Missing categories"
+                            loading={loading}
+                            accentColor="#f59e0b"
+                            headerActions={
+                                <button
+                                    type="button"
+                                    onClick={handleDownloadMissingCategories}
+                                    disabled={loading || downloadingMissingCategories}
+                                    aria-label="Download missing categories CSV"
+                                    title="Download missing categories CSV"
+                                    className="inline-flex items-center justify-center w-7 h-7 rounded-full border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {downloadingMissingCategories ? (
+                                        <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 12a8 8 0 1 0 8-8" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v10m0 0 4-4m-4 4-4-4M5 17.25A2.25 2.25 0 0 0 7.25 19.5h9.5A2.25 2.25 0 0 0 19 17.25" />
+                                        </svg>
+                                    )}
+                                </button>
+                            }
+                        >
                             {(() => {
                                 const showBoth = missingCatSites.length > 0 && missingCatSuppliers.length > 0;
                                 const siteSlice = showBoth ? 4 : 8;
