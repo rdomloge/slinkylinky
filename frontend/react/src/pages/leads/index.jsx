@@ -917,7 +917,7 @@ export default function LeadsIndex() {
             )}
 
             {showScrapeModal && (
-                <Modal title="Scrape Collaborator.pro" dismissHandler={() => setShowScrapeModal(false)} width="w-full max-w-lg">
+                <Modal title="Scrape Collaborator.pro" dismissHandler={() => setShowScrapeModal(false)} width="w-full max-w-lg" dismissOnBackdropClick={false}>
                     <div className="flex flex-col gap-4">
                         <p className="text-slate-600 text-sm leading-relaxed">
                             Enter your Collaborator.pro credentials to log in and start scraping.

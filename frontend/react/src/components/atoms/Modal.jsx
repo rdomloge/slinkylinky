@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function Modal({children, dismissHandler, title, width, id = "default-modal"}) {
+export default function Modal({children, dismissHandler, title, width, id = "default-modal", dismissOnBackdropClick = true}) {
 
     // Close on Escape key
     useEffect(() => {
@@ -21,7 +21,7 @@ export default function Modal({children, dismissHandler, title, width, id = "def
             <div
                 className="absolute inset-0 backdrop-blur-md"
                 style={{background: 'rgba(10, 15, 30, 0.65)'}}
-                onClick={dismissHandler}
+                onClick={dismissOnBackdropClick ? dismissHandler : undefined}
             />
 
             {/* Panel */}
