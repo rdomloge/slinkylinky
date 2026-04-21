@@ -29,6 +29,11 @@
 			<version>6.1.0</version>
 		</dependency>
 		<dependency>
+			<groupId>com.domloge.slinkylinky</groupId>
+			<artifactId>sl-common</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-amqp</artifactId>
 		</dependency>
