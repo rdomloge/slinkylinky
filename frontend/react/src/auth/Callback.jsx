@@ -19,6 +19,12 @@ export default function Callback() {
     exchangeCodeForTokens(code)
       .then(() => loadSession())
       .then(() => {
+        const accessToken = sessionStorage.getItem('sl_access_token');
+        fetch('/.rest/loginEvent', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${accessToken}` },
+        }).catch(err => console.error('Failed to record login event:', err));
+
         const returnTo = sessionStorage.getItem('sl_return_to') || '/';
         sessionStorage.removeItem('sl_return_to');
         sessionStorage.setItem('sl_just_authenticated', 'true');
