@@ -3,6 +3,7 @@ import Layout from '@/components/layout/Layout';
 import Loading from '@/components/Loading';
 import { StyledButton } from '@/components/atoms/Button';
 import Modal from '@/components/atoms/Modal';
+import DisableUserConfirmModal from '@/components/DisableUserConfirmModal';
 import TextInput from '@/components/atoms/TextInput';
 import { useAuth } from '@/auth/AuthProvider';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
@@ -35,6 +36,9 @@ export default function UsersIndex() {
     const [newRole, setNewRole] = useState('');
     const [creating, setCreating] = useState(false);
     const [createError, setCreateError] = useState(null);
+    const [showDisableModal, setShowDisableModal] = useState(false);
+    const [userToDisable, setUserToDisable] = useState(null);
+    const [disabling, setDisabling] = useState(false);
 
     // Resolve the initial org to display
     useEffect(() => {
@@ -112,14 +116,22 @@ export default function UsersIndex() {
             .finally(() => setCreating(false));
     }
 
-    function disableUser(userId, username) {
-        if (!window.confirm(`Disable user "${username}"?`)) return;
-        fetchWithAuth(`/.rest/keycloak/users/${userId}`, { method: 'DELETE' })
+    function openDisableModal(userId, username) {
+        setUserToDisable({ id: userId, username });
+        setShowDisableModal(true);
+    }
+
+    function confirmDisableUser() {
+        if (!userToDisable) return;
+        setDisabling(true);
+        fetchWithAuth(`/.rest/keycloak/users/${userToDisable.id}`, { method: 'DELETE' })
             .then(r => {
                 if (!r?.ok) throw new Error('Failed to disable user');
-                setUsers(prev => prev.map(u => u.id === userId ? { ...u, enabled: false } : u));
+                setUsers(prev => prev.map(u => u.id === userToDisable.id ? { ...u, enabled: false } : u));
+                setShowDisableModal(false);
             })
-            .catch(e => setError(e.message));
+            .catch(e => setError(e.message))
+            .finally(() => setDisabling(false));
     }
 
     const canCreate = isGlobalAdmin || isTenantAdmin;
@@ -197,7 +209,7 @@ export default function UsersIndex() {
                                             <td className="py-2 text-right">
                                                 {u.enabled && (
                                                     <button
-                                                        onClick={() => disableUser(u.id, u.username)}
+                                                        onClick={() => openDisableModal(u.id, u.username)}
                                                         className="text-xs text-red-500 hover:text-red-700 hover:underline"
                                                     >
                                                         Disable
@@ -257,6 +269,18 @@ export default function UsersIndex() {
                         </div>
                     </div>
                 </Modal>
+            )}
+
+            {showDisableModal && userToDisable && (
+                <DisableUserConfirmModal
+                    username={userToDisable.username}
+                    isLoading={disabling}
+                    onConfirm={confirmDisableUser}
+                    onDismiss={() => {
+                        setShowDisableModal(false);
+                        setUserToDisable(null);
+                    }}
+                />
             )}
         </Layout>
     );
