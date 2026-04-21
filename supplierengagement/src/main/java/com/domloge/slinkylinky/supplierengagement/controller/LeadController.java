@@ -3,10 +3,12 @@ package com.domloge.slinkylinky.supplierengagement.controller;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -17,6 +19,7 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +40,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.domloge.slinkylinky.common.TenantContext;
+import com.domloge.slinkylinky.supplierengagement.AuditRecord;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
@@ -87,6 +92,9 @@ public class LeadController {
     @Autowired
     private CollaboratorLoginService collaboratorLoginService;
 
+    @Autowired
+    private AmqpTemplate auditRabbitTemplate;
+
     @Value("${linkservice_baseurl}")
     private String linkServiceBase;
 
@@ -123,7 +131,8 @@ public class LeadController {
     @PreAuthorize("hasRole('global_admin')")
     public ResponseEntity<Map<String, Object>> scrape(
             @RequestParam(value = "source", defaultValue = "collaborator.pro") String source,
-            @RequestBody(required = false) Map<String, Object> body) {
+            @RequestBody(required = false) Map<String, Object> body,
+            Authentication authentication) {
 
         LeadScraper scraper = findScraper(source);
         if (scraper == null) {
@@ -164,6 +173,15 @@ public class LeadController {
         }
         boolean incremental = body != null && Boolean.TRUE.equals(body.get("incremental"));
         scraper.scrapeAsync(cookies, scrapeLimit, incremental);
+
+        AuditRecord ar = new AuditRecord();
+        ar.setWho(authentication != null ? authentication.getName() : "unknown");
+        ar.setWhat("start lead scrape");
+        ar.setEventTime(LocalDateTime.now());
+        // ar.setEntityType("LeadScrape");
+        ar.setDetail(source);
+        auditRabbitTemplate.convertAndSend(ar);
+
         return ResponseEntity.accepted().body(Map.of("started", true, "source", source));
     }
 
@@ -394,7 +412,7 @@ public class LeadController {
      */
     @PostMapping("/{id}/convert")
     @PreAuthorize("hasRole('global_admin')")
-    public ResponseEntity<Void> convertToSupplier(@PathVariable long id) {
+    public ResponseEntity<Void> convertToSupplier(@PathVariable long id, Authentication authentication) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
         if (lead == null) return ResponseEntity.notFound().build();
         if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
@@ -448,6 +466,19 @@ public class LeadController {
                     lead.setStatus(LeadStatus.CONVERTED);
                     leadRepo.save(lead);
                     log.info("Lead {} ({}) converted to Supplier", id, lead.getDomain());
+
+                    AuditRecord ar = new AuditRecord();
+                    ar.setWho(TenantContext.getUsername());
+                    TenantContext.getOrganisationId()
+                        .map(UUID::fromString)
+                        .ifPresent(ar::setOrganisationId);
+                    ar.setWhat("lead converted to supplier");
+                    ar.setEventTime(LocalDateTime.now());
+                    ar.setEntityType("SupplierLead");
+                    ar.setEntityId(id);
+                    ar.setDetail(lead.getDomain());
+                    auditRabbitTemplate.convertAndSend(ar);
+
                     return ResponseEntity.ok().build();
                 } else {
                     log.error("linkservice returned {} when converting lead {}", code, id);
@@ -498,6 +529,16 @@ public class LeadController {
         }
         leadRepo.save(lead);
         log.info("Lead {} ({}) accepted", lead.getId(), lead.getDomain());
+
+        AuditRecord ar = new AuditRecord();
+        ar.setWho("supplier");
+        ar.setWhat("lead response accepted");
+        ar.setEventTime(LocalDateTime.now());
+        // ar.setEntityType("SupplierLead");
+        ar.setEntityId(lead.getId());
+        ar.setDetail(lead.getDomain());
+        auditRabbitTemplate.convertAndSend(ar);
+
         return ResponseEntity.ok().build();
     }
 
@@ -518,6 +559,16 @@ public class LeadController {
         }
         leadRepo.save(lead);
         log.info("Lead {} ({}) declined", lead.getId(), lead.getDomain());
+
+        AuditRecord ar = new AuditRecord();
+        ar.setWho("supplier");
+        ar.setWhat("lead response declined");
+        ar.setEventTime(LocalDateTime.now());
+        // ar.setEntityType("SupplierLead");
+        ar.setEntityId(lead.getId());
+        ar.setDetail(lead.getDomain());
+        auditRabbitTemplate.convertAndSend(ar);
+
         return ResponseEntity.ok().build();
     }
 

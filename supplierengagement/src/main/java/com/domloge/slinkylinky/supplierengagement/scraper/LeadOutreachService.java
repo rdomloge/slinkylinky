@@ -3,15 +3,18 @@ package com.domloge.slinkylinky.supplierengagement.scraper;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import com.domloge.slinkylinky.supplierengagement.AuditRecord;
 import com.domloge.slinkylinky.supplierengagement.email.LeadEmailContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
+import com.domloge.slinkylinky.common.TenantContext;
 
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -34,6 +37,9 @@ public class LeadOutreachService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private AmqpTemplate auditRabbitTemplate;
 
     @Value("${spring.mail.from}")
     private String from;
@@ -69,6 +75,18 @@ public class LeadOutreachService {
         lead.setOutreachSent(LocalDateTime.now());
         lead.setStatus(LeadStatus.OUTREACH_SENT);
         leadRepo.save(lead);
+
+        AuditRecord ar = new AuditRecord();
+        ar.setWho(TenantContext.getUsername());
+        ar.setWhat("outreach sent");
+        ar.setEventTime(LocalDateTime.now());
+        ar.setEntityType("SupplierLead");
+        ar.setEntityId(lead.getId());
+        ar.setDetail(lead.getDomain());
+        TenantContext.getOrganisationId()
+            .map(UUID::fromString)
+            .ifPresent(ar::setOrganisationId);
+        auditRabbitTemplate.convertAndSend(ar);
 
         log.info("Outreach email sent to {} for lead {} ({})", lead.getContactEmail(), lead.getId(), lead.getDomain());
     }

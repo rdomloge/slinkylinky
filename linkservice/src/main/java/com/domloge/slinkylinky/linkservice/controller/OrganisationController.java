@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.linkservice.entity.Organisation;
+import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.repo.OrganisationRepo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +34,9 @@ public class OrganisationController {
 
     @Autowired
     private OrganisationRepo organisationRepo;
+
+    @Autowired
+    private AmqpTemplate auditRabbitTemplate;
 
     /** List all organisations — global_admin only. */
     @GetMapping
@@ -64,6 +70,24 @@ public class OrganisationController {
         body.setCreatedAt(LocalDateTime.now());
         Organisation saved = organisationRepo.save(body);
         log.info("Created organisation {}", saved.getId());
+
+        AuditRecord ar = new AuditRecord();
+        ar.setWho(TenantContext.getUsername());
+        ar.setWhat("create organisation "+saved.getName());
+        ar.setEventTime(LocalDateTime.now());
+        ar.setEntityType("Organisation");
+        ar.setDetail(saved.getName());
+        TenantContext.getOrganisationId()
+            .map(UUID::fromString)
+            .ifPresent(ar::setOrganisationId);
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            ar.setDetail(mapper.writeValueAsString(Map.of("id", saved.getId(), "name", saved.getName())));
+        } catch (Exception e) {
+            ar.setDetail("Id: " + saved.getId() + ", Name: " + saved.getName());
+        }
+        auditRabbitTemplate.convertAndSend(ar);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
