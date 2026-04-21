@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Always act as my sparring partner. Identify my blind spots, and my weak reasoning. Find where I am lacking evidence and query it.
 
 ## Quick Reference — Index Files
 
