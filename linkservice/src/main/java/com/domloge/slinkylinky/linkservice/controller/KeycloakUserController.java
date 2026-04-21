@@ -1,10 +1,13 @@
 package com.domloge.slinkylinky.linkservice.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.common.TenantFilter;
+import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.keycloak.KeycloakAdminClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +41,9 @@ public class KeycloakUserController {
 
     @Autowired
     private KeycloakAdminClient keycloakAdminClient;
+
+    @Autowired
+    private AmqpTemplate auditRabbitTemplate;
 
     private void checkConfigured() {
         if (!keycloakAdminClient.isConfigured()) {
@@ -109,6 +116,17 @@ public class KeycloakUserController {
             }
         }
 
+        AuditRecord ar = new AuditRecord();
+        ar.setWho(TenantContext.getUsername());
+        ar.setWhat("create user");
+        ar.setEventTime(LocalDateTime.now());
+        ar.setEntityType("User");
+        ar.setDetail(newUserId);
+        if (targetOrgId != null) {
+            ar.setOrganisationId(UUID.fromString(targetOrgId));
+        }
+        auditRabbitTemplate.convertAndSend(ar);
+
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -122,6 +140,18 @@ public class KeycloakUserController {
         TenantFilter.requireGlobalAdmin();
         keycloakAdminClient.disableUser(userId);
         log.info("Disabled Keycloak user {}", userId);
+
+        AuditRecord ar = new AuditRecord();
+        ar.setWho(TenantContext.getUsername());
+        ar.setWhat("disable user");
+        ar.setEventTime(LocalDateTime.now());
+        ar.setEntityType("User");
+        ar.setDetail(userId);
+        TenantContext.getOrganisationId()
+            .map(UUID::fromString)
+            .ifPresent(ar::setOrganisationId);
+        auditRabbitTemplate.convertAndSend(ar);
+
         return ResponseEntity.noContent().build();
     }
 

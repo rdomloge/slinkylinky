@@ -23,8 +23,7 @@ public class AuditValidator implements Validator {
         if(null == ar.getEventTime()) errors.rejectValue("eventTime", "missing");
         if(null == ar.getWhat()) errors.rejectValue("what", "missing");
         if(null == ar.getWho() || ar.getWho().trim().isEmpty()) errors.rejectValue("who", "missing");
-        if(null == ar.getEntityType()) errors.rejectValue("entityType", "missing");
-        if (null == ar.getOrganisationId() && (ar.getEntityType() == null || !GLOBAL_ENTITY_TYPES.contains(ar.getEntityType()))) {
+        if (ar.getEntityType() != null && null == ar.getOrganisationId() && !GLOBAL_ENTITY_TYPES.contains(ar.getEntityType())) {
             errors.rejectValue("organisationId", "missing",
                 "organisationId is required for entity type: " + ar.getEntityType());
         }

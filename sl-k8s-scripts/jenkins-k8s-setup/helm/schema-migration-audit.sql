@@ -13,4 +13,6 @@ CREATE INDEX IF NOT EXISTS idx_audit_org ON public.audit_record USING btree (org
 
 -- Step 3 (v6.3): Explicitly ensure organisation_id is nullable.
 --   Guards against any environment where a NOT NULL constraint was manually added.
+--   Required for action events (login, scrape start) that do not upsert a DB entity
+--   and therefore have no organisation_id scope.
 ALTER TABLE IF EXISTS public.audit_record ALTER COLUMN organisation_id DROP NOT NULL;

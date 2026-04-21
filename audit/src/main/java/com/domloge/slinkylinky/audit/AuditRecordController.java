@@ -43,7 +43,7 @@ public class AuditRecordController {
             if (overrideHeader != null && !overrideHeader.isBlank()) {
                 try {
                     UUID overrideId = UUID.fromString(overrideHeader.trim());
-                    page = repo.findAllByOrganisationIdOrderByEventTimeDesc(overrideId, pageable);
+                    page = repo.findByOrganisationIdOrNullOrderByEventTimeDesc(overrideId, pageable);
                 } catch (IllegalArgumentException ignored) {
                     page = repo.findAll(pageable);
                 }
