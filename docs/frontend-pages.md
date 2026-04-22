@@ -58,6 +58,7 @@ Defined in `frontend/react/src/App.jsx`.
 
 ### `Dashboard` — `/`
 Converts an ISO expiry timestamp into a human-readable countdown label and urgency level. Levels: 'critical' (<4 h), 'warning' (<12 h), 'caution' (<24 h), 'ok' (>24 h).
+**API:** `/.rest/demandssitesupport/missingCategories`
 **Props:** label, value, sub, loading, to, accentColor
 
 ### `NewDemand` — `/demand/add`
@@ -118,5 +119,5 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 ### `EditSupplier` — `/supplier/:supplierid`
 
 ### `UsersIndex` — `/users`
-**API:** `/.rest/organisations`, `/.rest/keycloak/users?orgId=${orgId}`, `/.rest/keycloak/users`, `/.rest/keycloak/users/${userId}`, `/.rest/keycloak/users?orgId=…`, `/.rest/keycloak/users/…`
+**API:** `/.rest/organisations`, `/.rest/keycloak/users?orgId=${orgId}`, `/.rest/keycloak/users`, `/.rest/keycloak/users/${userToDisable.id}`, `/.rest/keycloak/users?orgId=…`, `/.rest/keycloak/users/…`
 

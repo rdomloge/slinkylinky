@@ -25,6 +25,7 @@ npm run gen-docs
 
 | File | What it covers |
 |------|----------------|
+| [`audit/CLAUDE.md`](audit/CLAUDE.md) | Audit service: AuditRecord field conventions, who/entityType/entityId rules, RabbitMQ transport pattern |
 | [`docs/supplierengagement-ops.md`](docs/supplierengagement-ops.md) | FlareSolverr resource requirements, timeout config, proxy setup, manual cookie fallback |
 | [`docs/multi-tenancy-keycloak-setup.md`](docs/multi-tenancy-keycloak-setup.md) | Keycloak configuration steps for multi-tenancy |
 
