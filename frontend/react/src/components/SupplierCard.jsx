@@ -175,113 +175,116 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
 }
 
 export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true, selectHandler}) {
+    const responseMeta = responsiveness?.[supplier.id];
+    const supplierTitle = supplier.name || supplier.website || supplier.domain;
 
     return (
         <div id={id} className="card list-card supplier-card relative">
-
-            {/* Header: name + badges + entity badge + actions */}
-            <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="flex items-center flex-wrap gap-2 min-w-0">
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        <span id="supplier-name" className={`text-base font-semibold leading-snug ${supplier.disabled ? 'text-slate-300' : 'text-slate-800'}`}>
-                            {supplier.name}
-                        </span>
-                    </AuthorizedAccess>
-                    {!latest &&
-                        <span className="inline-flex items-center bg-amber-50 text-amber-700 text-xs font-medium px-2 py-0.5 rounded-full border border-amber-200">
-                            Updated
-                        </span>
-                    }
-                    {supplier.thirdParty &&
-                        <span className="inline-flex items-center bg-sky-50 text-sky-700 text-xs font-medium px-2 py-0.5 rounded-full border border-sky-200">
-                            3rd party
-                        </span>
-                    }
+            <div className="flex items-start gap-3 mb-4">
+                <span className="status-dot status-dot-supplier" />
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center flex-wrap gap-2 mb-2">
+                        <span className="entity-badge entity-badge-supplier">Supplier</span>
+                        {responseMeta && <ResponsivenessLabel avgResponseDays={responseMeta.avgResponseDays} />}
+                        {!latest && <span className="status-chip status-chip-neutral">Updated</span>}
+                        {supplier.thirdParty && <span className="status-chip status-chip-neutral">3rd party</span>}
+                        {supplier.disabled && <span className="status-chip status-chip-danger">Disabled</span>}
+                    </div>
+                    <h3 className={`card-title ${supplier.disabled ? 'text-slate-300' : ''}`}>{supplierTitle}</h3>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                    <span className="entity-badge entity-badge-supplier">Supplier</span>
-                    {selectHandler &&
-                        <button id="supplier-selectbtn-id" onClick={selectHandler}
-                            className="text-xs font-semibold px-2.5 py-1 rounded-md text-white transition-colors"
-                            style={{backgroundColor: 'var(--supplier-color)'}}>
+                <div className="flex items-center gap-3 shrink-0">
+                    {selectHandler && (
+                        <button id="supplier-selectbtn-id" onClick={selectHandler} className="card-filled-action card-filled-action-supplier">
                             Select
                         </button>
-                    }
+                    )}
                     {editable &&
                         <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                            <Link to={'/supplier/'+supplier.id} rel='nofollow'>
-                                <span id="supplier-editbtn-id" className="text-sm text-slate-400 hover:text-slate-700">Edit</span>
+                            <Link to={'/supplier/' + supplier.id} rel='nofollow' id="supplier-editbtn-id" className="card-action-link card-action-link-muted">
+                                Edit
                             </Link>
                         </AuthorizedAccess>
                     }
                 </div>
             </div>
 
-            {/* Website + Email */}
-            <div className="space-y-1 mb-3">
+            <div className="card-mono-row">
+                <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-60"/>
                 {linkable ? (
-                    <Link to={addProtocol(supplier.website)} className="flex items-center gap-2 text-sm hover:underline" style={{color: 'var(--supplier-color)'}} target='_blank' rel='nofollow'>
-                        <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-70"/>
-                        <span className="truncate">{supplier.website}</span>
+                    <Link
+                        to={addProtocol(supplier.website)}
+                        className="truncate hover:underline"
+                        style={{ color: 'var(--supplier-color)' }}
+                        target='_blank'
+                        rel='nofollow'
+                    >
+                        {supplier.website}
                     </Link>
                 ) : (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-60"/>
-                        <span className="truncate">{supplier.website}</span>
-                    </div>
+                    <span className="truncate">{supplier.website}</span>
                 )}
-                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                    {linkable ? (
-                        <Link to={'mailto:'+supplier.email} className="flex items-center gap-2 text-sm hover:underline" style={{color: 'var(--supplier-color)'}} rel='nofollow'>
-                            <img src={EmailIcon} alt="email" width={13} height={13} className="shrink-0 opacity-70"/>
+            </div>
+
+            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                {supplier.email && (
+                    linkable ? (
+                        <Link to={'mailto:' + supplier.email} className="flex items-center gap-2 text-sm hover:underline mb-3" style={{ color: 'var(--supplier-color)' }} rel='nofollow'>
+                            <img src={EmailIcon} alt="email" width={13} height={13} className="shrink-0 opacity-60"/>
                             <span id="supplier-email" className="truncate">{supplier.email}</span>
                         </Link>
                     ) : (
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <div className="flex items-center gap-2 text-sm text-slate-500 mb-3">
                             <img src={EmailIcon} alt="email" width={13} height={13} className="shrink-0 opacity-60"/>
                             <span id="supplier-email" className="truncate">{supplier.email}</span>
                         </div>
-                    )}
-                </AuthorizedAccess>
-            </div>
+                    )
+                )}
+            </AuthorizedAccess>
 
-            {/* Stat chips */}
-            <div className="flex items-center flex-wrap gap-2 mb-3">
-                <span className="stat-chip-supplier font-mono-data">
-                    <img src={DaIcon} alt="DA" width={11} height={11}/>
-                    DA {supplier.da}
+            <div className="flex flex-wrap gap-2 mb-4">
+                <span className="metric-pill metric-pill-supplier">
+                    <span className="metric-pill-label">DA</span>
+                    <span>{supplier.da}</span>
                 </span>
                 {supplier.weWriteFee &&
-                    <span className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 text-xs font-medium px-2.5 py-1 rounded-full">
-                        <img src={MoneyIcon} alt="fee" width={11} height={11}/>
-                        {supplier.weWriteFeeCurrency}{supplier.weWriteFee}
+                    <span className="metric-pill metric-pill-neutral">
+                        <span className="metric-pill-label">£</span>
+                        <span>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
                     </span>
                 }
-                {usages &&
-                    <Counter count={usages[supplier.id]} low={2} medium={5} high={25}/>
-                }
-                {responsiveness && responsiveness[supplier.id] &&
-                    <ResponsivenessLabel avgResponseDays={responsiveness[supplier.id].avgResponseDays} />
+                {usages && usages[supplier.id] != null &&
+                    <span className="metric-pill metric-pill-neutral">
+                        <span className="metric-pill-label">Uses</span>
+                        <span>{usages[supplier.id]}</span>
+                    </span>
                 }
             </div>
 
-            {/* Categories */}
             {showCategories &&
-                <CategoriesCard categories={supplier.categories}/>
+                <div className="mb-4">
+                    <CategoriesCard categories={supplier.categories}/>
+                </div>
             }
 
-            {/* Footer: source + traffic graph */}
             {showSemRushTraffic &&
-                <div className="mt-3 pt-3 border-t" style={{borderColor: 'var(--supplier-border)'}}>
-                    <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
-                        {supplier.source &&
-                            <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-2">
-                                <img src={EnterIcon} alt="source" width={12} height={12} className="opacity-60"/>
-                                <span id="supplier-source">{supplier.source}</span>
-                            </div>
-                        }
-                    </AuthorizedAccess>
-                    <SupplierSemRushTraffic supplier={supplier}/>
+                <div className="mt-3">
+                    <div className="card-footer">
+                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                            {supplier.source && (
+                                <span className="inline-flex items-center gap-1.5 min-w-0">
+                                    <img src={EnterIcon} alt="source" width={12} height={12} className="opacity-60 shrink-0"/>
+                                    <span id="supplier-source" className="truncate">{supplier.source}</span>
+                                </span>
+                            )}
+                        </AuthorizedAccess>
+                        <div className="flex-1" />
+                        {responseMeta?.avgResponseDays != null && (
+                            <span className="font-mono-data">Avg response {responseMeta.avgResponseDays}d</span>
+                        )}
+                    </div>
+                    <div className="pt-3">
+                        <SupplierSemRushTraffic supplier={supplier}/>
+                    </div>
                 </div>
             }
         </div>
