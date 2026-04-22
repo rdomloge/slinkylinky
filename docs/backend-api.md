@@ -43,6 +43,14 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | `POST` | `/.rest/keycloak/users` | `createUser()` |
 | `DELETE` | `/.rest/keycloak/users/{userId}` | `disableUser()` |
 
+## `LoginEventController`
+**Base path:** `/.rest/loginEvent`  
+**File:** `linkservice/src/main/java/com/domloge/slinkylinky/linkservice/controller/LoginEventController.java`
+
+| Method | Path | Handler |
+|--------|------|--------|
+| `POST` | `/.rest/loginEvent` | `recordLogin()` |
+
 ## `OrganisationController`
 **Base path:** `/.rest/organisations`  
 **File:** `linkservice/src/main/java/com/domloge/slinkylinky/linkservice/controller/OrganisationController.java`
@@ -123,6 +131,7 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 |--------|------|--------|
 | `GET` | `/.rest/stats/fordomain` | `findByDomainInTimeRange()` |
 | `GET` | `/.rest/stats/responsiveness` | `getResponsiveness()` |
+| `GET` | `/.rest/stats/spam/abovethreshold` | `getDomainsAboveSpamThreshold()` |
 
 ## `CategoryMappingController`
 **Base path:** `/.rest/engagements/category-mappings`  

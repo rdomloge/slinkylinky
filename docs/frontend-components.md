@@ -14,7 +14,7 @@ Small, reusable UI primitives in `src/components/atoms/`.
 | `DotMenu` | `components/atoms/DotMenu.jsx` | items, classNames |  |
 | `LabeledText` | `components/atoms/LabeledText.jsx` | label, text, labelClasses, textClasses |  |
 | `ErrorMessage` | `components/atoms/Messages.jsx` | message, id, icon, colorClasses |  |
-| `Modal` | `components/atoms/Modal.jsx` | children, dismissHandler, title, width, id |  |
+| `Modal` | `components/atoms/Modal.jsx` | children, dismissHandler, title, width, id, dismissOnBackdropClick |  |
 | `NumberInput` | `components/atoms/NumberInput.jsx` | label, disabled, binding, changeHandler, id, step, min, max, options, color |  |
 | `Select` | `components/atoms/Select.jsx` | label, options, changeHandler, selected |  |
 | `TextInput` | `components/atoms/TextInput.jsx` | changeHandler, label, binding, disabled, maxLen, id |  |
@@ -58,6 +58,10 @@ Domain-specific components in `src/components/`.
 
 ### `AuditCard`
 **File:** `components/AuditCard.jsx`  
+**Props:** `auditrecord`  
+
+### `AuditListItem`
+**File:** `components/AuditListItem.jsx`  
 **Props:** `auditrecord`  
 
 ### `AuthorizedAccess`
@@ -105,6 +109,11 @@ Domain-specific components in `src/components/`.
 ### `DemandSiteFinder`
 **File:** `components/DemandSiteFinder.jsx`  
 **Props:** `searchTerm`, `demandsiteSelectedHandler`  
+
+### `DisableUserConfirmModal`
+**File:** `components/DisableUserConfirmModal.jsx`  
+**Props:** `username`, `onConfirm`, `onDismiss`, `isLoading`  
+**Uses:** Modal, StyledButton  
 
 ### `Divider`
 **File:** `components/Divider.jsx`  
@@ -164,8 +173,8 @@ A clickable navigation card with an icon, label, and description. The entire car
 
 ### `PanelCard`
 **File:** `components/PanelCard.jsx`  
-A titled panel card with an optional coloured left-border accent, loading skeleton, and an optional "View all →" link in the header. Props: title       – small-caps label shown in the card header loading     – when true, renders a pulsing skeleton instead of children children    – card body content to          – if set, renders a link in the header (react-router path) linkLabel   – label for the header link (default: "View all →") accentColor – CSS colour used for the left border and title/link text  
-**Props:** `title`, `loading`, `children`, `to`, `linkLabel`, `accentColor`  
+A titled panel card with an optional coloured left-border accent, loading skeleton, and optional actions or a "View all →" link in the header. Props: title         – small-caps label shown in the card header loading       – when true, renders a pulsing skeleton instead of children children      – card body content to            – if set, renders a link in the header (react-router path) linkLabel     – label for the header link (default: "View all →") headerActions – optional JSX rendered next to the header link accentColor   – CSS colour used for the left border and title/link text  
+**Props:** `title`, `loading`, `children`, `to`, `linkLabel`, `headerActions`, `accentColor`  
 
 ### `Profile`
 **File:** `components/Profile.jsx`  
@@ -241,7 +250,7 @@ Route-level page components in `src/pages/`.
 | `EntityAuditTrail` | `pages/audit/trace.jsx` | — |
 | `ListCategories` | `pages/categories/index.jsx` | — |
 | `CategoryMappingsIndex` | `pages/category-mappings/index.jsx` | props: status | calls: /.rest/engagements/category-mappings, /.rest/engagements/category-mappings/${mapping.id} |
-| `Dashboard` | `pages/dashboard/index.jsx` | props: label, value, sub, loading, to, accentColor |
+| `Dashboard` | `pages/dashboard/index.jsx` | props: label, value, sub, loading, to, accentColor | calls: /.rest/demandssitesupport/missingCategories |
 | `NewDemand` | `pages/demand/Add.jsx` | — |
 | `Demand` | `pages/demand/index.jsx` | — |
 | `Demand` | `pages/demand/[demandid].jsx` | — |
