@@ -3,25 +3,25 @@ import CategoriesCard from '@/components/CategoriesCard'
 import AnchorIcon from '@/assets/anchor.svg'
 import CalendarIcon from '@/assets/calendar.svg'
 import LinkIcon from '@/assets/link.svg'
-import DaIcon from '@/assets/authority.svg'
 import LSLogo from '@/assets/linksync-logo.png'
 import SLLogo from '@/assets/logo.png'
 import NiceDate from './atoms/DateTime'
 import WordCountIcon from '@/assets/text-word-count.svg'
 import { Link } from 'react-router-dom'
-import { SessionBlock, StyledButton } from './atoms/Button'
+import { SessionBlock } from './atoms/Button'
 import { useState } from 'react'
 import Modal from './atoms/Modal'
 import { addProtocol } from './Util'
 import { fetchWithAuth } from '@/utils/fetchWithAuth'
 
 export default function DemandCard({demand, fullfilable=false, editable=false, id, deleteCascader, deletable=false, editHandler}) {
-
     const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const isFulfilled = demand.status === 'fulfilled' || demand.fulfilled === true || demand.satisfied === true
+    const demandTone = isFulfilled ? 'good' : 'demand'
 
     function deleteHandler() {
         setShowDeleteModal(false)
-        fetchWithAuth('/.rest/demandsupport/delete?demandId='+demand.id, {
+        fetchWithAuth('/.rest/demandsupport/delete?demandId=' + demand.id, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,72 +37,83 @@ export default function DemandCard({demand, fullfilable=false, editable=false, i
 
     return (
         <div className="card list-card demand-card" id={id}>
-
-            {/* Header: name + entity badge + actions */}
-            <div className="flex items-start justify-between gap-2 mb-3">
-                <div className="text-base font-semibold text-slate-800 leading-snug">{demand.name}</div>
-                <SessionBlock>
-                    <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-start gap-3 mb-4">
+                <span className={`status-dot ${isFulfilled ? 'status-dot-good' : 'status-dot-demand'}`} />
+                <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="entity-badge entity-badge-demand">Demand</span>
+                        <span className={`status-chip ${isFulfilled ? 'status-chip-good' : 'status-chip-demand'}`}>
+                            {isFulfilled ? 'Fulfilled' : 'Open'}
+                        </span>
+                    </div>
+                    <h3 className="card-title">{demand.name}</h3>
+                </div>
+                <SessionBlock>
+                    <div className="flex items-center gap-3 shrink-0">
                         {fullfilable &&
-                            <Link to={'/supplier/search/'+demand.id} rel='nofollow'>
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-md text-white text-xs font-semibold transition-colors"
-                                      style={{backgroundColor: 'var(--demand-color)'}}>
-                                    Fulfil
-                                </span>
+                            <Link to={'/supplier/search/' + demand.id} rel='nofollow' className="card-filled-action card-filled-action-demand">
+                                Fulfil
                             </Link>
                         }
                         {editable && (
                             editHandler
-                                ? <StyledButton label='Edit' type='primary' submitHandler={() => editHandler(demand)} isText={true}/>
-                                : <Link to={'/demand/'+demand.id} rel='nofollow'>
-                                    <span className="text-xs font-medium text-slate-400 hover:text-slate-700 transition-colors">Edit</span>
-                                  </Link>
+                                ? <button type="button" className="card-action-link card-action-link-muted" onClick={() => editHandler(demand)}>Edit</button>
+                                : <Link to={'/demand/' + demand.id} rel='nofollow' className="card-action-link card-action-link-muted">Edit</Link>
                         )}
                         {deletable &&
-                            <StyledButton label='Delete' type='risky' submitHandler={() => setShowDeleteModal(true)} isText={true}/>
+                            <button type="button" className="card-action-link card-action-link-danger" onClick={() => setShowDeleteModal(true)}>
+                                Delete
+                            </button>
                         }
                     </div>
                 </SessionBlock>
             </div>
 
-            {/* URL + Anchor text */}
-            <div className="space-y-1 mb-3">
-                <Link to={addProtocol(demand.url)} target='_blank' rel='nofollow'
-                    className="flex items-center gap-2 text-sm hover:underline transition-colors"
-                    style={{color: 'var(--demand-color)'}}>
-                    <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-70"/>
-                    <span className="truncate">{demand.url}</span>
+            <div className="card-mono-row">
+                <img src={LinkIcon} alt="link" width={13} height={13} className="shrink-0 opacity-60"/>
+                <Link
+                    to={addProtocol(demand.url)}
+                    target='_blank'
+                    rel='nofollow'
+                    className="truncate hover:underline"
+                    style={{ color: 'var(--demand-color)' }}
+                >
+                    {demand.url}
                 </Link>
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+            </div>
+
+            {demand.anchorText && (
+                <div className="card-anchor-row">
                     <img src={AnchorIcon} alt="anchor" width={13} height={13} className="shrink-0 opacity-60"/>
-                    <span className="truncate italic">{demand.anchorText}</span>
+                    <span className="truncate">{demand.anchorText}</span>
                 </div>
+            )}
+
+            <div className="flex flex-wrap gap-2 mb-4">
+                <span className={`metric-pill ${demand.daNeeded >= 40 ? 'metric-pill-good' : 'metric-pill-demand'}`}>
+                    <span className="metric-pill-label">DA</span>
+                    <span>{demand.daNeeded}+</span>
+                </span>
+                {demand.wordCount &&
+                    <span className="metric-pill metric-pill-neutral">
+                        <img src={WordCountIcon} alt="words" width={12} height={12}/>
+                        <span>{demand.wordCount}w</span>
+                    </span>
+                }
             </div>
 
-            {/* Stat chips */}
-            <div className="flex items-center flex-wrap gap-2 mb-3">
-                <span className="stat-chip-demand font-mono-data">
-                    <img src={DaIcon} alt="DA" width={11} height={11}/>
-                    DA {demand.daNeeded}+
-                </span>
-                <span className="stat-chip-demand font-mono-data">
-                    <img src={WordCountIcon} alt="words" width={12} height={12}/>
-                    {demand.wordCount}w
-                </span>
+            <div className="mb-4">
+                <CategoriesCard categories={demand.categories}/>
             </div>
 
-            {/* Categories */}
-            <CategoriesCard categories={demand.categories}/>
-
-            {/* Footer: date, creator, source logo */}
-            <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{borderColor: 'var(--demand-border)'}}>
-                <div className="flex items-center gap-1.5 text-xs text-slate-400 min-w-0">
+            <div className="card-footer">
+                <span className="inline-flex items-center gap-1.5 min-w-0">
                     <img src={CalendarIcon} alt="calendar" width={12} height={12} className="shrink-0"/>
                     <NiceDate isostring={demand.requested}/>
-                    <span className="mx-0.5">·</span>
-                    <span className="truncate">{demand.createdBy}</span>
-                </div>
+                </span>
+                <span>·</span>
+                <span className="font-mono-data truncate">{demand.createdBy}</span>
+                <div className="flex-1" />
                 <div className="shrink-0 ml-2">
                     {'LinkSync' === demand.source && <img src={LSLogo} alt="LinkSync" className="h-4 w-auto opacity-30"/>}
                     {'SlinkyLinky' === demand.source && <img src={SLLogo} alt="SlinkyLinky" className="h-4 w-auto opacity-30"/>}
