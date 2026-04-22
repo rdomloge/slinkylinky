@@ -2,7 +2,7 @@ FROM --platform=$BUILDPLATFORM azul/zulu-openjdk:17 AS extract
 COPY target/supplierengagement.jar app.jar
 RUN java -Djarmode=layertools -jar app.jar extract --destination extracted
 
-FROM azul/zulu-openjdk:17
+FROM azul/zulu-openjdk:17-jre
 # Install system dependencies for Playwright headless scraping (Playwright manages browser download)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
