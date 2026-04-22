@@ -27,7 +27,7 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.audit_record (
-    entity_id bigint,
+    entity_id text,
     event_time timestamp(6) without time zone NOT NULL,
     id bigint NOT NULL,
     entity_type character varying(255),

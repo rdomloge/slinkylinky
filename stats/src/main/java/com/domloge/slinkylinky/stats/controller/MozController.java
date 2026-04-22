@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.domloge.slinkylinky.stats.amqp.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.stats.moz.DaChecker;
 import com.domloge.slinkylinky.stats.moz.LinkChecker;
 import com.domloge.slinkylinky.stats.moz.MozDomain;
@@ -61,15 +61,15 @@ public class MozController {
         // }
 
         // audit the usage of the Moz API
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEventTime(java.time.LocalDateTime.now());
-        auditRecord.setWho(user);
-        auditRecord.setWhat("Use Moz API");
-        auditRecord.setDetail(supplierDomain +" => "+ demandurl);
-        auditRecord.setEntityId(demandId);
-        auditRecord.setEntityType("Demand");
-        auditRecord.setOrganisationId(organisationId);
-        auditRabbitTemplate.convertAndSend(auditRecord);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setEventTime(java.time.LocalDateTime.now());
+        auditEvent.setWho(user);
+        auditEvent.setWhat("Use Moz API");
+        auditEvent.setDetail(supplierDomain +" => "+ demandurl);
+        auditEvent.setEntityId(String.valueOf(demandId));
+        auditEvent.setEntityType("Demand");
+        auditEvent.setOrganisationId(organisationId);
+        auditRabbitTemplate.convertAndSend(auditEvent);
 
         // constantcontact.com -> gerryoleary.com
         if(demandurl.equals("gerryoleary.com") && supplierDomain.equals("constantcontact.com")) {

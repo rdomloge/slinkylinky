@@ -16,3 +16,17 @@ CREATE INDEX IF NOT EXISTS idx_audit_org ON public.audit_record USING btree (org
 --   Required for action events (login, scrape start) that do not upsert a DB entity
 --   and therefore have no organisation_id scope.
 ALTER TABLE IF EXISTS public.audit_record ALTER COLUMN organisation_id DROP NOT NULL;
+
+-- Step 4 (v6.4): Migrate entity_id from bigint to text.
+--   Supports numeric IDs (converted to decimal strings), UUIDs (as canonical strings),
+--   and external string IDs (e.g., Keycloak UUIDs).
+--   Idempotent: check current column type before altering.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'audit_record' AND column_name = 'entity_id' AND data_type = 'bigint'
+  ) THEN
+    ALTER TABLE public.audit_record ALTER COLUMN entity_id TYPE text USING entity_id::text;
+  END IF;
+END $$;

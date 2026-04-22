@@ -20,8 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.common.TenantFilter;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.Organisation;
-import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 import com.domloge.slinkylinky.linkservice.repo.OrganisationRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -71,22 +71,21 @@ public class OrganisationController {
         Organisation saved = organisationRepo.save(body);
         log.info("Created organisation {}", saved.getId());
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho(TenantContext.getUsername());
-        ar.setWhat("create organisation "+saved.getName());
-        ar.setEventTime(LocalDateTime.now());
-        ar.setEntityType("Organisation");
-        ar.setDetail(saved.getName());
-        TenantContext.getOrganisationId()
-            .map(UUID::fromString)
-            .ifPresent(ar::setOrganisationId);
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        ae.setWhat("create organisation "+saved.getName());
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("Organisation");
+        ae.setEntityId(saved.getId().toString());
+        ae.setDetail(saved.getName());
+        ae.setOrganisationId(saved.getId());
         try {
             ObjectMapper mapper = new ObjectMapper();
-            ar.setDetail(mapper.writeValueAsString(Map.of("id", saved.getId(), "name", saved.getName())));
+            ae.setDetail(mapper.writeValueAsString(Map.of("id", saved.getId(), "name", saved.getName())));
         } catch (Exception e) {
-            ar.setDetail("Id: " + saved.getId() + ", Name: " + saved.getName());
+            ae.setDetail("Id: " + saved.getId() + ", Name: " + saved.getName());
         }
-        auditRabbitTemplate.convertAndSend(ar);
+        auditRabbitTemplate.convertAndSend(ae);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }

@@ -5,8 +5,8 @@ Microservice for recording and retrieving entity change history. Runs on port 80
 ## Overview
 
 The audit service:
-- Receives `AuditRecord` payloads from other services **via RabbitMQ only** (queue: `${rabbitmq.audit.queue}`; exchange: `slinkylinky.exchange`). It is never called over HTTP by other services.
-- Exposes `GET /auditrecords` (tenant-scoped; `global_admin` can cross-tenant via `X-Tenant-Override` header).
+- Receives `AuditEvent` payloads from other services **via RabbitMQ only** (queue: `${rabbitmq.audit.queue}`; exchange: `slinkylinky.exchange`). It is never called over HTTP by other services.
+- Exposes `GET /auditrecords` (tenant-scoped; `global_admin` can cross-tenant via `X-Tenant-Override` header) and `GET /auditrecords/trace` (tenant-aware trace lookup).
 - Persists to the `audit_record` table in the `audit` PostgreSQL database.
 
 ## AuditRecord Fields — How to Fill Them
@@ -27,13 +27,16 @@ Known values: `Supplier`, `Demand`, `DemandSite`, `Proposal`, `Category`, `Black
 
 Leave `null` only for cross-cutting events with no single target entity (e.g. `"login"`).
 
-### `entityId` — `Long`, nullable
+### `entityId` — `String`, nullable
 
-The database primary key of the audited entity. Pair it with `entityType` so the record can be used to look up the full entity history.
+An opaque identifier for the audited entity, normalised to a string to support multiple ID types. Pair it with `entityType` so the record can be used to look up the full entity history.
 
-**Known issue:** `KeycloakUserController` stores a Keycloak UUID string (`String`) in this `Long` field — this is a bug. New code should always store a genuine `Long` PK, or leave the field `null` and describe the external reference in `detail` instead.
+Conversion rules:
+- Numeric IDs (from Long PKs): convert with `String.valueOf(id)` — e.g., `"42"`
+- UUID-backed entities: convert with `uuid.toString()` — e.g., `"550e8400-e29b-41d4-a716-446655440000"`
+- External string IDs (e.g., Keycloak UUIDs): pass through unchanged — e.g., `"abc123def"`
 
-Leave `null` when the entity has no single numeric PK (e.g. login events, organisation-creation events before the entity is persisted with an ID).
+Leave `null` only for action-only events (e.g. login events, organisation-creation events before the entity is persisted with an ID).
 
 ### `what` — mandatory, `@NotBlank`
 
@@ -69,25 +72,27 @@ Tenant scoping field. Rules:
 
 For tenant-scoped entities: `entity.getOrganisationId()` if the entity carries it, or `TenantContext.getOrganisationId()` otherwise.
 
-## Sending an Audit Record
+## Sending an Audit Event
+
+All producer services use the shared `com.domloge.slinkylinky.events.AuditEvent` from the `events` module. Do not create local audit DTOs.
 
 ### Pattern (from linkservice or any caller)
 
 ```java
-AuditRecord ar = new AuditRecord();
-ar.setWho(TenantContext.getUsername());
-ar.setWhat("create widget");
-ar.setEntityType(Widget.class.getSimpleName());
-ar.setEntityId(widget.getId());
-ar.setDetail(objectMapper.writeValueAsString(widget));
-ar.setEventTime(LocalDateTime.now());
-ar.setOrganisationId(TenantContext.getOrganisationId());
-auditRabbitTemplate.convertAndSend(ar);
+AuditEvent ae = new AuditEvent();
+ae.setWho(TenantContext.getUsername());
+ae.setWhat("create widget");
+ae.setEntityType(Widget.class.getSimpleName());
+ae.setEntityId(String.valueOf(widget.getId()));  // Convert to string
+ae.setDetail(objectMapper.writeValueAsString(widget));
+ae.setEventTime(LocalDateTime.now());
+ae.setOrganisationId(TenantContext.getOrganisationId());
+auditRabbitTemplate.convertAndSend(ae);
 ```
 
-### Transport
+### Transport & Deserialization
 
-The `auditRabbitTemplate` bean (in `linkservice/config/RabbitConfig.java`) routes messages to `slinkylinky.exchange` with the audit routing key. The audit service's `AuditEventReceiver` listens, validates, and persists. There is no HTTP endpoint to POST audit records — do not add one.
+Each producer service's `auditRabbitTemplate` bean routes `AuditEvent` messages to `slinkylinky.exchange` with the audit routing key. The audit service's `AuditEventReceiver` listens, deserializes the wire format into its JPA `AuditRecord`, validates, and persists. This separation of transport (shared `AuditEvent`) and persistence (`AuditRecord`) allows safe evolution. There is no HTTP endpoint to POST audit records — do not add one.
 
 ## Validation
 

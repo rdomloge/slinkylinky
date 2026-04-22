@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import com.domloge.slinkylinky.supplierengagement.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.supplierengagement.email.LeadEmailContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
@@ -76,17 +76,17 @@ public class LeadOutreachService {
         lead.setStatus(LeadStatus.OUTREACH_SENT);
         leadRepo.save(lead);
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho(TenantContext.getUsername());
-        ar.setWhat("outreach sent");
-        ar.setEventTime(LocalDateTime.now());
-        ar.setEntityType("SupplierLead");
-        ar.setEntityId(lead.getId());
-        ar.setDetail(lead.getDomain());
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        ae.setWhat("outreach sent");
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("SupplierLead");
+        ae.setEntityId(String.valueOf(lead.getId()));
+        ae.setDetail(lead.getDomain());
         TenantContext.getOrganisationId()
             .map(UUID::fromString)
-            .ifPresent(ar::setOrganisationId);
-        auditRabbitTemplate.convertAndSend(ar);
+            .ifPresent(ae::setOrganisationId);
+        auditRabbitTemplate.convertAndSend(ae);
 
         log.info("Outreach email sent to {} for lead {} ({})", lead.getContactEmail(), lead.getId(), lead.getDomain());
     }

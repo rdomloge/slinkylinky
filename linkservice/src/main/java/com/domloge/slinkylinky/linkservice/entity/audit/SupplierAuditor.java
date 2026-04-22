@@ -11,6 +11,7 @@ import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
 import com.domloge.slinkylinky.common.TenantContext;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,33 +39,33 @@ public class SupplierAuditor {
 
     @HandleBeforeSave
     public void handleBeforeSave(Supplier supplier) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(supplier.getUpdatedBy());
-        auditRecord.setWhat("update supplier");
-        common(auditRecord, supplier);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(supplier.getUpdatedBy());
+        auditEvent.setWhat("update supplier");
+        common(auditEvent, supplier);
     }
 
     @HandleAfterCreate
     public void handleAfterCreate(Supplier supplier) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(supplier.getCreatedBy());
-        auditRecord.setWhat("create supplier");
-        common(auditRecord, supplier);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(supplier.getCreatedBy());
+        auditEvent.setWhat("create supplier");
+        common(auditEvent, supplier);
     }
 
-    private void common(AuditRecord ar, Supplier s) {
-        ar.setEntityId(s.getId());
-        ar.setEntityType(s.getClass().getSimpleName());
+    private void common(AuditEvent ae, Supplier s) {
+        ae.setEntityId(String.valueOf(s.getId()));
+        ae.setEntityType(s.getClass().getSimpleName());
         try {
-            ar.setDetail(objectMapper.writeValueAsString(s));
+            ae.setDetail(objectMapper.writeValueAsString(s));
         } catch (Exception e) {
             log.error("Failed to serialize supplier", e);
         }
-        ar.setEventTime(LocalDateTime.now());
+        ae.setEventTime(LocalDateTime.now());
         TenantContext.getOrganisationId()
             .map(UUID::fromString)
-            .ifPresent(ar::setOrganisationId);
-        auditRabbitTemplate.convertAndSend(ar);
-        log.info("Sent audit record {}", ar);
+            .ifPresent(ae::setOrganisationId);
+        auditRabbitTemplate.convertAndSend(ae);
+        log.info("Sent audit record {}", ae);
     }
 }

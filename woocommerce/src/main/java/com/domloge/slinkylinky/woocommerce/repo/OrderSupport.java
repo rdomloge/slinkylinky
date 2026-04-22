@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.woocommerce.entity.OrderEntity;
-import com.domloge.slinkylinky.woocommerce.sync.dto.AuditRecord;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -55,19 +55,19 @@ public class OrderSupport {
             order.setArchived(true);
             orderRepo.save(order);
 
-            AuditRecord auditRecord = new AuditRecord();
-            auditRecord.setEntityType("OrderEntity");
-            auditRecord.setEventTime(LocalDateTime.now());
-            auditRecord.setEntityId(order.getId());
-            auditRecord.setWhat("Order " + order.getExternalId() + " archived");
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setEntityType("OrderEntity");
+            auditEvent.setEventTime(LocalDateTime.now());
+            auditEvent.setEntityId(String.valueOf(order.getId()));
+            auditEvent.setWhat("Order " + order.getExternalId() + " archived");
             try {
-                auditRecord.setDetail(mapper.writeValueAsString(order));
-            } 
-            catch (JsonProcessingException e) {
-                auditRecord.setDetail("Failed to serialize order");
+                auditEvent.setDetail(mapper.writeValueAsString(order));
             }
-            auditRecord.setWho(user);
-            auditTemplate.convertAndSend(auditRecord);
+            catch (JsonProcessingException e) {
+                auditEvent.setDetail("Failed to serialize order");
+            }
+            auditEvent.setWho(user);
+            auditTemplate.convertAndSend(auditEvent);
             log.info("Audit record sent");
 
 

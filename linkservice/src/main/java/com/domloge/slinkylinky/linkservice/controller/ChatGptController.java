@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.ai.ChatGpt;
 import com.domloge.slinkylinky.linkservice.ai.ChatGptMessage;
-import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,14 +35,14 @@ public class ChatGptController {
         log.info(user + " is generating a chatgpt response for prompt: " + prompt);
 
         // audit the usage of the AI
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEventTime(LocalDateTime.now());
-        auditRecord.setWho(user);
-        auditRecord.setWhat("Use chatgpt");
-        auditRecord.setDetail(prompt);
-        auditRecord.setEntityId(proposalId);
-        auditRecord.setEntityType("Proposal");
-        auditRabbitTemplate.convertAndSend(auditRecord);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setEventTime(LocalDateTime.now());
+        auditEvent.setWho(user);
+        auditEvent.setWhat("Use chatgpt");
+        auditEvent.setDetail(prompt);
+        auditEvent.setEntityId(String.valueOf(proposalId));
+        auditEvent.setEntityType("Proposal");
+        auditRabbitTemplate.convertAndSend(auditEvent);
 
         ChatGptMessage[] messages = {
             new ChatGptMessage("user", prompt)

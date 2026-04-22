@@ -23,7 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.common.TenantFilter;
-import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.keycloak.KeycloakAdminClient;
 
 import lombok.extern.slf4j.Slf4j;
@@ -116,16 +116,17 @@ public class KeycloakUserController {
             }
         }
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho(TenantContext.getUsername());
-        ar.setWhat("create user");
-        ar.setEventTime(LocalDateTime.now());
-        ar.setEntityType("User");
-        ar.setDetail(newUserId);
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        ae.setWhat("create user");
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("User");
+        ae.setEntityId(newUserId);
+        ae.setDetail(newUserId);
         if (targetOrgId != null) {
-            ar.setOrganisationId(UUID.fromString(targetOrgId));
+            ae.setOrganisationId(UUID.fromString(targetOrgId));
         }
-        auditRabbitTemplate.convertAndSend(ar);
+        auditRabbitTemplate.convertAndSend(ae);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -141,16 +142,17 @@ public class KeycloakUserController {
         keycloakAdminClient.disableUser(userId);
         log.info("Disabled Keycloak user {}", userId);
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho(TenantContext.getUsername());
-        ar.setWhat("disable user");
-        ar.setEventTime(LocalDateTime.now());
-        ar.setEntityType("User");
-        ar.setDetail(userId);
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        ae.setWhat("disable user");
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("User");
+        ae.setEntityId(userId);
+        ae.setDetail(userId);
         TenantContext.getOrganisationId()
             .map(UUID::fromString)
-            .ifPresent(ar::setOrganisationId);
-        auditRabbitTemplate.convertAndSend(ar);
+            .ifPresent(ae::setOrganisationId);
+        auditRabbitTemplate.convertAndSend(ae);
 
         return ResponseEntity.noContent().build();
     }

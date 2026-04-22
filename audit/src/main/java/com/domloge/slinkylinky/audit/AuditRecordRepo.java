@@ -17,7 +17,7 @@ import jakarta.transaction.Transactional;
 public interface AuditRecordRepo extends CrudRepository<AuditRecord, Long>, PagingAndSortingRepository<AuditRecord, Long> {
 
     @Transactional
-    AuditRecord[] findByEntityTypeAndEntityIdOrderByEventTimeAsc(String entityType, Long entityId);
+    AuditRecord[] findByEntityTypeAndEntityIdOrderByEventTimeAsc(String entityType, String entityId);
 
     @Transactional
     Page<AuditRecord> findAllByOrganisationIdOrderByEventTimeDesc(UUID organisationId, Pageable pageable);

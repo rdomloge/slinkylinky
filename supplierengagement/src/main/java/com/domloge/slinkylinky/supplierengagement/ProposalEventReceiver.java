@@ -8,6 +8,7 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.events.ProposalUpdateEvent;
 import com.domloge.slinkylinky.events.ProposalUpdateEvent.ProposalEventType;
 import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
@@ -142,23 +143,23 @@ public class ProposalEventReceiver {
             MimeMessage mimeMessage = emailBuilder.buildSupplierEngagementMessage(event, content);
             emailSender.send(mimeMessage, event.getProposalId());
 
-            AuditRecord auditRecord = new AuditRecord();
-            auditRecord.setEntityId(event.getProposalId());
-            auditRecord.setEntityType("Proposal");
-            auditRecord.setEventTime(java.time.LocalDateTime.now());
-            auditRecord.setWho("supplier-engagement-bot");
-            auditRecord.setWhat("Email sent to supplier");
-            auditRecord.setDetail(content);
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setEntityId(String.valueOf(event.getProposalId()));
+            auditEvent.setEntityType("Proposal");
+            auditEvent.setEventTime(java.time.LocalDateTime.now());
+            auditEvent.setWho("supplier-engagement-bot");
+            auditEvent.setWhat("Email sent to supplier");
+            auditEvent.setDetail(content);
             if (engagement.getOrganisationId() != null) {
-                auditRecord.setOrganisationId(engagement.getOrganisationId());
+                auditEvent.setOrganisationId(engagement.getOrganisationId());
             } else if (event.getOrganisationId() != null) {
                 try {
-                    auditRecord.setOrganisationId(java.util.UUID.fromString(event.getOrganisationId()));
+                    auditEvent.setOrganisationId(java.util.UUID.fromString(event.getOrganisationId()));
                 } catch (IllegalArgumentException ignored) {
                     log.warn("Unparseable organisationId on ProposalUpdateEvent: {}", event.getOrganisationId());
                 }
             }
-            auditRabbitTemplate.convertAndSend(auditRecord);
+            auditRabbitTemplate.convertAndSend(auditEvent);
         }
         catch(MessagingException e) {
             log.error("Failed to send email", e);

@@ -16,7 +16,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.domloge.slinkylinky.stats.amqp.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -126,19 +126,19 @@ public class MozFacade {
 
     private void audit(String user, String domain, Exception e) {
         // audit the usage of the Moz API
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEventTime(java.time.LocalDateTime.now());
-        auditRecord.setWho(user);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setEventTime(java.time.LocalDateTime.now());
+        auditEvent.setWho(user);
         if(null != e) {
-            auditRecord.setWhat("*Failed* Use Moz API");
-            auditRecord.setDetail("New Supplier DA check for " + domain + " by " + user + " failed: " + e.getMessage());
+            auditEvent.setWhat("*Failed* Use Moz API");
+            auditEvent.setDetail("New Supplier DA check for " + domain + " by " + user + " failed: " + e.getMessage());
         }
         else {
-            auditRecord.setWhat("Use Moz API");
-            auditRecord.setDetail("New Supplier DA check for " + domain + " by " + user);
+            auditEvent.setWhat("Use Moz API");
+            auditEvent.setDetail("New Supplier DA check for " + domain + " by " + user);
         }
-        auditRecord.setEntityType("Supplier");
-        auditRabbitTemplate.convertAndSend(auditRecord);
+        auditEvent.setEntityType("Supplier");
+        auditRabbitTemplate.convertAndSend(auditEvent);
     }
 
     public HttpHeaders createHeaders(String mozSecret) {

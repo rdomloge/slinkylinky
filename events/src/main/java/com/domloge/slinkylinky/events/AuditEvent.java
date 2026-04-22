@@ -1,24 +1,22 @@
-package com.domloge.slinkylinky.stats.amqp;
+package com.domloge.slinkylinky.events;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
-@Getter 
+@Getter
 @Setter
-@ToString
-public class AuditRecord {
-
-    private Long entityId;
-
-    private String entityType;
+public class AuditEvent {
 
     private String who;
 
     private String what;
+
+    private String entityType;
+
+    private String entityId;
 
     private LocalDateTime eventTime;
 

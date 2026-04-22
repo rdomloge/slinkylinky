@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
@@ -62,8 +63,8 @@ public class ProposalAutoCanceller  {
             engagementRepo.save(engagement);
             log.info("Engagement for proposal {} with GUID {} expired ", engagement.getProposalId(), engagement.getGuid());
 
-            AuditRecord audit = new AuditRecord();
-            audit.setEntityId(engagement.getProposalId());
+            AuditEvent audit = new AuditEvent();
+            audit.setEntityId(String.valueOf(engagement.getProposalId()));
             audit.setEntityType("Engagement");
             audit.setWhat("Engagement expired");
             audit.setEventTime(LocalDateTime.now());

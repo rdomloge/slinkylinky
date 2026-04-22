@@ -15,7 +15,7 @@ export default function EntityAuditTrail() {
             const entityType = searchParams.get('entityType')
             const entityId = searchParams.get('entityId')
             if (!entityType || !entityId) return
-            const trailUrl = "/.rest/auditrecords/search/findByEntityTypeAndEntityIdOrderByEventTimeAsc"
+            const trailUrl = "/.rest/auditrecords/trace"
                 + "?entityType="+entityType
                 + "&entityId="+entityId
 

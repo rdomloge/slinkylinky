@@ -9,6 +9,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.BlackListedSupplier;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,23 +42,23 @@ public class BlackListedSupplierAuditor {
 
     @HandleAfterCreate
     public void handleAfterCreate(BlackListedSupplier supplier) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(supplier.getCreatedBy());
-        auditRecord.setWhat("create blacklisted supplier");
-        common(auditRecord, supplier);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(supplier.getCreatedBy());
+        auditEvent.setWhat("create blacklisted supplier");
+        common(auditEvent, supplier);
     }
 
-    private void common(AuditRecord auditRecord, BlackListedSupplier supplier) {
-        auditRecord.setEventTime(LocalDateTime.now());
-        auditRecord.setEntityId(supplier.getId());
-        auditRecord.setEntityType(BlackListedSupplier.class.getSimpleName());
+    private void common(AuditEvent auditEvent, BlackListedSupplier supplier) {
+        auditEvent.setEventTime(LocalDateTime.now());
+        auditEvent.setEntityId(String.valueOf(supplier.getId()));
+        auditEvent.setEntityType(BlackListedSupplier.class.getSimpleName());
         try {
-            auditRecord.setDetail(objectMapper.writeValueAsString(supplier));
+            auditEvent.setDetail(objectMapper.writeValueAsString(supplier));
         } catch (JsonProcessingException e) {
-            log.error("Could not write Demand to JSON", e);
-            auditRecord.setDetail("Error writing to JSON..."+supplier.toString());
+            log.error("Could not write BlackListedSupplier to JSON", e);
+            auditEvent.setDetail("Error writing to JSON..."+supplier.toString());
         }
-        auditRabbitTemplate.convertAndSend(auditRecord);
-        log.info("Sent audit record {}", auditRecord);
+        auditRabbitTemplate.convertAndSend(auditEvent);
+        log.info("Sent audit record {}", auditEvent);
     }
 }

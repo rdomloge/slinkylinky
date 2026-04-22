@@ -99,7 +99,7 @@ class AuditRecordControllerTest {
     void list_globalAdminWithOverride_filtersToOverrideOrg() {
         TenantTestHelper.setSecurityContext("admin", ORG_A, List.of("global_admin"));
         Page<AuditRecord> page = pageOf(auditRecord(ORG_B_UUID));
-        when(repo.findAllByOrganisationIdOrderByEventTimeDesc(eq(ORG_B_UUID), any(Pageable.class)))
+        when(repo.findByOrganisationIdOrNullOrderByEventTimeDesc(eq(ORG_B_UUID), any(Pageable.class)))
             .thenReturn(page);
         when(assembler.toModel(page)).thenReturn(PagedModel.empty());
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -108,7 +108,7 @@ class AuditRecordControllerTest {
         ResponseEntity<?> response = controller.list(PageRequest.of(0, 10), request);
 
         assertEquals(200, response.getStatusCode().value());
-        verify(repo).findAllByOrganisationIdOrderByEventTimeDesc(eq(ORG_B_UUID), any(Pageable.class));
+        verify(repo).findByOrganisationIdOrNullOrderByEventTimeDesc(eq(ORG_B_UUID), any(Pageable.class));
     }
 
     @Test

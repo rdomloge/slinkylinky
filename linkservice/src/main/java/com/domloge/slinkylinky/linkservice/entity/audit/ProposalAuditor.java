@@ -10,6 +10,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.Proposal;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,39 +38,39 @@ public class ProposalAuditor {
 
     @HandleAfterDelete
     public void handleAfterDelete(Proposal proposal) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(proposal.getUpdatedBy());
-        auditRecord.setWhat("delete proposal");
-        common(auditRecord, proposal);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(proposal.getUpdatedBy());
+        auditEvent.setWhat("delete proposal");
+        common(auditEvent, proposal);
     }
-    
+
     @HandleBeforeSave
     public void handleBeforeSave(Proposal proposal) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(proposal.getUpdatedBy());
-        auditRecord.setWhat("update proposal");
-        common(auditRecord, proposal);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(proposal.getUpdatedBy());
+        auditEvent.setWhat("update proposal");
+        common(auditEvent, proposal);
     }
 
     @HandleAfterCreate
     public void handleAfterCreate(Proposal proposal) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(proposal.getCreatedBy());
-        auditRecord.setWhat("create proposal");
-        common(auditRecord, proposal);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(proposal.getCreatedBy());
+        auditEvent.setWhat("create proposal");
+        common(auditEvent, proposal);
     }
 
-    private void common(AuditRecord ar, Proposal p) {
-        ar.setEntityId(p.getId());
-        ar.setEntityType(p.getClass().getSimpleName());
-        ar.setOrganisationId(p.getOrganisationId());
+    private void common(AuditEvent ae, Proposal p) {
+        ae.setEntityId(String.valueOf(p.getId()));
+        ae.setEntityType(p.getClass().getSimpleName());
+        ae.setOrganisationId(p.getOrganisationId());
         try {
-            ar.setDetail(objectMapper.writeValueAsString(p));
+            ae.setDetail(objectMapper.writeValueAsString(p));
         } catch (Exception e) {
             log.error("Failed to serialize proposal", e);
         }
-        ar.setEventTime(LocalDateTime.now());
-        auditRabbitTemplate.convertAndSend(ar);
-        log.info("Sent audit record {}", ar);
+        ae.setEventTime(LocalDateTime.now());
+        auditRabbitTemplate.convertAndSend(ae);
+        log.info("Sent audit record {}", ae);
     }
 }

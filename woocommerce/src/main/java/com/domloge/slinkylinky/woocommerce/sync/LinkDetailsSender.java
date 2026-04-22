@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.woocommerce.entity.OrderEntity;
 import com.domloge.slinkylinky.woocommerce.entity.OrderLineItemEntity;
-import com.domloge.slinkylinky.woocommerce.sync.dto.AuditRecord;
 
 import freemarker.template.TemplateException;
 import jakarta.activation.DataHandler;
@@ -58,15 +58,15 @@ public class LinkDetailsSender {
         try {
             send(build(orderEntity));
 
-            AuditRecord auditRecord = new AuditRecord();
-            auditRecord.setEntityType("OrderEntity");
-            auditRecord.setEventTime(LocalDateTime.now());
-            auditRecord.setEntityId(orderEntity.getId());
-            auditRecord.setWhat("Link details email");
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setEntityType("OrderEntity");
+            auditEvent.setEventTime(LocalDateTime.now());
+            auditEvent.setEntityId(String.valueOf(orderEntity.getId()));
+            auditEvent.setWhat("Link details email");
             String sendTo = orderEntity.getShippingEmailAddress() != null ? orderEntity.getShippingEmailAddress() : orderEntity.getBillingEmailAddress();
-            auditRecord.setDetail("Sent to "+sendTo);
-            auditRecord.setWho("System");
-            auditTemplate.convertAndSend(auditRecord);
+            auditEvent.setDetail("Sent to "+sendTo);
+            auditEvent.setWho("System");
+            auditTemplate.convertAndSend(auditEvent);
             log.info("Audit record sent");
         } 
         catch (MessagingException | IOException | TemplateException e) {

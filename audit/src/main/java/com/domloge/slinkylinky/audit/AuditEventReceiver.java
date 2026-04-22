@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +40,16 @@ public class AuditEventReceiver {
 
     public void receiveMessage(String message) {
         try {
-            AuditRecord auditRecord = mapper.readValue(message, AuditRecord.class);
+            AuditEvent auditEvent = mapper.readValue(message, AuditEvent.class);
+            AuditRecord auditRecord = new AuditRecord();
+            auditRecord.setWho(auditEvent.getWho());
+            auditRecord.setWhat(auditEvent.getWhat());
+            auditRecord.setEntityType(auditEvent.getEntityType());
+            auditRecord.setEntityId(auditEvent.getEntityId());
+            auditRecord.setEventTime(auditEvent.getEventTime());
+            auditRecord.setDetail(auditEvent.getDetail());
+            auditRecord.setOrganisationId(auditEvent.getOrganisationId());
+
             BeanPropertyBindingResult errors = new BeanPropertyBindingResult(auditRecord, "auditRecord");
             validator.validate(auditRecord, errors);
             if (errors.hasErrors()) {

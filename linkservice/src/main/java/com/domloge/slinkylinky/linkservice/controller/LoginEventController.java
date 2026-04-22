@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.domloge.slinkylinky.common.TenantContext;
-import com.domloge.slinkylinky.linkservice.entity.audit.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,16 +25,16 @@ public class LoginEventController {
 
     @PostMapping
     public ResponseEntity<Void> recordLogin() {
-        AuditRecord ar = new AuditRecord();
-        ar.setWho(TenantContext.getUsername());
-        ar.setWhat("login");
-        ar.setEventTime(LocalDateTime.now());
-        ar.setDetail(TenantContext.getUsername());
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        ae.setWhat("login");
+        ae.setEventTime(LocalDateTime.now());
+        ae.setDetail(TenantContext.getUsername());
         TenantContext.getOrganisationId()
             .map(UUID::fromString)
-            .ifPresent(ar::setOrganisationId);
-        auditRabbitTemplate.convertAndSend(ar);
-        log.info("Recorded login for user {}", ar.getWho());
+            .ifPresent(ae::setOrganisationId);
+        auditRabbitTemplate.convertAndSend(ae);
+        log.info("Recorded login for user {}", ae.getWho());
         return ResponseEntity.ok().build();
     }
 }

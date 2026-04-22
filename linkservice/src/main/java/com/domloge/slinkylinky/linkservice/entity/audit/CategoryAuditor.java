@@ -9,6 +9,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,31 +37,31 @@ public class CategoryAuditor {
 
     @HandleBeforeSave
     public void handleBeforeSave(Category category) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(category.getUpdatedBy());
-        auditRecord.setWhat("update category");
-        common(auditRecord, category);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(category.getUpdatedBy());
+        auditEvent.setWhat("update category");
+        common(auditEvent, category);
     }
 
     @HandleAfterCreate
     public void handleAfterCreate(Category category) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(category.getCreatedBy());
-        auditRecord.setWhat("create category");
-        common(auditRecord, category);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(category.getCreatedBy());
+        auditEvent.setWhat("create category");
+        common(auditEvent, category);
     }
 
-    private void common(AuditRecord auditRecord, Category category) {
-        auditRecord.setEventTime(LocalDateTime.now());
-        auditRecord.setEntityId(category.getId());
-        auditRecord.setEntityType(Category.class.getSimpleName());
+    private void common(AuditEvent auditEvent, Category category) {
+        auditEvent.setEventTime(LocalDateTime.now());
+        auditEvent.setEntityId(String.valueOf(category.getId()));
+        auditEvent.setEntityType(Category.class.getSimpleName());
         try {
-            auditRecord.setDetail(objectMapper.writeValueAsString(category));
+            auditEvent.setDetail(objectMapper.writeValueAsString(category));
         } catch (JsonProcessingException e) {
             log.error("Could not write Category to JSON", e);
-            auditRecord.setDetail("Error writing to JSON..."+category.toString());
+            auditEvent.setDetail("Error writing to JSON..."+category.toString());
         }
-        auditRabbitTemplate.convertAndSend(auditRecord);
-        log.info("Sent audit record {}", auditRecord);
+        auditRabbitTemplate.convertAndSend(auditEvent);
+        log.info("Sent audit record {}", auditEvent);
     }
 }

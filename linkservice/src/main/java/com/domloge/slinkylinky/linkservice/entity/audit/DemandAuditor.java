@@ -10,6 +10,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,40 +39,40 @@ public class DemandAuditor {
 
     @HandleBeforeSave
     public void handleBeforeSave(Demand demand) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(demand.getUpdatedBy());
-        auditRecord.setWhat("update demand");
-        common(auditRecord, demand);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(demand.getUpdatedBy());
+        auditEvent.setWhat("update demand");
+        common(auditEvent, demand);
     }
 
     @HandleAfterCreate
     public void handleAfterCreate(Demand demand) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(demand.getCreatedBy());
-        auditRecord.setWhat("create demand");
-        common(auditRecord, demand);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(demand.getCreatedBy());
+        auditEvent.setWhat("create demand");
+        common(auditEvent, demand);
     }
 
     @HandleAfterDelete
     public void handleAfterDelete(Demand demand) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(demand.getUpdatedBy());
-        auditRecord.setWhat("delete demand");
-        common(auditRecord, demand);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(demand.getUpdatedBy());
+        auditEvent.setWhat("delete demand");
+        common(auditEvent, demand);
     }
 
-    private void common(AuditRecord auditRecord, Demand demand) {
-        auditRecord.setEventTime(LocalDateTime.now());
-        auditRecord.setEntityId(demand.getId());
-        auditRecord.setEntityType(Demand.class.getSimpleName());
-        auditRecord.setOrganisationId(demand.getOrganisationId());
+    private void common(AuditEvent auditEvent, Demand demand) {
+        auditEvent.setEventTime(LocalDateTime.now());
+        auditEvent.setEntityId(String.valueOf(demand.getId()));
+        auditEvent.setEntityType(Demand.class.getSimpleName());
+        auditEvent.setOrganisationId(demand.getOrganisationId());
         try {
-            auditRecord.setDetail(objectMapper.writeValueAsString(demand));
+            auditEvent.setDetail(objectMapper.writeValueAsString(demand));
         } catch (JsonProcessingException e) {
             log.error("Could not write Demand to JSON", e);
-            auditRecord.setDetail("Error writing to JSON..."+demand.toString());
+            auditEvent.setDetail("Error writing to JSON..."+demand.toString());
         }
-        auditRabbitTemplate.convertAndSend(auditRecord);
-        log.info("Sent audit record {}", auditRecord);
+        auditRabbitTemplate.convertAndSend(auditEvent);
+        log.info("Sent audit record {}", auditEvent);
     }
 }

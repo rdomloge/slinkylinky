@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.domloge.slinkylinky.stats.amqp.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.stats.semrush.Loader;
 import com.domloge.slinkylinky.stats.semrush.SemRushResponseLine;
 import com.domloge.slinkylinky.stats.semrush.Semrush;
@@ -36,13 +36,13 @@ public class SemRushOnDemand {
     public ResponseEntity<SemRushResponseLine[]> generate(@RequestParam String domain, @RequestHeader String user) {
         log.info("{} generating SEMrush data for {}", user, domain);
         
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEventTime(java.time.LocalDateTime.now());
-        auditRecord.setWho(user);
-        auditRecord.setWhat("On demand SEMrush API call for monthly traffic data for " + domain);
-        auditRecord.setDetail("New Supplier DA check for " + domain);
-        auditRecord.setEntityType("Supplier");
-        auditRabbitTemplate.convertAndSend(auditRecord);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setEventTime(java.time.LocalDateTime.now());
+        auditEvent.setWho(user);
+        auditEvent.setWhat("On demand SEMrush API call for monthly traffic data for " + domain);
+        auditEvent.setDetail("New Supplier DA check for " + domain);
+        auditEvent.setEntityType("Supplier");
+        auditRabbitTemplate.convertAndSend(auditEvent);
 
 
         SemRushResponseLine[] lines = getTrafficForLastYear(domain);

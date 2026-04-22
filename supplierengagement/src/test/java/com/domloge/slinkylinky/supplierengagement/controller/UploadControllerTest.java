@@ -34,8 +34,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
-import com.domloge.slinkylinky.supplierengagement.AuditRecord;
 import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
@@ -78,7 +78,7 @@ class UploadControllerTest {
     private ArgumentCaptor<Engagement> engagementCaptor;
 
     @Captor
-    private ArgumentCaptor<AuditRecord> auditCaptor;
+    private ArgumentCaptor<AuditEvent> auditCaptor;
 
     @Captor
     private ArgumentCaptor<HttpEntity<?>> httpEntityCaptor;
@@ -131,7 +131,7 @@ class UploadControllerTest {
         assertTrue(saved.isDoNotContact());
 
         verify(auditRabbitTemplate, org.mockito.Mockito.times(2)).convertAndSend(auditCaptor.capture());
-        List<AuditRecord> audits = auditCaptor.getAllValues();
+        List<AuditEvent> audits = auditCaptor.getAllValues();
         assertEquals("Proposal declined by supplier", audits.get(0).getWhat());
         assertEquals("DNC: true // Reason: too expensive", audits.get(0).getDetail());
         assertEquals("Supplier-declined warning email sent", audits.get(1).getWhat());
@@ -167,7 +167,7 @@ class UploadControllerTest {
 
         assertTrue(ex.getMessage().contains("Failed to send event to linkservice"));
         verify(engagementRepo).save(any(Engagement.class));
-        verify(auditRabbitTemplate, org.mockito.Mockito.times(2)).convertAndSend(any(AuditRecord.class));
+        verify(auditRabbitTemplate, org.mockito.Mockito.times(2)).convertAndSend(any(AuditEvent.class));
         verify(emailSender).send(message, 7007L);
         verify(restTemplate).postForEntity(anyString(), any(HttpEntity.class), isNull());
     }
@@ -223,7 +223,7 @@ class UploadControllerTest {
         assertEquals("https://invoice.test/accepted", saved.getInvoiceUrl());
 
         verify(auditRabbitTemplate).convertAndSend(auditCaptor.capture());
-        AuditRecord audit = auditCaptor.getValue();
+        AuditEvent audit = auditCaptor.getValue();
         assertEquals("Proposal accepted by supplier", audit.getWhat());
         assertEquals("Blog title: My Blog, Blog URL: https://blog.test/accepted", audit.getDetail());
 
@@ -253,7 +253,7 @@ class UploadControllerTest {
 
         assertTrue(ex.getMessage().contains("Failed to send event to linkservice"));
         verify(engagementRepo).save(any(Engagement.class));
-        verify(auditRabbitTemplate).convertAndSend(any(AuditRecord.class));
+        verify(auditRabbitTemplate).convertAndSend(any(AuditEvent.class));
         verify(restTemplate).postForEntity(anyString(), any(HttpEntity.class), isNull());
     }
 

@@ -32,6 +32,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.EmailSender;
@@ -70,7 +71,7 @@ class ProposalAutoCancellerTest {
     private ArgumentCaptor<Engagement> engagementCaptor;
 
     @Captor
-    private ArgumentCaptor<AuditRecord> auditCaptor;
+    private ArgumentCaptor<AuditEvent> auditCaptor;
 
     private ProposalAutoCanceller canceller;
 
@@ -106,8 +107,8 @@ class ProposalAutoCancellerTest {
         assertEquals(EngagementStatus.EXPIRED, saved.getStatus());
 
         verify(auditRabbitTemplate).convertAndSend(auditCaptor.capture());
-        AuditRecord audit = auditCaptor.getValue();
-        assertEquals(501L, audit.getEntityId());
+        AuditEvent audit = auditCaptor.getValue();
+        assertEquals("501", audit.getEntityId());
         assertEquals("Engagement expired", audit.getWhat());
         assertTrue(audit.getDetail().contains("expired for proposal 501"));
         assertNotNull(audit.getEventTime());
@@ -127,7 +128,7 @@ class ProposalAutoCancellerTest {
 
         verify(engagementRepo).save(engagementCaptor.capture());
         assertEquals(EngagementStatus.EXPIRED, engagementCaptor.getValue().getStatus());
-        verify(auditRabbitTemplate).convertAndSend(any(AuditRecord.class));
+        verify(auditRabbitTemplate).convertAndSend(any(AuditEvent.class));
         verify(httpUtils, never()).abortProposal(anyLong());
         verify(contentBuilder, never()).buildEngagementExpiredContent(any(), any());
         verify(emailBuilder, never()).buildEngagementExpiredMessage(any(), any());
@@ -146,7 +147,7 @@ class ProposalAutoCancellerTest {
         canceller.findExpiredProposals();
 
         verify(engagementRepo).save(any(Engagement.class));
-        verify(auditRabbitTemplate).convertAndSend(any(AuditRecord.class));
+        verify(auditRabbitTemplate).convertAndSend(any(AuditEvent.class));
         verify(httpUtils, never()).abortProposal(anyLong());
         verify(emailBuilder, never()).buildEngagementExpiredMessage(any(), any());
         verify(emailSender, never()).send(any(MimeMessage.class), anyLong());
@@ -166,7 +167,7 @@ class ProposalAutoCancellerTest {
         canceller.findExpiredProposals();
 
         verify(engagementRepo).save(any(Engagement.class));
-        verify(auditRabbitTemplate).convertAndSend(any(AuditRecord.class));
+        verify(auditRabbitTemplate).convertAndSend(any(AuditEvent.class));
         verify(httpUtils, never()).abortProposal(anyLong());
         verify(emailBuilder, never()).buildEngagementExpiredMessage(any(), any());
         verify(emailSender, never()).send(any(MimeMessage.class), anyLong());

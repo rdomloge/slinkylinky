@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
-import com.domloge.slinkylinky.supplierengagement.AuditRecord;
 import com.domloge.slinkylinky.supplierengagement.email.ContentBuilder;
 import com.domloge.slinkylinky.supplierengagement.email.Context;
 import com.domloge.slinkylinky.supplierengagement.email.EmailBuilder;
@@ -84,15 +84,15 @@ public class UploadController {
         dbEngagement.setDoNotContact(engagement.isDoNotContact());
         engagementRepo.save(dbEngagement);
 
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEntityId(dbEngagement.getProposalId());
-        auditRecord.setEntityType("Proposal");
-        auditRecord.setEventTime(LocalDateTime.now());
-        auditRecord.setWho("Supplier through public API");
-        auditRecord.setWhat("Proposal declined by supplier");
-        auditRecord.setDetail("DNC: "+engagement.isDoNotContact()+" // Reason: " + engagement.getDeclinedReason());
-        auditRecord.setOrganisationId(dbEngagement.getOrganisationId());
-        auditRabbitTemplate.convertAndSend(auditRecord);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setEntityId(String.valueOf(dbEngagement.getProposalId()));
+        auditEvent.setEntityType("Proposal");
+        auditEvent.setEventTime(LocalDateTime.now());
+        auditEvent.setWho("Supplier through public API");
+        auditEvent.setWhat("Proposal declined by supplier");
+        auditEvent.setDetail("DNC: "+engagement.isDoNotContact()+" // Reason: " + engagement.getDeclinedReason());
+        auditEvent.setOrganisationId(dbEngagement.getOrganisationId());
+        auditRabbitTemplate.convertAndSend(auditEvent);
 
         log.info("Engagement {} declined. DNC: {} Reason: {}", dbEngagement.getId(), engagement.isDoNotContact(), engagement.getDeclinedReason());
 
@@ -126,15 +126,15 @@ public class UploadController {
             MimeMessage mimeMessage = emailBuilder.buildSupplierDeclinedMessage(engagement, content);
             emailSender.send(mimeMessage, engagement.getProposalId());
 
-            AuditRecord auditRecord = new AuditRecord();
-            auditRecord.setEntityId(engagement.getProposalId());
-            auditRecord.setEntityType("Proposal");
-            auditRecord.setEventTime(java.time.LocalDateTime.now());
-            auditRecord.setWho("system");
-            auditRecord.setWhat("Supplier-declined warning email sent");
-            auditRecord.setDetail(content);
-            auditRecord.setOrganisationId(engagement.getOrganisationId());
-            auditRabbitTemplate.convertAndSend(auditRecord);
+            AuditEvent auditEvent = new AuditEvent();
+            auditEvent.setEntityId(String.valueOf(engagement.getProposalId()));
+            auditEvent.setEntityType("Proposal");
+            auditEvent.setEventTime(java.time.LocalDateTime.now());
+            auditEvent.setWho("system");
+            auditEvent.setWhat("Supplier-declined warning email sent");
+            auditEvent.setDetail(content);
+            auditEvent.setOrganisationId(engagement.getOrganisationId());
+            auditRabbitTemplate.convertAndSend(auditEvent);
         }
         catch(MessagingException e) {
             log.error("Failed to send email", e);
@@ -156,15 +156,15 @@ public class UploadController {
         dbEngagement.setInvoiceUrl(engagement.getInvoiceUrl());
         engagementRepo.save(dbEngagement);
 
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setEntityId(dbEngagement.getProposalId());
-        auditRecord.setEntityType("Proposal");
-        auditRecord.setEventTime(java.time.LocalDateTime.now());
-        auditRecord.setWho("Supplier through public API");
-        auditRecord.setWhat("Proposal accepted by supplier");
-        auditRecord.setDetail("Blog title: " + dbEngagement.getBlogTitle() + ", Blog URL: " + dbEngagement.getBlogUrl());
-        auditRecord.setOrganisationId(dbEngagement.getOrganisationId());
-        auditRabbitTemplate.convertAndSend(auditRecord);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setEntityId(String.valueOf(dbEngagement.getProposalId()));
+        auditEvent.setEntityType("Proposal");
+        auditEvent.setEventTime(java.time.LocalDateTime.now());
+        auditEvent.setWho("Supplier through public API");
+        auditEvent.setWhat("Proposal accepted by supplier");
+        auditEvent.setDetail("Blog title: " + dbEngagement.getBlogTitle() + ", Blog URL: " + dbEngagement.getBlogUrl());
+        auditEvent.setOrganisationId(dbEngagement.getOrganisationId());
+        auditRabbitTemplate.convertAndSend(auditEvent);
 
         /**
          *  THIS REALLY SHOULD BE DONE BY RABBIT MESSAGE RATHER THAN DIRECT CALL

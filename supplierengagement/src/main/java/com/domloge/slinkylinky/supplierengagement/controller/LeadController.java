@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.domloge.slinkylinky.common.TenantContext;
-import com.domloge.slinkylinky.supplierengagement.AuditRecord;
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.supplierengagement.entity.LeadStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
@@ -174,13 +174,13 @@ public class LeadController {
         boolean incremental = body != null && Boolean.TRUE.equals(body.get("incremental"));
         scraper.scrapeAsync(cookies, scrapeLimit, incremental);
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho(authentication != null ? authentication.getName() : "unknown");
-        ar.setWhat("start lead scrape");
-        ar.setEventTime(LocalDateTime.now());
-        // ar.setEntityType("LeadScrape");
-        ar.setDetail(source);
-        auditRabbitTemplate.convertAndSend(ar);
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(authentication != null ? authentication.getName() : "unknown");
+        ae.setWhat("start lead scrape");
+        ae.setEventTime(LocalDateTime.now());
+        // ae.setEntityType("LeadScrape");
+        ae.setDetail(source);
+        auditRabbitTemplate.convertAndSend(ae);
 
         return ResponseEntity.accepted().body(Map.of("started", true, "source", source));
     }
@@ -467,17 +467,17 @@ public class LeadController {
                     leadRepo.save(lead);
                     log.info("Lead {} ({}) converted to Supplier", id, lead.getDomain());
 
-                    AuditRecord ar = new AuditRecord();
-                    ar.setWho(TenantContext.getUsername());
+                    AuditEvent ae = new AuditEvent();
+                    ae.setWho(TenantContext.getUsername());
                     TenantContext.getOrganisationId()
                         .map(UUID::fromString)
-                        .ifPresent(ar::setOrganisationId);
-                    ar.setWhat("lead converted to supplier");
-                    ar.setEventTime(LocalDateTime.now());
-                    ar.setEntityType("SupplierLead");
-                    ar.setEntityId(id);
-                    ar.setDetail(lead.getDomain());
-                    auditRabbitTemplate.convertAndSend(ar);
+                        .ifPresent(ae::setOrganisationId);
+                    ae.setWhat("lead converted to supplier");
+                    ae.setEventTime(LocalDateTime.now());
+                    ae.setEntityType("SupplierLead");
+                    ae.setEntityId(String.valueOf(id));
+                    ae.setDetail(lead.getDomain());
+                    auditRabbitTemplate.convertAndSend(ae);
 
                     return ResponseEntity.ok().build();
                 } else {
@@ -530,14 +530,14 @@ public class LeadController {
         leadRepo.save(lead);
         log.info("Lead {} ({}) accepted", lead.getId(), lead.getDomain());
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho("supplier");
-        ar.setWhat("lead response accepted");
-        ar.setEventTime(LocalDateTime.now());
-        // ar.setEntityType("SupplierLead");
-        ar.setEntityId(lead.getId());
-        ar.setDetail(lead.getDomain());
-        auditRabbitTemplate.convertAndSend(ar);
+        AuditEvent ae = new AuditEvent();
+        ae.setWho("supplier");
+        ae.setWhat("lead response accepted");
+        ae.setEventTime(LocalDateTime.now());
+        // ae.setEntityType("SupplierLead");
+        ae.setEntityId(String.valueOf(lead.getId()));
+        ae.setDetail(lead.getDomain());
+        auditRabbitTemplate.convertAndSend(ae);
 
         return ResponseEntity.ok().build();
     }
@@ -560,14 +560,14 @@ public class LeadController {
         leadRepo.save(lead);
         log.info("Lead {} ({}) declined", lead.getId(), lead.getDomain());
 
-        AuditRecord ar = new AuditRecord();
-        ar.setWho("supplier");
-        ar.setWhat("lead response declined");
-        ar.setEventTime(LocalDateTime.now());
-        // ar.setEntityType("SupplierLead");
-        ar.setEntityId(lead.getId());
-        ar.setDetail(lead.getDomain());
-        auditRabbitTemplate.convertAndSend(ar);
+        AuditEvent ae = new AuditEvent();
+        ae.setWho("supplier");
+        ae.setWhat("lead response declined");
+        ae.setEventTime(LocalDateTime.now());
+        // ae.setEntityType("SupplierLead");
+        ae.setEntityId(String.valueOf(lead.getId()));
+        ae.setDetail(lead.getDomain());
+        auditRabbitTemplate.convertAndSend(ae);
 
         return ResponseEntity.ok().build();
     }

@@ -10,6 +10,7 @@ import org.springframework.data.rest.core.annotation.HandleBeforeSave;
 import org.springframework.data.rest.core.annotation.RepositoryEventHandler;
 import org.springframework.stereotype.Component;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.linkservice.entity.DemandSite;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,40 +39,40 @@ public class DemandSiteAuditor {
 
     @HandleBeforeSave
     public void handleBeforeSave(DemandSite demandSite) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(demandSite.getUpdatedBy());
-        auditRecord.setWhat("update demand site");
-        common(auditRecord, demandSite);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(demandSite.getUpdatedBy());
+        auditEvent.setWhat("update demand site");
+        common(auditEvent, demandSite);
     }
 
     @HandleAfterCreate
     public void handleAfterCreate(DemandSite demandSite) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(demandSite.getCreatedBy());
-        auditRecord.setWhat("create demand site");
-        common(auditRecord, demandSite);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(demandSite.getCreatedBy());
+        auditEvent.setWhat("create demand site");
+        common(auditEvent, demandSite);
     }
 
     @HandleAfterDelete
     public void handleAfterDelete(DemandSite demandSite) {
-        AuditRecord auditRecord = new AuditRecord();
-        auditRecord.setWho(demandSite.getUpdatedBy());
-        auditRecord.setWhat("delete demand site");
-        common(auditRecord, demandSite);
+        AuditEvent auditEvent = new AuditEvent();
+        auditEvent.setWho(demandSite.getUpdatedBy());
+        auditEvent.setWhat("delete demand site");
+        common(auditEvent, demandSite);
     }
 
-    private void common(AuditRecord auditRecord, DemandSite demandSite) {
-        auditRecord.setEventTime(LocalDateTime.now());
-        auditRecord.setEntityId(demandSite.getId());
-        auditRecord.setEntityType(DemandSite.class.getSimpleName());
-        auditRecord.setOrganisationId(demandSite.getOrganisationId());
+    private void common(AuditEvent auditEvent, DemandSite demandSite) {
+        auditEvent.setEventTime(LocalDateTime.now());
+        auditEvent.setEntityId(String.valueOf(demandSite.getId()));
+        auditEvent.setEntityType(DemandSite.class.getSimpleName());
+        auditEvent.setOrganisationId(demandSite.getOrganisationId());
         try {
-            auditRecord.setDetail(objectMapper.writeValueAsString(demandSite));
+            auditEvent.setDetail(objectMapper.writeValueAsString(demandSite));
         } catch (JsonProcessingException e) {
             log.error("Error writing to JSON..."+demandSite.toString(), e);
-            auditRecord.setDetail("Err::"+demandSite.getClass().getSimpleName());
+            auditEvent.setDetail("Err::"+demandSite.getClass().getSimpleName());
         }
-        auditRabbitTemplate.convertAndSend(auditRecord);
-        log.info("Sent audit record {}", auditRecord);
+        auditRabbitTemplate.convertAndSend(auditEvent);
+        log.info("Sent audit record {}", auditEvent);
     }
 }

@@ -18,6 +18,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 
+import com.domloge.slinkylinky.events.AuditEvent;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -50,8 +51,8 @@ class AuditEventReceiverTest {
 
     @Test
     void receiveMessage_validJson_savesToRepo() throws Exception {
-        AuditRecord ar = createValidAuditRecord(UUID.randomUUID());
-        String json = createConfiguredMapper().writeValueAsString(ar);
+        AuditEvent ae = createValidAuditEvent(UUID.randomUUID());
+        String json = createConfiguredMapper().writeValueAsString(ae);
 
         receiver.receiveMessage(json);
 
@@ -60,9 +61,9 @@ class AuditEventReceiverTest {
 
     @Test
     void receiveMessage_validationErrors_doesNotSave() throws Exception {
-        AuditRecord ar = createValidAuditRecord(null);
-        ar.setEntityType("Proposal");
-        String json = createConfiguredMapper().writeValueAsString(ar);
+        AuditEvent ae = createValidAuditEvent(null);
+        ae.setEntityType("Proposal");
+        String json = createConfiguredMapper().writeValueAsString(ae);
 
         receiver.receiveMessage(json);
 
@@ -80,8 +81,8 @@ class AuditEventReceiverTest {
 
     @Test
     void receiveMessage_byteArray_utf8_delegatesAndSaves() throws Exception {
-        AuditRecord ar = createValidAuditRecord(UUID.randomUUID());
-        String json = createConfiguredMapper().writeValueAsString(ar);
+        AuditEvent ae = createValidAuditEvent(UUID.randomUUID());
+        String json = createConfiguredMapper().writeValueAsString(ae);
         byte[] bytes = json.getBytes("utf-8");
 
         receiver.receiveMessage(bytes);
@@ -91,9 +92,9 @@ class AuditEventReceiverTest {
 
     @Test
     void receiveMessage_globalEntityType_nullOrg_savesToRepo() throws Exception {
-        AuditRecord ar = createValidAuditRecord(null);
-        ar.setEntityType("BlackListedSupplier");
-        String json = createConfiguredMapper().writeValueAsString(ar);
+        AuditEvent ae = createValidAuditEvent(null);
+        ae.setEntityType("BlackListedSupplier");
+        String json = createConfiguredMapper().writeValueAsString(ae);
 
         receiver.receiveMessage(json);
 
@@ -102,23 +103,23 @@ class AuditEventReceiverTest {
 
     @Test
     void receiveMessage_nonGlobalEntityType_nullOrg_doesNotSave() throws Exception {
-        AuditRecord ar = createValidAuditRecord(null);
-        ar.setEntityType("Proposal");
-        String json = createConfiguredMapper().writeValueAsString(ar);
+        AuditEvent ae = createValidAuditEvent(null);
+        ae.setEntityType("Proposal");
+        String json = createConfiguredMapper().writeValueAsString(ae);
 
         receiver.receiveMessage(json);
 
         verify(repo, never()).save(ArgumentMatchers.any(AuditRecord.class));
     }
 
-    private AuditRecord createValidAuditRecord(UUID orgId) {
-        AuditRecord ar = new AuditRecord();
-        ar.setWho("testuser");
-        ar.setWhat("test action");
-        ar.setEventTime(LocalDateTime.now());
-        ar.setEntityType("Proposal");
-        ar.setDetail("test detail");
-        ar.setOrganisationId(orgId);
-        return ar;
+    private AuditEvent createValidAuditEvent(UUID orgId) {
+        AuditEvent ae = new AuditEvent();
+        ae.setWho("testuser");
+        ae.setWhat("test action");
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("Proposal");
+        ae.setDetail("test detail");
+        ae.setOrganisationId(orgId);
+        return ae;
     }
 }

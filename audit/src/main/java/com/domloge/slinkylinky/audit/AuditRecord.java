@@ -22,7 +22,8 @@ public class AuditRecord {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    private Long entityId;
+    @Column(name = "entity_id")
+    private String entityId;
 
     private String entityType;
 
