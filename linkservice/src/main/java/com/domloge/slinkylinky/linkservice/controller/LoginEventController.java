@@ -30,9 +30,8 @@ public class LoginEventController {
         ae.setWhat("login");
         ae.setEventTime(LocalDateTime.now());
         ae.setDetail(TenantContext.getUsername());
-        TenantContext.getOrganisationId()
-            .map(UUID::fromString)
-            .ifPresent(ae::setOrganisationId);
+        ae.setOrganisationId(UUID.fromString(TenantContext.getOrganisationId()
+            .orElseThrow(() -> new IllegalStateException("Organisation context is required for login audit"))));
         auditRabbitTemplate.convertAndSend(ae);
         log.info("Recorded login for user {}", ae.getWho());
         return ResponseEntity.ok().build();
