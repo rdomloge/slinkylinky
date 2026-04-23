@@ -171,8 +171,10 @@ export default function SupplierListView() {
                         <SortHeader label="Fee" field="weWriteFee" sortBy={sortBy} sortDir={sortDir} onSort={handleSort}/>
                     </div>
                     <div className="w-16 shrink-0 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Usages</div>
-                    <div className="w-28 shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider">Responsiveness</div>
-                    <div className="w-10 shrink-0"/>
+                    <div className="w-40 shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider">Responsiveness</div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</span>
+                    </div>
                 </div>
 
                 {/* Rows */}
