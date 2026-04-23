@@ -84,6 +84,8 @@ export default function CategorySelector({changeHandler, label, initialValue}) {
                 {label}
             </label>
             <AsyncSelect
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
                 instanceId={"this-should-be-unique-on-the-page"}
                 onChange={changeHandler}
                 defaultOptions
