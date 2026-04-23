@@ -611,9 +611,9 @@ EOF
                             -d '{"name": "global_admin"}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/roles"
 
-                            # Create an admin user with the username admin
+                            # Create an admin user with the username admin and fixed org_id
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"]}' \\
+                            -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"], "attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users"
 
                             # Give the admin user the realm the tenant_admin and global_admin realm roles
@@ -628,9 +628,9 @@ EOF
                             -d "$ROLE_REPRESENTATIONS" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID/role-mappings/realm"
 
-                            # Set org_id attribute on admin user
+                            # Ensure admin user keeps the fixed org_id attribute
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d "{\"attributes\": {\"org_id\": [\"'''+"${ORG_ID}"+'''\"]}}" \\
+                            -d '{"attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID"
 
                             # Set org_id attribute on default 'user' user
