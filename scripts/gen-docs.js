@@ -416,6 +416,25 @@ for (const svc of services) {
 writeDoc('backend-api.md', genBackendApi(controllers));
 
 // ─────────────────────────────────────────────
+// Validate hand-maintained CLAUDE.md files
+// ─────────────────────────────────────────────
+
+const STATIC_CLAUDE_DOCS = [
+  { file: 'audit/CLAUDE.md',                   desc: 'Audit service conventions' },
+  { file: 'supplierengagement/CLAUDE.md',       desc: 'Scraper classes, FlareSolverr→Playwright flow, cookie lineage' },
+];
+
+console.log('\nStatic CLAUDE.md files:');
+for (const { file, desc } of STATIC_CLAUDE_DOCS) {
+  const full = path.join(ROOT, file);
+  if (fs.existsSync(full)) {
+    console.log(`  ok    ${file}  (${desc})`);
+  } else {
+    console.warn(`  MISSING  ${file}  — create this file to document: ${desc}`);
+  }
+}
+
+// ─────────────────────────────────────────────
 // Sync CLAUDE.md Quick Reference table
 // ─────────────────────────────────────────────
 

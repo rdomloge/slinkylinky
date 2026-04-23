@@ -265,7 +265,7 @@ Route-level page components in `src/pages/`.
 | `Proposal` | `pages/proposals/[proposalid].jsx` | — |
 | `LeadResponse` | `pages/public/leadresponse/index.jsx` | props: children, onClick, variant, disabled | calls: /.rest/leads/response?guid=, /.rest/leads/accept?guid=${guid} |
 | `SupplierResponse` | `pages/public/supplierresponse/index.jsx` | props: supplierName | calls: /.rest/engagements/search/findByGuid?guid=, /.rest/engagements/accept?guid= |
-| `DesignPreview` | `pages/sandbox/design-preview.jsx` | — |
+| `DesignPreview` | `pages/sandbox/design-preview.jsx` | props: name, size, color, stroke |
 | `Sandbox` | `pages/sandbox/index.jsx` | props: binding, label, onChange |
 | `NewSupplier` | `pages/supplier/Add.jsx` | — |
 | `ListBloggers` | `pages/supplier/index.jsx` | calls: /.rest/stats/responsiveness/all |

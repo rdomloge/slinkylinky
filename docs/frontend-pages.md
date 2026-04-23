@@ -100,6 +100,7 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 **Props:** supplierName
 
 ### `DesignPreview` — `/sandbox/design`
+**Props:** name, size, color, stroke
 
 ### `Sandbox` — `/sandbox`
 **Props:** binding, label, onChange

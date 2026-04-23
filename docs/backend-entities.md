@@ -235,7 +235,7 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 
 **Fields:**
 - `id: long`
-- `entityId: Long`
+- `entityId: String`
 - `entityType: String`
 - `who: String`
 - `what: String`
