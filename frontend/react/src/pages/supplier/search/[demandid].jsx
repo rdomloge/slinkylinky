@@ -25,8 +25,7 @@ export default function App() {
     useEffect(
         () => {
             const demandUrl = "/.rest/demands/"+ demandid+"?projection=fullDemand";
-            const suppliersUrl = "/.rest/suppliers/search/findSuppliersForDemandId?demandId="
-                + demandid+"&projection=fullSupplier";
+            const suppliersUrl = "/.rest/supplierSupport/suppliersForDemand?demandId=" + demandid;
                 const existingLinkCountUrl = "/.rest/paidlinks/search/countByDemand_domain?domain="
                 const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
 

@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.linkservice.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 import org.hibernate.envers.AuditReader;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.events.SupplierEngagementEvent;
 import com.domloge.slinkylinky.linkservice.ProposalAbortHandler;
 import com.domloge.slinkylinky.linkservice.Util;
@@ -32,6 +34,7 @@ import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
 import com.domloge.slinkylinky.linkservice.service.StatsClient;
 
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -92,6 +95,14 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
 
         return ResponseEntity.ok(
                 supplierRepo.findBySearchAndFilter(search, includeDisabled, pageRequest));
+    }
+
+    @GetMapping(path = "/suppliersForDemand", produces = "application/json")
+    public ResponseEntity<Supplier[]> suppliersForDemand(
+            @RequestParam long demandId,
+            HttpServletRequest request) {
+        UUID orgId = TenantFilter.requireOrgId(request);
+        return ResponseEntity.ok(supplierRepo.findSuppliersForDemandId(demandId, orgId));
     }
 
     @PatchMapping(path = "/updateSupplierDa", produces = "application/json")

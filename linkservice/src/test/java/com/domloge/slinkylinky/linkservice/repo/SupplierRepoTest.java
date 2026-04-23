@@ -17,6 +17,7 @@ import com.domloge.slinkylinky.linkservice.entity.Category;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
 import com.domloge.slinkylinky.linkservice.entity.PaidLink;
 import com.domloge.slinkylinky.linkservice.entity.Supplier;
+import com.domloge.slinkylinky.linkservice.entity.SupplierTenantExclusion;
 
 @DataJpaTest
 public class SupplierRepoTest {
@@ -36,7 +37,10 @@ public class SupplierRepoTest {
     @Autowired
     private PaidLinkRepo paidLinkRepo;
 
-    
+    @Autowired
+    private SupplierTenantExclusionRepo exclusionRepo;
+
+
     @Test
     public void testFindSuppliersForDemandId_disabledCategoryIgnored() {
         // Given
@@ -456,6 +460,55 @@ public class SupplierRepoTest {
         assertThat(result[1].getName()).isEqualTo("Cheap Low DA");       // fee=100, da=50
         assertThat(result[2].getName()).isEqualTo("Expensive High DA");  // fee=200, da=90
         assertThat(result[3].getName()).isEqualTo("Expensive Low DA");   // fee=200, da=40
+    }
+
+    @Test
+    public void testFindSuppliersForDemandId_excludesTenantExcludedSupplier() {
+        // Given: a supplier that would otherwise match a demand
+        List<Category> testCategories = createTestCategories();
+        categoryRepo.saveAll(testCategories);
+
+        List<Supplier> testSuppliers = createTestSuppliers();
+        testSuppliers.forEach(s -> {
+            s.setDa(35);
+            s.setCategories(new HashSet<>(testCategories));
+            s.setThirdParty(false);
+            s.setDisabled(false);
+        });
+        supplierRepo.saveAll(testSuppliers);
+
+        Demand demand = new Demand();
+        demand.setDaNeeded(20);
+        demand.setCategories(new HashSet<>(testCategories));
+        demand.setOrganisationId(TEST_ORG_ID);
+        Demand dbDemand = demandRepo.save(demand);
+
+        // Exclude supplier 1 for TEST_ORG_ID
+        SupplierTenantExclusion exclusion = new SupplierTenantExclusion();
+        exclusion.setSupplierId(testSuppliers.get(0).getId());
+        exclusion.setOrganisationId(TEST_ORG_ID);
+        exclusionRepo.save(exclusion);
+
+        // When: calling findSuppliersForDemandId for TEST_ORG_ID
+        Supplier[] result = supplierRepo.findSuppliersForDemandId(dbDemand.getId(), TEST_ORG_ID);
+
+        // Then: excluded supplier is NOT in the result
+        assertThat(result.length).isEqualTo(testSuppliers.size() - 1);
+        assertThat(result).extracting("id").doesNotContain(testSuppliers.get(0).getId());
+
+        // And: when calling with a DIFFERENT org (ANOTHER_ORG_ID),
+        // the supplier IS returned (exclusion is per-tenant)
+        Demand demandOtherOrg = new Demand();
+        demandOtherOrg.setDaNeeded(20);
+        demandOtherOrg.setCategories(new HashSet<>(testCategories));
+        demandOtherOrg.setOrganisationId(ANOTHER_ORG_ID);
+        Demand dbDemandOtherOrg = demandRepo.save(demandOtherOrg);
+
+        Supplier[] resultOtherOrg = supplierRepo.findSuppliersForDemandId(dbDemandOtherOrg.getId(), ANOTHER_ORG_ID);
+
+        // The supplier appears in ANOTHER_ORG_ID because the exclusion is specific to TEST_ORG_ID
+        assertThat(resultOtherOrg.length).isEqualTo(testSuppliers.size());
+        assertThat(resultOtherOrg).extracting("id").contains(testSuppliers.get(0).getId());
     }
 
     private List<Supplier> createTestSuppliers() {
