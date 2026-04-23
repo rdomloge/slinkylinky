@@ -64,9 +64,9 @@ public class CollaboratorLeadScraper implements LeadScraper {
         "PLN", "zł"
     );
 
-    /** Collaborator.pro project ID. Configurable per deployment; defaults to the known value. */
-    @Value("${collaborator.project.id:128180}")
-    private String projectId;
+    // /** Collaborator.pro project ID. Configurable per deployment; defaults to the known value. */
+    // @Value("${collaborator.project.id:128180}")
+    // private String projectId;
 
     /** Maximum items to scrape. 0 = no limit (production). Set to a small number for testing. */
     @Value("${collaborator.scrape.limit:0}")
@@ -109,7 +109,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
     @Override
     @Async
-    public void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental) {
+    public void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental, long projectId) {
         if (!running.compareAndSet(false, true)) {
             log.warn("Scrape already in progress — ignoring duplicate trigger");
             return;

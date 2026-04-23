@@ -34,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CollaboratorAuthSessionService {
 
-    private static final String CATALOG_URL = "https://collaborator.pro/catalog/creator/article";
-    private static final String API_URL = "https://collaborator.pro/catalog/api/data/load";
+    // private static final String CATALOG_URL = "https://collaborator.pro/catalog/creator/article";
+    // private static final String API_URL = "https://collaborator.pro/catalog/api/data/load";
     private static final String USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
             "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -46,8 +46,8 @@ public class CollaboratorAuthSessionService {
     private final ConcurrentMap<String, SessionState> sessions = new ConcurrentHashMap<>();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Value("${collaborator.project.id:128180}")
-    private String projectId;
+    // @Value("${collaborator.project.id:128180}")
+    // private String projectId;
 
     public SessionSnapshot importCookies(String rawCookieHeader, String importedBy) {
         String sanitized = sanitizeCookieHeader(rawCookieHeader);
@@ -124,12 +124,54 @@ public class CollaboratorAuthSessionService {
         sessions.entrySet().removeIf(e -> now.isAfter(e.getValue().expiresAt.plus(Duration.ofMinutes(5))));
     }
 
+    public long findProjectId(String cookieHeader) {
+        String url = "https://collaborator.pro/project/api/data/get-projects";
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Cookie", cookieHeader)
+                .header("User-Agent", USER_AGENT)
+                .header("Accept", "application/json")
+                .header("Origin", "https://collaborator.pro")
+                .header("X-Requested-With", "XMLHttpRequest")
+                .header("Referer", "https://collaborator.pro/project/article/index")
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> response = HttpClient.newBuilder()
+                    .followRedirects(HttpClient.Redirect.NORMAL)
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to fetch projects: HTTP " + response.statusCode() + " - " + trim(response.body()));
+            }
+            JsonNode root = mapper.readTree(response.body());
+            // Find from the return JSON the first project ID
+            JsonNode items = root.path("data").path("items");
+            if (items.isArray() && items.size() > 0) {
+                return items.get(0).path("id").asLong(-1);
+            }
+            throw new RuntimeException("No projects found in response: " + trim(response.body()));
+        } 
+        catch (Exception e) {
+            throw new RuntimeException("Error fetching projects: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Uses a standard non-account-specific endpoint to validate that the provided cookies grant access to collaborator.pro content.
+     * Referrer and user-agent headers are included to reduce the chance of false negatives due to bot detection.
+     * @param cookieHeader
+     * @return
+     */
     private ValidationResult validateCookies(String cookieHeader) {
         if (!StringUtils.hasText(cookieHeader)) {
             return ValidationResult.failure(-1, false, -1, "no-cookie-header");
         }
         try {
-            String url = API_URL + "?project_id=" + projectId + "&page=1&per-page=1";
+            //https://collaborator.pro/messenger-api/notification/index
+            // String url = API_URL + "?project_id=" + projectId + "&page=1&per-page=1";
+            String url = "https://collaborator.pro/messenger-api/notification/index";
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Cookie", cookieHeader)
@@ -137,7 +179,7 @@ public class CollaboratorAuthSessionService {
                     .header("Accept", "application/json")
                     .header("Origin", "https://collaborator.pro")
                     .header("X-Requested-With", "XMLHttpRequest")
-                    .header("Referer", CATALOG_URL + "?project_id=" + projectId)
+                    .header("Referer", "https://collaborator.pro/project/article/index")
                     .GET()
                     .build();
 
@@ -150,7 +192,7 @@ public class CollaboratorAuthSessionService {
                 return ValidationResult.failure(response.statusCode(), false, -1, trim(response.body()));
             }
             JsonNode root = mapper.readTree(response.body());
-            boolean apiStatus = root.path("status").asBoolean(false);
+            boolean apiStatus = root.path("countNotViewed").asInt(-1) != -1;
             int statusCode = root.path("statusCode").asInt(-1);
             if (!apiStatus) {
                 return ValidationResult.failure(response.statusCode(), false, statusCode, trim(response.body()));

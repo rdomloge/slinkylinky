@@ -171,8 +171,11 @@ public class LeadController {
                 }
             }
         }
+
+        long projectId = collaboratorAuthSessionService.findProjectId(cookies);
+
         boolean incremental = body != null && Boolean.TRUE.equals(body.get("incremental"));
-        scraper.scrapeAsync(cookies, scrapeLimit, incremental);
+        scraper.scrapeAsync(cookies, scrapeLimit, incremental, projectId);
 
         AuditEvent ae = new AuditEvent();
         ae.setWho(authentication != null ? authentication.getName() : "unknown");
