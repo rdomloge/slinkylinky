@@ -6,6 +6,7 @@ import ReactGA from 'react-ga4';
 import { GA_TRACKING_ID } from '@/config';
 
 import Callback from '@/auth/Callback';
+import VerifyEmail from '@/pages/verify-email/index';
 
 import AuditIndex from '@/pages/audit/index';
 import AuditTrace from '@/pages/audit/trace';
@@ -46,6 +47,7 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/callback" element={<Callback />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/public/supplierresponse" element={<SupplierResponse />} />
           <Route path="/public/leadresponse" element={<LeadResponse />} />
 

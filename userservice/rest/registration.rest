@@ -1,0 +1,10 @@
+POST http://localhost:8095/.rest/accounts/registration
+Content-Type: application/json
+
+{
+    "email": "test@example.com",
+    "password": "password123",
+    "firstName": "John",
+    "lastName": "Doe",
+    "companyName": "Example Inc."
+}

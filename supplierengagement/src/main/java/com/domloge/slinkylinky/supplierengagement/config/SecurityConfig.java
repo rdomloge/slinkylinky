@@ -16,8 +16,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.domloge.slinkylinky.common.EmailVerifiedFilter;
 
 @Configuration
 @EnableMethodSecurity
@@ -31,8 +34,19 @@ public class SecurityConfig {
         new AntPathRequestMatcher("/.rest/leads/response"),
         new AntPathRequestMatcher("/.rest/leads/accept"),
         new AntPathRequestMatcher("/.rest/leads/decline"),
-        new AntPathRequestMatcher("/error")  // Spring Boot dispatches here on controller exceptions; must be public or error responses become 401
+        new AntPathRequestMatcher("/error")
     };
+
+    private static final List<String> EMAIL_VERIFIED_EXEMPT = List.of(
+        "/actuator/**",
+        "/error",
+        "/.rest/engagements/accept",
+        "/.rest/engagements/decline",
+        "/.rest/engagements/search/findByGuid",
+        "/.rest/leads/response",
+        "/.rest/leads/accept",
+        "/.rest/leads/decline"
+    );
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -44,7 +58,9 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                                 .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 )
-                .csrf(csrf -> csrf.disable()); // stateless JWT API — CSRF attacks require cookies, not Bearer tokens
+                .csrf(csrf -> csrf.disable()) // stateless JWT API — CSRF attacks require cookies, not Bearer tokens
+                .addFilterAfter(new EmailVerifiedFilter(EMAIL_VERIFIED_EXEMPT),
+                                BearerTokenAuthenticationFilter.class);
         return http.build();
     }
 

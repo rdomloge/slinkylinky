@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -139,5 +140,32 @@ public class KeycloakAdminClient {
             .body(List.of(roleRepresentation))
             .retrieve()
             .toBodilessEntity();
+    }
+
+    /** Set the emailVerified flag on a Keycloak user. */
+    public void setEmailVerified(String userId, boolean verified) {
+        String url = adminUrl + "/admin/realms/" + realm + "/users/" + userId;
+        restClient.put()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Map.of("emailVerified", verified))
+            .retrieve()
+            .toBodilessEntity();
+    }
+
+    /** Look up a Keycloak user by exact email address. Returns empty if not found. */
+    public Optional<Map<String, Object>> getUserByEmail(String email) {
+        String url = adminUrl + "/admin/realms/" + realm + "/users?exact=true&email="
+                   + java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8);
+        List<Map<String, Object>> users = restClient.get()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .retrieve()
+            .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+        if (users == null || users.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(users.get(0));
     }
 }
