@@ -11,7 +11,7 @@ export default function TenantBadge() {
 
     useEffect(() => {
         if (!user?.orgId || isGlobalAdmin) return;
-        fetchWithAuth(`/.rest/organisations/${user.orgId}`)
+        fetchWithAuth(`/.rest/accounts/organisations/${user.orgId}`)
             .then(r => r?.ok ? r.json() : null)
             .then(data => { if (data?.name) setOrgName(data.name); })
             .catch(() => {});

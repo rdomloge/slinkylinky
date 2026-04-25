@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.linkservice.entity;
+package com.domloge.slinkylinky.userservice.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

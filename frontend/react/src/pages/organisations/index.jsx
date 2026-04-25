@@ -14,14 +14,14 @@ export default function OrganisationsIndex() {
     const [newSlug, setNewSlug] = useState('');
 
     useEffect(() => {
-        fetchWithAuth('/.rest/organisations')
+        fetchWithAuth('/.rest/accounts/organisations')
             .then(r => r?.ok ? r.json() : Promise.reject(r))
             .then(data => setOrganisations(data._embedded?.organisations || []))
             .catch(() => setError('Could not load organisations'));
     }, []);
 
     function createOrganisation() {
-        fetchWithAuth('/.rest/organisations', {
+        fetchWithAuth('/.rest/accounts/organisations', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: newName, slug: newSlug, active: true }),

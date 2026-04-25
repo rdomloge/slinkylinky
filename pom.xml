@@ -18,5 +18,6 @@
 		<module>audit</module>
 		<module>woocommerce</module>
 		<module>supplierengagement</module>
+		<module>userservice</module>
 	</modules>
 </project>

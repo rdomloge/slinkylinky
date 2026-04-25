@@ -1,4 +1,4 @@
-package com.domloge.slinkylinky.linkservice.controller;
+package com.domloge.slinkylinky.userservice.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,15 +21,15 @@ import org.springframework.web.server.ResponseStatusException;
 import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.events.AuditEvent;
-import com.domloge.slinkylinky.linkservice.entity.Organisation;
-import com.domloge.slinkylinky.linkservice.repo.OrganisationRepo;
+import com.domloge.slinkylinky.userservice.entity.Organisation;
+import com.domloge.slinkylinky.userservice.repo.OrganisationRepo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/.rest/organisations")
+@RequestMapping("/.rest/accounts/organisations")
 public class OrganisationController {
 
     @Autowired

@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
+        '/.rest/accounts':     `http://${backend}:8095`,
         '/.rest/engagements':  `http://${backend}:8091`,
         '/.rest/leads':        `http://${backend}:8091`,
         '/.rest/auditrecords': `http://${backend}:8092`,

@@ -62,6 +62,11 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
+                    env.USERSERVICE_DB_PASSWORD = sh(
+                        script: "openssl rand -base64 24 | tr -d '\\n'",
+                        returnStdout: true
+                    ).trim()
+
                     env.KC_CLIENT_SECRET = sh(
                         script: "tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 10",
                         returnStdout: true
@@ -112,6 +117,7 @@ pipeline {
                             --set STATS_DB_PASSWORD=${STATS_DB_PASSWORD} \\
                             --set AUDIT_DB_PASSWORD=${AUDIT_DB_PASSWORD} \\
                             --set SUPPLIERENGAGEMENT_DB_PASSWORD=${SUPPLIERENGAGEMENT_DB_PASSWORD} \\
+                            --set USERSERVICE_DB_PASSWORD=${USERSERVICE_DB_PASSWORD} \\
                             --set RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
                             '''
                         }
@@ -137,7 +143,8 @@ pipeline {
                                   "KC_DB_PASSWORD": "'$(echo -n "${KEYCLOAK_DB_PASSWORD}" | base64 -w 0)'",
                                   "STATS_DB_PASSWORD": "'$(echo -n "${STATS_DB_PASSWORD}" | base64 -w 0)'",
                                   "AUDIT_DB_PASSWORD": "'$(echo -n "${AUDIT_DB_PASSWORD}" | base64 -w 0)'",
-                                  "SUPPLIERENGAGEMENT_DB_PASSWORD": "'$(echo -n "${SUPPLIERENGAGEMENT_DB_PASSWORD}" | base64 -w 0)'"
+                                  "SUPPLIERENGAGEMENT_DB_PASSWORD": "'$(echo -n "${SUPPLIERENGAGEMENT_DB_PASSWORD}" | base64 -w 0)'",
+                                  "USERSERVICE_DB_PASSWORD": "'$(echo -n "${USERSERVICE_DB_PASSWORD}" | base64 -w 0)'"
                                 }
                               }'
 
@@ -722,6 +729,8 @@ EOF
                 MIGRATION_STATS_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-stats.sql"
                 MIGRATION_AUDIT_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-audit.sql"
                 MIGRATION_SUPPLIERENGAGEMENT_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-supplierengagement.sql"
+                USERSERVICE_TABLES_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/userservice-schema-backup.sql"
+                MIGRATION_USERSERVICE_FILE = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/helm/schema-migration-userservice.sql"
             }
 
             steps {
@@ -744,13 +753,15 @@ EOF
                             PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${STATS_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${AUDIT_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${SUPPLIERENGAGEMENT_DB_PASSWORD}"+''' psql -h localhost -U supplierengagement_user -d supplierengagement -f '''+"${SUPPLIERENGAGEMENT_TABLES_FILE}"+'''
+                            PGPASSWORD='''+"${USERSERVICE_DB_PASSWORD}"+''' psql -h localhost -U userservice_user -d userservice -f '''+"${USERSERVICE_TABLES_FILE}"+'''
                             PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky -f '''+"${MIGRATION_FILE}"+'''
                             PGPASSWORD='''+"${STATS_DB_PASSWORD}"+''' psql -h localhost -U stats_user -d stats -f '''+"${MIGRATION_STATS_FILE}"+'''
                             PGPASSWORD='''+"${AUDIT_DB_PASSWORD}"+''' psql -h localhost -U audit_user -d audit -f '''+"${MIGRATION_AUDIT_FILE}"+'''
                             PGPASSWORD='''+"${SUPPLIERENGAGEMENT_DB_PASSWORD}"+''' psql -h localhost -U supplierengagement_user -d supplierengagement -f '''+"${MIGRATION_SUPPLIERENGAGEMENT_FILE}"+'''
+                            PGPASSWORD='''+"${USERSERVICE_DB_PASSWORD}"+''' psql -h localhost -U userservice_user -d userservice -f '''+"${MIGRATION_USERSERVICE_FILE}"+'''
 
-                            # Insert default organisation row
-                            PGPASSWORD='''+"${LINKSERVICE_DB_PASSWORD}"+''' psql -h localhost -U linkservice_user -d slinkylinky \\
+                            # Insert default organisation row into userservice DB (owned by userservice)
+                            PGPASSWORD='''+"${USERSERVICE_DB_PASSWORD}"+''' psql -h localhost -U userservice_user -d userservice \\
                             -c "INSERT INTO public.organisation (id, name, slug, created_at, active) VALUES ('''+"'${ORG_ID}'"+''', 'default', '${TENANT}', NOW(), true) ON CONFLICT DO NOTHING;"
 
                             # Kill the port-forward
