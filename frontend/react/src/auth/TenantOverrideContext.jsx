@@ -1,8 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useAuth } from '@/auth/AuthProvider';
 
 const TenantOverrideContext = createContext(null);
 
 export function TenantOverrideProvider({ children }) {
+    const { user } = useAuth();
     const [overrideOrgId, setOverrideOrgIdState] = useState(
         () => sessionStorage.getItem('sl_tenant_override') || null
     );
@@ -15,6 +17,13 @@ export function TenantOverrideProvider({ children }) {
         }
         setOverrideOrgIdState(orgId);
     }, []);
+
+    useEffect(() => {
+        if (user && !user.roles?.includes('global_admin')) {
+            sessionStorage.removeItem('sl_tenant_override');
+            setOverrideOrgIdState(null);
+        }
+    }, [user]);
 
     return (
         <TenantOverrideContext.Provider value={{ overrideOrgId, setOverrideOrgId }}>
