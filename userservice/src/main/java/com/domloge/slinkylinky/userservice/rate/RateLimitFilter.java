@@ -28,15 +28,17 @@ public class RateLimitFilter {
 
     /**
      * Attempts to consume one token from each rate-limit axis.
+     * Per-axis limits (IP, email) are checked before the global bucket so that
+     * requests blocked by a per-axis limit do not consume a global token.
      * Returns false (and the caller must reply 429) if any axis is exhausted.
      */
     public boolean tryAcquire(HttpServletRequest request, String normalisedEmail) {
         String ip = resolveClientIp(request);
         Bucket ipBucket    = ipBuckets.computeIfAbsent(ip, k -> buildBucket(IP_CAPACITY));
         Bucket emailBucket = emailBuckets.computeIfAbsent(normalisedEmail, k -> buildBucket(EMAIL_CAPACITY));
-        return globalBucket.tryConsume(1)
-            && ipBucket.tryConsume(1)
-            && emailBucket.tryConsume(1);
+        if (!ipBucket.tryConsume(1))    return false;
+        if (!emailBucket.tryConsume(1)) return false;
+        return globalBucket.tryConsume(1);
     }
 
     /**

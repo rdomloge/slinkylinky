@@ -7,9 +7,9 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.domloge.slinkylinky.events.AuditEvent;
@@ -30,14 +30,32 @@ public class VerifyEmailController {
     @Autowired private TokenHasher tokenHasher;
     @Autowired private AmqpTemplate auditRabbitTemplate;
 
-    @GetMapping("/verify-email")
-    public ResponseEntity<Map<String, String>> verifyEmail(@RequestParam("token") String rawToken) {
+    @PostMapping("/verify-email")
+    public ResponseEntity<Map<String, String>> verifyEmail(@RequestBody Map<String, String> body) {
+        String rawToken = body == null ? null : body.get("token");
+        if (rawToken == null || rawToken.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("code", "INVALID_OR_EXPIRED",
+                             "message", "This verification link is invalid or has expired."));
+        }
+
         String hash = tokenHasher.hash(rawToken);
+
+        // Load token data before claiming (need userId/email/orgId for Keycloak + audit)
         EmailVerificationToken token = tokenRepo
             .findByTokenHashAndUsedFalseAndExpiresAtAfter(hash, LocalDateTime.now())
             .orElse(null);
 
         if (token == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("code", "INVALID_OR_EXPIRED",
+                             "message", "This verification link is invalid or has expired."));
+        }
+
+        // Atomically claim the token — handles concurrent requests and email prefetchers.
+        // If another request won the race, markUsed returns 0 and we reject.
+        int claimed = tokenRepo.markUsed(hash);
+        if (claimed == 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("code", "INVALID_OR_EXPIRED",
                              "message", "This verification link is invalid or has expired."));
@@ -50,13 +68,6 @@ public class VerifyEmailController {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(Map.of("code", "VERIFICATION_FAILED",
                              "message", "Could not complete verification. Please try again."));
-        }
-
-        token.setUsed(true);
-        try {
-            tokenRepo.save(token);
-        } catch (Exception e) {
-            log.error("Token mark-used failed for user {} — Keycloak already updated", token.getUserId(), e);
         }
 
         emitAudit(token);

@@ -108,15 +108,18 @@ class EmailVerifiedFilterTest {
     }
 
     @Test
-    void unauthenticatedRequest_passesThrough() throws Exception {
+    void unauthenticatedRequest_receives403() throws Exception {
+        // Fail-closed: a non-exempt request without a verified JWT is blocked here.
+        // Spring Security handles the 401 path for properly configured routes;
+        // this defence-in-depth check ensures misconfigured routes also fail safely.
         SecurityContextHolder.clearContext();
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/data");
         MockHttpServletResponse resp = new MockHttpServletResponse();
-        MockFilterChain chain = new MockFilterChain();
+        FilterChain chain = mock(FilterChain.class);
 
         filter.doFilter(req, resp, chain);
 
-        assertEquals(200, resp.getStatus());
+        assertEquals(403, resp.getStatus());
     }
 
     private static void setJwt(boolean emailVerified) {

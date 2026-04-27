@@ -97,10 +97,25 @@ public class KeycloakUserController {
             }
         }
 
-        String requestedRole = (String) userRepresentation.remove("role");
+        String requestedRole = (String) userRepresentation.get("role");
         validateRoleAssignment(requestedRole);
 
-        String newUserId = keycloakAdminClient.createUser(userRepresentation);
+        // Build an allowlist representation — never forward the raw caller payload to Keycloak.
+        // This prevents injection of emailVerified:true, arbitrary attributes, requiredActions, etc.
+        Map<String, Object> safeRep = new java.util.LinkedHashMap<>();
+        safeRep.put("firstName",     userRepresentation.get("firstName"));
+        safeRep.put("lastName",      userRepresentation.get("lastName"));
+        safeRep.put("email",         userRepresentation.get("email"));
+        safeRep.put("username",      userRepresentation.get("email")); // username mirrors email
+        safeRep.put("enabled",       true);
+        safeRep.put("emailVerified", false);
+        safeRep.put("attributes",    Map.of("org_id", List.of(targetOrgId)));
+        Object credentials = userRepresentation.get("credentials");
+        if (credentials != null) {
+            safeRep.put("credentials", credentials);
+        }
+
+        String newUserId = keycloakAdminClient.createUser(safeRep);
         log.info("Created Keycloak user {} for org {}", newUserId, targetOrgId);
 
         if (requestedRole != null && !requestedRole.isBlank()) {
@@ -109,10 +124,10 @@ public class KeycloakUserController {
                 keycloakAdminClient.assignRealmRole(newUserId, roleRep);
                 log.info("Assigned role '{}' to user {}", requestedRole, newUserId);
             } catch (Exception e) {
-                log.error("Role assignment failed for user {}, disabling orphan", newUserId, e);
-                keycloakAdminClient.disableUser(newUserId);
+                log.error("Role assignment failed for user {}, deleting orphan", newUserId, e);
+                keycloakAdminClient.deleteUser(newUserId);
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "User created but role assignment failed; user has been disabled");
+                    "User created but role assignment failed; user has been deleted");
             }
         }
 

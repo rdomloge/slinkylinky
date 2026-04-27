@@ -44,30 +44,28 @@ class VerifyEmailControllerTest {
     private static final String RAW_TOKEN = "rawtoken123";
     private static final String HASHED_TOKEN = "a".repeat(64);
 
-    @BeforeEach
-    void setUp() {
-        when(tokenHasher.hash(RAW_TOKEN)).thenReturn(HASHED_TOKEN);
-    }
-
     @Test
-    void verifyEmail_validToken_returns200AndMarksUsed() {
+    void verifyEmail_validToken_returns200() {
         EmailVerificationToken token = validToken();
+        when(tokenHasher.hash(RAW_TOKEN)).thenReturn(HASHED_TOKEN);
         when(tokenRepo.findByTokenHashAndUsedFalseAndExpiresAtAfter(eq(HASHED_TOKEN), any()))
             .thenReturn(Optional.of(token));
+        when(tokenRepo.markUsed(HASHED_TOKEN)).thenReturn(1);
 
-        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(RAW_TOKEN);
+        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(Map.of("token", RAW_TOKEN));
 
         assertEquals(HttpStatus.OK, resp.getStatusCode());
+        verify(tokenRepo).markUsed(HASHED_TOKEN);
         verify(keycloakAdminClient).setEmailVerified(token.getUserId(), true);
-        verify(tokenRepo).save(token);
     }
 
     @Test
     void verifyEmail_tokenNotFound_returns400() {
+        when(tokenHasher.hash(RAW_TOKEN)).thenReturn(HASHED_TOKEN);
         when(tokenRepo.findByTokenHashAndUsedFalseAndExpiresAtAfter(eq(HASHED_TOKEN), any()))
             .thenReturn(Optional.empty());
 
-        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(RAW_TOKEN);
+        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(Map.of("token", RAW_TOKEN));
 
         assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
         assertEquals("INVALID_OR_EXPIRED", resp.getBody().get("code"));
@@ -75,29 +73,57 @@ class VerifyEmailControllerTest {
     }
 
     @Test
-    void verifyEmail_keycloakFails_returns503AndTokenNotMarkedUsed() {
+    void verifyEmail_concurrentClaim_returns400() {
+        // Token found in SELECT but lost the atomic UPDATE race — another request claimed it
         EmailVerificationToken token = validToken();
+        when(tokenHasher.hash(RAW_TOKEN)).thenReturn(HASHED_TOKEN);
         when(tokenRepo.findByTokenHashAndUsedFalseAndExpiresAtAfter(eq(HASHED_TOKEN), any()))
             .thenReturn(Optional.of(token));
+        when(tokenRepo.markUsed(HASHED_TOKEN)).thenReturn(0);
+
+        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(Map.of("token", RAW_TOKEN));
+
+        assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
+        assertEquals("INVALID_OR_EXPIRED", resp.getBody().get("code"));
+        verify(keycloakAdminClient, never()).setEmailVerified(anyString(), anyBoolean());
+    }
+
+    @Test
+    void verifyEmail_keycloakFails_returns503() {
+        // Token is claimed before Keycloak is called; user must request a new link via resend.
+        EmailVerificationToken token = validToken();
+        when(tokenHasher.hash(RAW_TOKEN)).thenReturn(HASHED_TOKEN);
+        when(tokenRepo.findByTokenHashAndUsedFalseAndExpiresAtAfter(eq(HASHED_TOKEN), any()))
+            .thenReturn(Optional.of(token));
+        when(tokenRepo.markUsed(HASHED_TOKEN)).thenReturn(1);
         doThrow(new RuntimeException("keycloak down")).when(keycloakAdminClient)
             .setEmailVerified(anyString(), anyBoolean());
 
-        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(RAW_TOKEN);
+        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(Map.of("token", RAW_TOKEN));
 
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, resp.getStatusCode());
         assertEquals("VERIFICATION_FAILED", resp.getBody().get("code"));
-        verify(tokenRepo, never()).save(any());
     }
 
     @Test
     void verifyEmail_emitsAuditEvent() {
         EmailVerificationToken token = validToken();
+        when(tokenHasher.hash(RAW_TOKEN)).thenReturn(HASHED_TOKEN);
         when(tokenRepo.findByTokenHashAndUsedFalseAndExpiresAtAfter(eq(HASHED_TOKEN), any()))
             .thenReturn(Optional.of(token));
+        when(tokenRepo.markUsed(HASHED_TOKEN)).thenReturn(1);
 
-        controller.verifyEmail(RAW_TOKEN);
+        controller.verifyEmail(Map.of("token", RAW_TOKEN));
 
         verify(auditRabbitTemplate).convertAndSend(any());
+    }
+
+    @Test
+    void verifyEmail_missingToken_returns400() {
+        ResponseEntity<Map<String, String>> resp = controller.verifyEmail(Map.of());
+
+        assertEquals(HttpStatus.BAD_REQUEST, resp.getStatusCode());
+        verify(tokenRepo, never()).findByTokenHashAndUsedFalseAndExpiresAtAfter(anyString(), any());
     }
 
     private EmailVerificationToken validToken() {

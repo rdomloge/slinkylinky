@@ -58,7 +58,7 @@ const ConnectionNodes = () => (
 );
 
 export default function Layout({ children, pagetitle = ' ', headerTitle, headerActions }) {
-    const { user, isAuthenticated, isLoading, signIn, signOut } = useAuth();
+    const { user, accessToken, isAuthenticated, isLoading, signIn, signOut } = useAuth();
     const { addToast } = useToast();
     const [launching, setLaunching] = useState(false);
     const [launchOrigin, setLaunchOrigin] = useState({ x: '50%', y: '50%' });
@@ -116,8 +116,11 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
     const handleResend = async () => {
         setResendLoading(true);
         try {
-            await fetch('/.rest/accounts/resend-verification', { method: 'POST' });
-            setResendSent(true);
+            const res = await fetch('/.rest/accounts/resend-verification', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            if (res.ok) setResendSent(true);
         } catch {
             // best-effort
         } finally {

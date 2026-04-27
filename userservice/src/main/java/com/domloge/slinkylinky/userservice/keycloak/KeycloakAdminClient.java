@@ -1,6 +1,8 @@
 package com.domloge.slinkylinky.userservice.keycloak;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -27,22 +29,22 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class KeycloakAdminClient {
 
-    @Value("${keycloak.admin.url:}")
+    @Value("${keycloak.admin.url}")
     private String adminUrl;
 
-    @Value("${keycloak.admin.realm:slinkylinky}")
+    @Value("${keycloak.admin.realm}")
     private String realm;
 
-    @Value("${keycloak.admin.client-id:}")
+    @Value("${keycloak.admin.client-id}")
     private String clientId;
 
-    @Value("${keycloak.admin.client-secret:}")
+    @Value("${keycloak.admin.client-secret}")
     private String clientSecret;
 
     private final RestClient restClient = RestClient.create();
 
-    private String cachedToken;
-    private Instant tokenExpiry = Instant.EPOCH;
+    private volatile String cachedToken;
+    private volatile Instant tokenExpiry = Instant.EPOCH;
 
     public boolean isConfigured() {
         return adminUrl != null && !adminUrl.isBlank()
@@ -79,9 +81,21 @@ public class KeycloakAdminClient {
         return cachedToken;
     }
 
+    /** Fetch a single Keycloak user by ID. */
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getUser(String userId) {
+        String url = adminUrl + "/admin/realms/" + realm + "/users/" + userId;
+        return restClient.get()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .retrieve()
+            .body(Map.class);
+    }
+
     /** List Keycloak users with a given org_id attribute. */
     public List<Map<String, Object>> listUsersByOrgId(String orgId) {
-        String url = adminUrl + "/admin/realms/" + realm + "/users?q=org_id:" + orgId + "&max=200";
+        String encodedOrgId = URLEncoder.encode(orgId, StandardCharsets.UTF_8);
+        String url = adminUrl + "/admin/realms/" + realm + "/users?q=org_id:" + encodedOrgId + "&max=200";
         return restClient.get()
             .uri(url)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
@@ -107,16 +121,30 @@ public class KeycloakAdminClient {
         return path.substring(path.lastIndexOf('/') + 1);
     }
 
-    /** Disable (not delete) a Keycloak user. */
-    public void disableUser(String userId) {
+    /**
+     * Permanently delete a Keycloak user.
+     * Used in compensation paths — prefer over disable so the email address
+     * is freed for re-registration.
+     */
+    public void deleteUser(String userId) {
         String url = adminUrl + "/admin/realms/" + realm + "/users/" + userId;
-        restClient.put()
+        restClient.delete()
             .uri(url)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(Map.of("enabled", false))
             .retrieve()
             .toBodilessEntity();
+    }
+
+    /**
+     * Disable a Keycloak user.
+     * Fetches the full user representation first so the PUT does not overwrite
+     * other fields (Keycloak's PUT /users/{id} is a full replace, not a PATCH).
+     */
+    @SuppressWarnings("unchecked")
+    public void disableUser(String userId) {
+        Map<String, Object> rep = getUser(userId);
+        rep.put("enabled", false);
+        putUser(userId, rep);
     }
 
     /** Get a Keycloak realm role by name. */
@@ -142,22 +170,21 @@ public class KeycloakAdminClient {
             .toBodilessEntity();
     }
 
-    /** Set the emailVerified flag on a Keycloak user. */
+    /**
+     * Set the emailVerified flag on a Keycloak user.
+     * Fetches the full user representation first to avoid overwriting other fields.
+     */
+    @SuppressWarnings("unchecked")
     public void setEmailVerified(String userId, boolean verified) {
-        String url = adminUrl + "/admin/realms/" + realm + "/users/" + userId;
-        restClient.put()
-            .uri(url)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(Map.of("emailVerified", verified))
-            .retrieve()
-            .toBodilessEntity();
+        Map<String, Object> rep = getUser(userId);
+        rep.put("emailVerified", verified);
+        putUser(userId, rep);
     }
 
     /** Look up a Keycloak user by exact email address. Returns empty if not found. */
     public Optional<Map<String, Object>> getUserByEmail(String email) {
         String url = adminUrl + "/admin/realms/" + realm + "/users?exact=true&email="
-                   + java.net.URLEncoder.encode(email, java.nio.charset.StandardCharsets.UTF_8);
+                   + URLEncoder.encode(email, StandardCharsets.UTF_8);
         List<Map<String, Object>> users = restClient.get()
             .uri(url)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
@@ -167,5 +194,16 @@ public class KeycloakAdminClient {
             return Optional.empty();
         }
         return Optional.of(users.get(0));
+    }
+
+    private void putUser(String userId, Map<String, Object> userRepresentation) {
+        String url = adminUrl + "/admin/realms/" + realm + "/users/" + userId;
+        restClient.put()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(userRepresentation)
+            .retrieve()
+            .toBodilessEntity();
     }
 }

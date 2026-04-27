@@ -1,9 +1,14 @@
 package com.domloge.slinkylinky.userservice.captcha;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-/** Always passes — replace with a real implementation when hCaptcha is integrated. */
+/**
+ * Always passes — active only outside the "production" profile.
+ * In production, provide a real CaptchaVerifier bean; startup will fail if none is present.
+ */
 @Component
+@Profile("!production")
 public class NoOpCaptchaVerifier implements CaptchaVerifier {
 
     @Override

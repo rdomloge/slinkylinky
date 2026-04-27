@@ -147,7 +147,7 @@ class RegistrationControllerTest {
         ResponseEntity<Map<String, String>> resp = controller.register(validRequest(), request);
 
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, resp.getStatusCode());
-        verify(keycloakAdminClient).disableUser("user-id");
+        verify(keycloakAdminClient).deleteUser("user-id");
         verify(organisationRepo).deleteById(saved.getId());
     }
 
@@ -165,7 +165,7 @@ class RegistrationControllerTest {
         ResponseEntity<Map<String, String>> resp = controller.register(validRequest(), request);
 
         assertEquals(HttpStatus.SERVICE_UNAVAILABLE, resp.getStatusCode());
-        verify(keycloakAdminClient).disableUser("user-id");
+        verify(keycloakAdminClient).deleteUser("user-id");
         verify(organisationRepo).deleteById(saved.getId());
     }
 
@@ -184,7 +184,7 @@ class RegistrationControllerTest {
 
         // Email failure is non-fatal — user can resend
         assertEquals(HttpStatus.CREATED, resp.getStatusCode());
-        verify(keycloakAdminClient, never()).disableUser(anyString());
+        verify(keycloakAdminClient, never()).deleteUser(anyString());
     }
 
     @Test

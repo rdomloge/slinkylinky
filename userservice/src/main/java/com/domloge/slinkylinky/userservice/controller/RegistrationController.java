@@ -138,7 +138,7 @@ public class RegistrationController {
             keycloakAdminClient.assignRealmRole(newUserId, role);
         } catch (Exception e) {
             log.error("Role assignment failed for user {}, compensating", newUserId, e);
-            silentlyDisableUser(newUserId);
+            silentlyDeleteUser(newUserId);
             organisationRepo.deleteById(orgId);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(Map.of("code", "ROLE_ASSIGNMENT_FAILED"));
@@ -158,7 +158,7 @@ public class RegistrationController {
             tokenRepo.save(tokenEntity);
         } catch (Exception e) {
             log.error("Token persistence failed for user {}, compensating", newUserId, e);
-            silentlyDisableUser(newUserId);
+            silentlyDeleteUser(newUserId);
             organisationRepo.deleteById(orgId);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(Map.of("code", "TOKEN_SAVE_FAILED"));
@@ -195,11 +195,11 @@ public class RegistrationController {
         return slug.isBlank() ? "org" : slug;
     }
 
-    private void silentlyDisableUser(String userId) {
+    private void silentlyDeleteUser(String userId) {
         try {
-            keycloakAdminClient.disableUser(userId);
+            keycloakAdminClient.deleteUser(userId);
         } catch (Exception e) {
-            log.warn("Could not disable Keycloak user {} during compensation: {}", userId, e.getMessage());
+            log.warn("Could not delete Keycloak user {} during compensation: {}", userId, e.getMessage());
         }
     }
 

@@ -101,7 +101,7 @@ export function ToastProvider({ children }) {
     }, []);
 
     return (
-        <ToastContext.Provider value={toast}>
+        <ToastContext.Provider value={{ addToast: toast }}>
             {children}
             <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 items-end pointer-events-none">
                 {toasts.map(t => (

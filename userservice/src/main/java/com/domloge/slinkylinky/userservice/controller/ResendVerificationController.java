@@ -50,6 +50,7 @@ public class ResendVerificationController {
 
     private final ConcurrentHashMap<String, Bucket> userIdBuckets = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Bucket> emailBuckets  = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Bucket> ipBuckets     = new ConcurrentHashMap<>();
 
     /** Authenticated resend — caller must be signed in but email need not be verified. */
     @PostMapping("/resend-verification")
@@ -122,7 +123,7 @@ public class ResendVerificationController {
         email = email.trim().toLowerCase();
 
         String ip = rateLimitFilter.resolveClientIp(request);
-        Bucket ipBucket    = userIdBuckets.computeIfAbsent("ip:" + ip, k -> buildBucket());
+        Bucket ipBucket    = ipBuckets.computeIfAbsent(ip, k -> buildBucket());
         Bucket emailBucket = emailBuckets.computeIfAbsent(email, k -> buildBucket());
         if (!ipBucket.tryConsume(1) || !emailBucket.tryConsume(1)) {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)

@@ -51,15 +51,26 @@ public class EmailVerifiedFilter extends OncePerRequestFilter {
             Jwt jwt = jwtAuth.getToken();
             Boolean emailVerified = jwt.getClaimAsBoolean("email_verified");
             if (emailVerified == null || !emailVerified) {
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                response.setContentType("application/json");
-                response.getWriter().write(
-                    "{\"code\":\"EMAIL_NOT_VERIFIED\"," +
-                    "\"message\":\"Please verify your email address before accessing this resource.\"}");
+                writeForbidden(response);
                 return;
             }
+        } else {
+            // No verified JWT present on a non-exempt path — block regardless of auth type.
+            // Spring Security's authorizeHttpRequests handles the normal 401 path; this branch
+            // is defence-in-depth for misconfigured SecurityFilterChains that accidentally
+            // permit a path without requiring a JWT.
+            writeForbidden(response);
+            return;
         }
 
         chain.doFilter(request, response);
+    }
+
+    private void writeForbidden(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType("application/json");
+        response.getWriter().write(
+            "{\"code\":\"EMAIL_NOT_VERIFIED\"," +
+            "\"message\":\"Please verify your email address before accessing this resource.\"}");
     }
 }

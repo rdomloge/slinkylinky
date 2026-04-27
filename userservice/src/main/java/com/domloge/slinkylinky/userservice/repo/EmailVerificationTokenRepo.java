@@ -18,6 +18,16 @@ public interface EmailVerificationTokenRepo extends CrudRepository<EmailVerifica
     Optional<EmailVerificationToken> findByTokenHashAndUsedFalseAndExpiresAtAfter(
             String tokenHash, LocalDateTime now);
 
+    /**
+     * Atomically claims the token by marking it used in a single UPDATE.
+     * Returns 1 if the token was successfully claimed, 0 if it was already used
+     * or does not exist — handles concurrent double-click and prefetcher races.
+     */
+    @Transactional
+    @Modifying
+    @Query("UPDATE EmailVerificationToken t SET t.used = true WHERE t.tokenHash = :hash AND t.used = false")
+    int markUsed(@Param("hash") String hash);
+
     @Transactional
     @Modifying
     @Query("UPDATE EmailVerificationToken t SET t.used = true WHERE t.userId = :userId AND t.used = false")
