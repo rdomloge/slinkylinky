@@ -120,6 +120,17 @@ pipeline {
                     }
                 }
 
+                stage('Docker: userservice') {
+                    steps {
+                        sh """
+                        docker buildx build \
+                            --platform linux/amd64,linux/arm64 \
+                            -t ${env.REPO}-userservice:${env.VERSION} \
+                            --push userservice
+                        """
+                    }
+                }
+
                 stage('Docker: keycloak') {
                     steps {
                         sh """
