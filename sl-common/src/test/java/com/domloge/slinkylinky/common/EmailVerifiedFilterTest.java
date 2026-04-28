@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -99,6 +100,29 @@ class EmailVerifiedFilterTest {
     void publicPath_passesThrough() throws Exception {
         setJwt(false);
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/public/signup");
+        MockHttpServletResponse resp = new MockHttpServletResponse();
+        MockFilterChain chain = new MockFilterChain();
+
+        filter.doFilter(req, resp, chain);
+
+        assertEquals(200, resp.getStatus());
+    }
+
+    @Test
+    void serviceToken_withInternalServiceScope_passesThrough() throws Exception {
+        // client_credentials tokens carry SCOPE_internal_service — the filter must let them through
+        // regardless of email_verified, since they represent machines not human users
+        Jwt jwt = Jwt.withTokenValue("token")
+            .header("alg", "none")
+            .claim("sub", "service-account-slinkylinky-internal")
+            .claim("scope", "internal_service")
+            .issuedAt(Instant.now())
+            .expiresAt(Instant.now().plusSeconds(3600))
+            .build();
+        var authorities = List.of(new SimpleGrantedAuthority("SCOPE_internal_service"));
+        SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt, authorities));
+
+        MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/data");
         MockHttpServletResponse resp = new MockHttpServletResponse();
         MockFilterChain chain = new MockFilterChain();
 

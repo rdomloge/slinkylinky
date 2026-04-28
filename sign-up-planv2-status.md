@@ -3,10 +3,10 @@
 ## Overall status
 - Source plan: `sign-up-planv2.md`
 - Breakdown request: `sign-up-plan-prompt.md`
-- Current stage: Stage 05 — audit coverage and access cleanup
-- Next stage: Stage 06 — global-admin organisations overview
+- Current stage: Stage 06 — global-admin organisations overview
+- Next stage: Stage 07 — integration test and coverage wiring
 - Current step in active stage: complete
-- Last updated: 2026-04-27 (Stage 05 complete; 27 tests green)
+- Last updated: 2026-04-27 (Stage 06 complete; 4 backend + 6 frontend tests green)
 
 ## Stage tracker
 | Stage | File | Title | Status | Notes |
@@ -16,7 +16,7 @@
 | 03 | `sign-up-planv2-03.md` | email verification and verified-only access | DONE | All deliverables shipped; 37 userservice tests + 24 sl-common tests green. |
 | 04 | `sign-up-planv2-04.md` | public registration UI | DONE | All deliverables shipped; 25 frontend tests green. |
 | 05 | `sign-up-planv2-05.md` | audit coverage and access cleanup | DONE | All deliverables shipped; 27 frontend tests green. |
-| 06 | `sign-up-planv2-06.md` | global-admin organisations overview | PENDING | Not started. |
+| 06 | `sign-up-planv2-06.md` | global-admin organisations overview | DONE | All deliverables shipped; 4 backend + 6 frontend tests green. |
 | 07 | `sign-up-planv2-07.md` | integration test and coverage wiring | PENDING | Not started. |
 | 08 | `sign-up-planv2-08.md` | CI/CD and deployment wiring | PENDING | Helm values block done; Dockerfile, Helm template, Jenkinsfile not yet done. |
 
@@ -53,6 +53,20 @@
   - `VerifyEmailControllerTest` (4) — happy path, token not found, Keycloak fails, audit emitted
   - `ResendVerificationControllerTest` (7) — auth happy path, no JWT, email-fail non-fatal, public unknown/verified/unverified, blank email
   - `EmailVerifiedFilterTest` (6) — verified passes, unverified 403, missing claim 403, whitelisted path bypasses, unauthenticated passes
+
+## Stage 06 deliverables (all shipped)
+- [x] `KeycloakAdminClient.getUserRealmRoles(userId)` — fetches realm roles from `/admin/realms/{realm}/users/{userId}/role-mappings/realm`
+- [x] `KeycloakAdminClient.getLastLoginTime(userId)` — fetches most recent LOGIN event, extracts Unix ms timestamp, converts to LocalDateTime
+- [x] `UserOverviewDto` — Java record (userId, email, firstName, lastName, emailVerified, roles, lastLogin)
+- [x] `OrgOverviewDto` — Java record (orgId, orgName, orgSlug, createdAt, users)
+- [x] `OrganisationsOverviewController` — `GET /.rest/accounts/admin/organisations-overview`, global_admin gate, 60-sec volatile cache, audit event `"list organisations overview"`
+- [x] `OrganisationsOverviewControllerTest` — 4 tests (non-admin 403, happy path, roles fetch fail, events fetch fail)
+- [x] `pages/admin/organisations/index.jsx` — global_admin page with role guard, org table, expandable user rows, search filter, CSV export
+- [x] `pages/admin/organisations/index.test.jsx` — 6 tests (non-admin redirect, org table, row expansion, search, CSV, null lastLogin)
+- [x] `App.jsx` — added route `/admin/organisations` with `AdminOrganisationsIndex` component
+- [x] `Menu.jsx` — added nav item `Org Overview` with `adminOnly: true`, added ENTITY_COLORS entry
+- [x] `audit/CLAUDE.md` — added `"list organisations overview"` to established `what` values
+- [x] `docs/multi-tenancy-keycloak-setup.md` — added Step 8 (enable realm login events), updated per-tenant onboarding checklist
 
 ## Stage 05 deliverables (all shipped)
 - [x] `audit/CLAUDE.md` — unauthenticated `who` rule added; `"register user"`, `"email verified"`, `"send verification email"` added to established `what` values

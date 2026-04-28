@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -194,6 +195,36 @@ public class KeycloakAdminClient {
             return Optional.empty();
         }
         return Optional.of(users.get(0));
+    }
+
+    /** Get the names of realm roles assigned to a user. */
+    public List<String> getUserRealmRoles(String userId) {
+        String url = adminUrl + "/admin/realms/" + realm + "/users/" + userId + "/role-mappings/realm";
+        List<Map<String, Object>> roles = restClient.get()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .retrieve()
+            .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+        if (roles == null) return List.of();
+        return roles.stream()
+            .map(r -> (String) r.get("name"))
+            .filter(n -> n != null)
+            .toList();
+    }
+
+    /** Get the time of the most recent LOGIN event for a user. Returns null if no events exist. */
+    public LocalDateTime getLastLoginTime(String userId) {
+        String url = adminUrl + "/admin/realms/" + realm + "/events?type=LOGIN&userId="
+                   + URLEncoder.encode(userId, StandardCharsets.UTF_8) + "&max=1";
+        List<Map<String, Object>> events = restClient.get()
+            .uri(url)
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
+            .retrieve()
+            .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+        if (events == null || events.isEmpty()) return null;
+        Object time = events.get(0).get("time");
+        if (time == null) return null;
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(((Number) time).longValue()), java.time.ZoneOffset.UTC);
     }
 
     private void putUser(String userId, Map<String, Object> userRepresentation) {

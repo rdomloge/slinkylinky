@@ -54,6 +54,7 @@ Established values (match exactly for consistency):
 - `"register user"` — public self-registration (RegistrationController)
 - `"email verified"` — email address confirmed via token (VerifyEmailController)
 - `"send verification email"` — verification email dispatched (ResendVerificationController)
+- `"list organisations overview"` — global admin overview read (OrganisationsOverviewController)
 - `"login"`
 - `"create organisation <name>"` (name interpolated)
 - `"Use chatgpt"` ← legacy capitalisation; new entries should be lowercase

@@ -78,7 +78,41 @@ The `sl_server` client is used by the `supplierengagement` service for server-to
 
 Without this, any service-to-service call that writes a Supplier will return 403.
 
-## Step 7 — Create Service Account Client for Admin API Proxy (Phase 6)
+## Step 7 — Create the `internal_service` Client Scope
+
+`EmailVerifiedFilter` (applied in every service) blocks tokens where `email_verified` is false or absent. Keycloak service accounts have `email_verified: false` by default, so service-to-service calls would be rejected without an explicit bypass.
+
+The bypass is the `internal_service` scope. Any JWT carrying this scope is treated as a machine token and skips the email-verification gate. It must be assigned to **every client that makes `client_credentials` calls**.
+
+### Create the scope
+
+1. Navigate to **Realm → Client Scopes → Create client scope**.
+   - Name: `internal_service`
+   - Type: Default
+   - Protocol: openid-connect
+2. On the **Settings** tab, ensure **"Include in token scope"** is **ON**. This is the critical setting — without it, the scope name never appears in the JWT `scope` claim, so `EmailVerifiedFilter` will not recognise the token as a machine token even if the scope is correctly assigned to the client.
+3. No mappers needed — presence of the scope in the token is the only signal required.
+4. Save.
+
+### Assign to service-account clients
+
+For each client that uses `grant_type=client_credentials`:
+
+| Client | Used by |
+|--------|---------|
+| `sl_server` | supplierengagement → linkservice |
+| `sl-admin` | linkservice → stats (spam score checks) and linkservice → Keycloak Admin API |
+
+For each:
+
+1. Navigate to **Realm → Clients → [client] → Client Scopes**.
+2. Under **Assigned default client scopes**, click **Add client scope** → select `internal_service` → **Add**.
+
+> **Gotcha:** Assigning the scope as Default or Optional is not enough on its own. The `internal_service` Client Scope must also have **"Include in token scope" = ON** (configured in the previous step). If that setting is off, Keycloak silently omits the scope name from the JWT even though the scope is assigned — the granted scope in the token response will show only `profile email` and the bypass in `EmailVerifiedFilter` will never fire.
+
+Without this, service-to-service calls through `EmailVerifiedFilter` will return `403 EMAIL_NOT_VERIFIED`.
+
+## Step 8 — Create Service Account Client for Admin API Proxy (Phase 6)
 
 Required for the `KeycloakAdminClient` that manages users via the backend.
 
@@ -93,6 +127,17 @@ Required for the `KeycloakAdminClient` that manages users via the backend.
 3. Go to **Service account roles** tab → Assign role:
    - Filter by clients → select `realm-management` client → assign `manage-users` and `view-users`.
 
+## Step 8 — Enable Realm Login Events (Prerequisite for Last-Login Display)
+
+For each tenant realm, in Keycloak Admin Console:
+
+1. Go to **Realm Settings → Events**.
+2. Under **Login events**, set **Save events** to **ON**.
+3. Set **Expiration** to at least **30 days**.
+4. Click **Save**.
+
+Without this, the Organisations Overview page shows **Never** for all last-login values. Complete before the first users sign up in that realm.
+
 ## Environment Variables Summary
 
 | Variable | Where used | Value |
@@ -105,6 +150,8 @@ Required for the `KeycloakAdminClient` that manages users via the backend.
 
 When a new organisation is created via the platform:
 
+- [ ] Create new tenant realm in Keycloak
+- [ ] Enable login events for the realm (Step 8 above)
 - [ ] Insert row into `organisation` table (done by `OrganisationController.createOrganisation`)
 - [ ] Create first user in Keycloak (done by `KeycloakUserController.createUser`)
 - [ ] Set `org_id` attribute on that user to the new org's UUID

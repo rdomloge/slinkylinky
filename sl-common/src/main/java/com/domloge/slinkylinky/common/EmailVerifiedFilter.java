@@ -2,6 +2,7 @@ package com.domloge.slinkylinky.common;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Blocks protected requests from users whose email has not been verified.
  * Reads the {@code email_verified} claim from the JWT in the current {@link SecurityContextHolder}.
@@ -24,6 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
  * always include {@code /actuator/**} and service-specific public endpoints.</p>
  */
 public class EmailVerifiedFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailVerifiedFilter.class);
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final List<String> exemptPaths;
@@ -48,8 +54,22 @@ public class EmailVerifiedFilter extends OncePerRequestFilter {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof JwtAuthenticationToken jwtAuth) {
+            String authorities = jwtAuth.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .collect(Collectors.joining(", "));
+            log.debug("EmailVerifiedFilter [{}] — authorities on token: [{}]", path, authorities);
+
+            // Tokens carrying the 'internal_service' scope are machine-to-machine — no user email to verify
+            boolean isServiceToken = jwtAuth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("SCOPE_internal_service"));
+            log.debug("EmailVerifiedFilter [{}] — isServiceToken: {}", path, isServiceToken);
+            if (isServiceToken) {
+                chain.doFilter(request, response);
+                return;
+            }
             Jwt jwt = jwtAuth.getToken();
             Boolean emailVerified = jwt.getClaimAsBoolean("email_verified");
+            log.debug("EmailVerifiedFilter [{}] — email_verified claim: {}", path, emailVerified);
             if (emailVerified == null || !emailVerified) {
                 writeForbidden(response);
                 return;
