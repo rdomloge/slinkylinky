@@ -77,7 +77,8 @@ Frontend (React/Vite, port 3000 dev / Nginx port 80 prod)
     ├── /.rest/stats        → stats service  (port 8093) — analytics, Moz, Semrush
     ├── /.rest/mozsupport   → stats service  (port 8093)
     ├── /.rest/semrush      → stats service  (port 8093)
-    └── /.rest/orders       → orders service (port 8094)
+    ├── /.rest/orders       → orders service (port 8094)
+    └── /.rest/accounts     → userservice    (port 8095) — user registration, email verification, Keycloak admin, organisations
 
 Inter-service communication: RabbitMQ (exchange: slinkylinky.exchange)
 Auth: Keycloak (OAuth2/OIDC)
@@ -85,6 +86,7 @@ Database: PostgreSQL (DDL managed externally, hibernate ddl-auto=none)
 ```
 
 The `events/` module is a shared Maven library (v6.1.0) containing event classes used across services for RabbitMQ messaging.
+The `sl-common/` module is a shared Maven library (v1.0.0) with common utilities used by userservice and other services.
 
 ## Monorepo Layout
 
@@ -93,10 +95,12 @@ The `events/` module is a shared Maven library (v6.1.0) containing event classes
 - `stats/` — Analytics Spring Boot 3.2.2 service
 - `audit/` — Audit Spring Boot service
 - `supplierengagement/` — Supplier engagement Spring Boot service
+- `userservice/` — User registration, email verification, Keycloak admin, organisation management (Spring Boot 3.5.6, port 8095) — **deployed to K8s**; registration feature-flagged (`accounts.registration.enabled=false` by default)
 - `woocommerce/` — WooCommerce integration Spring Boot service — **single-customer, original deployment only**; not deployed by the Jenkins/K8s pipeline (no entry in `values.yaml`); secured via IP allowlist at the network level rather than JWT
 - `events/` — Shared event POJOs (Lombok), published as Maven artifact
+- `sl-common/` — Shared utilities Maven library (v1.0.0); used by userservice
 - `sl-k8s-scripts/` — Docker Compose and K8s deployment configs
-- Root `pom.xml` — Maven aggregator (modules: events, linkservice, stats)
+- Root `pom.xml` — Maven aggregator (modules: events, linkservice, stats, sl-common, userservice)
 
 ## Build & Run Commands
 
@@ -125,7 +129,7 @@ cd linkservice
 
 ### Build all Maven modules from root
 ```bash
-mvn clean install
+./mvnw clean install
 ```
 
 ### Run tests
@@ -199,6 +203,7 @@ Vite's dev server (`vite.config.js`) proxies all backend traffic from `localhost
 - `/.rest/auditrecords` → `http://${BACKEND_HOST}:8092` (audit)
 - `/.rest/stats`, `/mozsupport`, `/semrush` → `http://${BACKEND_HOST}:8093` (stats)
 - `/.rest/orders` → `http://${BACKEND_HOST}:8094` (woocommerce)
+- `/.rest/accounts` → `http://${BACKEND_HOST}:8095` (userservice)
 - `/.rest` → `http://${BACKEND_HOST}:8090` (linkservice)
 - `/realms`, `/resources` → `http://10.0.0.12:8100` (Keycloak)
 
@@ -217,7 +222,9 @@ Each tenant gets its own tunnel, created and configured by the **`Setup tunnel r
 | `/.rest/mozsupport` | `stats-service:8093` |
 | `/.rest/semrush` | `stats-service:8093` |
 | `/.rest/auditrecords` | `audit-service:8092` |
+| `/.rest/leads/*` | `supplierengagement-service:8091` |
 | `/.rest/engagements/*` | `supplierengagement-service:8091` |
+| `/.rest/accounts*` | `userservice-service:8095` — **⚠ MISSING from Jenkinsfile tunnel config** — currently falls through to linkservice catch-all |
 | `/.rest/*` | `linkservice-service:8090` |
 | (catch-all) | `adminwebsite-service:80` |
 
@@ -237,6 +244,11 @@ Backend services expect these env vars:
 - `slinkylinky_rabbitmq_host`, `slinkylinky_vhost`, `slinkylinky_rabbitmq_username`, `slinkylinky_rabbitmq_password`
 - `ISSUER_URI`, `JWK_SET_URI` (Keycloak OAuth2)
 
+**userservice additional env vars:**
+- `keycloak_admin_url`, `keycloak_admin_realm`, `keycloak_admin_client_id`, `keycloak_admin_client_secret` (Keycloak Admin Client for user/realm management)
+- `mail_host`, `mail_username`, `mail_password`, `mail_from` (SMTP for email verification)
+- `slinkylinky_domain` (public domain used in verification links, defaults to `http://localhost:3000`)
+
 Frontend expects (in `.env.development` for dev, injected via `window.__CONFIG__` in production):
 - `BACKEND_HOST` (defaults to `localhost`)
 - `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`, `VITE_KEYCLOAK_CLIENT_ID`
@@ -254,6 +266,7 @@ The Jenkinsfile (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) loads the 
 | `stats-tables-backup.sql` | `stats` DB (loaded as `stats_user`) |
 | `audit-schema-backup.sql` | `audit` DB (loaded as `audit_user`) |
 | `supplierengagement-schema-backup.sql` | `supplierengagement` DB (loaded as `supplierengagement_user`) |
+| `userservice-schema-backup.sql` | `userservice` DB (loaded as `userservice_user`) |
 
 **Idempotent Migrations (applied after backups to upgrade older schemas):**
 
@@ -262,6 +275,7 @@ The Jenkinsfile (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) loads the 
 | `schema-migration.sql` | `slinkylinky` + `supplierengagement` | Core tables multi-tenancy support, organisation table, table/function updates |
 | `schema-migration-stats.sql` | `stats` | Stats service schema upgrades |
 | `schema-migration-audit.sql` | `audit` | Audit service schema upgrades (organisation_id column) |
+| `schema-migration-userservice.sql` | `userservice` | Userservice schema upgrades |
 
 **Note:** Migrations use `IF NOT EXISTS`/`IF EXISTS` for idempotence — safe to run on old or new schema.
 
