@@ -379,14 +379,22 @@ public class LeadController {
     @PreAuthorize("hasRole('global_admin')")
     public ResponseEntity<Void> sendOutreach(@PathVariable long id) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
-        if (lead == null) return ResponseEntity.notFound().build();
-        if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
+        if (lead == null) {
+            log.error("sendOutreach: lead not found: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+        if (hasPendingMappings(lead)) {
+            log.warn("sendOutreach: lead {} has pending mappings", id);
+            return ResponseEntity.unprocessableEntity().build();
+        }
         try {
             outreachService.sendOutreach(id);
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
+            log.error("sendOutreach: IllegalArgumentException for lead {}: {}", id, e.getMessage(), e);
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
+            log.error("sendOutreach: IllegalStateException for lead {}: {}", id, e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (MessagingException e) {
             log.error("Failed to send outreach for lead {}", id, e);

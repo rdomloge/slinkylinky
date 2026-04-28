@@ -4,44 +4,6 @@ import { useAuth } from '@/auth/AuthProvider';
 import Layout from '@/components/layout/Layout';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
-const PALETTE = [
-    { bg: 'linear-gradient(135deg, #6db89d 0%, #4fa082 100%)', glow: 'rgba(109,184,157,0.22)', accent: '#6db89d', muted: 'rgba(109,184,157,0.10)' },
-    { bg: 'linear-gradient(135deg, #a89dbd 0%, #8573a8 100%)', glow: 'rgba(168,157,189,0.22)', accent: '#a89dbd', muted: 'rgba(168,157,189,0.10)' },
-    { bg: 'linear-gradient(135deg, #d4a574 0%, #b8864e 100%)', glow: 'rgba(212,165,116,0.22)', accent: '#d4a574', muted: 'rgba(212,165,116,0.10)' },
-    { bg: 'linear-gradient(135deg, #5f7f99 0%, #446880 100%)', glow: 'rgba(95,127,153,0.22)',  accent: '#5f7f99', muted: 'rgba(95,127,153,0.10)'  },
-    { bg: 'linear-gradient(135deg, #9bb87d 0%, #7a9c58 100%)', glow: 'rgba(155,184,125,0.22)', accent: '#9bb87d', muted: 'rgba(155,184,125,0.10)' },
-];
-
-const pick = (name) => PALETTE[name.charCodeAt(0) % PALETTE.length];
-
-const IconUsers = () => (
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-        <circle cx="4" cy="3.5" r="1.8" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M0.5 9.5c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-        <circle cx="8.5" cy="3.5" r="1.3" stroke="currentColor" strokeWidth="1.3"/>
-        <path d="M10.5 9.5c0-1.38-.9-2.56-2.15-2.95" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-    </svg>
-);
-
-const IconCal = () => (
-    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-        <rect x="1" y="2" width="9" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M3.5 1v2M7.5 1v2M1 5h9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-    </svg>
-);
-
-const IconPulse = () => (
-    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-        <circle cx="4.5" cy="4.5" r="3" fill="currentColor" opacity="0.8"/>
-    </svg>
-);
-
-const IconChevron = () => (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-        <path d="M2.5 4.5l4 4.5 4-4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-);
-
 const IconSearch = () => (
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
         <circle cx="5.5" cy="5.5" r="3.8" stroke="currentColor" strokeWidth="1.5"/>
@@ -55,6 +17,68 @@ const IconDownload = () => (
     </svg>
 );
 
+const IconTrash = () => (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M1.5 3h9M4.5 3V2a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1M3 3v7a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3M5 6v3M7 6v3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
+const IconChevronUp = () => (
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+        <path d="M2.5 8.5l4-4.5 4 4.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+);
+
+const calculateMetrics = (orgs) => {
+    const now = new Date();
+    const dayAgo = new Date(now - 24 * 60 * 60 * 1000);
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const hourAgo = new Date(now - 60 * 60 * 1000);
+    const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now - 60 * 24 * 60 * 60 * 1000);
+
+    const hourlySignups = orgs.filter(o => new Date(o.createdAt) > hourAgo).length;
+    const dailySignups = orgs.filter(o => new Date(o.createdAt) > dayAgo).length;
+    const weeklySignups = orgs.filter(o => new Date(o.createdAt) > weekAgo).length;
+    const activeOrgs = orgs.filter(o => {
+        const lastActivity = o.users
+            .filter(u => u.lastLogin)
+            .map(u => new Date(u.lastLogin))
+            .sort((a, b) => b - a)[0];
+        return lastActivity && lastActivity > sixtyDaysAgo;
+    }).length;
+    const abandonedOrgs = orgs.filter(o => {
+        const created = new Date(o.createdAt);
+        const hasNoUsers = o.users.length === 0;
+        const allUsersInactive = o.users.length > 0 && o.users.every(u => {
+            const lastLogin = new Date(u.lastLogin || 0);
+            return lastLogin < sixtyDaysAgo;
+        });
+        return created < thirtyDaysAgo && (hasNoUsers || allUsersInactive);
+    }).length;
+
+    return { hourlySignups, dailySignups, weeklySignups, activeOrgs, abandonedOrgs };
+};
+
+const getOrgStatus = (org) => {
+    const now = new Date();
+    const created = new Date(org.createdAt);
+    const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now - 60 * 24 * 60 * 60 * 1000);
+
+    if (created > thirtyDaysAgo && org.users.length > 0) return 'new';
+    if (org.users.length === 0 && created < thirtyDaysAgo) return 'abandoned';
+
+    const lastActivity = org.users
+        .filter(u => u.lastLogin)
+        .map(u => new Date(u.lastLogin))
+        .sort((a, b) => b - a)[0];
+
+    if (!lastActivity) return 'abandoned';
+    if (lastActivity > sixtyDaysAgo) return 'active';
+    return 'inactive';
+};
+
 export default function AdminOrganisationsIndex() {
     const { user } = useAuth();
     const isGlobalAdmin = user?.roles?.includes('global_admin');
@@ -62,7 +86,10 @@ export default function AdminOrganisationsIndex() {
     const [orgs, setOrgs] = useState(null);
     const [error, setError] = useState(null);
     const [search, setSearch] = useState('');
-    const [expandedOrgId, setExpandedOrgId] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const itemsPerPage = 20;
 
     if (user && !isGlobalAdmin) return <Navigate to="/" replace />;
 
@@ -75,456 +102,689 @@ export default function AdminOrganisationsIndex() {
 
     const filtered = useMemo(() => {
         if (!orgs) return [];
+        let result = orgs;
+
         const q = search.toLowerCase().trim();
-        if (!q) return orgs;
-        return orgs.filter(o =>
-            o.orgName.toLowerCase().includes(q) || o.orgSlug.toLowerCase().includes(q)
-        );
-    }, [orgs, search]);
+        if (q) {
+            result = result.filter(o =>
+                o.orgName.toLowerCase().includes(q) || o.orgSlug.toLowerCase().includes(q)
+            );
+        }
+
+        if (statusFilter !== 'all') {
+            result = result.filter(o => getOrgStatus(o) === statusFilter);
+        }
+
+        return result;
+    }, [orgs, search, statusFilter]);
+
+    const paged = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filtered.slice(start, start + itemsPerPage);
+    }, [filtered, currentPage]);
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const metrics = orgs ? calculateMetrics(orgs) : null;
+
+    const handleDeleteOrg = async (orgId) => {
+        try {
+            const response = await fetchWithAuth(`/.rest/accounts/admin/organisations/${orgId}`, {
+                method: 'DELETE'
+            });
+            if (response?.ok) {
+                setOrgs(orgs.filter(o => o.orgId !== orgId));
+                setDeleteConfirm(null);
+            } else {
+                alert('Failed to delete organisation');
+            }
+        } catch (err) {
+            alert('Error deleting organisation: ' + err.message);
+        }
+    };
 
     const handleCsvExport = () => {
         if (!orgs) return;
         const rows = [
-            ['Org Name', 'Slug', 'Created', 'User Email', 'Roles', 'Last Login'],
-            ...orgs.flatMap(o =>
-                o.users.length === 0
-                    ? [[o.orgName, o.orgSlug, o.createdAt, '', '', '']]
-                    : o.users.map(u => [
-                        o.orgName, o.orgSlug, o.createdAt, u.email,
-                        u.roles.join(';'),
-                        u.lastLogin ? new Date(u.lastLogin).toLocaleString() : 'Never'
-                    ])
-            )
+            ['Org Name', 'Slug', 'Status', 'Created', 'User Count', 'Last Activity'],
+            ...filtered.map(o => {
+                const lastActivity = o.users
+                    .filter(u => u.lastLogin)
+                    .map(u => new Date(u.lastLogin))
+                    .sort((a, b) => b - a)[0];
+                return [
+                    o.orgName,
+                    o.orgSlug,
+                    getOrgStatus(o),
+                    new Date(o.createdAt).toLocaleDateString(),
+                    o.users.length,
+                    lastActivity ? new Date(lastActivity).toLocaleDateString() : 'Never'
+                ];
+            })
         ];
         const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = 'organisations-overview.csv'; a.click();
+        a.href = url;
+        a.download = 'organisations-overview.csv';
+        a.click();
         URL.revokeObjectURL(url);
     };
 
-    const totalUsers = orgs?.reduce((sum, o) => sum + o.users.length, 0) ?? 0;
-
     return (
         <>
-            <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+            <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
             <style>{`
-                .org-card {
+                * { box-sizing: border-box; }
+                .dashboard-card {
+                    background: linear-gradient(135deg, #f8f9fa 0%, #f5f7fa 100%);
+                    border: 1px solid #d1e7f0;
+                    border-radius: 12px;
+                    padding: 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    animation: sl-fade-up 0.4s ease-out both;
+                }
+                .dashboard-card.alert { border-color: #fccaca; background: linear-gradient(135deg, #fff5f5 0%, #fef2f2 100%); }
+                .dashboard-label {
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 11px;
+                    font-weight: 600;
+                    letter-spacing: 0.08em;
+                    text-transform: uppercase;
+                    color: #6b7280;
+                }
+                .dashboard-value {
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 32px;
+                    font-weight: 600;
+                    color: #0891b2;
+                    line-height: 1;
+                }
+                .dashboard-card.alert .dashboard-value {
+                    color: #dc2626;
+                }
+                .dashboard-secondary {
+                    font-size: 12px;
+                    color: #9ca3af;
+                    margin-top: 4px;
+                }
+                .filter-panel {
+                    background: #f3f4f6;
+                    border: 1px solid #d1d5db;
+                    border-radius: 12px;
+                    padding: 16px 20px;
+                    display: flex;
+                    gap: 16px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    margin: 24px 0;
+                }
+                .filter-input {
+                    position: relative;
+                    flex: 1;
+                    min-width: 200px;
+                }
+                .filter-input input {
+                    width: 100%;
+                    padding: 10px 14px 10px 36px;
                     background: white;
-                    border: 1px solid var(--border-light);
-                    border-radius: 18px;
-                    overflow: hidden;
-                    cursor: pointer;
-                    transition: box-shadow 0.25s ease, transform 0.22s ease, border-color 0.2s ease;
-                    animation: sl-fade-up 0.38s ease-out both;
+                    border: 1px solid #d1d5db;
+                    border-radius: 8px;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 13px;
+                    color: #1f2937;
+                    transition: all 0.2s ease;
                 }
-                .org-card:hover {
-                    box-shadow: 0 10px 36px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.04);
-                    transform: translateY(-3px);
-                }
-                .org-card.expanded {
-                    border-color: rgba(168,157,189,0.45);
-                    box-shadow: 0 10px 36px rgba(0,0,0,0.08), 0 3px 10px rgba(0,0,0,0.04);
-                }
-                .user-row-item {
-                    transition: background 0.15s ease;
-                    cursor: default;
-                }
-                .user-row-item:hover { background: rgba(168,157,189,0.06) !important; }
-                .sl-org-search:focus {
+                .filter-input input::placeholder { color: #9ca3af; }
+                .filter-input input:focus {
                     outline: none;
-                    border-color: #a89dbd !important;
-                    box-shadow: 0 0 0 3px rgba(168,157,189,0.15) !important;
+                    border-color: #0891b2;
+                    box-shadow: 0 0 0 2px rgba(8,145,178,0.1);
+                    background: white;
                 }
-                .sl-export-btn:hover:not(:disabled) {
-                    box-shadow: 0 6px 20px rgba(44,62,80,0.22) !important;
-                    transform: translateY(-1px);
+                .filter-input-icon {
+                    position: absolute;
+                    left: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #9ca3af;
+                    pointer-events: none;
                 }
-                .sl-export-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-                .org-chevron { transition: transform 0.22s cubic-bezier(0.4,0,0.2,1); }
-                .org-chevron.open { transform: rotate(180deg); }
+                .filter-select {
+                    padding: 10px 14px;
+                    background: white;
+                    border: 1px solid #d1d5db;
+                    border-radius: 8px;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 13px;
+                    color: #1f2937;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .filter-select:focus {
+                    outline: none;
+                    border-color: #0891b2;
+                    box-shadow: 0 0 0 2px rgba(8,145,178,0.1);
+                }
+                .filter-select option {
+                    background: white;
+                    color: #1f2937;
+                }
+                .action-button {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 9px 14px;
+                    background: #e0f2fe;
+                    border: 1px solid #bae6fd;
+                    border-radius: 8px;
+                    color: #0891b2;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    white-space: nowrap;
+                }
+                .action-button:hover:not(:disabled) {
+                    background: #cffafe;
+                    border-color: #a5f3fc;
+                    box-shadow: 0 0 12px rgba(8,145,178,0.15);
+                }
+                .action-button:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
+                }
+                .action-button.delete {
+                    background: #fee2e2;
+                    border-color: #fecaca;
+                    color: #dc2626;
+                }
+                .action-button.delete:hover:not(:disabled) {
+                    background: #fecaca;
+                    border-color: #fca5a5;
+                    box-shadow: 0 0 12px rgba(220,38,38,0.15);
+                }
+                .table-container {
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 12px;
+                    overflow: hidden;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 13px;
+                }
+                thead {
+                    background: #f9fafb;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                th {
+                    padding: 14px 16px;
+                    text-align: left;
+                    font-weight: 700;
+                    color: #6b7280;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 11px;
+                    letter-spacing: 0.08em;
+                    text-transform: uppercase;
+                    border-right: 1px solid #e5e7eb;
+                }
+                th:last-child { border-right: none; }
+                tbody tr {
+                    border-bottom: 1px solid #f3f4f6;
+                    transition: background 0.15s ease;
+                }
+                tbody tr:hover {
+                    background: #f0f9ff;
+                }
+                tbody tr:last-child {
+                    border-bottom: none;
+                }
+                td {
+                    padding: 14px 16px;
+                    color: #1f2937;
+                    border-right: 1px solid #f3f4f6;
+                }
+                td:last-child { border-right: none; }
+                .status-badge {
+                    display: inline-block;
+                    padding: 4px 10px;
+                    border-radius: 6px;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 11px;
+                    font-weight: 600;
+                    letter-spacing: 0.05em;
+                }
+                .status-active {
+                    background: #dcfce7;
+                    color: #16a34a;
+                }
+                .status-new {
+                    background: #dbeafe;
+                    color: #1d4ed8;
+                }
+                .status-inactive {
+                    background: #f3f4f6;
+                    color: #6b7280;
+                }
+                .status-abandoned {
+                    background: #fee2e2;
+                    color: #dc2626;
+                }
+                .pagination {
+                    display: flex;
+                    gap: 8px;
+                    justify-content: center;
+                    padding: 20px;
+                    border-top: 1px solid #e5e7eb;
+                    background: #f9fafb;
+                }
+                .pagination button {
+                    padding: 8px 12px;
+                    background: #e0f2fe;
+                    border: 1px solid #bae6fd;
+                    border-radius: 6px;
+                    color: #0891b2;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 12px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .pagination button:hover:not(:disabled) {
+                    background: #cffafe;
+                    border-color: #a5f3fc;
+                }
+                .pagination button:disabled {
+                    opacity: 0.4;
+                    cursor: not-allowed;
+                }
+                .pagination button.active {
+                    background: #0891b2;
+                    color: white;
+                    border-color: #0891b2;
+                }
+                .modal-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background: rgba(0,0,0,0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    animation: sl-fade-up 0.2s ease-out;
+                }
+                .modal {
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 16px;
+                    padding: 24px;
+                    max-width: 400px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                }
+                .modal h3 {
+                    font-family: 'Outfit', sans-serif;
+                    font-size: 18px;
+                    font-weight: 700;
+                    margin: 0 0 12px;
+                    color: #dc2626;
+                }
+                .modal p {
+                    font-size: 14px;
+                    color: #6b7280;
+                    margin: 0 0 20px;
+                    line-height: 1.5;
+                }
+                .modal-actions {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: flex-end;
+                }
+                .modal-actions button {
+                    padding: 10px 18px;
+                    border-radius: 8px;
+                    border: 1px solid;
+                    font-family: 'IBM Plex Mono', monospace;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+                .modal-actions .cancel {
+                    background: transparent;
+                    border-color: #d1d5db;
+                    color: #6b7280;
+                }
+                .modal-actions .cancel:hover {
+                    background: #f3f4f6;
+                    border-color: #d1d5db;
+                }
+                .modal-actions .confirm {
+                    background: #dc2626;
+                    border-color: #dc2626;
+                    color: white;
+                }
+                .modal-actions .confirm:hover {
+                    background: #b91c1c;
+                    border-color: #b91c1c;
+                    box-shadow: 0 0 12px rgba(220,38,38,0.3);
+                }
+                .empty-state {
+                    text-align: center;
+                    padding: 60px 40px;
+                    color: #9ca3af;
+                }
+                .empty-state p {
+                    font-size: 14px;
+                    margin: 0;
+                }
             `}</style>
             <Layout
                 pagetitle="Org Overview"
                 headerTitle="Organisations Overview"
                 headerActions={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ position: 'relative' }}>
-                            <span style={{
-                                position: 'absolute', left: 11, top: '50%',
-                                transform: 'translateY(-50%)', color: '#9ca3af',
-                                pointerEvents: 'none',
-                            }}>
-                                <IconSearch />
-                            </span>
-                            <input
-                                type="text"
-                                placeholder="Search orgs..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="sl-org-search"
-                                style={{
-                                    paddingLeft: 32, paddingRight: 14,
-                                    paddingTop: 8, paddingBottom: 8,
-                                    border: '1px solid var(--border-light)',
-                                    borderRadius: 10, fontSize: 13,
-                                    background: 'white', width: 200,
-                                    fontFamily: "'Space Grotesk', sans-serif",
-                                    color: 'var(--text-primary)',
-                                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                                }}
-                            />
-                        </div>
-                        <button
-                            onClick={handleCsvExport}
-                            disabled={!orgs}
-                            className="sl-export-btn"
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: 7,
-                                padding: '8px 16px',
-                                background: 'linear-gradient(135deg, #2c3e50 0%, #3d5166 100%)',
-                                color: 'white', border: 'none', borderRadius: 10,
-                                fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                                fontFamily: "'Space Grotesk', sans-serif",
-                                boxShadow: '0 2px 8px rgba(44,62,80,0.18)',
-                                transition: 'box-shadow 0.2s ease, transform 0.2s ease',
-                            }}
-                        >
-                            <IconDownload /> Export CSV
-                        </button>
-                    </div>
+                    <button
+                        onClick={handleCsvExport}
+                        disabled={!orgs}
+                        className="action-button"
+                        style={{ marginRight: 0 }}
+                    >
+                        <IconDownload /> Export CSV
+                    </button>
                 }
             >
-                <div style={{ padding: '4px 28px 40px' }}>
-                    {/* Stats strip */}
-                    {orgs && (
+                <div style={{ padding: '24px 28px 40px' }}>
+                    {error && (
                         <div style={{
-                            display: 'flex', alignItems: 'center', gap: 6,
-                            marginBottom: 24, paddingBottom: 18,
-                            borderBottom: '1px solid var(--border-softer)',
-                            animation: 'sl-fade-up 0.3s ease-out both',
+                            background: '#fee2e2',
+                            border: '1px solid #fecaca',
+                            color: '#dc2626',
+                            padding: '14px 16px',
+                            borderRadius: 12,
+                            marginBottom: 24,
+                            fontSize: 14,
                         }}>
-                            <span style={{
-                                fontFamily: "'Syne', sans-serif",
-                                fontSize: 22, fontWeight: 800,
-                                color: 'var(--text-primary)', lineHeight: 1,
-                            }}>
-                                {orgs.length}
-                            </span>
-                            <span style={{
-                                fontSize: 13, color: 'var(--text-secondary)',
-                                marginRight: 8,
-                            }}>
-                                {orgs.length === 1 ? 'organisation' : 'organisations'}
-                            </span>
-                            <span style={{
-                                width: 4, height: 4, borderRadius: '50%',
-                                background: 'var(--border-light)',
-                                marginRight: 8,
-                            }} />
-                            <span style={{
-                                fontFamily: "'Syne', sans-serif",
-                                fontSize: 22, fontWeight: 800,
-                                color: 'var(--text-primary)', lineHeight: 1,
-                            }}>
-                                {totalUsers}
-                            </span>
-                            <span style={{
-                                fontSize: 13, color: 'var(--text-secondary)',
-                                marginRight: 8,
-                            }}>
-                                total {totalUsers === 1 ? 'user' : 'users'}
-                            </span>
-                            {search && filtered.length !== orgs.length && (
-                                <>
-                                    <span style={{
-                                        width: 4, height: 4, borderRadius: '50%',
-                                        background: 'var(--border-light)',
-                                        marginRight: 8,
-                                    }} />
-                                    <span style={{
-                                        fontSize: 13, color: '#a89dbd', fontWeight: 600,
-                                    }}>
-                                        {filtered.length} matching
-                                    </span>
-                                </>
-                            )}
+                            {error}
                         </div>
                     )}
 
-                    {/* Error */}
-                    {error && (
+                    {/* Dashboard */}
+                    {metrics && (
                         <div style={{
-                            background: '#fef2f2', border: '1px solid #fecaca',
-                            color: '#dc2626', padding: '12px 16px',
-                            borderRadius: 12, marginBottom: 20, fontSize: 14,
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                            gap: 14,
+                            marginBottom: 24,
                         }}>
-                            {error}
+                            <div className="dashboard-card">
+                                <div className="dashboard-label">Hourly Signups</div>
+                                <div className="dashboard-value">{metrics.hourlySignups}</div>
+                                <div className="dashboard-secondary">Last 60 minutes</div>
+                            </div>
+                            <div className="dashboard-card">
+                                <div className="dashboard-label">Daily Signups</div>
+                                <div className="dashboard-value">{metrics.dailySignups}</div>
+                                <div className="dashboard-secondary">Last 24 hours</div>
+                            </div>
+                            <div className="dashboard-card">
+                                <div className="dashboard-label">Weekly Signups</div>
+                                <div className="dashboard-value">{metrics.weeklySignups}</div>
+                                <div className="dashboard-secondary">Last 7 days</div>
+                            </div>
+                            <div className="dashboard-card">
+                                <div className="dashboard-label">Active Orgs</div>
+                                <div className="dashboard-value">{metrics.activeOrgs}</div>
+                                <div className="dashboard-secondary">Activity in 60 days</div>
+                            </div>
+                            <div className={`dashboard-card ${metrics.abandonedOrgs > 0 ? 'alert' : ''}`}>
+                                <div className="dashboard-label">Abandoned Orgs</div>
+                                <div className="dashboard-value">{metrics.abandonedOrgs}</div>
+                                <div className="dashboard-secondary">30+ days, no activity</div>
+                            </div>
+                            <div className="dashboard-card">
+                                <div className="dashboard-label">Total Orgs</div>
+                                <div className="dashboard-value">{orgs.length}</div>
+                                <div className="dashboard-secondary">All time</div>
+                            </div>
                         </div>
                     )}
 
                     {/* Loading */}
                     {!orgs ? (
                         <div style={{
-                            display: 'flex', flexDirection: 'column',
-                            alignItems: 'center', justifyContent: 'center',
-                            padding: '80px 0', gap: 12,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '80px 0',
+                            gap: 12,
                         }}>
                             <div style={{ display: 'flex', gap: 7, alignItems: 'center' }}>
                                 {[0, 150, 300].map(d => (
                                     <span key={d} style={{
-                                        width: 7, height: 7, borderRadius: '50%',
-                                        background: 'var(--supplier-color)',
+                                        width: 7,
+                                        height: 7,
+                                        borderRadius: '50%',
+                                        background: '#0891b2',
                                         animation: 'sl-loading-dot 1.1s ease-in-out infinite',
                                         animationDelay: `${d}ms`,
                                     }}/>
                                 ))}
                             </div>
-                            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                            <span style={{ fontSize: 13, color: '#6b7280' }}>
                                 Loading organisations…
                             </span>
                         </div>
-                    ) : filtered.length === 0 ? (
-                        <div style={{
-                            textAlign: 'center', padding: '80px 0',
-                            color: 'var(--text-secondary)', fontSize: 14,
-                        }}>
-                            No organisations {search ? `matching "${search}"` : 'found'}
-                        </div>
                     ) : (
-                        /* Card grid */
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))',
-                            gap: 14,
-                        }}>
-                            {filtered.map((org, idx) => {
-                                const pal = pick(org.orgName);
-                                const isExpanded = expandedOrgId === org.orgId;
-                                const newestLogin = org.users
-                                    .filter(u => u.lastLogin)
-                                    .sort((a, b) => new Date(b.lastLogin) - new Date(a.lastLogin))[0];
+                        <>
+                            {/* Filter Panel */}
+                            <div className="filter-panel">
+                                <div className="filter-input">
+                                    <div className="filter-input-icon"><IconSearch /></div>
+                                    <input
+                                        type="text"
+                                        placeholder="Search by name or slug…"
+                                        value={search}
+                                        onChange={(e) => {
+                                            setSearch(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                    />
+                                </div>
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => {
+                                        setStatusFilter(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="filter-select"
+                                >
+                                    <option value="all">All Statuses</option>
+                                    <option value="active">Active</option>
+                                    <option value="new">New</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="abandoned">Abandoned</option>
+                                </select>
+                                <span style={{
+                                    fontSize: 12,
+                                    color: '#6b7280',
+                                    marginLeft: 'auto',
+                                }}>
+                                    {filtered.length} of {orgs.length} organisations
+                                </span>
+                            </div>
 
-                                return (
-                                    <div
-                                        key={org.orgId}
-                                        className={`org-card${isExpanded ? ' expanded' : ''}`}
-                                        style={{ animationDelay: `${idx * 45}ms` }}
-                                        onClick={() => setExpandedOrgId(isExpanded ? null : org.orgId)}
-                                    >
-                                        {/* Top accent bar */}
-                                        <div style={{
-                                            height: 3,
-                                            background: pal.bg,
-                                            opacity: isExpanded ? 1 : 0.6,
-                                            transition: 'opacity 0.2s ease',
-                                        }} />
-
-                                        {/* Card header */}
-                                        <div style={{
-                                            padding: '18px 20px 14px',
-                                            display: 'flex', alignItems: 'center', gap: 15,
-                                        }}>
-                                            {/* Initial avatar */}
-                                            <div style={{
-                                                width: 54, height: 54, borderRadius: 15,
-                                                background: pal.bg,
-                                                boxShadow: `0 6px 20px ${pal.glow}`,
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                flexShrink: 0,
-                                            }}>
-                                                <span style={{
-                                                    fontFamily: "'Syne', sans-serif",
-                                                    fontSize: 24, fontWeight: 800,
-                                                    color: 'white', lineHeight: 1,
-                                                    letterSpacing: '-0.02em',
-                                                }}>
-                                                    {org.orgName.charAt(0).toUpperCase()}
-                                                </span>
-                                            </div>
-
-                                            {/* Org name + slug */}
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{
-                                                    fontFamily: "'Syne', sans-serif",
-                                                    fontSize: 16, fontWeight: 800,
-                                                    color: 'var(--text-primary)',
-                                                    letterSpacing: '-0.025em', lineHeight: 1.2,
-                                                    overflow: 'hidden', textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap', marginBottom: 3,
-                                                }}>
-                                                    {org.orgName}
-                                                </div>
-                                                <div style={{
-                                                    fontFamily: "'DM Mono', monospace",
-                                                    fontSize: 11, color: 'var(--text-secondary)',
-                                                    letterSpacing: '0.05em',
-                                                }}>
-                                                    {org.orgSlug}
-                                                </div>
-                                            </div>
-
-                                            {/* Chevron */}
-                                            <div
-                                                className={`org-chevron${isExpanded ? ' open' : ''}`}
-                                                style={{ color: 'var(--text-secondary)', flexShrink: 0 }}
-                                            >
-                                                <IconChevron />
-                                            </div>
-                                        </div>
-
-                                        {/* Stat chips */}
-                                        <div style={{
-                                            padding: '0 20px 18px',
-                                            display: 'flex', gap: 7, flexWrap: 'wrap',
-                                        }}>
-                                            <span style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: 5,
-                                                padding: '4px 10px', borderRadius: 999,
-                                                background: pal.muted, color: pal.accent,
-                                                fontSize: 11.5, fontWeight: 600,
-                                                fontFamily: "'Space Grotesk', sans-serif",
-                                            }}>
-                                                <IconUsers />
-                                                {org.users.length} {org.users.length === 1 ? 'user' : 'users'}
-                                            </span>
-                                            <span style={{
-                                                display: 'inline-flex', alignItems: 'center', gap: 5,
-                                                padding: '4px 10px', borderRadius: 999,
-                                                background: 'rgba(0,0,0,0.03)',
-                                                color: 'var(--text-secondary)',
-                                                fontSize: 11.5, fontWeight: 500,
-                                                fontFamily: "'Space Grotesk', sans-serif",
-                                            }}>
-                                                <IconCal />
-                                                {new Date(org.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                                            </span>
-                                            {newestLogin && (
-                                                <span style={{
-                                                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                                                    padding: '4px 10px', borderRadius: 999,
-                                                    background: 'rgba(109,184,157,0.09)',
-                                                    color: '#5aaa8a', fontSize: 11.5, fontWeight: 500,
-                                                    fontFamily: "'Space Grotesk', sans-serif",
-                                                }}>
-                                                    <IconPulse />
-                                                    {new Date(newestLogin.lastLogin).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        {/* Expanded: user list */}
-                                        {isExpanded && (
-                                            <div
-                                                style={{
-                                                    borderTop: '1px solid var(--border-softer)',
-                                                    background: 'rgba(249,250,251,0.9)',
-                                                    animation: 'sl-fade-up 0.18s ease-out both',
-                                                }}
-                                                onClick={e => e.stopPropagation()}
-                                            >
-                                                {org.users.length === 0 ? (
-                                                    <div style={{
-                                                        padding: '18px 20px', textAlign: 'center',
-                                                        fontSize: 12, color: 'var(--text-secondary)',
-                                                        fontStyle: 'italic',
-                                                    }}>
-                                                        No users in this organisation
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <div style={{
-                                                            padding: '10px 20px 6px',
-                                                            fontSize: 10, fontWeight: 700,
-                                                            letterSpacing: '0.12em',
-                                                            textTransform: 'uppercase',
-                                                            color: 'var(--text-secondary)',
-                                                            fontFamily: "'DM Mono', monospace",
-                                                        }}>
-                                                            Team
-                                                        </div>
-                                                        {org.users.map((u, uIdx) => (
-                                                            <div
-                                                                key={u.userId}
-                                                                className="user-row-item"
-                                                                style={{
-                                                                    padding: '9px 20px',
-                                                                    display: 'flex', alignItems: 'center',
-                                                                    gap: 10,
-                                                                    borderTop: uIdx > 0 ? '1px solid var(--border-softer)' : 'none',
-                                                                }}
-                                                            >
-                                                                {/* User avatar */}
-                                                                <div style={{
-                                                                    width: 26, height: 26, borderRadius: 8,
-                                                                    background: 'linear-gradient(135deg, rgba(168,157,189,0.2) 0%, rgba(109,184,157,0.15) 100%)',
-                                                                    display: 'flex', alignItems: 'center',
-                                                                    justifyContent: 'center', flexShrink: 0,
-                                                                    fontFamily: "'Syne', sans-serif",
-                                                                    fontSize: 11, fontWeight: 800,
-                                                                    color: '#8573a8',
-                                                                }}>
-                                                                    {u.email.charAt(0).toUpperCase()}
-                                                                </div>
-
-                                                                {/* Email */}
-                                                                <div style={{
-                                                                    flex: 1, minWidth: 0,
-                                                                    fontSize: 12.5, fontWeight: 500,
-                                                                    color: 'var(--text-primary)',
-                                                                    fontFamily: "'Space Grotesk', sans-serif",
-                                                                    overflow: 'hidden', textOverflow: 'ellipsis',
-                                                                    whiteSpace: 'nowrap',
-                                                                }}>
-                                                                    {u.email}
-                                                                </div>
-
-                                                                {/* Roles */}
-                                                                <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                                                                    {u.roles.length > 0 ? u.roles.map(role => (
-                                                                        <span key={role} style={{
-                                                                            padding: '2px 8px', borderRadius: 999,
-                                                                            background: 'rgba(168,157,189,0.13)',
-                                                                            color: '#7c6a9f',
-                                                                            fontSize: 10, fontWeight: 700,
-                                                                            fontFamily: "'DM Mono', monospace",
-                                                                            letterSpacing: '0.04em',
-                                                                            whiteSpace: 'nowrap',
-                                                                        }}>
-                                                                            {role.replace(/_/g, ' ')}
-                                                                        </span>
-                                                                    )) : (
-                                                                        <span style={{
-                                                                            fontSize: 11,
-                                                                            color: 'var(--text-secondary)',
-                                                                        }}>—</span>
-                                                                    )}
-                                                                </div>
-
-                                                                {/* Last login */}
-                                                                <div style={{
-                                                                    fontSize: 11, color: 'var(--text-secondary)',
-                                                                    fontFamily: "'DM Mono', monospace",
-                                                                    flexShrink: 0, width: 58, textAlign: 'right',
-                                                                }}>
-                                                                    {u.lastLogin
-                                                                        ? new Date(u.lastLogin).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })
-                                                                        : 'Never'}
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                        <div style={{ height: 6 }} />
-                                                    </>
-                                                )}
-                                            </div>
-                                        )}
+                            {/* Table */}
+                            {filtered.length === 0 ? (
+                                <div className="table-container">
+                                    <div className="empty-state">
+                                        <p>No organisations found</p>
                                     </div>
-                                );
-                            })}
-                        </div>
+                                </div>
+                            ) : (
+                                <div className="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ minWidth: 180 }}>Name</th>
+                                                <th>Status</th>
+                                                <th>Users</th>
+                                                <th>Created</th>
+                                                <th>Last Activity</th>
+                                                <th style={{ textAlign: 'right' }}>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {paged.map(org => {
+                                                const status = getOrgStatus(org);
+                                                const lastActivity = org.users
+                                                    .filter(u => u.lastLogin)
+                                                    .map(u => new Date(u.lastLogin))
+                                                    .sort((a, b) => b - a)[0];
+                                                const createdDate = new Date(org.createdAt);
+
+                                                return (
+                                                    <tr key={org.orgId}>
+                                                        <td>
+                                                            <div style={{ fontWeight: 600, color: '#1f2937' }}>{org.orgName}</div>
+                                                            <div style={{
+                                                                fontSize: 11,
+                                                                color: '#9ca3af',
+                                                                fontFamily: "'IBM Plex Mono', monospace",
+                                                                marginTop: 2,
+                                                            }}>
+                                                                {org.orgSlug}
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span className={`status-badge status-${status}`}>
+                                                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                                                            </span>
+                                                        </td>
+                                                        <td style={{ textAlign: 'center' }}>
+                                                            {org.users.length}
+                                                        </td>
+                                                        <td style={{
+                                                            fontSize: 12,
+                                                            color: '#6b7280',
+                                                            fontFamily: "'IBM Plex Mono', monospace",
+                                                        }}>
+                                                            {createdDate.toLocaleDateString('en-US', {
+                                                                month: 'short',
+                                                                day: 'numeric',
+                                                                year: '2-digit'
+                                                            })}
+                                                        </td>
+                                                        <td style={{
+                                                            fontSize: 12,
+                                                            color: '#6b7280',
+                                                            fontFamily: "'IBM Plex Mono', monospace",
+                                                        }}>
+                                                            {lastActivity
+                                                                ? lastActivity.toLocaleDateString('en-US', {
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                    year: '2-digit'
+                                                                })
+                                                                : '—'
+                                                            }
+                                                        </td>
+                                                        <td style={{ textAlign: 'right' }}>
+                                                            <button
+                                                                className="action-button delete"
+                                                                onClick={() => setDeleteConfirm(org.orgId)}
+                                                                title="Delete organisation"
+                                                            >
+                                                                <IconTrash /> Delete
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+
+                                    {/* Pagination */}
+                                    {totalPages > 1 && (
+                                        <div className="pagination">
+                                            <button
+                                                disabled={currentPage === 1}
+                                                onClick={() => setCurrentPage(1)}
+                                                title="First page"
+                                            >
+                                                ⟨⟨
+                                            </button>
+                                            <button
+                                                disabled={currentPage === 1}
+                                                onClick={() => setCurrentPage(p => p - 1)}
+                                                title="Previous page"
+                                            >
+                                                ⟨
+                                            </button>
+                                            {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
+                                                const offset = Math.max(0, Math.min(currentPage - 4, totalPages - 7));
+                                                return offset + i + 1;
+                                            }).map(page => (
+                                                <button
+                                                    key={page}
+                                                    className={currentPage === page ? 'active' : ''}
+                                                    onClick={() => setCurrentPage(page)}
+                                                >
+                                                    {page}
+                                                </button>
+                                            ))}
+                                            <button
+                                                disabled={currentPage === totalPages}
+                                                onClick={() => setCurrentPage(p => p + 1)}
+                                                title="Next page"
+                                            >
+                                                ⟩
+                                            </button>
+                                            <button
+                                                disabled={currentPage === totalPages}
+                                                onClick={() => setCurrentPage(totalPages)}
+                                                title="Last page"
+                                            >
+                                                ⟩⟩
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
+
+                {/* Delete Confirmation Modal */}
+                {deleteConfirm && (
+                    <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
+                        <div className="modal" onClick={e => e.stopPropagation()}>
+                            <h3>Delete Organisation</h3>
+                            <p>
+                                This will permanently delete this organisation and all associated data. This action cannot be undone.
+                            </p>
+                            <div className="modal-actions">
+                                <button
+                                    className="cancel"
+                                    onClick={() => setDeleteConfirm(null)}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="confirm"
+                                    onClick={() => handleDeleteOrg(deleteConfirm)}
+                                >
+                                    Delete Permanently
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </Layout>
         </>
     );

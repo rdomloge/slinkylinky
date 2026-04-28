@@ -1,5 +1,7 @@
 package com.domloge.slinkylinky.supplierengagement.scraper;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.repo.SupplierLeadRepo;
 import com.domloge.slinkylinky.common.TenantContext;
 
+import jakarta.activation.DataHandler;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
@@ -23,6 +26,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -104,7 +108,26 @@ public class LeadOutreachService {
 
         Multipart multipart = new MimeMultipart("related");
         multipart.addBodyPart(body);
+        multipart.addBodyPart(buildLogoBodyPart());
         msg.setContent(multipart);
         return msg;
+    }
+
+    private MimeBodyPart buildLogoBodyPart() throws MessagingException {
+        MimeBodyPart logo = new MimeBodyPart();
+        logo.setFileName("logo.png");
+        logo.setContentID("logo-cid");
+        logo.setDisposition(MimeBodyPart.INLINE);
+        try {
+            String logoPath = this.getClass().getClassLoader().getResource("logo.png").getFile();
+            logo.attachFile(logoPath);
+            InputStream imageStream = this.getClass().getClassLoader().getResource("logo.png").openStream();
+            logo.setDataHandler(
+                new DataHandler(
+                    new ByteArrayDataSource(imageStream, "image/png")));
+        } catch (IOException e) {
+            log.error("Could not load logo to email", e);
+        }
+        return logo;
     }
 }
