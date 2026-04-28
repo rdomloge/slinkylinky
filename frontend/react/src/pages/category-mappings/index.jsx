@@ -26,7 +26,7 @@ export default function CategoryMappingsIndex() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const isGlobalAdmin = user?.roles?.includes('global_admin');
-    const toast = useToast();
+    const { addToast: toast } = useToast();
 
     const [mappings, setMappings] = useState(null);
     const [error, setError]       = useState(null);

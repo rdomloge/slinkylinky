@@ -6,6 +6,8 @@ import ReactGA from 'react-ga4';
 import { GA_TRACKING_ID } from '@/config';
 
 import Callback from '@/auth/Callback';
+import VerifyEmail from '@/pages/verify-email/index';
+import Register from '@/pages/register/index';
 
 import AuditIndex from '@/pages/audit/index';
 import AuditTrace from '@/pages/audit/trace';
@@ -25,6 +27,7 @@ import ProposalDetail from '@/pages/proposals/[proposalid]';
 import OrdersIndex from '@/pages/orders/index';
 import CategoriesIndex from '@/pages/categories/index';
 import OrganisationsIndex from '@/pages/organisations/index';
+import AdminOrganisationsIndex from '@/pages/admin/organisations/index';
 import UsersIndex from '@/pages/users/index';
 import SupplierResponse from '@/pages/public/supplierresponse/index';
 import LeadResponse from '@/pages/public/leadresponse/index';
@@ -46,6 +49,8 @@ export default function App() {
         <Routes>
           {/* Public routes */}
           <Route path="/callback" element={<Callback />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/public/supplierresponse" element={<SupplierResponse />} />
           <Route path="/public/leadresponse" element={<LeadResponse />} />
 
@@ -69,6 +74,7 @@ export default function App() {
           <Route path="/audit/trace" element={<AuditTrace />} />
           <Route path="/categories" element={<CategoriesIndex />} />
           <Route path="/organisations" element={<OrganisationsIndex />} />
+          <Route path="/admin/organisations" element={<AdminOrganisationsIndex />} />
           <Route path="/users" element={<UsersIndex />} />
           <Route path="/paidlinks/staging" element={<PaidLinksStaging />} />
           <Route path="/sandbox" element={<Sandbox />} />

@@ -17,6 +17,7 @@ The authenticated user who triggered the action.
 
 - In entity event handlers (`@HandleBeforeCreate` / `@HandleBeforeSave` / `@HandleAfterDelete`): use `entity.getCreatedBy()` for creates, `entity.getUpdatedBy()` for updates/deletes.
 - In controllers: use `TenantContext.getUsername()`.
+- For public/unauthenticated flows (no JWT): use the email address supplied in the request body. Never use a hardcoded placeholder.
 - Never hardcode a system username — if the actor is unknown, fail loudly rather than silently swallow the audit.
 
 ### `entityType` — `String`, nullable
@@ -50,6 +51,10 @@ Established values (match exactly for consistency):
 - `"create category"` / `"update category"`
 - `"create blacklisted supplier"`
 - `"create user"` / `"disable user"`
+- `"register user"` — public self-registration (RegistrationController)
+- `"email verified"` — email address confirmed via token (VerifyEmailController)
+- `"send verification email"` — verification email dispatched (ResendVerificationController)
+- `"list organisations overview"` — global admin overview read (OrganisationsOverviewController)
 - `"login"`
 - `"create organisation <name>"` (name interpolated)
 - `"Use chatgpt"` ← legacy capitalisation; new entries should be lowercase

@@ -93,7 +93,7 @@ function PipelineBar({ leads }) {
 // ── Category mapping modal ────────────────────────────────────────────────────
 
 function CategoryMappingModal({ lead, mappings, onClose, onMapped }) {
-    const toast = useToast();
+    const { addToast: toast } = useToast();
     const [slCategories, setSlCategories] = useState([]);
     const [selections, setSelections]     = useState({});
     const [saving, setSaving]             = useState(false);
@@ -197,7 +197,7 @@ function CategoryMappingModal({ lead, mappings, onClose, onMapped }) {
 // ── Manual email entry modal ──────────────────────────────────────────────────
 
 function ManualEmailModal({ lead, onClose, onSaved }) {
-    const toast = useToast();
+    const { addToast: toast } = useToast();
     const [email, setEmail]   = useState('');
     const [saving, setSaving] = useState(false);
 
@@ -272,7 +272,7 @@ export default function LeadsIndex() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const isGlobalAdmin = user?.roles?.includes('global_admin');
-    const toast = useToast();
+    const { addToast: toast } = useToast();
 
     const [leads, setLeads]               = useState(null);
     const [mappings, setMappings]         = useState([]);

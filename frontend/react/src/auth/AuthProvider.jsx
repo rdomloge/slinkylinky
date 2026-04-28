@@ -50,6 +50,7 @@ function getUserFromToken(token) {
       image: decoded.picture || null,
       orgId: decoded.org_id || null,
       roles: decoded.realm_access?.roles || [],
+      emailVerified: decoded.email_verified === true,
     };
   } catch {
     return null;

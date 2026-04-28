@@ -5,6 +5,7 @@ import Header from './Header';
 import { useAuth } from '@/auth/AuthProvider';
 import TenantBadge from '../TenantBadge';
 import Logo from '@/assets/logo.png';
+import { useToast } from '@/components/atoms/Toasts';
 
 const ENTITY_CHIPS = [
     { label: 'Suppliers', bg: 'rgba(109, 184, 157, 0.12)', color: '#6db89d', border: 'rgba(109, 184, 157, 0.3)' },
@@ -57,10 +58,13 @@ const ConnectionNodes = () => (
 );
 
 export default function Layout({ children, pagetitle = ' ', headerTitle, headerActions }) {
-    const { user, isAuthenticated, isLoading, signIn } = useAuth();
+    const { user, accessToken, isAuthenticated, isLoading, signIn, signOut } = useAuth();
+    const { addToast } = useToast();
     const [launching, setLaunching] = useState(false);
     const [launchOrigin, setLaunchOrigin] = useState({ x: '50%', y: '50%' });
     const [entered, setEntered] = useState(false);
+    const [resendSent, setResendSent] = useState(false);
+    const [resendLoading, setResendLoading] = useState(false);
     const buttonRef = useRef(null);
     const overlayRef = useRef(null);
 
@@ -78,6 +82,15 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
             }
         }
     }, [isAuthenticated, user]);
+
+    // Show registered toast once when redirected from /register
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('registered') === 'true') {
+            addToast('Account created — check your email to verify before signing in.', 'success');
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, []);
 
     useEffect(() => {
         if (launching && overlayRef.current) {
@@ -99,6 +112,114 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
         setLaunching(true);
         setTimeout(() => signIn(), 750);
     };
+
+    const handleResend = async () => {
+        setResendLoading(true);
+        try {
+            const res = await fetch('/.rest/accounts/resend-verification', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            if (res.ok) setResendSent(true);
+        } catch {
+            // best-effort
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
+    /* ── Verification pending ──────────────────────────────────────────────── */
+    if (isAuthenticated && user && !user.emailVerified) {
+        return (
+            <div
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    background: 'linear-gradient(135deg, #fafbfc 0%, #f5f5f5 50%, #efefef 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    overflow: 'hidden',
+                }}
+            >
+                <ConnectionNodes />
+                <div
+                    style={{
+                        position: 'relative',
+                        zIndex: 10,
+                        textAlign: 'center',
+                        maxWidth: 420,
+                        width: '100%',
+                        padding: '0 2rem',
+                        animation: 'sl-fade-up 0.55s ease-out 0.1s both',
+                    }}
+                >
+                    <img
+                        src={Logo}
+                        width={Math.round(439 / 8)}
+                        height={Math.round(498 / 8)}
+                        alt="SlinkyLinky"
+                        style={{ opacity: 0.75, marginBottom: 32 }}
+                    />
+                    <h1
+                        style={{
+                            fontSize: '2rem',
+                            fontWeight: 800,
+                            color: 'var(--text-primary)',
+                            letterSpacing: '-0.04em',
+                            margin: '0 0 12px',
+                        }}
+                    >
+                        Check your email
+                    </h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, margin: '0 0 36px' }}>
+                        We sent a verification link to <strong>{user.email}</strong>.<br />
+                        Please click it before signing in.
+                    </p>
+                    {resendSent ? (
+                        <p style={{ color: '#6db89d', fontSize: '0.9rem', marginBottom: 24, fontWeight: 500 }}>
+                            ✓ A new link has been sent.
+                        </p>
+                    ) : (
+                        <button
+                            onClick={handleResend}
+                            disabled={resendLoading}
+                            style={{
+                                width: '100%',
+                                padding: '0.85rem 2rem',
+                                background: 'linear-gradient(135deg, #a89dbd 0%, #8dcbb3 100%)',
+                                color: 'white',
+                                fontFamily: "'Space Grotesk', sans-serif",
+                                fontWeight: 600,
+                                fontSize: '0.95rem',
+                                border: 'none',
+                                borderRadius: 12,
+                                cursor: resendLoading ? 'default' : 'pointer',
+                                marginBottom: 16,
+                                boxShadow: '0 4px 16px rgba(168, 157, 189, 0.25)',
+                            }}
+                        >
+                            {resendLoading ? 'Sending…' : 'Resend verification email'}
+                        </button>
+                    )}
+                    <button
+                        onClick={signOut}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--text-secondary)',
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                        }}
+                    >
+                        Sign out
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     /* ── Authenticated ─────────────────────────────────────────────────────── */
     if (isAuthenticated && user) {
@@ -521,6 +642,24 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
                         }}
                     >
                         Secure OAuth2 authentication powered by Keycloak
+                    </p>
+
+                    {/* Registration link */}
+                    <p
+                        style={{
+                            fontSize: '0.85rem',
+                            color: 'var(--text-secondary)',
+                            marginTop: 16,
+                            animation: 'sl-fade-up 0.55s ease-out 0.6s both',
+                        }}
+                    >
+                        Don't have an account?{' '}
+                        <a
+                            href="/register"
+                            style={{ color: '#a89dbd', fontWeight: 600, textDecoration: 'none' }}
+                        >
+                            Create an account
+                        </a>
                     </p>
                 </div>
             </div>

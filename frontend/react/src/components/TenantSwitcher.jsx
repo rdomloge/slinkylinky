@@ -7,7 +7,7 @@ export default function TenantSwitcher() {
     const { overrideOrgId, setOverrideOrgId } = useTenantOverride();
 
     useEffect(() => {
-        fetchWithAuth('/.rest/organisations')
+        fetchWithAuth('/.rest/accounts/organisations')
             .then(r => r?.ok ? r.json() : null)
             .then(data => {
                 if (data?._embedded?.organisations) {

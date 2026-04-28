@@ -12,16 +12,17 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/.rest/engagements':  `http://${backend}:8091`,
-        '/.rest/leads':        `http://${backend}:8091`,
-        '/.rest/auditrecords': `http://${backend}:8092`,
-        '/.rest/stats':        `http://${backend}:8093`,
-        '/.rest/mozsupport':   `http://${backend}:8093`,
-        '/.rest/semrush':      `http://${backend}:8093`,
-        '/.rest/orders':       `http://${backend}:8094`,
-        '/.rest':              `http://${backend}:8090`,
-        '/realms':    'http://10.0.0.12:8100',
-        '/resources': 'http://10.0.0.12:8100',
+        '/.rest/accounts':     { target: `http://${backend}:8095`, changeOrigin: true },
+        '/.rest/engagements':  { target: `http://${backend}:8091`, changeOrigin: true },
+        '/.rest/leads':        { target: `http://${backend}:8091`, changeOrigin: true },
+        '/.rest/auditrecords': { target: `http://${backend}:8092`, changeOrigin: true },
+        '/.rest/stats':        { target: `http://${backend}:8093`, changeOrigin: true },
+        '/.rest/mozsupport':   { target: `http://${backend}:8093`, changeOrigin: true },
+        '/.rest/semrush':      { target: `http://${backend}:8093`, changeOrigin: true },
+        '/.rest/orders':       { target: `http://${backend}:8094`, changeOrigin: true },
+        '/.rest':              { target: `http://${backend}:8090`, changeOrigin: true },
+        '/realms':    { target: 'http://10.0.0.12:8100', changeOrigin: true },
+        '/resources': { target: 'http://10.0.0.12:8100', changeOrigin: true },
       }
     }
   }

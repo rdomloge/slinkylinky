@@ -44,7 +44,7 @@ export default function UsersIndex() {
     useEffect(() => {
         if (!user) return;
         if (isGlobalAdmin) {
-            fetchWithAuth('/.rest/organisations')
+            fetchWithAuth('/.rest/accounts/organisations')
                 .then(r => r?.ok ? r.json() : Promise.reject())
                 .then(data => {
                     const orgs = data._embedded?.organisations || [];
@@ -64,7 +64,7 @@ export default function UsersIndex() {
         if (!orgId) return;
         setUsers(null);
         setError(null);
-        fetchWithAuth(`/.rest/keycloak/users?orgId=${orgId}`)
+        fetchWithAuth(`/.rest/accounts/keycloak-users?orgId=${orgId}`)
             .then(r => {
                 if (r?.status === 503) throw new Error('Keycloak Admin API is not configured on this server');
                 if (!r?.ok) throw new Error('Could not load users');
@@ -98,7 +98,7 @@ export default function UsersIndex() {
             attributes: { org_id: [orgId] },
             ...(newRole ? { role: newRole } : {}),
         };
-        fetchWithAuth('/.rest/keycloak/users', {
+        fetchWithAuth('/.rest/accounts/keycloak-users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),
@@ -108,7 +108,7 @@ export default function UsersIndex() {
                 setShowNewModal(false);
                 // Reload user list
                 setUsers(null);
-                return fetchWithAuth(`/.rest/keycloak/users?orgId=${orgId}`);
+                return fetchWithAuth(`/.rest/accounts/keycloak-users?orgId=${orgId}`);
             })
             .then(r => r?.json())
             .then(data => setUsers(data))
@@ -124,7 +124,7 @@ export default function UsersIndex() {
     function confirmDisableUser() {
         if (!userToDisable) return;
         setDisabling(true);
-        fetchWithAuth(`/.rest/keycloak/users/${userToDisable.id}`, { method: 'DELETE' })
+        fetchWithAuth(`/.rest/accounts/keycloak-users/${userToDisable.id}`, { method: 'DELETE' })
             .then(r => {
                 if (!r?.ok) throw new Error('Failed to disable user');
                 setUsers(prev => prev.map(u => u.id === userToDisable.id ? { ...u, enabled: false } : u));

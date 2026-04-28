@@ -43,6 +43,9 @@ secrets:
       SUPPLIERENGAGEMENT_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/supplierengagement'
       SUPPLIERENGAGEMENT_DB_PASSWORD: "changeme"
       SUPPLIERENGAGEMENT_DB_USERNAME: "supplierengagement_user"
+      USERSERVICE_DATABASE_URL: 'jdbc:postgresql://postgres-service:5432/userservice'
+      USERSERVICE_DB_PASSWORD: "changeme"
+      USERSERVICE_DB_USERNAME: "userservice_user"
       POSTGRES_BACKUP_USER: "postgres"
       POSTGRES_BACKUP_PASSWORD: "CHANGEME"
 
@@ -69,6 +72,9 @@ secrets:
       SUPPLIERENGAGEMENT_MAIL_USERNAME: "changeme"
       SUPPLIERENGAGEMENT_MAIL_PASSWORD: "changeme"
       SUPPLIERENGAGEMENT_MAIL_HOST: "smtp.example.com"
+      USERSERVICE_MAIL_USERNAME: "changeme"
+      USERSERVICE_MAIL_PASSWORD: "changeme"
+      USERSERVICE_MAIL_HOST: "smtp.example.com"
 
   - name: backup-ssh-credentials
     type: Opaque
@@ -410,6 +416,73 @@ deployments:
         secretName: collaborator-secret
         secretKey: COLLABORATOR_SESSION_COOKIES
 
+  - name: userservice
+    imageName: "userservice"
+    cpuLimit: "250m"
+    memoryLimit: "512Mi"
+    ports:
+      - 8080
+    explicitEnv:
+      server_port: "8080"
+      slinkylinky_vhost: "slinkylinky"
+      accounts_registration_enabled: "true"
+    configMapEnv:
+      slinkylinky_rabbitmq_host:
+        configMapName: rabbitmq-config
+        configMapKey: RABBITMQ_HOST
+      slinkylinky_domain:
+        configMapName: common-config
+        configMapKey: SLINKYLINKY_DOMAIN
+      slinkylinky_vhost:
+        configMapName: common-config
+        configMapKey: SLINKYLINKY_VHOST
+      mail_from:
+        configMapName: supplierengagement-config
+        configMapKey: MAIL_FROM
+    secretEnv:
+      spring_datasource_url:
+        secretName: db-connection-secret
+        secretKey: USERSERVICE_DATABASE_URL
+      spring_datasource_password:
+        secretName: db-connection-secret
+        secretKey: USERSERVICE_DB_PASSWORD
+      spring_datasource_username:
+        secretName: db-connection-secret
+        secretKey: USERSERVICE_DB_USERNAME
+      mail_username:
+        secretName: mail-secret
+        secretKey: USERSERVICE_MAIL_USERNAME
+      mail_password:
+        secretName: mail-secret
+        secretKey: USERSERVICE_MAIL_PASSWORD
+      mail_host:
+        secretName: mail-secret
+        secretKey: USERSERVICE_MAIL_HOST
+      JWK_SET_URI:
+        secretName: keycloak-credentials
+        secretKey: JWK_SET_URI
+      ISSUER_URI:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ISSUER
+      keycloak_admin_url:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_URL
+      keycloak_admin_client_id:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_ID
+      keycloak_admin_client_secret:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_ADMIN_CLIENT_SECRET
+      keycloak_admin_realm:
+        secretName: keycloak-credentials
+        secretKey: KEYCLOAK_REALM
+      slinkylinky_rabbitmq_username:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_USERNAME
+      slinkylinky_rabbitmq_password:
+        secretName: rabbitmq-credentials
+        secretKey: RABBITMQ_PASSWORD
+
 services:
   - name: postgres-service
     port: 5432
@@ -422,6 +495,10 @@ services:
     port: 8091
     targetPort: 8080
     selectorAppName: supplierengagement
+  - name: userservice-service
+    port: 8095
+    targetPort: 8080
+    selectorAppName: userservice
   - name: audit-service
     port: 8092
     targetPort: 8080

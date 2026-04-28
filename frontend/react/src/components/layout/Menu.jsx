@@ -12,6 +12,7 @@ const ENTITY_COLORS = {
     '/orders':         { active: '#d4a574', glow: 'rgba(212, 165, 116, 0.15)', dot: '#d4a574' },
     '/audit':          { active: '#8dcbb3', glow: 'rgba(141, 203, 179, 0.1)', dot: '#8dcbb3' },
     '/organisations':  { active: '#a89dbd', glow: 'rgba(168, 157, 189, 0.15)', dot: '#a89dbd' },
+    '/admin/organisations': { active: '#8dcbb3', glow: 'rgba(141, 203, 179, 0.1)', dot: '#8dcbb3' },
     '/users':          { active: '#d4a574', glow: 'rgba(212, 165, 116, 0.15)', dot: '#d4a574' },
     '/leads':          { active: '#a89dbd', glow: 'rgba(168, 157, 189, 0.15)', dot: '#a89dbd' },
     '/category-mappings': { active: '#6db89d', glow: 'rgba(109, 184, 157, 0.15)', dot: '#6db89d' },
@@ -45,6 +46,16 @@ const navItems = [
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+            </svg>
+        ),
+    },
+    {
+        to: '/admin/organisations',
+        label: 'Org Overview',
+        adminOnly: true,
+        icon: (
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
             </svg>
         ),
     },
@@ -119,6 +130,7 @@ const navItems = [
     {
         to: '/audit',
         label: 'Audit',
+        tenantAdminOnly: true,
         icon: (
             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
@@ -178,7 +190,6 @@ export default function Menu() {
             {isAdmin && (
                 <>
                     <div className="my-2" style={{ borderTopColor: 'var(--border-light)', borderTopWidth: '1px' }} />
-                    <NavItem {...ordersItem} />
                     {tenantAdminItems.map(item => (
                         <NavItem key={item.to} {...item} />
                     ))}
@@ -186,6 +197,7 @@ export default function Menu() {
             )}
             {isGlobalAdmin && (
                 <>
+                    <NavItem {...ordersItem} />
                     {globalAdminItems.map(item => (
                         <NavItem key={item.to} {...item} />
                     ))}

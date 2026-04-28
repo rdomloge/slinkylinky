@@ -35,10 +35,14 @@ public class LeadEmailContentBuilder {
 
     public String buildOutreachContent(SupplierLead lead) {
         String responseUrl = slinkyLinkyDomain + "/public/leadresponse?guid=" + lead.getGuid();
+        String suggestedFee = calculateSuggestedFee(lead.getPrice());
+        String currencySymbol = getCurrencySymbol(lead.getCurrency());
 
         Map<String, Object> model = new HashMap<>();
         model.put("domain",               lead.getDomain());
         model.put("responseUrl",          responseUrl);
+        model.put("suggestedFee",         suggestedFee);
+        model.put("currencySymbol",       currencySymbol);
         model.put("signoff",              signoff);
         model.put("signoffContactDetails", signoffContactDetails);
 
@@ -49,5 +53,29 @@ public class LeadEmailContentBuilder {
             log.error("Error building lead outreach email content", e);
             return "Error building lead outreach email content";
         }
+    }
+
+    private String calculateSuggestedFee(java.math.BigDecimal price) {
+        if (price == null) {
+            return "contact us";
+        }
+        long priceAsLong = price.longValue();
+        long roundedDown = (priceAsLong / 5) * 5;
+        return String.valueOf(roundedDown);
+    }
+
+    private String getCurrencySymbol(String currencyCode) {
+        if (currencyCode == null || currencyCode.isEmpty()) {
+            return "";
+        }
+        if (currencyCode.length() == 3) {
+            try {
+                return java.util.Currency.getInstance(currencyCode).getSymbol();
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid currency code: {}", currencyCode);
+                return "";
+            }
+        }
+        return currencyCode;
     }
 }

@@ -38,12 +38,14 @@ public class KeycloakTokenProvider {
         body.add("grant_type", "client_credentials");
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
+        body.add("scope", "internal_service");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
         Map<String, Object> response = tokenRestTemplate.postForObject(url, request, Map.class);
         if (response == null || !response.containsKey("access_token")) {
             throw new RuntimeException("Failed to fetch access token from Keycloak");
         }
-        log.debug("Fetched Keycloak access token for stats service call");
+        log.debug("Fetched Keycloak access token — client: '{}', requested scope: 'internal_service', granted scope: '{}'",
+            clientId, response.get("scope"));
         return (String) response.get("access_token");
     }
 }

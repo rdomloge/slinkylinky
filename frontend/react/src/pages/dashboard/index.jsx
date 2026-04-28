@@ -791,7 +791,7 @@ function HeroRefreshPill({ phase }) {
 
 export default function Dashboard() {
     const { user, accessToken } = useAuth();
-    const toast = useToast();
+    const { addToast: toast } = useToast();
 
     // ── Data state ──────────────────────────────────────────────────────────
     const [demandCount, setDemandCount]                   = useState(null);
@@ -1323,7 +1323,7 @@ export default function Dashboard() {
                     </p>
                     <div className="grid grid-cols-3 gap-3">
                         {navSections.map(s => <NavCard key={s.to} {...s}/>)}
-                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                        <AuthorizedAccess allowedRoles={['global_admin']}>
                             <NavCard {...ordersSection}/>
                         </AuthorizedAccess>
                     </div>
