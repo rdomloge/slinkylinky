@@ -86,3 +86,9 @@ data:
     ALTER DATABASE supplierengagement OWNER TO supplierengagement_user;
     GRANT ALL PRIVILEGES ON DATABASE supplierengagement TO supplierengagement_user;
     GRANT ALL PRIVILEGES ON SCHEMA public TO supplierengagement_user;
+
+    CREATE DATABASE userservice;
+    CREATE USER userservice_user WITH ENCRYPTED PASSWORD '{{ .Values.USERSERVICE_DB_PASSWORD }}';
+    ALTER DATABASE userservice OWNER TO userservice_user;
+    GRANT ALL PRIVILEGES ON DATABASE userservice TO userservice_user;
+    GRANT ALL PRIVILEGES ON SCHEMA public TO userservice_user;
