@@ -313,8 +313,10 @@ deployments:
 
   - name: supplierengagement
     imageName: "supplierengagement"
-    cpuLimit: "500m"
+    cpuLimit: "2000m"
     memoryLimit: "1024Mi"
+    startupFailureThreshold: 90
+    startupPeriod: 60
     ports:
       - 8080
     explicitEnv:
