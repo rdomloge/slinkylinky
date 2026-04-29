@@ -75,11 +75,10 @@ public class EmailVerifiedFilter extends OncePerRequestFilter {
                 return;
             }
         } else {
-            // No verified JWT present on a non-exempt path — block regardless of auth type.
-            // Spring Security's authorizeHttpRequests handles the normal 401 path; this branch
-            // is defence-in-depth for misconfigured SecurityFilterChains that accidentally
-            // permit a path without requiring a JWT.
-            writeForbidden(response);
+            // No JWT token present — let Spring Security handle this (it will return 401 via
+            // ExceptionTranslationFilter). This filter only acts when a JWT IS present but
+            // email_verified is false.
+            chain.doFilter(request, response);
             return;
         }
 
