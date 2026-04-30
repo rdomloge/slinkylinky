@@ -107,7 +107,6 @@ configMaps:
       VITE_KEYCLOAK_REALM: "derived-from-tenant"
       VITE_KEYCLOAK_CLIENT_ID: "sl-webapp"
       VITE_GA_TRACKING_ID: "G-4K0WX1L508"
-      VITE_REGISTRATION_ENABLED: "false"
   - name: common-config
     data:
       SLINKYLINKY_DOMAIN: "changeme.slinkylinky.uk"
@@ -218,6 +217,9 @@ deployments:
       VITE_GA_TRACKING_ID:
         configMapName: admin-website-config
         configMapKey: VITE_GA_TRACKING_ID
+      ACCOUNTS_REGISTRATION_ENABLED:
+        configMapName: common-config
+        configMapKey: ACCOUNTS_REGISTRATION_ENABLED
     startupPort: 80
     livenessPort: 80
     livenessPath: /demand
