@@ -281,6 +281,12 @@ pipeline {
                                         },
                                         {
                                             "hostname": "${TENANT}.slinkylinky.uk",
+                                            "path": "/.rest/accounts*",
+                                            "service": "http://userservice-service:8095",
+                                            "originRequest": {}
+                                        },
+                                        {
+                                            "hostname": "${TENANT}.slinkylinky.uk",
                                             "path": "/.rest/*",
                                             "service": "http://linkservice-service:8090",
                                             "originRequest": {}

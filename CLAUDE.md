@@ -224,7 +224,7 @@ Each tenant gets its own tunnel, created and configured by the **`Setup tunnel r
 | `/.rest/auditrecords` | `audit-service:8092` |
 | `/.rest/leads/*` | `supplierengagement-service:8091` |
 | `/.rest/engagements/*` | `supplierengagement-service:8091` |
-| `/.rest/accounts*` | `userservice-service:8095` — **⚠ MISSING from Jenkinsfile tunnel config** — currently falls through to linkservice catch-all |
+| `/.rest/accounts*` | `userservice-service:8095` |
 | `/.rest/*` | `linkservice-service:8090` |
 | (catch-all) | `adminwebsite-service:80` |
 
