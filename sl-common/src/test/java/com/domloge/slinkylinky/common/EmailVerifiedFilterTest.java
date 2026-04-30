@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.time.Instant;
 import java.util.List;
 
@@ -132,10 +130,10 @@ class EmailVerifiedFilterTest {
     }
 
     @Test
-    void unauthenticatedRequest_receives403() throws Exception {
-        // Fail-closed: a non-exempt request without a verified JWT is blocked here.
-        // Spring Security handles the 401 path for properly configured routes;
-        // this defence-in-depth check ensures misconfigured routes also fail safely.
+    void unauthenticatedRequest_delegatesToFilterChain() throws Exception {
+        // This filter enforces email-verification only, not authentication.
+        // Unauthenticated requests are delegated to Spring Security's ExceptionTranslationFilter,
+        // which returns 401. This filter must not intercept them.
         SecurityContextHolder.clearContext();
         MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/data");
         MockHttpServletResponse resp = new MockHttpServletResponse();
@@ -143,7 +141,7 @@ class EmailVerifiedFilterTest {
 
         filter.doFilter(req, resp, chain);
 
-        assertEquals(403, resp.getStatus());
+        verify(chain).doFilter(req, resp);
     }
 
     private static void setJwt(boolean emailVerified) {
