@@ -475,16 +475,16 @@ EOF
                                         serverUrl: "${env.K8S_SERVER_URL}") {
                             
                             sh '''
-                            USERNAME="'''+"${env.SUPPLIERENGAGEMENT_MAIL_USERNAME}"+'''"
-                            PASSWORD="'''+"${env.SUPPLIERENGAGEMENT_MAIL_PASSWORD}"+'''"
-                            HOST="'''+"${env.SUPPLIERENGAGEMENT_MAIL_HOST}"+'''"
+                            USERNAME="'''+"${env.MAIL_USERNAME}"+'''"
+                            PASSWORD="'''+"${env.MAIL_PASSWORD}"+'''"
+                            HOST="'''+"${env.MAIL_HOST}"+'''"
 
                             kubectl -n ${TENANT} patch secret mail-secret \\
                               --type='merge' \\
                               -p='{"data":{
-                                "SUPPLIERENGAGEMENT_MAIL_USERNAME":"'$(echo -n "$USERNAME" | base64 -w 0)'",
-                                "SUPPLIERENGAGEMENT_MAIL_PASSWORD":"'$(echo -n "$PASSWORD" | base64 -w 0)'",
-                                "SUPPLIERENGAGEMENT_MAIL_HOST":"'$(echo -n "$HOST" | base64 -w 0)'"
+                                "MAIL_USERNAME":"'$(echo -n "$USERNAME" | base64 -w 0)'",
+                                "MAIL_PASSWORD":"'$(echo -n "$PASSWORD" | base64 -w 0)'",
+                                "MAIL_HOST":"'$(echo -n "$HOST" | base64 -w 0)'"
                               }}'
                             '''
                         }
