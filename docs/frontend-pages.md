@@ -9,6 +9,8 @@ Defined in `frontend/react/src/App.jsx`.
 | Path | Component | Page File | Auth |
 |------|-----------|-----------|------|
 | `/callback` | `Callback` | `?` | Public |
+| `/register` | `Register` | `pages/register/index.jsx` | Protected |
+| `/verify-email` | `VerifyEmail` | `pages/verify-email/index.jsx` | Protected |
 | `/public/supplierresponse` | `SupplierResponse` | `pages/public/supplierresponse/index.jsx` | Public |
 | `/public/leadresponse` | `LeadResponse` | `pages/public/leadresponse/index.jsx` | Public |
 | `/` | `Dashboard` | `pages/dashboard/index.jsx` | Protected |
@@ -30,6 +32,7 @@ Defined in `frontend/react/src/App.jsx`.
 | `/audit/trace` | `AuditTrace` | `pages/audit/trace.jsx` | Protected |
 | `/categories` | `CategoriesIndex` | `pages/categories/index.jsx` | Protected |
 | `/organisations` | `OrganisationsIndex` | `pages/organisations/index.jsx` | Protected |
+| `/admin/organisations` | `AdminOrganisationsIndex` | `pages/admin/organisations/index.jsx` | Protected |
 | `/users` | `UsersIndex` | `pages/users/index.jsx` | Protected |
 | `/paidlinks/staging` | `PaidLinksStaging` | `pages/paidlinks/staging.jsx` | Protected |
 | `/sandbox` | `Sandbox` | `pages/sandbox/index.jsx` | Protected |
@@ -45,6 +48,11 @@ Defined in `frontend/react/src/App.jsx`.
 - Authenticated fetch calls should use `fetchWithAuth` from `@/utils/fetchWithAuth`
 
 ## Page Notes
+
+### `AdminOrganisationsIndex` — `/admin/organisations`
+**API:** `/.rest/accounts/admin/organisations-overview`, `/.rest/accounts/admin/organisations/${orgId}`, `/.rest/accounts/admin/organisations/…`
+
+### `index.test` — `pages/admin/organisations/index.test.jsx`
 
 ### `AuditIndexPage` — `/audit`
 
@@ -83,7 +91,7 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 **API:** `/.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder`
 
 ### `OrganisationsIndex` — `/organisations`
-**API:** `/.rest/organisations`
+**API:** `/.rest/accounts/organisations`
 
 ### `App` — `/paidlinks/staging`
 
@@ -98,6 +106,11 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 ### `SupplierResponse` — `/public/supplierresponse`
 **API:** `/.rest/engagements/search/findByGuid?guid=`, `/.rest/engagements/accept?guid=`, `/.rest/engagements/decline?guid=`
 **Props:** supplierName
+
+### `Register` — `/register`
+**API:** `/.rest/accounts/registration`
+
+### `index.test` — `pages/register/index.test.jsx`
 
 ### `DesignPreview` — `/sandbox/design`
 **Props:** name, size, color, stroke
@@ -120,5 +133,8 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 ### `EditSupplier` — `/supplier/:supplierid`
 
 ### `UsersIndex` — `/users`
-**API:** `/.rest/organisations`, `/.rest/keycloak/users?orgId=${orgId}`, `/.rest/keycloak/users`, `/.rest/keycloak/users/${userToDisable.id}`, `/.rest/keycloak/users?orgId=…`, `/.rest/keycloak/users/…`
+**API:** `/.rest/accounts/organisations`, `/.rest/accounts/keycloak-users?orgId=${orgId}`, `/.rest/accounts/keycloak-users`, `/.rest/accounts/keycloak-users/${userToDisable.id}`, `/.rest/accounts/keycloak-users?orgId=…`, `/.rest/accounts/keycloak-users/…`
+
+### `VerifyEmail` — `/verify-email`
+**API:** `/.rest/accounts/verify-email`
 

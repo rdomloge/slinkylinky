@@ -51,16 +51,6 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 |--------|------|--------|
 | `POST` | `/.rest/loginEvent` | `recordLogin()` |
 
-## `OrganisationController`
-**Base path:** `/.rest/organisations`  
-**File:** `linkservice/src/main/java/com/domloge/slinkylinky/linkservice/controller/OrganisationController.java`
-
-| Method | Path | Handler |
-|--------|------|--------|
-| `GET` | `/.rest/organisations/{id}` | `getOne()` |
-| `POST` | `/.rest/organisations` | `create()` |
-| `PATCH` | `/.rest/organisations/{id}` | `update()` |
-
 ## `PaidLinkController`
 **Base path:** `.rest/paidlinksupport`  
 **File:** `linkservice/src/main/java/com/domloge/slinkylinky/linkservice/controller/PaidLinkController.java`
@@ -100,6 +90,7 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | Method | Path | Handler |
 |--------|------|--------|
 | `GET` | `/.rest/supplierSupport/list` | `list()` |
+| `GET` | `/.rest/supplierSupport/suppliersForDemand` | `suppliersForDemand()` |
 | `PATCH` | `/.rest/supplierSupport/updateSupplierDa` | `updateSupplierDa()` |
 | `GET` | `/.rest/supplierSupport/getVersion` | `getSupplier()` |
 | `GET` | `/.rest/supplierSupport/exists` | `supplierExists()` |

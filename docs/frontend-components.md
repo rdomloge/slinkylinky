@@ -215,11 +215,10 @@ A titled panel card with an optional coloured left-border accent, loading skelet
 
 ### `TenantBadge`
 **File:** `components/TenantBadge.jsx`  
-**API calls:** `/.rest/organisations/${user.orgId}`, `/.rest/organisations/…`  
 
 ### `TenantSwitcher`
 **File:** `components/TenantSwitcher.jsx`  
-**API calls:** `/.rest/organisations`  
+**API calls:** `/.rest/accounts/organisations`  
 
 ### `TenantWarning`
 **File:** `components/TenantWarning.jsx`  
@@ -246,6 +245,8 @@ Route-level page components in `src/pages/`.
 
 | Page | File | Props/API |
 |------|------|-----------|
+| `AdminOrganisationsIndex` | `pages/admin/organisations/index.jsx` | calls: /.rest/accounts/admin/organisations-overview, /.rest/accounts/admin/organisations/${orgId} |
+| `index.test` | `pages/admin/organisations/index.test.jsx` | — |
 | `AuditIndexPage` | `pages/audit/index.jsx` | — |
 | `EntityAuditTrail` | `pages/audit/trace.jsx` | — |
 | `ListCategories` | `pages/categories/index.jsx` | — |
@@ -259,12 +260,14 @@ Route-level page components in `src/pages/`.
 | `DemandSite` | `pages/demandsites/[demandsiteid].jsx` | — |
 | `LeadsIndex` | `pages/leads/index.jsx` | props: status | calls: /.rest/categories, /.rest/engagements/category-mappings/resolve |
 | `ListOrders` | `pages/orders/index.jsx` | calls: /.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder |
-| `OrganisationsIndex` | `pages/organisations/index.jsx` | calls: /.rest/organisations |
+| `OrganisationsIndex` | `pages/organisations/index.jsx` | calls: /.rest/accounts/organisations |
 | `App` | `pages/paidlinks/staging.jsx` | — |
 | `ListProposals` | `pages/proposals/index.jsx` | — |
 | `Proposal` | `pages/proposals/[proposalid].jsx` | — |
 | `LeadResponse` | `pages/public/leadresponse/index.jsx` | props: children, onClick, variant, disabled | calls: /.rest/leads/response?guid=, /.rest/leads/accept?guid=${guid} |
 | `SupplierResponse` | `pages/public/supplierresponse/index.jsx` | props: supplierName | calls: /.rest/engagements/search/findByGuid?guid=, /.rest/engagements/accept?guid= |
+| `Register` | `pages/register/index.jsx` | calls: /.rest/accounts/registration |
+| `index.test` | `pages/register/index.test.jsx` | — |
 | `DesignPreview` | `pages/sandbox/design-preview.jsx` | props: name, size, color, stroke |
 | `Sandbox` | `pages/sandbox/index.jsx` | props: binding, label, onChange |
 | `NewSupplier` | `pages/supplier/Add.jsx` | — |
@@ -272,5 +275,6 @@ Route-level page components in `src/pages/`.
 | `SupplierListView` | `pages/supplier/index2.jsx` | props: label, field, sortBy, sortDir, onSort, className | calls: /.rest/stats/responsiveness/all, /.rest/supplierSupport/list?${params} |
 | `App` | `pages/supplier/search/[demandid].jsx` | calls: /.rest/stats/responsiveness/all |
 | `EditSupplier` | `pages/supplier/[supplierid].jsx` | — |
-| `UsersIndex` | `pages/users/index.jsx` | calls: /.rest/organisations, /.rest/keycloak/users?orgId=${orgId} |
+| `UsersIndex` | `pages/users/index.jsx` | calls: /.rest/accounts/organisations, /.rest/accounts/keycloak-users?orgId=${orgId} |
+| `VerifyEmail` | `pages/verify-email/index.jsx` | calls: /.rest/accounts/verify-email |
 

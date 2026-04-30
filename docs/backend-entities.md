@@ -64,14 +64,6 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - categories (ManyToMany)
 - demands (OneToMany)
 
-## `Organisation`
-**Table:** `organisation`
-
-**Fields:**
-- `name: String`
-- `slug: String`
-- `createdAt: LocalDateTime`
-
 ## `PaidLink`
 **Table:** `paidlinks`
 
