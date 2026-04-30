@@ -594,14 +594,14 @@ EOF
 
                             # Get the internal_service scope ID
                             INTERNAL_SERVICE_SCOPE_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/client-scopes?search=internal_service" | sed 's/.*"id":"\([^"]*\)","name":"internal_service".*/\1/')
+                            "http://localhost:9090/admin/realms/${TENANT}/client-scopes?search=internal_service" | grep -o '"id":"[^"]*","name":"internal_service' | cut -d'"' -f4)
 
                             # Get the sl-admin and sl-server client IDs
                             SL_ADMIN_CLIENT_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-admin" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p' | head -1)
+                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-admin" | grep -o '"id":"[^"]*' | head -1 | cut -d'"' -f4)
 
                             SL_SERVER_CLIENT_ID=$(curl -sS -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-server" | sed -n 's/.*"id":"\([^"]*\)".*/\1/p' | head -1)
+                            "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-server" | grep -o '"id":"[^"]*' | head -1 | cut -d'"' -f4)
 
                             # Assign internal_service scope to sl-admin
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \\

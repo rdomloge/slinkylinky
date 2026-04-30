@@ -68,11 +68,11 @@ For each existing user:
 
 > **Note:** The `organisation` table UUID must be inserted in the database before assigning it here. See Phase 1 migration (`linkservice/db-scripts/v6.0-organisation.sql`).
 
-## Step 6 — Grant `global_admin` to the `sl_server` Service Account
+## Step 6 — Grant `global_admin` to the `sl-server` Service Account
 
-The `sl_server` client is used by the `supplierengagement` service for server-to-server calls to `linkservice` (e.g. converting a lead to a Supplier). Supplier creation is guarded by `SupplierWriteGuard`, which requires the `global_admin` realm role.
+The `sl-server` client is used by the `supplierengagement` service for server-to-server calls to `linkservice` (e.g. converting a lead to a Supplier). Supplier creation is guarded by `SupplierWriteGuard`, which requires the `global_admin` realm role.
 
-1. Navigate to **Realm → Clients → `sl_server`**.
+1. Navigate to **Realm → Clients → `sl-server`**.
 2. Go to the **Service account roles** tab.
 3. Click **Assign role** → Filter by realm roles → Select `global_admin` → **Assign**.
 
@@ -100,7 +100,7 @@ For each client that uses `grant_type=client_credentials`:
 
 | Client | Used by |
 |--------|---------|
-| `sl_server` | supplierengagement → linkservice |
+| `sl-server` | supplierengagement → linkservice |
 | `sl-admin` | linkservice → stats (spam score checks) and linkservice → Keycloak Admin API |
 
 For each:
