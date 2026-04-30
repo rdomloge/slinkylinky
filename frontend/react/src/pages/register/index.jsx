@@ -2,68 +2,124 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '@/assets/logo.png';
 
-const AnimatedNetworkVisualization = () => {
-    const [particles, setParticles] = useState([]);
+const GalaxyBackground = () => {
+    const [stars, setStars] = useState([]);
+    const [connections, setConnections] = useState([]);
 
     useEffect(() => {
-        const nodes = [
-            { id: 1, x: 20, y: 30, vx: 0.3, vy: 0.2, size: 3 },
-            { id: 2, x: 60, y: 40, vx: -0.25, vy: 0.35, size: 2.5 },
-            { id: 3, x: 80, y: 70, vx: 0.2, vy: -0.3, size: 3.5 },
-            { id: 4, x: 40, y: 80, vx: -0.3, vy: -0.2, size: 2 },
-            { id: 5, x: 70, y: 20, vx: 0.25, vy: 0.4, size: 3 },
-            { id: 6, x: 30, y: 60, vx: 0.15, vy: -0.25, size: 2.5 },
-        ];
-        setParticles(nodes);
+        // Generate 60 stars with organic distribution
+        const starArray = [];
+        for (let i = 0; i < 60; i++) {
+            // Use varied distribution (more in center, sparse on edges)
+            const angle = Math.random() * Math.PI * 2;
+            const randomRadius = Math.random() * 0.7;
+            const baseDistance = randomRadius ** 0.7; // Bias towards center
+
+            const x = 50 + baseDistance * 45 * Math.cos(angle);
+            const y = 50 + baseDistance * 45 * Math.sin(angle);
+
+            // Star properties
+            const size = Math.random() * 0.6 + 0.15;
+            const brightness = Math.random() * 0.6 + 0.3;
+            const twinkleDuration = Math.random() * 2 + 2.5; // 2.5-4.5s
+            const delay = Math.random() * 3;
+
+            starArray.push({
+                id: i,
+                x,
+                y,
+                size,
+                brightness,
+                twinkleDuration,
+                delay,
+            });
+        }
+        setStars(starArray);
+
+        // Generate constellation connections between nearby stars
+        const connectionList = [];
+        const connectionDistance = 20;
+
+        for (let i = 0; i < starArray.length; i++) {
+            for (let j = i + 1; j < starArray.length; j++) {
+                const dx = starArray[i].x - starArray[j].x;
+                const dy = starArray[i].y - starArray[j].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < connectionDistance && Math.random() > 0.7) {
+                    connectionList.push([starArray[i], starArray[j]]);
+                }
+            }
+        }
+        setConnections(connectionList.slice(0, 40));
     }, []);
 
     return (
-        <svg
-            style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                pointerEvents: 'none',
-            }}
-            viewBox="0 0 100 100"
-            preserveAspectRatio="xMidYMid slice"
-        >
-            <defs>
-                <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#00d9ff" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#00d9ff" stopOpacity="0" />
-                </radialGradient>
-                <filter id="glow">
-                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
-                    <feMerge>
-                        <feMergeNode in="coloredBlur" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
+        <>
+            <svg
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                }}
+                viewBox="0 0 100 100"
+                preserveAspectRatio="xMidYMid slice"
+            >
+                <defs>
+                    <style>{`
+                        @keyframes twinkle {
+                            0%, 100% { opacity: var(--brightness); }
+                            50% { opacity: calc(var(--brightness) * 0.3); }
+                        }
+                    `}</style>
+                </defs>
 
-            {/* Animated connection lines */}
-            <g opacity="0.2" stroke="#00d9ff" strokeWidth="0.3" fill="none">
-                <line x1="20" y1="30" x2="60" y2="40" />
-                <line x1="60" y1="40" x2="80" y2="70" />
-                <line x1="80" y1="70" x2="40" y2="80" />
-                <line x1="40" y1="80" x2="30" y2="60" />
-                <line x1="30" y1="60" x2="20" y2="30" />
-                <line x1="60" y1="40" x2="70" y2="20" />
-                <line x1="70" y1="20" x2="80" y2="70" />
-            </g>
+                {/* Constellation lines */}
+                <g opacity="0.12" stroke="#00d9ff" strokeWidth="0.15" fill="none">
+                    {connections.map((conn, idx) => (
+                        <line
+                            key={`conn-${idx}`}
+                            x1={conn[0].x}
+                            y1={conn[0].y}
+                            x2={conn[1].x}
+                            y2={conn[1].y}
+                        />
+                    ))}
+                </g>
 
-            {/* Glowing nodes */}
-            <g filter="url(#glow)">
-                <circle cx="20" cy="30" r="3.5" fill="#00d9ff" opacity="0.6" />
-                <circle cx="60" cy="40" r="2.8" fill="#00d9ff" opacity="0.7" />
-                <circle cx="80" cy="70" r="4" fill="#00d9ff" opacity="0.5" />
-                <circle cx="40" cy="80" r="2.5" fill="#00d9ff" opacity="0.6" />
-                <circle cx="70" cy="20" r="3.2" fill="#00d9ff" opacity="0.65" />
-                <circle cx="30" cy="60" r="2.8" fill="#00d9ff" opacity="0.7" />
-            </g>
-        </svg>
+                {/* Twinkling stars */}
+                <g>
+                    {stars.map((star) => (
+                        <circle
+                            key={`star-${star.id}`}
+                            cx={star.x}
+                            cy={star.y}
+                            r={star.size}
+                            fill="#ffffff"
+                            style={{
+                                '--brightness': star.brightness,
+                                animation: `twinkle ${star.twinkleDuration}s ease-in-out infinite`,
+                                animationDelay: `${star.delay}s`,
+                                filter: 'drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.3))',
+                            }}
+                        />
+                    ))}
+                </g>
+            </svg>
+
+            {/* Deep space gradient overlay for depth */}
+            <div
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'radial-gradient(ellipse 50% 50% at 50% 40%, rgba(0, 50, 100, 0.15) 0%, transparent 60%)',
+                    pointerEvents: 'none',
+                    zIndex: 1,
+                }}
+            />
+        </>
     );
 };
 
@@ -288,7 +344,7 @@ export default function Register() {
                         overflow: 'hidden',
                     }}
                 >
-                    <AnimatedNetworkVisualization />
+                    <GalaxyBackground />
 
                     {/* Overlay content on left */}
                     <div
