@@ -115,7 +115,14 @@ configMaps:
       SLINKYLINKY_RABBITMQ_PORT: "5672"
       ACCOUNTS_REGISTRATION_ENABLED: "false"
   - name: userservice-config
-    data: {}
+    data:
+      SPRING_MAIL_TESTING: "true"
+      SPRING_MAIL_TESTING_ADDRESSES: "rdomloge@gmail.com"
+      MAIL_FROM: "no-reply@slinkylinky.uk"
+      MAIL_WELCOME_SUBJECT: "Welcome to SlinkyLinky"
+      MAIL_VERIFICATION_SUBJECT: "Verify your email address"
+      MAIL_REQUESTSIGNOFF: "Your team at SlinkyLinky"
+      MAIL_REQUESTCONTACT: "support@slinkylinky.uk"
   - name: supplierengagement-config
     data:
       SPRING_MAIL_TESTING: "true"
@@ -444,8 +451,26 @@ deployments:
         configMapName: common-config
         configMapKey: SLINKYLINKY_VHOST
       mail_from:
-        configMapName: supplierengagement-config
+        configMapName: userservice-config
         configMapKey: MAIL_FROM
+      spring_mail_testing:
+        configMapName: userservice-config
+        configMapKey: SPRING_MAIL_TESTING
+      spring_mail_testing_addresses:
+        configMapName: userservice-config
+        configMapKey: SPRING_MAIL_TESTING_ADDRESSES
+      mail_welcome_subject:
+        configMapName: userservice-config
+        configMapKey: MAIL_WELCOME_SUBJECT
+      mail_verification_subject:
+        configMapName: userservice-config
+        configMapKey: MAIL_VERIFICATION_SUBJECT
+      mail_requestsignoff:
+        configMapName: userservice-config
+        configMapKey: MAIL_REQUESTSIGNOFF
+      mail_requestcontact:
+        configMapName: userservice-config
+        configMapKey: MAIL_REQUESTCONTACT
       accounts_registration_enabled:
         configMapName: common-config
         configMapKey: ACCOUNTS_REGISTRATION_ENABLED
