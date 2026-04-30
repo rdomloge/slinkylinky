@@ -588,25 +588,30 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients/${CLIENT_ID}/default-client-scopes/${SCOPE_ID}"
 
                             # Create internal_service scope for service-to-service auth bypass
-                            INTERNAL_SERVICE_SCOPE_ID=$(curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            INTERNAL_SERVICE_SCOPE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"name": "internal_service", "protocol": "openid-connect", "attributes": {"include.in.token.scope": "true"}}' \\
-                            "http://localhost:9090/admin/realms/${TENANT}/client-scopes" \\
-                            -D - | grep -i '^location:' | sed 's|.*/||' | tr -d '\r')
+                            "http://localhost:9090/admin/realms/${TENANT}/client-scopes")
+                            INTERNAL_SERVICE_SCOPE_ID=$(echo "$INTERNAL_SERVICE_SCOPE_RESPONSE" | grep -i '^location:' | sed 's|.*/||' | tr -d '\r' || echo "$INTERNAL_SERVICE_SCOPE_RESPONSE" | head -1 | jq -r '.id // empty')
+                            echo "Created internal_service scope with ID: $INTERNAL_SERVICE_SCOPE_ID"
 
                             # Get the sl-admin and sl_server client IDs
                             SL_ADMIN_CLIENT_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl-admin" | jq -r '.[0].id')
+                            echo "Found sl-admin client ID: $SL_ADMIN_CLIENT_ID"
 
                             SL_SERVER_CLIENT_ID=$(curl -s -X GET -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl_server" | jq -r '.[0].id')
+                            echo "Found sl_server client ID: $SL_SERVER_CLIENT_ID"
 
                             # Assign internal_service scope to sl-admin
-                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients/${SL_ADMIN_CLIENT_ID}/default-client-scopes/${INTERNAL_SERVICE_SCOPE_ID}"
+                            ADMIN_ASSIGN=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/${SL_ADMIN_CLIENT_ID}/default-client-scopes/${INTERNAL_SERVICE_SCOPE_ID}")
+                            echo "Assigned internal_service to sl-admin: $(echo "$ADMIN_ASSIGN" | tail -1)"
 
                             # Assign internal_service scope to sl_server
-                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \\
-                            "http://localhost:9090/admin/realms/${TENANT}/clients/${SL_SERVER_CLIENT_ID}/default-client-scopes/${INTERNAL_SERVICE_SCOPE_ID}"
+                            SERVER_ASSIGN=$(curl -s -w "\n%{http_code}" -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            "http://localhost:9090/admin/realms/${TENANT}/clients/${SL_SERVER_CLIENT_ID}/default-client-scopes/${INTERNAL_SERVICE_SCOPE_ID}")
+                            echo "Assigned internal_service to sl_server: $(echo "$SERVER_ASSIGN" | tail -1)"
 
                             # Create a user attribute mapper for avatar_uri
                             ##   First need to get the current model
@@ -639,9 +644,9 @@ EOF
                             -d '{"name": "global_admin"}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/roles"
 
-                            # Create an admin user with the username admin and fixed org_id, marked as email verified
+                            # Create an admin user with the username admin and fixed org_id
                             curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"username": "admin", "enabled": true, "emailVerified": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"], "attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
+                            -d '{"username": "admin", "enabled": true, "credentials": [{"type": "password", "value": "admin", "temporary": true}], "realmRoles": ["tenant_admin", "global_admin"], "attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users"
 
                             # Give the admin user the realm the tenant_admin and global_admin realm roles
@@ -656,8 +661,8 @@ EOF
                             -d "$ROLE_REPRESENTATIONS" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID/role-mappings/realm"
 
-                            # Ensure admin user keeps the fixed org_id attribute and remains email verified
-                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
+                            # Set emailVerified flag and ensure admin user keeps the fixed org_id attribute
+                            curl -s -X PATCH -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
                             -d '{"emailVerified": true, "attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID"
 
