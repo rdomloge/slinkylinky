@@ -5,7 +5,8 @@
 //   window.__CONFIG__ = {
 //     VITE_KEYCLOAK_URL: "https://...",
 //     VITE_KEYCLOAK_REALM: "slinkylinky",
-//     VITE_KEYCLOAK_CLIENT_ID: "sl-webapp"
+//     VITE_KEYCLOAK_CLIENT_ID: "sl-webapp",
+//     VITE_REGISTRATION_ENABLED: "true"
 //   };
 //
 // In development, Vite serves this empty object and the app falls back to

@@ -6,6 +6,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import TenantBadge from '../TenantBadge';
 import Logo from '@/assets/logo.png';
 import { useToast } from '@/components/atoms/Toasts';
+import { REGISTRATION_ENABLED } from '@/config';
 
 const ENTITY_CHIPS = [
     { label: 'Suppliers', bg: 'rgba(109, 184, 157, 0.12)', color: '#6db89d', border: 'rgba(109, 184, 157, 0.3)' },
@@ -645,22 +646,24 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
                     </p>
 
                     {/* Registration link */}
-                    <p
-                        style={{
-                            fontSize: '0.85rem',
-                            color: 'var(--text-secondary)',
-                            marginTop: 16,
-                            animation: 'sl-fade-up 0.55s ease-out 0.6s both',
-                        }}
-                    >
-                        Don't have an account?{' '}
-                        <a
-                            href="/register"
-                            style={{ color: '#a89dbd', fontWeight: 600, textDecoration: 'none' }}
+                    {REGISTRATION_ENABLED && (
+                        <p
+                            style={{
+                                fontSize: '0.85rem',
+                                color: 'var(--text-secondary)',
+                                marginTop: 16,
+                                animation: 'sl-fade-up 0.55s ease-out 0.6s both',
+                            }}
                         >
-                            Create an account
-                        </a>
-                    </p>
+                            Don't have an account?{' '}
+                            <a
+                                href="/register"
+                                style={{ color: '#a89dbd', fontWeight: 600, textDecoration: 'none' }}
+                            >
+                                Create an account
+                            </a>
+                        </p>
+                    )}
                 </div>
             </div>
         </>

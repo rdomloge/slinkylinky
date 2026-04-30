@@ -107,15 +107,16 @@ configMaps:
       VITE_KEYCLOAK_REALM: "derived-from-tenant"
       VITE_KEYCLOAK_CLIENT_ID: "sl-webapp"
       VITE_GA_TRACKING_ID: "G-4K0WX1L508"
+      VITE_REGISTRATION_ENABLED: "false"
   - name: common-config
     data:
       SLINKYLINKY_DOMAIN: "changeme.slinkylinky.uk"
       SLINKYLINKY_VHOST: "slinkylinky"
       SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
       SLINKYLINKY_RABBITMQ_PORT: "5672"
-  - name: userservice-config
-    data:
       ACCOUNTS_REGISTRATION_ENABLED: "false"
+  - name: userservice-config
+    data: {}
   - name: supplierengagement-config
     data:
       SPRING_MAIL_TESTING: "true"
@@ -444,7 +445,7 @@ deployments:
         configMapName: supplierengagement-config
         configMapKey: MAIL_FROM
       accounts_registration_enabled:
-        configMapName: userservice-config
+        configMapName: common-config
         configMapKey: ACCOUNTS_REGISTRATION_ENABLED
     secretEnv:
       spring_datasource_url:
