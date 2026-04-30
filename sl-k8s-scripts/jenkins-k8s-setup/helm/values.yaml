@@ -69,12 +69,9 @@ secrets:
   - name: mail-secret
     type: Opaque
     data:
-      SUPPLIERENGAGEMENT_MAIL_USERNAME: "changeme"
-      SUPPLIERENGAGEMENT_MAIL_PASSWORD: "changeme"
-      SUPPLIERENGAGEMENT_MAIL_HOST: "smtp.example.com"
-      USERSERVICE_MAIL_USERNAME: "changeme"
-      USERSERVICE_MAIL_PASSWORD: "changeme"
-      USERSERVICE_MAIL_HOST: "smtp.example.com"
+      MAIL_USERNAME: "changeme"
+      MAIL_PASSWORD: "changeme"
+      MAIL_HOST: "smtp.example.com"
 
   - name: backup-ssh-credentials
     type: Opaque
@@ -387,13 +384,13 @@ deployments:
     secretEnv:
       mail_username:
         secretName: mail-secret
-        secretKey: SUPPLIERENGAGEMENT_MAIL_USERNAME
+        secretKey: MAIL_USERNAME
       mail_password:
         secretName: mail-secret
-        secretKey: SUPPLIERENGAGEMENT_MAIL_PASSWORD
+        secretKey: MAIL_PASSWORD
       mail_host:
         secretName: mail-secret
-        secretKey: SUPPLIERENGAGEMENT_MAIL_HOST
+        secretKey: MAIL_HOST
       spring_datasource_url:
         secretName: db-connection-secret
         secretKey: SUPPLIERENGAGEMENT_DATABASE_URL
@@ -486,13 +483,13 @@ deployments:
         secretKey: USERSERVICE_DB_USERNAME
       mail_username:
         secretName: mail-secret
-        secretKey: USERSERVICE_MAIL_USERNAME
+        secretKey: MAIL_USERNAME
       mail_password:
         secretName: mail-secret
-        secretKey: USERSERVICE_MAIL_PASSWORD
+        secretKey: MAIL_PASSWORD
       mail_host:
         secretName: mail-secret
-        secretKey: USERSERVICE_MAIL_HOST
+        secretKey: MAIL_HOST
       JWK_SET_URI:
         secretName: keycloak-credentials
         secretKey: JWK_SET_URI
