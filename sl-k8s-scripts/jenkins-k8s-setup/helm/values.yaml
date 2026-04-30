@@ -113,6 +113,9 @@ configMaps:
       SLINKYLINKY_VHOST: "slinkylinky"
       SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
       SLINKYLINKY_RABBITMQ_PORT: "5672"
+  - name: userservice-config
+    data:
+      ACCOUNTS_REGISTRATION_ENABLED: "false"
   - name: supplierengagement-config
     data:
       SPRING_MAIL_TESTING: "true"
@@ -315,8 +318,8 @@ deployments:
     imageName: "supplierengagement"
     cpuLimit: "2000m"
     memoryLimit: "1024Mi"
-    startupFailureThreshold: 90
-    startupPeriod: 60
+    startupFailureThreshold: 40
+    startupPeriod: 10
     ports:
       - 8080
     explicitEnv:
@@ -427,7 +430,6 @@ deployments:
     explicitEnv:
       server_port: "8080"
       slinkylinky_vhost: "slinkylinky"
-      accounts_registration_enabled: "true"
     configMapEnv:
       slinkylinky_rabbitmq_host:
         configMapName: rabbitmq-config
@@ -441,6 +443,9 @@ deployments:
       mail_from:
         configMapName: supplierengagement-config
         configMapKey: MAIL_FROM
+      accounts_registration_enabled:
+        configMapName: userservice-config
+        configMapKey: ACCOUNTS_REGISTRATION_ENABLED
     secretEnv:
       spring_datasource_url:
         secretName: db-connection-secret
