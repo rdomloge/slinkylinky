@@ -601,11 +601,11 @@ EOF
                             "http://localhost:9090/admin/realms/${TENANT}/clients?clientId=sl_server" | jq -r '.[0].id')
 
                             # Assign internal_service scope to sl-admin
-                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients/${SL_ADMIN_CLIENT_ID}/default-client-scopes/${INTERNAL_SERVICE_SCOPE_ID}"
 
                             # Assign internal_service scope to sl_server
-                            curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" \\
+                            curl -s -X POST -H "Authorization: Bearer $ADMIN_TOKEN" \\
                             "http://localhost:9090/admin/realms/${TENANT}/clients/${SL_SERVER_CLIENT_ID}/default-client-scopes/${INTERNAL_SERVICE_SCOPE_ID}"
 
                             # Create a user attribute mapper for avatar_uri
@@ -656,9 +656,9 @@ EOF
                             -d "$ROLE_REPRESENTATIONS" \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID/role-mappings/realm"
 
-                            # Ensure admin user keeps the fixed org_id attribute
+                            # Ensure admin user keeps the fixed org_id attribute and remains email verified
                             curl -s -X PUT -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \\
-                            -d '{"attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
+                            -d '{"emailVerified": true, "attributes": {"org_id": ["00000000-0000-0000-0000-000000000001"]}}' \\
                             "http://localhost:9090/admin/realms/${TENANT}/users/$USER_ID"
 
                             # Set org_id attribute on default 'user' user
