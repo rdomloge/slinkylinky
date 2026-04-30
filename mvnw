@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Maven wrapper for WSL2 environment using Maven at /mnt/c/apps/apache-maven-3.9.12
 
 MAVEN_HOME="/mnt/c/apps/apache-maven-3.9.12"
