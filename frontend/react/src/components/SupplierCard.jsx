@@ -268,7 +268,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                 </span>
                 {supplier.weWriteFee &&
                     <span className="metric-pill metric-pill-neutral">
-                        <span className="metric-pill-label">£</span>
+                        <span className="metric-pill-label">Fee</span>
                         <span>{supplier.weWriteFeeCurrency}{supplier.weWriteFee}</span>
                     </span>
                 }
