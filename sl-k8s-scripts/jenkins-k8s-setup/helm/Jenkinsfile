@@ -87,10 +87,12 @@ pipeline {
                         returnStdout: true
                     ).trim()
 
-                    env.ORG_ID = sh(
-                        script: "cat /proc/sys/kernel/random/uuid",
-                        returnStdout: true
-                    ).trim()
+                    // Must match the fixed demo org UUID used by schema-migration.sql and
+                    // restore-demo/Jenkinsfile, and the admin user's org_id attribute.
+                    // Using a random UUID here causes the admin user's JWT org_id claim
+                    // to never match the organisation in the DB, so all tenant-scoped
+                    // queries return empty results (TenantFilter.requireOrgId 403s).
+                    env.ORG_ID = "00000000-0000-0000-0000-000000000001"
 
                     // Optional: verify variable exists but don't echo it
                     echo "Passwords generated and stored in env var (not printing it for security)"
