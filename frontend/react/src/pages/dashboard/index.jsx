@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { AuthorizedAccess } from '@/components/AuthorizedAccess';
 import { PanelCard } from '@/components/PanelCard';
 import { NavCard } from '@/components/NavCard';
+import { ORDERS_ENABLED } from '@/config';
 
 // ─── Cache helpers ────────────────────────────────────────────────────────────
 
@@ -1324,7 +1325,7 @@ export default function Dashboard() {
                     <div className="grid grid-cols-3 gap-3">
                         {navSections.map(s => <NavCard key={s.to} {...s}/>)}
                         <AuthorizedAccess allowedRoles={['global_admin']}>
-                            <NavCard {...ordersSection}/>
+                            {ORDERS_ENABLED && <NavCard {...ordersSection}/>}
                         </AuthorizedAccess>
                     </div>
                 </div>

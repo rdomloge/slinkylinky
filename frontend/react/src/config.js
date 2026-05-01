@@ -16,3 +16,4 @@ export const KEYCLOAK_REALM = getConfig('VITE_KEYCLOAK_REALM');
 export const KEYCLOAK_CLIENT_ID = getConfig('VITE_KEYCLOAK_CLIENT_ID');
 export const GA_TRACKING_ID = getConfig('VITE_GA_TRACKING_ID') || 'G-4K0WX1L508';
 export const REGISTRATION_ENABLED = getConfig('VITE_REGISTRATION_ENABLED') !== 'false';
+export const ORDERS_ENABLED = getConfig('VITE_ORDERS_ENABLED') !== 'false';

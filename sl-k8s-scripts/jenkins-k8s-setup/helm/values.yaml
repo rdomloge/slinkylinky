@@ -224,6 +224,9 @@ deployments:
       ACCOUNTS_REGISTRATION_ENABLED:
         configMapName: common-config
         configMapKey: ACCOUNTS_REGISTRATION_ENABLED
+      ORDERS_ENABLED:
+        configMapName: common-config
+        configMapKey: ORDERS_ENABLED
     startupPort: 80
     livenessPort: 80
     livenessPath: /demand

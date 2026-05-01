@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AuthorizedAccess } from '../AuthorizedAccess';
 import { useAuth } from '@/auth/AuthProvider';
+import { ORDERS_ENABLED } from '@/config';
 
 // Entity accent colours for nav items (updated to pastel palette)
 const ENTITY_COLORS = {
@@ -197,7 +198,7 @@ export default function Menu() {
             )}
             {isGlobalAdmin && (
                 <>
-                    <NavItem {...ordersItem} />
+                    {ORDERS_ENABLED && <NavItem {...ordersItem} />}
                     {globalAdminItems.map(item => (
                         <NavItem key={item.to} {...item} />
                     ))}
