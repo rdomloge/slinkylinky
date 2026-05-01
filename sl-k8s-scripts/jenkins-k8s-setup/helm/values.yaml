@@ -111,6 +111,7 @@ configMaps:
       SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
       SLINKYLINKY_RABBITMQ_PORT: "5672"
       ACCOUNTS_REGISTRATION_ENABLED: "false"
+      ORDERS_ENABLED: "false"
   - name: userservice-config
     data:
       SPRING_MAIL_TESTING: "true"
