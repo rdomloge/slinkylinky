@@ -1,0 +1,111 @@
+@token = CLOUDFLARE_API_TOKEN
+@accountId = a3f61764f4abaee7c31e8ec3343172cd
+@zoneId = 93230fb6cec6bbe6ca142e2d20c945c9
+@tenant = test123
+@tunnelId = placeholder
+
+### Create tunnel
+POST https://api.cloudflare.com/client/v4/accounts/{{accountId}}/cfd_tunnel
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "{{tenant}}",
+  "config_src": "cloudflare"
+}
+
+###
+
+### Setup tunnel routes & DNS configuration
+PUT https://api.cloudflare.com/client/v4/accounts/{{accountId}}/cfd_tunnel/{{tunnelId}}/configurations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "config": {
+    "ingress": [
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/realms/*",
+        "service": "http://keycloak-service:8100",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/resources/*",
+        "service": "http://keycloak-service:8100",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/stats*",
+        "service": "http://stats-service:8093",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/mozsupport",
+        "service": "http://stats-service:8093",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/semrush",
+        "service": "http://stats-service:8093",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/auditrecords",
+        "service": "http://audit-service:8092",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/leads/*",
+        "service": "http://supplierengagement-service:8091",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/engagements/*",
+        "service": "http://supplierengagement-service:8091",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/accounts*",
+        "service": "http://userservice-service:8095",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "path": "/.rest/*",
+        "service": "http://linkservice-service:8090",
+        "originRequest": {}
+      },
+      {
+        "hostname": "{{tenant}}.slinkylinky.uk",
+        "service": "http://adminwebsite-service:80",
+        "originRequest": {}
+      },
+      {
+        "service": "http_status:404"
+      }
+    ]
+  }
+}
+
+###
+
+### Create DNS CNAME record
+POST https://api.cloudflare.com/client/v4/zones/{{zoneId}}/dns_records
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "type": "CNAME",
+  "proxied": true,
+  "name": "{{tenant}}.slinkylinky.uk",
+  "content": "{{tunnelId}}.cfargotunnel.com"
+}
