@@ -125,7 +125,8 @@ Required for the `KeycloakAdminClient` that manages users via the backend.
    - K8s secret key: `KEYCLOAK_ADMIN_CLIENT_SECRET`
    - App property: `keycloak.admin.client.secret`
 3. Go to **Service account roles** tab → Assign role:
-   - Filter by clients → select `realm-management` client → assign `manage-users` and `view-users`.
+   - Filter by clients → select `realm-management` client → assign `manage-users`, `view-users`, and `query-users`.
+   - `query-users` is required for attribute-based user searches (`q=org_id:...`); omitting it causes 403 on the user-list endpoint even if `view-users` is present.
 
 ## Step 8 — Enable Realm Login Events (Prerequisite for Last-Login Display)
 

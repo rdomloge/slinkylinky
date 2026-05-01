@@ -245,7 +245,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                 )}
             </div>
 
-            <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+            <AuthorizedAccess allowedRoles={['global_admin']}>
                 {supplier.email && (
                     linkable ? (
                         <Link to={'mailto:' + supplier.email} className="flex items-center gap-2 text-sm hover:underline mb-3" style={{ color: 'var(--supplier-color)' }} rel='nofollow'>
@@ -289,7 +289,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
             {showSemRushTraffic &&
                 <div className="mt-3">
                     <div className="card-footer">
-                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                        <AuthorizedAccess allowedRoles={['global_admin']}>
                             {supplier.source && (
                                 <span className="inline-flex items-center gap-1.5 min-w-0">
                                     <img src={EnterIcon} alt="source" width={12} height={12} className="opacity-60 shrink-0"/>
@@ -299,7 +299,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                         </AuthorizedAccess>
                         <div className="flex-1" />
                         {responseMeta?.avgResponseDays != null && (
-                            <span className="font-mono-data">Avg response {responseMeta.avgResponseDays}d</span>
+                            <span className="font-mono-data">Avg response {responseMeta.avgResponseDays.toFixed(1)}d</span>
                         )}
                     </div>
                     <div className="pt-3">

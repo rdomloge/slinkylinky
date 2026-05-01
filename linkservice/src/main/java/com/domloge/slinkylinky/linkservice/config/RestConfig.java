@@ -15,6 +15,7 @@ import com.domloge.slinkylinky.linkservice.entity.FullProposalProjection;
 import com.domloge.slinkylinky.linkservice.entity.FullSupplierProjection;
 import com.domloge.slinkylinky.linkservice.entity.LiteDemandProjection;
 import com.domloge.slinkylinky.linkservice.entity.LitePaidLinkProjection;
+import com.domloge.slinkylinky.linkservice.entity.GlobalAdminSupplierProjection;
 import com.domloge.slinkylinky.linkservice.entity.LiteProposalProjection;
 import com.domloge.slinkylinky.linkservice.entity.LiteSupplierProjection;
 import com.domloge.slinkylinky.linkservice.entity.Demand;
@@ -56,7 +57,8 @@ public class RestConfig implements RepositoryRestConfigurer {
           LitePaidLinkProjection.class,
           LiteDemandProjection.class,
           LiteSupplierProjection.class,
-          LiteProposalProjection.class
+          LiteProposalProjection.class,
+          GlobalAdminSupplierProjection.class
           );
 
           // Allow CORS for localhost and host.docker.internal.

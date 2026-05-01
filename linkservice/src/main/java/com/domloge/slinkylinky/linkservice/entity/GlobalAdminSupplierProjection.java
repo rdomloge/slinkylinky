@@ -2,12 +2,18 @@ package com.domloge.slinkylinky.linkservice.entity;
 
 import org.springframework.data.rest.core.config.Projection;
 
-@Projection(name="fullSupplier", types = {Supplier.class})
-public interface FullSupplierProjection {
+/**
+ * Full supplier projection for global_admin callers only — includes sensitive fields email and source.
+ * Access is enforced by GlobalAdminProjectionInterceptor; this projection must not be exposed to other roles.
+ */
+@Projection(name = "globalAdminSupplier", types = {Supplier.class})
+public interface GlobalAdminSupplierProjection {
 
     long getId();
 
     String getName();
+
+    String getEmail();
 
     Integer getDa();
 
@@ -23,6 +29,8 @@ public interface FullSupplierProjection {
 
     String getWeWriteFeeCurrency();
 
+    String getSource();
+
     String getCreatedBy();
 
     String getUpdatedBy();
@@ -30,5 +38,4 @@ public interface FullSupplierProjection {
     FullCategoryProjection[] getCategories();
 
     long getVersion();
-
 }

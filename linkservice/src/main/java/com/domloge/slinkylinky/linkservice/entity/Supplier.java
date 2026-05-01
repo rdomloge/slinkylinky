@@ -10,6 +10,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.domloge.slinkylinky.common.GlobalAdminOnly;
 import com.domloge.slinkylinky.linkservice.Util;
 
 import jakarta.persistence.Column;
@@ -51,6 +52,7 @@ public class Supplier {
     private long modifiedDate = 0;
 
     private String name;
+    @GlobalAdminOnly
     private String email;
     private int da;
     private String website;
@@ -58,6 +60,7 @@ public class Supplier {
     private int weWriteFee;
     private String weWriteFeeCurrency;
     private boolean thirdParty;
+    @GlobalAdminOnly
     private String source;
 
     private boolean disabled;

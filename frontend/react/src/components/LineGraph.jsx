@@ -9,7 +9,6 @@ export default function LineGraph({ datapoints }) {
         labels,
         datasets: [
             {
-                label: 'Traffic',
                 data: values,
                 borderColor: '#6366f1',
                 backgroundColor: 'rgba(99, 102, 241, 0.1)',
@@ -66,5 +65,10 @@ export default function LineGraph({ datapoints }) {
         },
     };
 
-    return <Line data={data} options={options} />;
+    return (
+        <div>
+            <p className="text-xs text-slate-400 mb-1">UK monthly Google traffic</p>
+            <Line data={data} options={options} />
+        </div>
+    );
 }

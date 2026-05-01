@@ -64,7 +64,6 @@ public class KeycloakAdminClient {
         form.add("grant_type", "client_credentials");
         form.add("client_id", clientId);
         form.add("client_secret", clientSecret);
-        form.add("scope", "internal_service");
 
         @SuppressWarnings("unchecked")
         Map<String, Object> resp = restClient.post()
@@ -80,7 +79,7 @@ public class KeycloakAdminClient {
         cachedToken = (String) resp.get("access_token");
         int expiresIn = resp.containsKey("expires_in") ? (Integer) resp.get("expires_in") : 60;
         tokenExpiry = Instant.now().plusSeconds(expiresIn - 60);
-        log.debug("Fetched Keycloak admin token — client: '{}', requested scope: 'internal_service', granted scope: '{}'",
+        log.debug("Fetched Keycloak admin token — client: '{}', granted scope: '{}'",
             clientId, resp.get("scope"));
         return cachedToken;
     }

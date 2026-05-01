@@ -12,8 +12,6 @@ public interface LiteSupplierProjection {
 
     String getName();
 
-    String getEmail();
-
     Integer getDa();
 
     String getWebsite();
