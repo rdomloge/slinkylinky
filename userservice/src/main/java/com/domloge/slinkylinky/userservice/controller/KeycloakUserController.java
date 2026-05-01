@@ -24,7 +24,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.common.TenantFilter;
 import com.domloge.slinkylinky.events.AuditEvent;
+import com.domloge.slinkylinky.userservice.email.EmailSender;
+import com.domloge.slinkylinky.userservice.entity.EmailVerificationToken;
 import com.domloge.slinkylinky.userservice.keycloak.KeycloakAdminClient;
+import com.domloge.slinkylinky.userservice.repo.EmailVerificationTokenRepo;
+import com.domloge.slinkylinky.userservice.token.TokenHasher;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +48,15 @@ public class KeycloakUserController {
 
     @Autowired
     private AmqpTemplate auditRabbitTemplate;
+
+    @Autowired
+    private EmailSender emailSender;
+
+    @Autowired
+    private EmailVerificationTokenRepo tokenRepo;
+
+    @Autowired
+    private TokenHasher tokenHasher;
 
     private void checkConfigured() {
         if (!keycloakAdminClient.isConfigured()) {
@@ -117,6 +130,24 @@ public class KeycloakUserController {
 
         String newUserId = keycloakAdminClient.createUser(safeRep);
         log.info("Created Keycloak user {} for org {}", newUserId, targetOrgId);
+
+        // Generate and persist a verification token, then send the email (non-fatal)
+        String email = (String) userRepresentation.get("email");
+        String rawToken = tokenHasher.generateRawToken();
+        String hashedToken = tokenHasher.hash(rawToken);
+        EmailVerificationToken tokenEntity = new EmailVerificationToken();
+        tokenEntity.setTokenHash(hashedToken);
+        tokenEntity.setUserId(newUserId);
+        tokenEntity.setEmail(email);
+        tokenEntity.setOrgId(UUID.fromString(targetOrgId));
+        tokenEntity.setExpiresAt(LocalDateTime.now().plusHours(24));
+        tokenEntity.setCreatedAt(LocalDateTime.now());
+        try {
+            tokenRepo.save(tokenEntity);
+            emailSender.sendVerificationEmail(email, rawToken);
+        } catch (Exception e) {
+            log.error("Verification email failed for {} — token may not be persisted, user can resend", email, e);
+        }
 
         if (requestedRole != null && !requestedRole.isBlank()) {
             try {
