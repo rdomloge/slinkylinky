@@ -8,7 +8,7 @@ import SessionButton from "@/components/atoms/Button";
 import { Toggle } from '@/components/atoms/Toggle';
 import Loading from '@/components/Loading';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import { AuthorizedAccess } from '@/components/AuthorizedAccess';
+import { AuthorizedAccess, useIsAdmin } from '@/components/AuthorizedAccess';
 
 const PAGE_SIZE = 20;
 
@@ -39,6 +39,7 @@ export default function SupplierListView() {
     const [isLoading, setIsLoading]             = useState(false);
     const [responsiveness, setResponsiveness]   = useState({});
     const [supplierUsageCount, setSupplierUsageCount] = useState({});
+    const isAdmin = useIsAdmin();
 
     const nextPage   = useRef(0);
     const hasMore    = useRef(true);
@@ -172,16 +173,18 @@ export default function SupplierListView() {
                     </div>
                     <div className="w-16 shrink-0 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Usages</div>
                     <div className="w-40 shrink-0 text-xs font-semibold text-slate-500 uppercase tracking-wider">Responsiveness</div>
-                    <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</span>
-                    </div>
+                    {isAdmin && (
+                        <div className="flex items-center gap-2 shrink-0">
+                            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</span>
+                        </div>
+                    )}
                 </div>
 
                 {/* Rows */}
                 {suppliers.length === 0 && !isLoading
                     ? <p className="text-sm text-slate-400 text-center py-12">No suppliers found.</p>
                     : suppliers.map((s, i) =>
-                        <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} responsiveness={responsiveness[s.id]} usageCount={supplierUsageCount[s.id]}/>
+                        <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} responsiveness={responsiveness[s.id]} usageCount={supplierUsageCount[s.id]} showActions={isAdmin}/>
                     )
                 }
 

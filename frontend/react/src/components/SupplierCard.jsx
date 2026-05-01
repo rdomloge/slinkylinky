@@ -94,7 +94,7 @@ function ExcludeButton({ supplierId }) {
     );
 }
 
-export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiveness, usageCount}) {
+export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiveness, usageCount, showActions}) {
     const [anchorRect, setAnchorRect] = useState(null);
     const trafficRef = useRef(null);
 
@@ -174,6 +174,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
             </div>
 
             {/* Actions: Exclude / Edit */}
+            {showActions && (
             <div className="flex items-center gap-2 shrink-0">
                 <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                     <ExcludeButton supplierId={supplier.id} />
@@ -188,6 +189,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
                     </Link>
                 </AuthorizedAccess>
             </div>
+            )}
         </div>
     )
 }
