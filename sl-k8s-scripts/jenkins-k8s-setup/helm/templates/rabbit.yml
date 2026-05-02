@@ -40,6 +40,10 @@ spec:
             limits:
               cpu: "300m"
               memory: "250Mi"
+          env:
+            - name: RABBITMQ_PLUGINS
+              value: "rabbitmq_management rabbitmq_prometheus"
           ports:
             - containerPort: 5672
             - containerPort: 15672
+            - containerPort: 15692

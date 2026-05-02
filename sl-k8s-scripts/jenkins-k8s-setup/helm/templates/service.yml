@@ -6,11 +6,17 @@ kind: Service
 metadata:
   name: {{ $service.name }}
   namespace: {{ $root.Values.tenant }}
+  labels:
+    app: {{ $service.selectorAppName }}
+    {{- range $k, $v := $service.labels }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
 spec:
   selector:
     app: {{ $service.selectorAppName }}
   ports:
-    - protocol: TCP
+    - name: http
+      protocol: TCP
       port: {{ $service.port }}
       targetPort: {{ $service.targetPort | default $service.port }}
   type: ClusterIP

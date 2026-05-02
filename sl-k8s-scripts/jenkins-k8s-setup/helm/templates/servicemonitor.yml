@@ -1,0 +1,26 @@
+{{- $root := . }}
+{{- range $deployment := .Values.deployments }}
+{{- if $deployment.metrics }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ $deployment.name }}
+  namespace: {{ $root.Values.tenant }}
+  labels:
+    # Label matches the Prometheus operator's serviceMonitorSelector (empty = select all)
+    tenant: {{ $root.Values.tenant }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ $deployment.name }}
+  namespaceSelector:
+    matchNames:
+      - {{ $root.Values.tenant }}
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+      scrapeTimeout: 10s
+{{- end }}
+{{- end }}

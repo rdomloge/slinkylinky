@@ -1,0 +1,64 @@
+pipeline {
+
+    agent { label "helm-worker" }
+
+    environment {
+        MONITORING_FOLDER = "${WORKSPACE}/sl-k8s-scripts/jenkins-k8s-setup/monitoring"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                withFolderProperties() {
+                    git branch: 'main', url: "https://${env.GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/rdomloge/slinkylinky.git"
+                }
+            }
+        }
+
+        stage('Install monitoring stack') {
+            steps {
+                script {
+                    withFolderProperties() {
+                        withKubeConfig(credentialsId: 'prod-k8s',
+                                        serverUrl: "${env.K8S_SERVER_URL}") {
+
+                            sh """
+                            helm repo add prometheus-community https://prometheus-community.github.io/helm-charts 2>/dev/null || true
+                            helm repo update
+
+                            kubectl get namespace monitoring >/dev/null 2>&1 || kubectl create namespace monitoring
+
+                            kubectl -n monitoring create secret generic grafana-admin-secret \\
+                              --from-literal=admin-password="${env.GRAFANA_ADMIN_PASSWORD}" \\
+                              --dry-run=client -o yaml | kubectl apply -f -
+
+                            kubectl -n monitoring create secret generic alertmanager-slack-secret \\
+                              --from-literal=webhook-url="${env.SLACK_WEBHOOK_URL}" \\
+                              --dry-run=client -o yaml | kubectl apply -f -
+
+                            # Substitute env vars into values template
+                            GRAFANA_ADMIN_PASSWORD="${env.GRAFANA_ADMIN_PASSWORD}" \\
+                            SLACK_WEBHOOK_URL="${env.SLACK_WEBHOOK_URL}" \\
+                            envsubst < ${MONITORING_FOLDER}/values.yaml > /tmp/monitoring-values.yaml
+
+                            helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \\
+                              --namespace monitoring \\
+                              --values /tmp/monitoring-values.yaml \\
+                              --wait \\
+                              --timeout 10m
+
+                            rm -f /tmp/monitoring-values.yaml
+                            """
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
+        }
+    }
+}

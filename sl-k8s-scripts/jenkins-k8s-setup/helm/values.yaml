@@ -140,6 +140,7 @@ fullnameOverride: ""
 deployments:
   - name: linkservice
     imageName: "linkservice"
+    metrics: true
     cpuLimit: "500m"
     memoryLimit: "512Mi"
     startupFailureThreshold: 15
@@ -236,6 +237,7 @@ deployments:
 
   - name: stats
     imageName: "stats"
+    metrics: true
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
@@ -291,6 +293,7 @@ deployments:
 
   - name: audit
     imageName: "audit"
+    metrics: true
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
@@ -327,6 +330,7 @@ deployments:
 
   - name: supplierengagement
     imageName: "supplierengagement"
+    metrics: true
     cpuLimit: "2000m"
     memoryLimit: "1024Mi"
     startupFailureThreshold: 40
@@ -434,6 +438,7 @@ deployments:
 
   - name: userservice
     imageName: "userservice"
+    metrics: true
     cpuLimit: "250m"
     memoryLimit: "512Mi"
     ports:
@@ -559,6 +564,12 @@ services:
     port: 15672
     targetPort: 15672
     selectorAppName: rabbit
+  - name: rabbit-metrics-service
+    port: 15692
+    targetPort: 15692
+    selectorAppName: rabbit
+    labels:
+      component: metrics
   - name: keycloak-service
     port: 8100
     targetPort: 8080
