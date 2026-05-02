@@ -148,3 +148,6 @@ kubeStateMetrics:
 
 prometheusOperator:
   enabled: true
+  namespaces:
+    releaseNamespace: true
+    additional: []
