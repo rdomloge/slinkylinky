@@ -28,6 +28,7 @@ import OrdersIndex from '@/pages/orders/index';
 import CategoriesIndex from '@/pages/categories/index';
 import OrganisationsIndex from '@/pages/organisations/index';
 import AdminOrganisationsIndex from '@/pages/admin/organisations/index';
+import TenantHealth from '@/pages/admin/health/index';
 import UsersIndex from '@/pages/users/index';
 import SupplierResponse from '@/pages/public/supplierresponse/index';
 import LeadResponse from '@/pages/public/leadresponse/index';
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="/categories" element={<CategoriesIndex />} />
           <Route path="/organisations" element={<OrganisationsIndex />} />
           <Route path="/admin/organisations" element={<AdminOrganisationsIndex />} />
+          <Route path="/admin/health" element={<TenantHealth />} />
           <Route path="/users" element={<UsersIndex />} />
           <Route path="/paidlinks/staging" element={<PaidLinksStaging />} />
           <Route path="/sandbox" element={<Sandbox />} />
