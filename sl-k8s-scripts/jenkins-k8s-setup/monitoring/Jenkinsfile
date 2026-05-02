@@ -28,6 +28,12 @@ pipeline {
 
                             kubectl get namespace monitoring >/dev/null 2>&1 || kubectl create namespace monitoring
 
+                            # Allow privileged workloads (node-exporter needs hostPID, hostNetwork, root)
+                            kubectl label namespace monitoring \
+                              pod-security.kubernetes.io/enforce=privileged \
+                              pod-security.kubernetes.io/enforce-version=latest \
+                              --overwrite
+
                             kubectl -n monitoring create secret generic grafana-admin-secret \\
                               --from-literal=admin-password="${env.GRAFANA_ADMIN_PASSWORD}" \\
                               --dry-run=client -o yaml | kubectl apply -f -
