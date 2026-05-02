@@ -139,7 +139,8 @@ additionalPrometheusRulesMap:
               summary: "High 5xx rate in {{ $labels.namespace }}/{{ $labels.job }}"
 
 nodeExporter:
-  enabled: true
+  # Disabled: Linode LKE runs its own node-exporter DaemonSet which occupies hostPort 9100
+  enabled: false
 
 kubeStateMetrics:
   enabled: true
