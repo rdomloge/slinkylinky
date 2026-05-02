@@ -74,6 +74,7 @@ alertmanager:
       repeat_interval: 12h
       receiver: slack
     receivers:
+      - name: "null"
       - name: slack
         slack_configs:
           - api_url: "${SLACK_WEBHOOK_URL}"
