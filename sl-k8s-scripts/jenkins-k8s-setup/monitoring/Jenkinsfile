@@ -36,10 +36,9 @@ pipeline {
                               --from-literal=webhook-url="${env.SLACK_WEBHOOK_URL}" \\
                               --dry-run=client -o yaml | kubectl apply -f -
 
-                            # Substitute env vars into values template
-                            GRAFANA_ADMIN_PASSWORD="${env.GRAFANA_ADMIN_PASSWORD}" \\
-                            SLACK_WEBHOOK_URL="${env.SLACK_WEBHOOK_URL}" \\
-                            envsubst < ${MONITORING_FOLDER}/values.yaml > /tmp/monitoring-values.yaml
+                            # Substitute webhook URL into values (sed is universally available)
+                            sed "s|\\\${SLACK_WEBHOOK_URL}|${env.SLACK_WEBHOOK_URL}|g" \\
+                              ${MONITORING_FOLDER}/values.yaml > /tmp/monitoring-values.yaml
 
                             helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \\
                               --namespace monitoring \\

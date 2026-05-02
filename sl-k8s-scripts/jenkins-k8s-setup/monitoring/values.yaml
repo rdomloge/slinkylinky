@@ -16,7 +16,9 @@ kube-prometheus-stack:
       podMonitorSelector: {}
 
   grafana:
-    adminPassword: "${GRAFANA_ADMIN_PASSWORD}"
+    admin:
+      existingSecret: "grafana-admin-secret"
+      passwordKey: admin-password
     grafana.ini:
       server:
         root_url: "https://grafana.slinkylinky.uk"
