@@ -15,21 +15,6 @@ pipeline {
             }
         }
 
-        stage('Remove legacy monitoring stack from default namespace') {
-            steps {
-                script {
-                    withFolderProperties() {
-                        withKubeConfig(credentialsId: 'prod-k8s',
-                                        serverUrl: "${env.K8S_SERVER_URL}") {
-                            sh """
-                            helm uninstall prometheus -n default --ignore-not-found 2>/dev/null || true
-                            """
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Install monitoring stack') {
             steps {
                 script {
