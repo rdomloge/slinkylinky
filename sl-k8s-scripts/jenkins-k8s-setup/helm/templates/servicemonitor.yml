@@ -8,8 +8,8 @@ metadata:
   name: {{ $deployment.name }}
   namespace: {{ $root.Values.tenant }}
   labels:
-    # Label matches the Prometheus operator's serviceMonitorSelector (empty = select all)
     tenant: {{ $root.Values.tenant }}
+    release: kube-prometheus-stack
 spec:
   selector:
     matchLabels:
