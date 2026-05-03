@@ -265,7 +265,7 @@ export default function Layout({ children, pagetitle = ' ', headerTitle, headerA
                     </aside>
                     <div className="flex flex-col flex-1 min-w-0" style={{ background: 'var(--bg-primary)' }}>
                         <Header title={headerTitle ?? pagetitle} actions={headerActions} />
-                        <div className="flex-1 overflow-y-auto pt-4">
+                        <div className="flex-1 overflow-y-auto">
                             {children}
                             <Footer />
                         </div>

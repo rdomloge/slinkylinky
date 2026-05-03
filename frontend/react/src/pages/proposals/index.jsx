@@ -136,7 +136,7 @@ export default function ListProposals() {
         >
 
             {/* Filters */}
-            <FiltersPanel>
+            <FiltersPanel className="pt-4">
                 <Toggle initialValue={unpaidfilter} changeHandler={applyUnpaidFilter} label={"Unpaid"}/>
             </FiltersPanel>
 

@@ -1,9 +1,9 @@
 import React from 'react';
 
-function FiltersPanel({ children }) {
+function FiltersPanel({ children, className = '' }) {
     return (
         <div
-            className="mx-6 mb-4 px-4 py-3 rounded-xl"
+            className={`mx-6 mb-4 px-4 py-3 rounded-xl ${className}`}
             style={{
                 background: 'var(--bg-paper)',
                 border: '1px solid var(--ink-hair)',
