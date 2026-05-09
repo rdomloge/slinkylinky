@@ -939,6 +939,7 @@ EOF
                     check_protected GET    "/.rest/proposalsupport/responsivenessData"
                     check_protected GET    "/.rest/supplierSupport/list"
                     check_protected PATCH  "/.rest/supplierSupport/updateSupplierDa"
+                    check_protected PATCH  "/.rest/supplierSupport/updateSupplierSpam"
                     check_protected GET    "/.rest/supplierSupport/getVersion"
                     check_protected GET    "/.rest/supplierSupport/exists"
                     check_protected POST   "/.rest/supplierSupport/supplierresponse"

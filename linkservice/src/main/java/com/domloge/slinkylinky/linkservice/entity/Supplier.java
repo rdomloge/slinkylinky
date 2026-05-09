@@ -30,10 +30,11 @@ import lombok.Setter;
 
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = "domain")},
-        indexes = {@Index(columnList = "domain"), 
+        indexes = {@Index(columnList = "domain"),
                     @Index(columnList = "da"),
                     @Index(columnList = "name"),
-                    @Index(columnList = "email")})
+                    @Index(columnList = "email"),
+                    @Index(columnList = "spam_score")})
 @Getter 
 @Setter
 @Audited
@@ -64,6 +65,9 @@ public class Supplier {
     private String source;
 
     private boolean disabled;
+
+    @Column(name = "spam_score")
+    private Integer spamScore;
 
     private String createdBy;
     private String updatedBy;   

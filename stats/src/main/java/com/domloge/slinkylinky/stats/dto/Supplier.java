@@ -18,6 +18,7 @@ public class Supplier {
     private String name;
     private String email;
     private int da;
+    private Integer spamScore;
     private String website;
     private String domain;
     private int weWriteFee;

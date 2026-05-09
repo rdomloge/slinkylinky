@@ -455,7 +455,8 @@ CREATE TABLE public.supplier (
     source character varying(255),
     created_date bigint DEFAULT 0 NOT NULL,
     modified_date bigint DEFAULT 0,
-    version bigint DEFAULT 0
+    version bigint DEFAULT 0,
+    spam_score integer
 );
 
 
@@ -480,7 +481,8 @@ CREATE TABLE public.supplier_aud (
     updated_by character varying(255),
     we_write_fee integer,
     we_write_fee_currency character varying(255),
-    website character varying(255)
+    website character varying(255),
+    spam_score integer
 );
 
 
@@ -789,6 +791,13 @@ CREATE INDEX idxkki22xfo8qoijthsi5wfre5vg ON public.demand_site USING btree (ema
 --
 
 CREATE INDEX idxr9ii2bdptwiwljggtkn44ygkg ON public.supplier USING btree (domain);
+
+
+--
+-- Name: idx_supplier_spam_score; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_supplier_spam_score ON public.supplier USING btree (spam_score);
 
 
 --

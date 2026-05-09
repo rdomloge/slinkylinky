@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,7 +26,6 @@ import com.domloge.slinkylinky.stats.repo.TemporalRepo;
 import com.domloge.slinkylinky.stats.repo.TrafficRepo;
 import com.domloge.slinkylinky.stats.semrush.Semrush;
 
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -81,6 +82,59 @@ public class Sync {
         log.info("Syncing complete");
     }
 
+    /**
+     * Monthly spam sync. Moz publishes spam scores monthly; we run on the 5th to give them
+     * time to release the new month's data. Fetches the latest spam from Moz where missing
+     * and pushes the result to linkservice's supplier.spam_score column.
+     */
+    @Scheduled(cron = "0 0 4 5 * *")
+    public void monthlySpamSync() {
+        runSpamSyncForAllSuppliers("monthly cron");
+    }
+
+    /**
+     * On stats startup, run the spam sync once on a background thread so it doesn't block
+     * readiness. Acts as the safety net that populates supplier.spam_score after a fresh
+     * deploy or a column migration — without it the matching/list filters silently match
+     * nothing because every row is NULL.
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    public void onStartupSpamSync() {
+        new Thread(() -> {
+            try {
+                Thread.sleep(5_000);
+                runSpamSyncForAllSuppliers("startup");
+            }
+            catch (InterruptedException e) {
+                log.warn("Startup spam sync interrupted: {}", e.getMessage());
+            } 
+            // catch (Exception e) {
+            //     log.warn("Startup spam sync failed: {}", e.getMessage());
+            // }
+        }, "spam-startup-sync").start();
+    }
+
+    private void runSpamSyncForAllSuppliers(String trigger) {
+        log.info("Spam sync ({}): starting", trigger);
+        int page = 0;
+        int processed = 0;
+        while (true) {
+            Response response = rest.exchange(linkserviceUrl + "/.rest/suppliers?page=" + page,
+                    HttpMethod.GET, null, Response.class).getBody();
+            List<Supplier> suppliers = response.get_embedded().getSuppliers().stream()
+                    .filter(s -> !s.isThirdParty() && !s.isDisabled())
+                    .collect(Collectors.toList());
+            for (Supplier supplier : suppliers) {
+                // syncSupplier(supplier, spamRepo, spamChecker::forThisMonth, 1);
+                linkServiceUpdater.pushLatestSpamToLinkservice(supplier);
+                processed++;
+            }
+            if (response.getPage().getTotalPages() <= (page + 1)) break;
+            page++;
+        }
+        log.info("Spam sync ({}): complete, processed {} suppliers", trigger, processed);
+    }
+
     private boolean syncPage(int page) throws TransientSyncException {
         Response response = rest.exchange(linkserviceUrl + "/.rest/suppliers?page="+page, 
                 HttpMethod.GET, 
@@ -114,16 +168,13 @@ public class Sync {
             log.debug("[[[ Synching DA for {} ]]]", supplier.getDomain());
             syncSupplier(supplier, daRepo, daChecker::forThisMonth, 1);
             linkServiceUpdater.pushLatestDaToLinkservice(supplier);
-
-            log.debug("[[[ Synching spam for {} ]]]", supplier.getDomain());
-            syncSupplier(supplier, spamRepo, spamChecker::forThisMonth, 1);
         }
 
         return response.getPage().getTotalPages() > (page+1);
     }
 
     public int syncSupplier(Supplier supplier, TemporalRepo repo, TemporalDataLoader<?> loader, int monthsBack) throws TransientSyncException {
-        
+
         String domain = supplier.getDomain();
         LocalDate startDate = LocalDate.now().minusMonths(monthsBack);
         // make it the start of the month
@@ -143,18 +194,18 @@ public class Sync {
                 log.info("{} has a gap in data for {}", domain, oldestGap);
                 try {
                     AbstractMonthlyData missingMonth = loader.forMonth("system", domain, oldestGap);
-                    log.info("Adding data point for domain {} with {} {} for {}", 
-                        domain, 
-                        missingMonth.getDataPointName(), 
-                        missingMonth.getDataPointValue(), 
+                    log.info("Adding data point for domain {} with {} {} for {}",
+                        domain,
+                        missingMonth.getDataPointName(),
+                        missingMonth.getDataPointValue(),
                         missingMonth.getUniqueYearMonth());
                     repo.saveMonth(missingMonth);
                     changeCount++;
-                } 
+                }
                 catch(HttpClientErrorException e) {
                     throw new TransientSyncException();
                 }
-            }            
+            }
         }
 
         return changeCount;

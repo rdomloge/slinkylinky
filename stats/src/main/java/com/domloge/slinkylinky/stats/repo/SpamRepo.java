@@ -1,12 +1,10 @@
 package com.domloge.slinkylinky.stats.repo;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.repository.query.Param;
 
 import com.domloge.slinkylinky.stats.entity.SpamMonthlyData;
 
@@ -16,10 +14,9 @@ public interface SpamRepo extends CrudRepository<SpamMonthlyData, Long>, PagingA
     SpamMonthlyData[] findByDomainInTimeRange(String domain,
         LocalDate startDate, LocalDate endDate);
 
-    @Query("SELECT DISTINCT s.domain FROM SpamMonthlyData s " +
-           "WHERE s.spamScore > :threshold " +
-           "AND s.date = (SELECT MAX(s2.date) FROM SpamMonthlyData s2 WHERE s2.domain = s.domain)")
-    List<String> findDomainsAboveSpamThreshold(@Param("threshold") int threshold);
+    SpamMonthlyData findByDomainAndUniqueYearMonth(String domain, String uniqueYearMonth);
+
+    SpamMonthlyData findFirstByDomainOrderByDateDesc(String domain);
 
     default void saveMonth(SpamMonthlyData missingMonth) {
         save(missingMonth);

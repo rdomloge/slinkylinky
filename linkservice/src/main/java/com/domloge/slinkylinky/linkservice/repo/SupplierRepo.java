@@ -33,22 +33,12 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
            "(:search = '' OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
            "OR LOWER(s.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
            "OR LOWER(s.domain) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "AND (:includeDisabled = true OR s.disabled = false)")
+           "AND (:includeDisabled = true OR s.disabled = false) " +
+           "AND (:maxSpamScore IS NULL OR s.spamScore IS NULL OR s.spamScore <= :maxSpamScore)")
     Page<Supplier> findBySearchAndFilter(@Param("search") String search,
                                          @Param("includeDisabled") boolean includeDisabled,
+                                         @Param("maxSpamScore") Integer maxSpamScore,
                                          Pageable pageable);
-
-    @Query("SELECT s FROM Supplier s WHERE " +
-           "(:search = '' OR LOWER(s.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(s.email) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(s.domain) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "AND (:includeDisabled = true OR s.disabled = false) " +
-           "AND s.domain NOT IN :excludedDomains")
-    Page<Supplier> findBySearchAndFilterExcludingDomains(
-            @Param("search") String search,
-            @Param("includeDisabled") boolean includeDisabled,
-            @Param("excludedDomains") List<String> excludedDomains,
-            Pageable pageable);
 
 
     @RestResource(exported = false)
@@ -65,9 +55,10 @@ public interface SupplierRepo extends PagingAndSortingRepository<Supplier, Long>
         "AND s.third_party = false "+                                                                // exclude third party suppliers
         "AND s.disabled = false "+                                                                   // exclude globally disabled suppliers
         "AND NOT EXISTS (SELECT 1 FROM supplier_tenant_exclusion ste WHERE ste.supplier_id = s.id AND ste.organisation_id = ?2) "+ // exclude tenant-excluded
+        "AND (CAST(?3 AS integer) IS NULL OR s.spam_score IS NULL OR s.spam_score <= ?3) "+         // optional spam filter (NULL = unknown, treated as permissive)
         "ORDER BY s.we_write_fee ASC, "+
         "   s.da DESC")
-    Supplier[] findSuppliersForDemandId(long demandId, UUID orgId);
+    Supplier[] findSuppliersForDemandId(long demandId, UUID orgId, Integer maxSpamScore);
 
     Supplier findByDomainIgnoreCase(String domain);
 

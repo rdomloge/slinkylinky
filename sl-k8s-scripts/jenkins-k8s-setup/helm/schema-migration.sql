@@ -130,4 +130,12 @@ CREATE INDEX IF NOT EXISTS idx_demand_site_org ON public.demand_site(organisatio
 CREATE INDEX IF NOT EXISTS idx_proposal_org    ON public.proposal(organisation_id);
 CREATE INDEX IF NOT EXISTS idx_paid_link_org   ON public.paid_link(organisation_id);
 
+-- Step 9 (v6.3): Denormalise supplier spam_score from stats service.
+--   Pushed from stats/sync via PATCH /supplierSupport/updateSupplierSpam after each
+--   Moz spam sync (mirrors the existing 'da' denormalisation pattern).
+--   NULL = not yet synced; queries treat NULL as permissive (include the supplier).
+ALTER TABLE IF EXISTS public.supplier     ADD COLUMN IF NOT EXISTS spam_score integer;
+ALTER TABLE IF EXISTS public.supplier_aud ADD COLUMN IF NOT EXISTS spam_score integer;
+CREATE INDEX IF NOT EXISTS idx_supplier_spam_score ON public.supplier(spam_score);
+
 

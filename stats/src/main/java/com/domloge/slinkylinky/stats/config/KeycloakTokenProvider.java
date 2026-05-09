@@ -1,5 +1,6 @@
 package com.domloge.slinkylinky.stats.config;
 
+import java.time.Instant;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class KeycloakTokenProvider {
 
+    private static final long REFRESH_SKEW_SECONDS = 30;
+
     @Value("${keycloak.clientcredentials.client.id}")
     private String clientId;
 
@@ -32,8 +35,19 @@ public class KeycloakTokenProvider {
     // Dedicated RestTemplate without interceptors to avoid circular calls
     private final RestTemplate tokenRestTemplate = new RestTemplate();
 
+    private volatile String cachedToken;
+    private volatile Instant cachedTokenExpiresAt = Instant.EPOCH;
+
+    public synchronized String fetchAccessToken() {
+        if (cachedToken != null && Instant.now().isBefore(cachedTokenExpiresAt)) {
+            return cachedToken;
+        }
+        refreshAccessToken();
+        return cachedToken;
+    }
+
     @SuppressWarnings("unchecked")
-    public String fetchAccessToken() {
+    private void refreshAccessToken() {
         String url = keycloakBase + tokenUri;
 
         HttpHeaders headers = new HttpHeaders();
@@ -51,7 +65,10 @@ public class KeycloakTokenProvider {
             throw new RuntimeException("Failed to fetch access token from Keycloak");
         }
 
-        log.debug("Fetched Keycloak access token");
-        return (String) response.get("access_token");
+        cachedToken = (String) response.get("access_token");
+        Number expiresIn = (Number) response.getOrDefault("expires_in", 60);
+        cachedTokenExpiresAt = Instant.now().plusSeconds(expiresIn.longValue() - REFRESH_SKEW_SECONDS);
+        log.debug("Fetched new Keycloak access token, expires in {}s (cached until {})",
+                expiresIn, cachedTokenExpiresAt);
     }
 }

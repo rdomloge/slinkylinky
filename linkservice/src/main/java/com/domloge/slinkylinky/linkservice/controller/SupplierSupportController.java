@@ -31,7 +31,6 @@ import com.domloge.slinkylinky.linkservice.entity.Supplier;
 import com.domloge.slinkylinky.linkservice.entity.audit.SupplierAuditor;
 import com.domloge.slinkylinky.linkservice.repo.ProposalRepo;
 import com.domloge.slinkylinky.linkservice.repo.SupplierRepo;
-import com.domloge.slinkylinky.linkservice.service.StatsClient;
 
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,9 +62,6 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
     @Autowired
     private ProposalAbortHandler proposalAbortHandler;
 
-    @Autowired
-    private StatsClient statsClient;
-
 
     @GetMapping(path = "/list", produces = "application/json")
     public ResponseEntity<Page<Supplier>> list(
@@ -86,23 +82,18 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
 
         PageRequest pageRequest = PageRequest.of(page, size, sort);
 
-        if (filterHighSpam) {
-            List<String> highSpamDomains = statsClient.getHighSpamDomains(maxSpamScore);
-            return ResponseEntity.ok(
-                supplierRepo.findBySearchAndFilterExcludingDomains(
-                    search, includeDisabled, highSpamDomains, pageRequest));
-        }
-
+        Integer effectiveMax = filterHighSpam ? maxSpamScore : null;
         return ResponseEntity.ok(
-                supplierRepo.findBySearchAndFilter(search, includeDisabled, pageRequest));
+                supplierRepo.findBySearchAndFilter(search, includeDisabled, effectiveMax, pageRequest));
     }
 
     @GetMapping(path = "/suppliersForDemand", produces = "application/json")
     public ResponseEntity<Supplier[]> suppliersForDemand(
             @RequestParam long demandId,
+            @RequestParam(required = false) Integer maxSpamScore,
             HttpServletRequest request) {
         UUID orgId = TenantFilter.requireOrgId(request);
-        return ResponseEntity.ok(supplierRepo.findSuppliersForDemandId(demandId, orgId));
+        return ResponseEntity.ok(supplierRepo.findSuppliersForDemandId(demandId, orgId, maxSpamScore));
     }
 
     @PatchMapping(path = "/updateSupplierDa", produces = "application/json")
@@ -124,7 +115,27 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
 
         return ResponseEntity.ok(supplier);
     }
-    
+
+    @PatchMapping(path = "/updateSupplierSpam", produces = "application/json")
+    @Transactional
+    public ResponseEntity<Supplier> updateSupplierSpam(@RequestParam long supplierId, @RequestParam int spamScore) {
+        log.info("Updating supplier spam for supplierId: " + supplierId + " spamScore: " + spamScore);
+
+        Optional<Supplier> opt = supplierRepo.findById(supplierId);
+        if (opt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Supplier supplier = opt.get();
+
+        supplier.setSpamScore(spamScore);
+        supplier.setUpdatedBy("system");
+        supplier.setModifiedDate(System.currentTimeMillis());
+        supplierRepo.save(supplier);
+        supplierAuditor.handleBeforeSave(supplier);
+
+        return ResponseEntity.ok(supplier);
+    }
+
 
     @GetMapping(path = "/getVersion", produces = "application/json")
     @Transactional

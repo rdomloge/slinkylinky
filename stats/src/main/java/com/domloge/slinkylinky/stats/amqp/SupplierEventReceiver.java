@@ -86,8 +86,13 @@ public class SupplierEventReceiver {
                 log.debug("DA unchanged for {}", domain);
             }
 
-            sync.syncSupplier(supplier, spamRepo, spamChecker::forThisMonth, 1);
-        } 
+            int spamChangeCount = sync.syncSupplier(supplier, spamRepo, spamChecker::forThisMonth, 1);
+            if(spamChangeCount > 0) {
+                linkServiceUpdater.pushLatestSpamToLinkservice(supplier);
+            } else {
+                log.debug("Spam unchanged for {}", domain);
+            }
+        }
         catch (JsonProcessingException e) {
             log.error("Failed to parse message {}: {} with {}", message, e.getClass().getSimpleName(), e.getMessage());
         } 

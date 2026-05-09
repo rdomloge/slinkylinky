@@ -15,6 +15,8 @@ public interface DaRepo extends CrudRepository<DaMonthlyData, Long>, PagingAndSo
         LocalDate startDate, LocalDate endDate);
 
     DaMonthlyData findByDomainAndUniqueYearMonth(String domain, String uniqueYearMonth);
+
+    DaMonthlyData findFirstByDomainOrderByDateDesc(String domain);
         
     default void saveMonth(DaMonthlyData missingMonth) {
         save(missingMonth);

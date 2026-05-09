@@ -8,6 +8,7 @@ import SessionButton, { ClickHandlerButton } from '@/components/atoms/Button'
 import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
 import Loading from "@/components/Loading";
+import { Toggle } from '@/components/atoms/Toggle'
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function App() {
@@ -21,43 +22,51 @@ export default function App() {
     const [supplierUsageCount, setSupplierUsageCount] = useState();
     const [responsiveness, setResponsiveness] = useState();
     const [error, setError] = useState();
+    const [maxSpamScore, setMaxSpamScore] = useState(6);
 
-    useEffect(
-        () => {
-            const demandUrl = "/.rest/demands/"+ demandid+"?projection=fullDemand";
-            const suppliersUrl = "/.rest/supplierSupport/suppliersForDemand?demandId=" + demandid;
-                const existingLinkCountUrl = "/.rest/paidlinks/search/countByDemand_domain?domain="
-                const supplierUsageCountUrl = "/.rest/paidlinksupport/getcountsforsuppliers?supplierIds="
+    useEffect(() => {
+        const demandUrl = "/.rest/demands/" + demandid + "?projection=fullDemand";
+        fetchWithAuth(demandUrl)
+            .then(res => {
+                if (!res.ok) throw new Error("Could not load demand");
+                return res.json();
+            })
+            .then(dataDemand => {
+                setDemand(dataDemand);
+                fetchWithAuth("/.rest/paidlinks/search/countByDemand_domain?domain=" + dataDemand.domain)
+                    .then(resCount => resCount.json())
+                    .then(count => setExistingLinkCount(count));
+                fetchWithAuth("/.rest/stats/responsiveness/all")
+                    .then(res => res.ok ? res.json() : {})
+                    .then(data => setResponsiveness(data))
+                    .catch(() => {});
+            })
+            .catch(err => setError(err));
+    }, [demandid]);
 
-                Promise.all([fetchWithAuth(demandUrl), fetchWithAuth(suppliersUrl)])
-                    .then(([resDemand, resSuppliers]) => {
-                        if(!resDemand.ok || !resSuppliers.ok) {
-                            if(!resDemand.ok) throw new Error("Could not load demand")
-                            if(!resSuppliers.ok) throw new Error("Could not load supplier")
-                        }
-                        return Promise.all([resDemand.json(), resSuppliers.json()])
-                    })
-                    .then(([dataDemand, dataSuppliers]) => {
-                        setDemand(dataDemand);
-                        setSuppliers(dataSuppliers);
-                        fetchWithAuth(existingLinkCountUrl+dataDemand.domain)
-                            .then(resCount => resCount.json())
-                            .then(count => setExistingLinkCount(count));
-
-                        var usageUrl = supplierUsageCountUrl;
-                        dataSuppliers.forEach((s,index) => usageUrl += s.id + (index < dataSuppliers.length-1 ? "," : ""));
-                        fetchWithAuth(usageUrl)
-                            .then(resCount => resCount.json())
-                            .then(counts => setSupplierUsageCount(counts))
-
-                        fetchWithAuth("/.rest/stats/responsiveness/all")
-                            .then(res => res.ok ? res.json() : {})
-                            .then(data => setResponsiveness(data))
-                            .catch(() => {});
-                    })
-                    .catch((error) => setError(error))
-        }, [demandid]
-    );
+    useEffect(() => {
+        if (!demandid) return;
+        let url = "/.rest/supplierSupport/suppliersForDemand?demandId=" + demandid;
+        if (maxSpamScore != null) url += "&maxSpamScore=" + maxSpamScore;
+        setSuppliers(null);
+        fetchWithAuth(url)
+            .then(res => {
+                if (!res.ok) throw new Error("Could not load suppliers");
+                return res.json();
+            })
+            .then(dataSuppliers => {
+                setSuppliers(dataSuppliers);
+                if (dataSuppliers.length) {
+                    const ids = dataSuppliers.map(s => s.id).join(",");
+                    fetchWithAuth("/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=" + ids)
+                        .then(resCount => resCount.json())
+                        .then(counts => setSupplierUsageCount(counts));
+                } else {
+                    setSupplierUsageCount({});
+                }
+            })
+            .catch(err => setError(err));
+    }, [demandid, maxSpamScore]);
 
     function create3rdPartyProposal() {
         console.log("Creating 3rd party Supplier: "+newSupplierName);
@@ -110,6 +119,13 @@ export default function App() {
                                 {suppliers.length}
                             </span>
                         }
+                        <div className="ml-auto">
+                            <Toggle
+                                initialValue={maxSpamScore != null}
+                                label="Hide high spam (>6%)"
+                                changeHandler={checked => setMaxSpamScore(checked ? 6 : null)}
+                            />
+                        </div>
                     </div>
 
                     {/* Supplier grid */}
