@@ -15,7 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -82,7 +81,6 @@ public class Proposal {
     @Column(columnDefinition = "TEXT")
     private String supplierSnapshot;
 
-    @Lob
     @Column(columnDefinition="TEXT")
     private String article;
 

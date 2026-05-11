@@ -168,6 +168,47 @@ public class SupplierSupportControllerTest {
         cleanup();
     }
 
+    /**
+     * When the supplier declines a proposal with doNotContact=true ("remove me" checked),
+     * the proposal and its PaidLinks are deleted AND the supplier is globally disabled.
+     */
+    @Test
+    void processSupplierResponse_declinedWithDoNotContact_supplierDisabled() throws Exception {
+        // Given
+        Supplier supplier = new Supplier();
+        supplier.setName("Supplier to Remove");
+        supplier.setWebsite("www.remove-this-supplier.com");
+        Supplier dbSupplier = supplierRepo.save(supplier);
+        assertFalse(dbSupplier.isDisabled(), "Supplier should not be disabled before decline");
+
+        Demand demand = new Demand();
+        demand.setUrl("https://www.client-site-remove.com");
+        Demand dbDemand = demandRepo.save(demand);
+
+        ResponseEntity<Object> createResp = proposalSupportController.createProposal(
+                dbSupplier.getId(), new long[]{dbDemand.getId()}, mockRequest);
+        String location = createResp.getHeaders().get("Location").get(0);
+        long proposalId = Long.parseLong(location.split("/")[location.split("/").length - 1]);
+
+        assertTrue(proposalRepo.findById(proposalId).isPresent(), "Proposal should exist before decline");
+
+        SupplierEngagementEvent event = new SupplierEngagementEvent();
+        event.buildForDecline(proposalId, "Remove me please", true);
+
+        // When
+        ResponseEntity<Proposal> resp = supplierSupportController.processSupplierResponse(event, proposalId);
+
+        // Then — HTTP 200, proposal deleted, supplier disabled
+        assertEquals(HttpStatusCode.valueOf(200), resp.getStatusCode());
+        assertFalse(proposalRepo.findById(proposalId).isPresent(), "Proposal must be deleted after decline");
+        assertEquals(0, paidLinkRepo.count(), "PaidLink must be deleted after decline");
+
+        Supplier reloadedSupplier = supplierRepo.findById(dbSupplier.getId()).orElseThrow();
+        assertTrue(reloadedSupplier.isDisabled(), "Supplier must be disabled when doNotContact=true");
+
+        cleanup();
+    }
+
     // ─── Helper ───────────────────────────────────────────────────────────────
 
     /**

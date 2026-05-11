@@ -186,7 +186,12 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
             return ResponseEntity.ok(dbProposal);
         }
         else if(event.getResponse() == SupplierEngagementEvent.Response.DECLINED) {
-            proposalAbortHandler.handle(event.getProposalId(), "supplier");        
+            if (event.isDoNotContact() && !proposal.getPaidLinks().isEmpty()) {
+                Supplier supplier = proposal.getPaidLinks().get(0).getSupplier();
+                supplier.setDisabled(true);
+                supplierRepo.save(supplier);
+            }
+            proposalAbortHandler.handle(event.getProposalId(), "supplier");
             return ResponseEntity.ok(proposal);
         }
         else {
