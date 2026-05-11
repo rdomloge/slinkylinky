@@ -6,7 +6,7 @@ import MoneyIcon from '@/assets/tag.svg'
 import EnterIcon from '@/assets/enter.svg'
 import { Link } from 'react-router-dom'
 import Counter from './Counter'
-import ResponsivenessLabel from './ResponsivenessLabel'
+import LazyResponsivenessLabel from './LazyResponsivenessLabel'
 import SupplierSemRushTraffic from './SupplierStats'
 import { addProtocol } from './Util'
 import { AuthorizedAccess } from './AuthorizedAccess'
@@ -94,7 +94,7 @@ function ExcludeButton({ supplierId }) {
     );
 }
 
-export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiveness, usageCount, showActions}) {
+export function SupplierCardHorizontalRowLayout({supplier, linkable, usageCount, showActions}) {
     const [anchorRect, setAnchorRect] = useState(null);
     const trafficRef = useRef(null);
 
@@ -170,7 +170,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
 
             {/* Responsiveness */}
             <div className="w-40 shrink-0">
-                <ResponsivenessLabel avgResponseDays={responsiveness?.avgResponseDays} />
+                <LazyResponsivenessLabel supplier={supplier} />
             </div>
 
             {/* Actions: Exclude / Edit */}
@@ -194,8 +194,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, responsiven
     )
 }
 
-export default function SupplierCard({supplier, editable, linkable, usages, responsiveness, latest = true, id, showCategories = true, showSemRushTraffic = true, selectHandler}) {
-    const responseMeta = responsiveness?.[supplier.id];
+export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id, showCategories = true, showSemRushTraffic = true, selectHandler}) {
     const supplierTitle = supplier.name || supplier.website || supplier.domain;
 
     return (
@@ -205,7 +204,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center flex-wrap gap-2 mb-2">
                         <span className="entity-badge entity-badge-supplier">Supplier</span>
-                        {responseMeta && <ResponsivenessLabel avgResponseDays={responseMeta.avgResponseDays} />}
+                        <LazyResponsivenessLabel supplier={supplier} />
                         {!latest && <span className="status-chip status-chip-neutral">Updated</span>}
                         {supplier.thirdParty && <span className="status-chip status-chip-neutral">3rd party</span>}
                         {supplier.disabled && <span className="status-chip status-chip-danger">Disabled</span>}
@@ -298,9 +297,6 @@ export default function SupplierCard({supplier, editable, linkable, usages, resp
                             )}
                         </AuthorizedAccess>
                         <div className="flex-1" />
-                        {responseMeta?.avgResponseDays != null && (
-                            <span className="font-mono-data">Avg response {responseMeta.avgResponseDays.toFixed(1)}d</span>
-                        )}
                     </div>
                     <div className="pt-3">
                         <SupplierSemRushTraffic supplier={supplier}/>

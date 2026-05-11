@@ -20,7 +20,6 @@ export default function App() {
     const [showModal, setShowModal] = useState(false);
     const [newSupplierName, setNewSupplierName] = useState();
     const [supplierUsageCount, setSupplierUsageCount] = useState();
-    const [responsiveness, setResponsiveness] = useState();
     const [error, setError] = useState();
     const [maxSpamScore, setMaxSpamScore] = useState(6);
 
@@ -36,10 +35,6 @@ export default function App() {
                 fetchWithAuth("/.rest/paidlinks/search/countByDemand_domain?domain=" + dataDemand.domain)
                     .then(resCount => resCount.json())
                     .then(count => setExistingLinkCount(count));
-                fetchWithAuth("/.rest/stats/responsiveness/all")
-                    .then(res => res.ok ? res.json() : {})
-                    .then(data => setResponsiveness(data))
-                    .catch(() => {});
             })
             .catch(err => setError(err));
     }, [demandid]);
@@ -131,7 +126,7 @@ export default function App() {
                     {/* Supplier grid */}
                     {suppliers ?
                         <SupplierList suppliers={suppliers} demand={demand}
-                            demandid={demandid} usages={supplierUsageCount} responsiveness={responsiveness}/>
+                            demandid={demandid} usages={supplierUsageCount}/>
                     : null}
                 </>
             }
@@ -158,7 +153,7 @@ function SupplierList(props) {
         <div className="grid grid-cols-3 gap-4 px-6 pb-6">
             {props.suppliers.map((s, index) => (
                 <div key={index} id={"selectableSupplierCard-"+index}>
-                    <SupplierCard supplier={s} linkable={true} usages={props.usages} responsiveness={props.responsiveness}
+                    <SupplierCard supplier={s} linkable={true} usages={props.usages}
                         selectHandler={() => selectSupplier(s, props)}/>
                 </div>
             ))}

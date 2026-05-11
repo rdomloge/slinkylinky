@@ -37,7 +37,6 @@ export default function SupplierListView() {
     const [sortBy, setSortBy]                   = useState('');
     const [sortDir, setSortDir]                 = useState('asc');
     const [isLoading, setIsLoading]             = useState(false);
-    const [responsiveness, setResponsiveness]   = useState({});
     const [supplierUsageCount, setSupplierUsageCount] = useState({});
     const isAdmin = useIsAdmin();
 
@@ -51,13 +50,6 @@ export default function SupplierListView() {
         return () => clearTimeout(t);
     }, [searchInput]);
 
-    // Fetch responsiveness data once
-    useEffect(() => {
-        fetchWithAuth("/.rest/stats/responsiveness/all")
-            .then(res => res.ok ? res.json() : {})
-            .then(data => setResponsiveness(data))
-            .catch(() => {});
-    }, []);
 
     const fetchPage = useCallback((page, append) => {
         setIsLoading(true);
@@ -184,7 +176,7 @@ export default function SupplierListView() {
                 {suppliers.length === 0 && !isLoading
                     ? <p className="text-sm text-slate-400 text-center py-12">No suppliers found.</p>
                     : suppliers.map((s, i) =>
-                        <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} responsiveness={responsiveness[s.id]} usageCount={supplierUsageCount[s.id]} showActions={isAdmin}/>
+                        <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} usageCount={supplierUsageCount[s.id]} showActions={isAdmin}/>
                     )
                 }
 
