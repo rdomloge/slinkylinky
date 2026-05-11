@@ -30,14 +30,13 @@ public interface DemandRepo extends CrudRepository<Demand, Long> {
                         "JOIN paid_link pl on pl.demand_id=d.id " +
                         "JOIN supplier s on pl.supplier_id=s.id " +
                         "WHERE s.domain = " +
-                        "       (select s.domain from supplier s where s.id=?1) " +
-                        "       AND pl.organisation_id = ?3) " +
+                        "       (select s.domain from supplier s where s.id=?1)) " +
                         "AND s.DA >= d.da_needed " +
                         "AND d.id in (select ldc.demand_id from demand_categories ldc where ldc.categories_id in " +
                         "(select c.id from category c inner join supplier_categories sc on sc.categories_id=c.id where sc.supplier_id=?1 and c.disabled=false)) "
                         +
                         "AND d.domain != (SELECT d.domain FROM demand d  where d.id = ?2) " +
-                        "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl WHERE pl.organisation_id = ?3) " +
+                        "AND d.id NOT IN (SELECT pl.demand_id FROM paid_link pl) " +
                         "ORDER BY s.we_write_fee ASC, " +
                         "       s.da DESC")
         Demand[] findDemandForSupplierId(long supplierId, long demandIdToIgnore, UUID orgId);

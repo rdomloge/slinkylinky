@@ -94,8 +94,8 @@ When building a multi-demand proposal (up to 3 Demands per Supplier), candidate 
 | # | Rule | Detail |
 |---|------|--------|
 | 4a | **Different DemandSite domain** | Demand domain ≠ the already-selected Demand's domain |
-| 4b | **Not already satisfied** | Demand has no existing PaidLink (`d.id NOT IN (SELECT pl.demand_id FROM paid_link pl)`) |
-| 4c | **No prior history** | Supplier's domain has no existing PaidLink for any Demand from that DemandSite domain (same cross-domain rule as Rule 2) |
+| 4b | **Not already satisfied** | Demand has no existing PaidLink anywhere in the database (`d.id NOT IN (SELECT pl.demand_id FROM paid_link pl)`) |
+| 4c | **No prior history** | Supplier's domain has no existing PaidLink for any Demand from that DemandSite domain, **globally** (same cross-domain rule as Rule 2) |
 | 4d | **DA meets threshold** | `supplier.da >= demand.daNeeded` |
 | 4e | **Category match** | Demand shares ≥ 1 **enabled** Category with the Supplier |
 | 4f | **Not the chosen Demand** | The primary Demand passed as `demandIdToIgnore` is excluded from results |
