@@ -387,7 +387,7 @@ function SrNotFound() {
 }
 
 // ── Already responded ─────────────────────────────────────────────────────────
-function SrResponded({ status }) {
+function SrResponded({ status, doNotContact }) {
   const accepted = status !== "DECLINED";
   return (
     <div className={`sr-responded sr-responded--${accepted ? "accepted" : "declined"}`}>
@@ -400,7 +400,9 @@ function SrResponded({ status }) {
       <p className="sr-responded__sub">
         {accepted
           ? "Thank you for accepting. We'll be in touch soon to confirm everything."
-          : "Sorry to see you go. Thanks for letting us know."}
+          : doNotContact
+            ? "Sorry to see you go. Thanks for letting us know."
+            : "Thanks for letting us know. We'll keep you in mind for future opportunities."}
       </p>
     </div>
   );
@@ -510,7 +512,7 @@ export default function SupplierResponse() {
           {/* ── Main ────────────────────────────────────────────────────── */}
           {isResponded ? (
             <main className="sr-main sr-main--centered">
-              <SrResponded status={engagement.status} />
+              <SrResponded status={engagement.status} doNotContact={engagement.doNotContact} />
             </main>
           ) : (
             <main className="sr-main">
