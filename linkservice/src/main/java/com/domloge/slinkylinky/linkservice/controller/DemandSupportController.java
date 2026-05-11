@@ -70,4 +70,19 @@ public class DemandSupportController {
         log.info(user + " deleted demand " + demandId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping(path = "/findDemandsForSupplier", produces = "application/json")
+    @ResponseBody
+    @Transactional
+    public ResponseEntity<Demand[]> findDemandsForSupplier(
+            @RequestParam long supplierId,
+            @RequestParam long demandIdToIgnore,
+            HttpServletRequest request) {
+        UUID orgId = TenantFilter.requireOrgId(request);
+        Demand[] demands = demandRepo.findDemandForSupplierId(supplierId, demandIdToIgnore, orgId);
+        for (Demand d : demands) {
+            d.getCategories().size();
+        }
+        return ResponseEntity.ok(demands);
+    }
 }

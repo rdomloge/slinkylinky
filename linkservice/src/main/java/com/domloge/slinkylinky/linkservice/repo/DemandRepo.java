@@ -22,6 +22,7 @@ public interface DemandRepo extends CrudRepository<Demand, Long> {
         @RestResource(exported = false)
         void deleteById(Long id);
 
+        @RestResource(exported = false)
         @Query(nativeQuery = true, value = "SELECT d.* FROM demand d, supplier s " +
                         "WHERE s.id=?1 " +
                         "AND d.organisation_id = ?3 " +

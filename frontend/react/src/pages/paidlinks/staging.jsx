@@ -57,8 +57,8 @@ export default function App() {
                 const demandId = searchParams.get('demandId')
                 const demandUrl = "/.rest/demands/"+ demandId+"?projection=fullDemand";
                 const supplierUrl = "/.rest/suppliers/"+ supplierId+"?projection=fullSupplier";
-                const otherDemandsUrl = "/.rest/demands/search/findDemandForSupplierId?supplierId="
-                                            + supplierId + "&demandIdToIgnore="+demandId+"&projection=fullDemand";
+                const otherDemandsUrl = "/.rest/demandsupport/findDemandsForSupplier?supplierId="
+                                            + supplierId + "&demandIdToIgnore="+demandId;
 
                 Promise.all([fetchWithAuth(demandUrl), fetchWithAuth(supplierUrl), fetchWithAuth(otherDemandsUrl)])
                     .then(([resDemand, resSupplier, resOtherDemands]) => {
