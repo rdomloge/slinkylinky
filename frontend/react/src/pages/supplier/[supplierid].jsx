@@ -15,7 +15,7 @@ export default function EditSupplier() {
 
     useEffect(
         () => {
-            const supplierUrl = "/.rest/suppliers/"+supplierid+"?projection=fullSupplier";
+            const supplierUrl = "/.rest/supplierSupport/get?supplierId="+supplierid;
             fetchWithAuth(supplierUrl, {
                 headers: {'Cache-Control': 'no-cache'}
             })

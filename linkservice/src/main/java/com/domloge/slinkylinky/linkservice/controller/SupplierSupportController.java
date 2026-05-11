@@ -152,6 +152,13 @@ public class SupplierSupportController implements ApplicationEventPublisherAware
         return ResponseEntity.ok(versionedSupplier);
     }
 
+    @GetMapping(path = "/get", produces = "application/json")
+    public ResponseEntity<Supplier> getSupplierById(@RequestParam long supplierId) {
+        return supplierRepo.findById(supplierId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping(path = "/exists", produces = "application/json")
     public ResponseEntity<Boolean> supplierExists(@RequestParam String supplierWebsite) {
         log.info("Checking if supplier exists for supplierWebsite: " + supplierWebsite);
