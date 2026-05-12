@@ -1,10 +1,11 @@
 import { Selector } from 'testcafe';
 import { gitHubUser } from './roles';
+import { BASE_URL } from './base-url';
 
 
 
 fixture("DemandSite List Page")
-    .page("http://" + process.env.HOST + ":3000/demandsites");
+    .page(`${BASE_URL}/demandsites`);
 
 test("Demand list has elements", async t=> {
     await t.expect(Selector('div')

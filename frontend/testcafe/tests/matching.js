@@ -3,11 +3,12 @@ import { createNewDemand } from './helper';
 import matchingModel from './page-models/matchingModel';
 import stagingModel from './page-models/stagingModel';
 import proposalModel from './page-models/proposalModel';
+import { BASE_URL } from './base-url';
 
 const matchingSuppliers = require('./matching-supplier-data.json');
 
 fixture("Matching page")
-    .page("http://" + process.env.HOST + ":3000/demand");
+    .page(`${BASE_URL}/demand`);
 
 test("Suppliers match expected", async t=> {
     

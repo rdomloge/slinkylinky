@@ -2,10 +2,11 @@ import addEditDemand from './page-models/addEditDemand';
 import { gotoNewDemandPage } from './helper';
 import { gitHubUser } from './roles';
 import demandListModel from './page-models/demandListModel';
+import { BASE_URL } from './base-url';
 
 
 fixture("New Demand Page")
-    .page("http://" + process.env.HOST + ":3000/demand");
+    .page(`${BASE_URL}/demand`);
 
 test("New demand initial state", async t=> {
         

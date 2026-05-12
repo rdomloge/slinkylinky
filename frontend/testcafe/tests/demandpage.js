@@ -1,12 +1,13 @@
 import { Role, Selector } from 'testcafe';
 import { gitHubUser } from './roles';
 import { createNewDemand, createSupplier } from './helper';
+import { BASE_URL } from './base-url';
 
 
 fixture("Demand List Page")
-    .page("http://" + process.env.HOST + ":3000/demand");
+    .page(`${BASE_URL}/demand`);
 
-console.log("Running testcafe tests for demand page against " + process.env.HOST + ":3000/demand");
+console.log("Running testcafe tests for demand page against " + BASE_URL + "/demand");
 
 test("Functionality enabled on login", async t => {
 

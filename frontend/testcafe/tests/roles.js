@@ -1,9 +1,10 @@
 import { Selector } from 'testcafe';
 import { Role } from 'testcafe';
+import { BASE_URL } from './base-url';
 
-export const gitHubUser = Role("http://" + process.env.HOST + ":3000/api/auth/signin", async t => {
+export const gitHubUser = Role(BASE_URL + "/api/auth/signin", async t => {
     
-    console.log('Logging in to GitHub using ', "http://" + process.env.HOST + ":3000/api/auth/signin");
+    console.log('Logging in to GitHub using ', BASE_URL + "/api/auth/signin");
     await t.click('body > div.page > div > div > div:nth-child(2) > form > button');
     console.log('Clicked on GitHub login button. Logging in with', obfuscate(process.env.githubUsername), 'and', obfuscate(process.env.githubPassword));
     

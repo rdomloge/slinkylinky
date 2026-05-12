@@ -3,9 +3,10 @@ import { createNewDemand, createSupplierIfMissing } from './helper';
 import demandListModel from './page-models/demandListModel';
 import matchingModel from './page-models/matchingModel';
 import stagingModel from './page-models/stagingModel';
+import { BASE_URL } from './base-url';
 
 fixture("Staging Page")
-    .page("http://" + process.env.HOST + ":3000/demand");
+    .page(`${BASE_URL}/demand`);
 
 test("Staging page shows correct supplier and demand", async t=> {
 

@@ -1,7 +1,8 @@
 import { createNewDemand, createSupplier } from './helper';
+import { BASE_URL } from './base-url';
 
 fixture("Proposal Detail Page")
-    .page("http://" + process.env.HOST + ":3000/demand");
+    .page(`${BASE_URL}/demand`);
 
 test("Proposal can be created", async t=> {
 

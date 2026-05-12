@@ -4,10 +4,11 @@ import supplierListModel from './page-models/supplierListModel';
 import supplierCard from './card-models/supplierCard';
 import menu from './page-models/menu';
 import { clickWhenReady } from './helper';
+import { BASE_URL } from './base-url';
 
 
 fixture("Edit Supplier Page")
-    .page("http://" + process.env.HOST + ":3000/supplier");
+    .page(`${BASE_URL}/supplier`);
 
 test("Name pulled through and persisted when edited", async t=> {
     await t.useRole(gitHubUser)

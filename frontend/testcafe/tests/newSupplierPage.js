@@ -4,10 +4,11 @@ import supplierListModel from './page-models/supplierListModel';
 import supplierCard from './card-models/supplierCard';
 import menu from './page-models/menu';
 import { clickWhenReady } from './helper';
+import { BASE_URL } from './base-url';
 
 
 fixture("New Supplier Page")
-    .page("http://" + process.env.HOST + ":3000/supplier/Add");
+    .page(`${BASE_URL}/supplier/Add`);
 
 test("New supplier initial state", async t=> {
     await t.expect(addEditSupplierPage.loadStatsButton.exists).notOk();
