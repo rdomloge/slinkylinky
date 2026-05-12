@@ -52,6 +52,7 @@ public class Supplier {
     @LastModifiedDate
     private long modifiedDate = 0;
 
+    @GlobalAdminOnly
     private String name;
     @GlobalAdminOnly
     private String email;

@@ -2,6 +2,7 @@ import CategoriesCard from '@/components/CategoriesCard'
 import DaIcon from '@/assets/authority.svg'
 import LinkIcon from '@/assets/link.svg'
 import EmailIcon from '@/assets/email.svg'
+import UserIcon from '@/assets/user.svg'
 import MoneyIcon from '@/assets/tag.svg'
 import EnterIcon from '@/assets/enter.svg'
 import { Link } from 'react-router-dom'
@@ -29,7 +30,8 @@ function SupplierStatsPopover({ supplier, anchor }) {
             style={{ position: 'fixed', top, left, transform: 'translateY(-50%)', zIndex: 9999, width: popoverWidth }}
             className="bg-white rounded-xl border border-slate-200 shadow-2xl p-4 pointer-events-none"
         >
-            <p className="text-sm font-semibold text-slate-800 mb-2 truncate">{supplier.domain || supplier.name}</p>
+            {(supplier.domain || supplier.website) &&
+                <p className="text-sm font-semibold text-slate-800 mb-2 truncate">{supplier.domain || supplier.website}</p>}
             <div className="flex flex-wrap gap-2 mb-3">
                 <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full">
                     <img src={DaIcon} alt="DA" width={11} height={11}/>
@@ -195,7 +197,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, usageCount,
 }
 
 export default function SupplierCard({supplier, editable, linkable, usages, latest = true, id, showCategories = true, showSemRushTraffic = true, selectHandler}) {
-    const supplierTitle = supplier.name || supplier.website || supplier.domain;
+    const supplierTitle = supplier.domain || supplier.website;
 
     return (
         <div id={id} className="card list-card supplier-card relative">
@@ -209,7 +211,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         {supplier.thirdParty && <span className="status-chip status-chip-neutral">3rd party</span>}
                         {supplier.disabled && <span className="status-chip status-chip-danger">Disabled</span>}
                     </div>
-                    <h3 className={`card-title ${supplier.disabled ? 'text-slate-300' : ''}`}>{supplierTitle}</h3>
+                    {supplierTitle && <h3 className={`card-title ${supplier.disabled ? 'text-slate-300' : ''}`}>{supplierTitle}</h3>}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                     {selectHandler && (
@@ -245,6 +247,12 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
             </div>
 
             <AuthorizedAccess allowedRoles={['global_admin']}>
+                {supplier.name && (
+                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+                        <img src={UserIcon} alt="contact" width={13} height={13} className="shrink-0 opacity-60"/>
+                        <span id="supplier-contact-name" className="truncate" title="Contact name">{supplier.name}</span>
+                    </div>
+                )}
                 {supplier.email && (
                     linkable ? (
                         <Link to={'mailto:' + supplier.email} className="flex items-center gap-2 text-sm hover:underline mb-3" style={{ color: 'var(--supplier-color)' }} rel='nofollow'>

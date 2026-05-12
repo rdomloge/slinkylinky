@@ -3,7 +3,7 @@ package com.domloge.slinkylinky.linkservice.entity;
 import org.springframework.data.rest.core.config.Projection;
 
 /**
- * Full supplier projection for global_admin callers only — includes sensitive fields email and source.
+ * Full supplier projection for global_admin callers only — includes sensitive fields name, email and source.
  * Access is enforced by GlobalAdminProjectionInterceptor; this projection must not be exposed to other roles.
  */
 @Projection(name = "globalAdminSupplier", types = {Supplier.class})

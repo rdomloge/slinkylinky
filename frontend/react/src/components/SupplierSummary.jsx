@@ -1,12 +1,15 @@
 import DaIcon from '@/assets/authority.svg';
 import MoneyIcon from '@/assets/tag.svg';
+import { AuthorizedAccess } from './AuthorizedAccess';
 
 export default function SupplierSummary({supplier}) {
     if (!supplier) return <span className="text-xs text-gray-400">Loading...</span>;
 
     if (supplier.thirdParty) {
         return (
-            <span className="text-base font-semibold text-gray-900">{supplier.name}</span>
+            <AuthorizedAccess allowedRoles={['global_admin']}>
+                <span className="text-base font-semibold text-gray-900">{supplier.name}</span>
+            </AuthorizedAccess>
         );
     }
 
