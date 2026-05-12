@@ -17,3 +17,26 @@ export githubUsername="username"
 export githubPassword="password"
 
 run the run_locally.sh script
+
+# CONFIGURATION
+
+The app base URL is centralised in `tests/base-url.js`. Override via environment variables:
+
+| Variable   | Description            | Default                 |
+|------------|------------------------|-------------------------|
+| `HOST`     | Hostname               | `localhost`             |
+| `APP_PORT` | Port number            | `5173`                  |
+| `PROTOCOL` | `http` or `https`      | `http`                  |
+
+**Examples:**
+
+```bash
+# Use a custom port
+APP_PORT=8080 npx testcafe chrome tests/staging.js
+
+# Use a remote staging server
+HOST=staging.example.com APP_PORT=443 PROTOCOL=https npx testcafe chrome tests/staging.js
+
+# Docker with custom port
+APP_PORT=8080 ./run_locally.sh
+```
