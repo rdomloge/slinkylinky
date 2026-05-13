@@ -69,7 +69,7 @@ See [`docs/multi-tenancy-keycloak-setup.md`](docs/multi-tenancy-keycloak-setup.m
 ## Architecture
 
 ```
-Frontend (React/Vite, port 3000 dev / Nginx port 80 prod)
+Frontend (React/Vite, port 5173 dev / Nginx port 80 prod)
     │
     ├── /.rest              → linkservice   (port 8090) — core CRUD, proposals, demands
     ├── /.rest/engagements  → supplier-engagement (port 8091)
@@ -108,7 +108,7 @@ The `sl-common/` module is a shared Maven library (v1.0.0) with common utilities
 ```bash
 cd frontend/react
 npm ci                  # install dependencies
-npm run dev             # dev server on port 3000
+npm run dev             # dev server on port 5173
 npm run dev:docker      # dev server using BACKEND_HOST from .env.docker
 npm run build           # production build to dist/
 ```
@@ -198,7 +198,7 @@ Key state vars in the page component: `autoLoggingIn`, `submittingTwoFactor`, `s
 ## Routing: Development vs Production
 
 ### Development
-Vite's dev server (`vite.config.js`) proxies all backend traffic from `localhost:3000`:
+Vite's dev server (`vite.config.js`) proxies all backend traffic from `localhost:5173`:
 - `/.rest/engagements` → `http://${BACKEND_HOST}:8091` (supplierengagement)
 - `/.rest/auditrecords` → `http://${BACKEND_HOST}:8092` (audit)
 - `/.rest/stats`, `/mozsupport`, `/semrush` → `http://${BACKEND_HOST}:8093` (stats)
@@ -247,7 +247,7 @@ Backend services expect these env vars:
 **userservice additional env vars:**
 - `keycloak_admin_url`, `keycloak_admin_realm`, `keycloak_admin_client_id`, `keycloak_admin_client_secret` (Keycloak Admin Client for user/realm management)
 - `mail_host`, `mail_username`, `mail_password`, `mail_from` (SMTP for email verification)
-- `slinkylinky_domain` (public domain used in verification links, defaults to `http://localhost:3000`)
+- `slinkylinky_domain` (public domain used in verification links, defaults to `http://localhost:5173`)
 
 Frontend expects (in `.env.development` for dev, injected via `window.__CONFIG__` in production):
 - `BACKEND_HOST` (defaults to `localhost`)
