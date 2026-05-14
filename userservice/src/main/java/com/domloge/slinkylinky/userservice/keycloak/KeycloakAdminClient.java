@@ -97,6 +97,7 @@ public class KeycloakAdminClient {
 
     /** List Keycloak users with a given org_id attribute. */
     public List<Map<String, Object>> listUsersByOrgId(String orgId) {
+        log.debug("Fetching users from KC");
         String encodedOrgId = URLEncoder.encode(orgId, StandardCharsets.UTF_8);
         String url = adminUrl + "/admin/realms/" + realm + "/users?q=org_id:" + encodedOrgId + "&max=200";
         List<Map<String, Object>> users = restClient.get()
@@ -104,6 +105,8 @@ public class KeycloakAdminClient {
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
             .retrieve()
             .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+
+        log.debug("Found {} users", users.size());
 
         // Enrich each user with their realm role names
         if (users != null) {
