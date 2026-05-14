@@ -184,6 +184,7 @@ export default function UsersIndex() {
                                 <tr className="border-b border-slate-200 text-left text-slate-500">
                                     <th className="py-2 pr-4 font-medium">Name</th>
                                     <th className="py-2 pr-4 font-medium">Username / Email</th>
+                                    <th className="py-2 pr-4 font-medium">Role</th>
                                     <th className="py-2 pr-4 font-medium">Status</th>
                                     {isGlobalAdmin && <th className="py-2 font-medium"/>}
                                 </tr>
@@ -198,6 +199,28 @@ export default function UsersIndex() {
                                             <span className="font-mono text-xs block">{u.username}</span>
                                             {u.email && u.email !== u.username && (
                                                 <span className="text-xs text-slate-400">{u.email}</span>
+                                            )}
+                                        </td>
+                                        <td className="py-2 pr-4">
+                                            {u.realmRoles && u.realmRoles.length > 0 ? (
+                                                <span className="inline-flex flex-wrap gap-1">
+                                                    {u.realmRoles.map(role => (
+                                                        <span
+                                                            key={role}
+                                                            className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                                                                role === 'global_admin'
+                                                                    ? 'bg-purple-100 text-purple-700'
+                                                                    : role === 'tenant_admin'
+                                                                        ? 'bg-blue-100 text-blue-700'
+                                                                        : 'bg-slate-100 text-slate-600'
+                                                            }`}
+                                                        >
+                                                            {role.replace('_', ' ').replace(/^./, c => c.toUpperCase())}
+                                                        </span>
+                                                    ))}
+                                                </span>
+                                            ) : (
+                                                <span className="text-xs text-slate-400">—</span>
                                             )}
                                         </td>
                                         <td className="py-2 pr-4">

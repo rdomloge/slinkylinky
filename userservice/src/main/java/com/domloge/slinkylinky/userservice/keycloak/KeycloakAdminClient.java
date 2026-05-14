@@ -99,11 +99,23 @@ public class KeycloakAdminClient {
     public List<Map<String, Object>> listUsersByOrgId(String orgId) {
         String encodedOrgId = URLEncoder.encode(orgId, StandardCharsets.UTF_8);
         String url = adminUrl + "/admin/realms/" + realm + "/users?q=org_id:" + encodedOrgId + "&max=200";
-        return restClient.get()
+        List<Map<String, Object>> users = restClient.get()
             .uri(url)
             .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAdminToken())
             .retrieve()
             .body(new ParameterizedTypeReference<List<Map<String, Object>>>() {});
+
+        // Enrich each user with their realm role names
+        if (users != null) {
+            users.forEach(u -> {
+                String userId = (String) u.get("id");
+                if (userId != null) {
+                    List<String> realmRoles = getUserRealmRoles(userId);
+                    u.put("realmRoles", realmRoles);
+                }
+            });
+        }
+        return users;
     }
 
     /** Create a Keycloak user with the given org_id attribute. Returns the new user's UUID. */
