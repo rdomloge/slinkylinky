@@ -107,10 +107,12 @@ public class KeycloakAdminClient {
 
         // Enrich each user with their realm role names
         if (users != null) {
+            log.info("Enriching {} users with realm roles", users.size());
             users.forEach(u -> {
                 String userId = (String) u.get("id");
                 if (userId != null) {
                     List<String> realmRoles = getUserRealmRoles(userId);
+                    log.debug("User {} has roles: {}", userId, realmRoles);
                     u.put("realmRoles", realmRoles);
                 }
             });
