@@ -46,7 +46,8 @@ pipeline {
                         [displayName: 'frontend', deployment: 'adminwebsite', container: 'adminwebsite', imageSuffix: 'adminwebsite'],
                         [displayName: 'linkservice', deployment: 'linkservice', container: 'linkservice', imageSuffix: 'linkservice'],
                         [displayName: 'stats', deployment: 'stats', container: 'stats', imageSuffix: 'stats'],
-                        [displayName: 'supplierengagement', deployment: 'supplierengagement', container: 'supplierengagement', imageSuffix: 'supplierengagement']
+                        [displayName: 'supplierengagement', deployment: 'supplierengagement', container: 'supplierengagement', imageSuffix: 'supplierengagement'],
+                        [displayName: 'userservice', deployment: 'userservice', container: 'userservice', imageSuffix: 'userservice']
                     ]
 
                     withFolderProperties() {
