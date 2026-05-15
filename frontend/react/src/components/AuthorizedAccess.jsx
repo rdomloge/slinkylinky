@@ -12,6 +12,14 @@ export function useIsAdmin() {
     return useMemo(() => userRoles.some(role => ADMIN_ROLES.includes(role)), [accessToken]);
 }
 
+export function useIsGlobalAdmin() {
+    const { accessToken } = useAuth();
+    const decodedToken = accessToken ? jwtDecode(accessToken) : null;
+    const userRoles = decodedToken ? decodedToken.realm_access.roles : [];
+
+    return useMemo(() => userRoles.includes('global_admin'), [accessToken]);
+}
+
 export function AuthorizedAccess({ 
     allowedRoles, 
     children, 

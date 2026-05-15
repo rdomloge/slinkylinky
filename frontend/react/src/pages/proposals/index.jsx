@@ -9,10 +9,12 @@ import Loading from '@/components/Loading';
 import Divider from '@/components/Divider';
 import FiltersPanel from '@/components/Filters';
 import { Toggle } from '@/components/atoms/Toggle';
+import { useIsGlobalAdmin } from '@/components/AuthorizedAccess';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 
 
 export default function ListProposals() {
+    const isGlobalAdmin = useIsGlobalAdmin();
     const [searchParams] = useSearchParams()
     const [proposals, setProposals] = useState()
     const [error, setError] = useState()
@@ -117,8 +119,9 @@ export default function ListProposals() {
                     return res.json()
                 })
                 .then( (data) => {
-                    filterProposals(data);
-                    setProposals(data);
+                    const visible = isGlobalAdmin ? data : data.filter(p => !p.paidLinks[0].supplier.thirdParty);
+                    filterProposals(visible);
+                    setProposals(visible);
                     setIsLoading(false);
                 })
                 .catch( (error) => {
@@ -126,7 +129,7 @@ export default function ListProposals() {
                     setIsLoading(false);
                 });
 
-        }, [searchParams]
+        }, [searchParams, isGlobalAdmin]
     );
 
     return (

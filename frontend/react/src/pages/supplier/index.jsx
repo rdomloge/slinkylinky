@@ -12,7 +12,7 @@ import NumberInput from '@/components/atoms/NumberInput';
 import { Toggle } from '@/components/atoms/Toggle';
 import Loading from '@/components/Loading';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import { AuthorizedAccess } from '@/components/AuthorizedAccess';
+import { AuthorizedAccess, useIsGlobalAdmin } from '@/components/AuthorizedAccess';
 
 export default function ListBloggers() {
     const [suppliers, setSuppliers] = useState()
@@ -24,6 +24,7 @@ export default function ListBloggers() {
     const [daFilter, setDaFilter] = useState(0)
     const [showDisabled, setShowDisabled] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
+    const isGlobalAdmin = useIsGlobalAdmin();
 
     useEffect(() => {
         const countUrl = "/.rest/suppliers/search/count"
@@ -55,7 +56,8 @@ export default function ListBloggers() {
                 fetchWithAuth(suppliersUrl)
                     .then( (res) => res.json())
                     .then( (data) => {
-                        setSuppliers(showDisabled ? data : data.filter(s => !s.disabled))
+                        const visibilityFiltered = isGlobalAdmin ? data : data.filter(s => !s.thirdParty)
+                        setSuppliers(showDisabled ? visibilityFiltered : visibilityFiltered.filter(s => !s.disabled))
                         setIsLoading(false)
                         var usageUrl = supplierUsageCountUrl;
                         data.forEach((s,index) => usageUrl += s.id + (index < data.length-1 ? "," : ""));
@@ -73,7 +75,7 @@ export default function ListBloggers() {
             else {
                 setSuppliers(null)
             }
-        }, [filter, categoriesFilter, daFilter, showDisabled]
+        }, [filter, categoriesFilter, daFilter, showDisabled, isGlobalAdmin]
     );
 
     function filterOrBlankString(key, value, min) {

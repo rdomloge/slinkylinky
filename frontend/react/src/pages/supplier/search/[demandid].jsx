@@ -9,6 +9,7 @@ import Modal from '@/components/atoms/Modal'
 import TextInput from '@/components/atoms/TextInput'
 import Loading from "@/components/Loading";
 import { Toggle } from '@/components/atoms/Toggle'
+import { AuthorizedAccess } from '@/components/AuthorizedAccess'
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function App() {
@@ -102,7 +103,9 @@ export default function App() {
                                     <span className="text-sm text-slate-500">tracked for this domain</span>
                                 </div>
                             </div>
-                            <SessionButton label="Use 3rd party" clickHandler={() => setShowModal(true)}/>
+                            <AuthorizedAccess allowedRoles={['global_admin']}>
+                                <SessionButton label="Use 3rd party" clickHandler={() => setShowModal(true)}/>
+                            </AuthorizedAccess>
                         </div>
                     </div>
 
@@ -132,12 +135,14 @@ export default function App() {
             }
 
             {showModal &&
-                <Modal dismissHandler={() => setShowModal(false)} title="3rd Party options">
-                    <TextInput label="Supplier name" binding={newSupplierName} changeHandler={(e) => setNewSupplierName(e)}/>
-                    <div className="mt-4">
-                        <ClickHandlerButton label="Create" clickHandler={() => create3rdPartyProposal()}/>
-                    </div>
-                </Modal>
+                <AuthorizedAccess allowedRoles={['global_admin']}>
+                    <Modal dismissHandler={() => setShowModal(false)} title="3rd Party options">
+                        <TextInput label="Supplier name" binding={newSupplierName} changeHandler={(e) => setNewSupplierName(e)}/>
+                        <div className="mt-4">
+                            <ClickHandlerButton label="Create" clickHandler={() => create3rdPartyProposal()}/>
+                        </div>
+                    </Modal>
+                </AuthorizedAccess>
             }
         </Layout>
     );

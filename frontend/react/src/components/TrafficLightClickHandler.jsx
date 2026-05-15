@@ -7,6 +7,7 @@ import TextInput from "./atoms/TextInput";
 import { ClickHandlerButton } from "./atoms/Button";
 import NumberInput from "./atoms/NumberInput";
 import ContentCreator from "./ContentCreator";
+import { AuthorizedAccess } from "./AuthorizedAccess";
 import { fetchWithAuth } from "@/utils/fetchWithAuth";
 
 export default function TrafficLightClickHandler({children, proposal, updateHandler, propertyName, propertyDate}) {
@@ -178,17 +179,17 @@ export default function TrafficLightClickHandler({children, proposal, updateHand
                         <TextInput label="Post title" binding={postTitle} changeHandler={(e)=>setPostTitle(e)}/>
                         <TextInput label="Live link URL" binding={postUrl} changeHandler={(e)=>setPostUrl(e)}/>
                         {proposal.paidLinks[0].supplier.thirdParty ?
-                            <>
-                            <div className="w-1/3 inline-block p-4">
-                                <TextInput label="3rd party currency" binding={supplierCurrency} changeHandler={(e)=>setSupplierCurrency(e)}/>
-                            </div>
-                            <div className="w-1/3 inline-block p-4">
-                                <NumberInput label="3rd party cost" changeHandler={(e)=>setSupplierCost(e)}/>
-                            </div>
-                            <div className="w-1/3 inline-block p-4">
-                                <NumberInput label="3rd party DA" changeHandler={(e)=>setSupplierDa(e)}/>
-                            </div>
-                            </>
+                            <AuthorizedAccess allowedRoles={['global_admin']}>
+                                <div className="w-1/3 inline-block p-4">
+                                    <TextInput label="3rd party currency" binding={supplierCurrency} changeHandler={(e)=>setSupplierCurrency(e)}/>
+                                </div>
+                                <div className="w-1/3 inline-block p-4">
+                                    <NumberInput label="3rd party cost" changeHandler={(e)=>setSupplierCost(e)}/>
+                                </div>
+                                <div className="w-1/3 inline-block p-4">
+                                    <NumberInput label="3rd party DA" changeHandler={(e)=>setSupplierDa(e)}/>
+                                </div>
+                            </AuthorizedAccess>
                         :
                             null
                         }

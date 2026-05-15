@@ -5,7 +5,7 @@ import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/auth/AuthProvider';
 import { getTenantOverride } from '@/auth/TenantOverrideContext';
 import { Link } from 'react-router-dom';
-import { AuthorizedAccess } from '@/components/AuthorizedAccess';
+import { AuthorizedAccess, useIsGlobalAdmin } from '@/components/AuthorizedAccess';
 import { PanelCard } from '@/components/PanelCard';
 import { NavCard } from '@/components/NavCard';
 import { ORDERS_ENABLED } from '@/config';
@@ -204,7 +204,10 @@ function formatTimeRemaining(expiresAt) {
 }
 
 /** Converts raw API results array into a serialisable display-state object */
-function processResults([demands, suppliers, thisMonthProposals, sixMonthProposals, topSuppliersData, missingSites, missingCatSuppliersData, allSitesPage, onboardingData, atRiskData, expiringEngagementsData]) {
+function processResults([demands, suppliers, thisMonthProposals, sixMonthProposals, topSuppliersData, missingSites, missingCatSuppliersData, allSitesPage, onboardingData, atRiskData, expiringEngagementsData], { isGlobalAdmin } = { isGlobalAdmin: false }) {
+    const stripThirdParty = (list) => isGlobalAdmin ? list : list?.filter(p => !p.paidLinks[0].supplier.thirdParty);
+    thisMonthProposals = stripThirdParty(thisMonthProposals);
+    sixMonthProposals  = stripThirdParty(sixMonthProposals);
     const s = {
         demandCount: null,
         activeSuppliers: null,
@@ -793,6 +796,7 @@ function HeroRefreshPill({ phase }) {
 export default function Dashboard() {
     const { user, accessToken } = useAuth();
     const { addToast: toast } = useToast();
+    const isGlobalAdmin = useIsGlobalAdmin();
 
     // ── Data state ──────────────────────────────────────────────────────────
     const [demandCount, setDemandCount]                   = useState(null);
@@ -900,7 +904,7 @@ export default function Dashboard() {
                 return;
             }
 
-            const displayState = processResults(data.results);
+            const displayState = processResults(data.results, { isGlobalAdmin });
             writeCache(cacheKey, displayState);
 
             if (isFirstLoad) {
@@ -949,7 +953,7 @@ export default function Dashboard() {
             worker.terminate();
             workerRef.current = null;
         };
-    }, [user, accessToken]); // re-run if user or token changes
+    }, [user, accessToken, isGlobalAdmin]); // re-run if user or token changes
 
     const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const showRefreshPill = phase === 'refreshing' || phase === 'refreshed';

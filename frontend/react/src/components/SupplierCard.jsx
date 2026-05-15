@@ -123,7 +123,9 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, usageCount,
                 )}
                 <div className="flex flex-wrap gap-1 mt-0.5">
                     {supplier.thirdParty &&
-                        <span className="text-xs bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded-full border border-sky-200">3rd party</span>
+                        <AuthorizedAccess allowedRoles={['global_admin']}>
+                            <span className="text-xs bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded-full border border-sky-200">3rd party</span>
+                        </AuthorizedAccess>
                     }
                     {supplier.disabled &&
                         <span className="text-xs bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded-full">Disabled</span>
@@ -208,7 +210,11 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         <span className="entity-badge entity-badge-supplier">Supplier</span>
                         <LazyResponsivenessLabel supplier={supplier} />
                         {!latest && <span className="status-chip status-chip-neutral">Updated</span>}
-                        {supplier.thirdParty && <span className="status-chip status-chip-neutral">3rd party</span>}
+                        {supplier.thirdParty &&
+                            <AuthorizedAccess allowedRoles={['global_admin']}>
+                                <span className="status-chip status-chip-neutral">3rd party</span>
+                            </AuthorizedAccess>
+                        }
                         {supplier.disabled && <span className="status-chip status-chip-danger">Disabled</span>}
                     </div>
                     {supplierTitle && <h3 className={`card-title ${supplier.disabled ? 'text-slate-300' : ''}`}>{supplierTitle}</h3>}

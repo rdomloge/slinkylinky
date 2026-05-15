@@ -8,7 +8,7 @@ import SessionButton from "@/components/atoms/Button";
 import { Toggle } from '@/components/atoms/Toggle';
 import Loading from '@/components/Loading';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
-import { AuthorizedAccess, useIsAdmin } from '@/components/AuthorizedAccess';
+import { AuthorizedAccess, useIsAdmin, useIsGlobalAdmin } from '@/components/AuthorizedAccess';
 
 const PAGE_SIZE = 20;
 
@@ -39,6 +39,7 @@ export default function SupplierListView() {
     const [isLoading, setIsLoading]             = useState(false);
     const [supplierUsageCount, setSupplierUsageCount] = useState({});
     const isAdmin = useIsAdmin();
+    const isGlobalAdmin = useIsGlobalAdmin();
 
     const nextPage   = useRef(0);
     const hasMore    = useRef(true);
@@ -173,12 +174,15 @@ export default function SupplierListView() {
                 </div>
 
                 {/* Rows */}
-                {suppliers.length === 0 && !isLoading
-                    ? <p className="text-sm text-slate-400 text-center py-12">No suppliers found.</p>
-                    : suppliers.map((s, i) =>
+                {(() => {
+                    const visibleSuppliers = isGlobalAdmin ? suppliers : suppliers.filter(s => !s.thirdParty);
+                    if (visibleSuppliers.length === 0 && !isLoading) {
+                        return <p className="text-sm text-slate-400 text-center py-12">No suppliers found.</p>;
+                    }
+                    return visibleSuppliers.map((s, i) =>
                         <SupplierCardHorizontalRowLayout key={s.id ?? i} supplier={s} linkable={true} usageCount={supplierUsageCount[s.id]} showActions={isAdmin}/>
-                    )
-                }
+                    );
+                })()}
 
                 {/* Sentinel + spinner */}
                 {isLoading && <div className="py-6"><Loading/></div>}
