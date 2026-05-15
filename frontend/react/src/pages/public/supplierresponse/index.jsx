@@ -399,7 +399,7 @@ function SrResponded({ status, doNotContact }) {
       </h1>
       <p className="sr-responded__sub">
         {accepted
-          ? "Thank you for accepting. We'll be in touch soon to confirm everything."
+          ? "Thank you for accepting. We will review the article and if all is good, we will make payment."
           : doNotContact
             ? "Sorry to see you go. Thanks for letting us know."
             : "Thanks for letting us know. We'll keep you in mind for future opportunities."}
@@ -550,7 +550,7 @@ export default function SupplierResponse() {
                   {/* Context */}
                   <div className="sr-offer__context">
                     <p className="sr-offer__sub">
-                      For hosting the article we sent to{" "}
+                      For posting the article we sent to{" "}
                       <span className="sr-offer__email">{engagement.supplierEmail}</span>{" "}
                       on {formatDate(engagement.supplierEmailSent)}.
                     </p>
