@@ -73,11 +73,16 @@ export default function DemandSiteList() {
                 return res.json()
             })
             .then((data) => {
-                setDemandSites(data._embedded.demandsites)
-                setTotal(data.page.totalElements)
-                setPageCount(data.page.totalPages)
+                setDemandSites(data._embedded?.demandsites || [])
+                setTotal(data.page?.totalElements || 0)
+                setPageCount(data.page?.totalPages || 0)
             })
-            .catch((err) => setError(err.message))
+            .catch((err) => {
+                setError(err.message)
+                setDemandSites([])
+                setTotal(0)
+                setPageCount(0)
+            })
     }, [searchParams]);
 
     return (
