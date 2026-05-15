@@ -828,6 +828,11 @@ export default function LeadsIndex() {
                                                     </td>
                                                     <td className="px-4 py-2.5">
                                                         <StatusBadge status={lead.status} />
+                                                        {lead.status === 'DECLINED' && lead.declineReason && (
+                                                            <p className="mt-1 text-[11px] italic text-red-400 leading-tight max-w-[160px]" title={lead.declineReason}>
+                                                                {lead.declineReason}
+                                                            </p>
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-2.5">
                                                         <div className="flex items-center gap-1">

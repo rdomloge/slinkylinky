@@ -81,7 +81,17 @@ CREATE TABLE IF NOT EXISTS public.scraping_metadata (
     CONSTRAINT scraping_metadata_pkey PRIMARY KEY (source)
 );
 
--- Step 12: Grant supplierengagement_user access to all tables and sequences.
+-- Step 12: Ensure supplier_lead_status_check includes DECLINED and CONVERTED.
+--   Earlier deployments had a narrower constraint that predates these statuses.
+--   Drop-and-recreate is idempotent: DROP IF EXISTS is a no-op if the name already matches.
+ALTER TABLE IF EXISTS public.supplier_lead
+    DROP CONSTRAINT IF EXISTS supplier_lead_status_check;
+ALTER TABLE IF EXISTS public.supplier_lead
+    ADD CONSTRAINT supplier_lead_status_check CHECK (
+        status IN ('NEW','SEARCHING','BROWSER_QUEUED','CONTACT_FOUND','CONTACT_NOT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED','CONVERTED')
+    );
+
+-- Step 13: Grant supplierengagement_user access to all tables and sequences.
 --   Tables created above are owned by the postgres superuser; the application
 --   user has no access until explicitly granted.
 GRANT ALL ON ALL TABLES    IN SCHEMA public TO supplierengagement_user;
