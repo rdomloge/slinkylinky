@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -429,7 +430,7 @@ public class LeadController {
         if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
 
         try {
-            String accessToken = httpUtils.fetchAccessToken();
+            String accessToken = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
             String url = linkServiceBase + "/suppliers";
 
             // Resolve MAPPED categories to linkservice URI references for Spring Data REST
