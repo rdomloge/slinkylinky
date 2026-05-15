@@ -4,6 +4,7 @@ pipeline {
 
     parameters {
         string(name: 'IMAGE_TAG', description: 'Docker image tag to deploy (e.g. 7.0.1-CI-23)')
+        string(name: 'TENANT_NAME', description: 'Optional: custom tenant name (leave blank to auto-generate)')
     }
 
     environment {
@@ -23,12 +24,18 @@ pipeline {
         stage('Generate tenant name') {
             steps {
                 script {
-                    // Generate a unique tenant name using 3 chars followed by 5 numbers
-                    env.TENANT = sh(
-                        script: "cat /dev/urandom | tr -dc 'a-z' | head -c3; cat /dev/urandom | tr -dc '0-9' | head -c5",
-                        returnStdout: true
-                    ).trim()
-                    echo "Generated tenant name: ${env.TENANT}"
+                    if (params.TENANT_NAME && params.TENANT_NAME.trim().length() > 0) {
+                        // Use the provided tenant name
+                        env.TENANT = params.TENANT_NAME.trim()
+                        echo "Using provided tenant name: ${env.TENANT}"
+                    } else {
+                        // Generate a unique tenant name using 3 chars followed by 5 numbers
+                        env.TENANT = sh(
+                            script: "cat /dev/urandom | tr -dc 'a-z' | head -c3; cat /dev/urandom | tr -dc '0-9' | head -c5",
+                            returnStdout: true
+                        ).trim()
+                        echo "Generated tenant name: ${env.TENANT}"
+                    }
                 }
             }
         }
