@@ -125,6 +125,7 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - `thirdParty: boolean`
 - `source: String`
 - `disabled: boolean`
+- `spamScore: Integer`
 - `createdBy: String`
 - `updatedBy: String`
 - `version: Long`
@@ -197,6 +198,7 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - `googleDocUrl: String`
 - `declineReason: String`
 - `scrapedAt: LocalDateTime`
+- `categorySuggestion: String`
 
 ## `DaMonthlyData`
 **Table:** `damonthlydatas`

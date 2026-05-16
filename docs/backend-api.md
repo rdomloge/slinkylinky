@@ -33,6 +33,7 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 |--------|------|--------|
 | `GET` | `/.rest/demandsupport/findUnsatisfied` | `findUnsatisfied()` |
 | `DELETE` | `/.rest/demandsupport/delete` | `delete()` |
+| `GET` | `/.rest/demandsupport/findDemandsForSupplier` | `findDemandsForSupplier()` |
 
 ## `KeycloakUserController`
 **Base path:** `/.rest/keycloak/users`  
@@ -92,7 +93,9 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | `GET` | `/.rest/supplierSupport/list` | `list()` |
 | `GET` | `/.rest/supplierSupport/suppliersForDemand` | `suppliersForDemand()` |
 | `PATCH` | `/.rest/supplierSupport/updateSupplierDa` | `updateSupplierDa()` |
+| `PATCH` | `/.rest/supplierSupport/updateSupplierSpam` | `updateSupplierSpam()` |
 | `GET` | `/.rest/supplierSupport/getVersion` | `getSupplier()` |
+| `GET` | `/.rest/supplierSupport/get` | `getSupplierById()` |
 | `GET` | `/.rest/supplierSupport/exists` | `supplierExists()` |
 | `POST` | `/.rest/supplierSupport/supplierresponse` | `processSupplierResponse()` |
 
@@ -122,7 +125,6 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 |--------|------|--------|
 | `GET` | `/.rest/stats/fordomain` | `findByDomainInTimeRange()` |
 | `GET` | `/.rest/stats/responsiveness` | `getResponsiveness()` |
-| `GET` | `/.rest/stats/spam/abovethreshold` | `getDomainsAboveSpamThreshold()` |
 
 ## `CategoryMappingController`
 **Base path:** `/.rest/engagements/category-mappings`  
@@ -154,6 +156,7 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | `POST` | `/.rest/leads/{id}/sendOutreach` | `sendOutreach()` |
 | `GET` | `/.rest/leads/{id}/downloadFile` | `downloadFile()` |
 | `POST` | `/.rest/leads/{id}/convert` | `convertToSupplier()` |
+| `PATCH` | `/.rest/leads/{id}/categories` | `patchCategories()` |
 | `GET` | `/.rest/leads/response` | `getByGuid()` |
 | `PATCH` | `/.rest/leads/accept` | `accept()` |
 | `PATCH` | `/.rest/leads/decline` | `decline()` |

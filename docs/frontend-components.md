@@ -121,11 +121,15 @@ Domain-specific components in `src/components/`.
 
 ### `FiltersPanel`
 **File:** `components/Filters.jsx`  
-**Props:** `children`  
+**Props:** `children`, `className`  
 
 ### `Jumbotron`
 **File:** `components/Jumbotron.jsx`  
 **Props:** `header`, `message`  
+
+### `LazyResponsivenessLabel`
+**File:** `components/LazyResponsivenessLabel.jsx`  
+**Props:** `supplier`  
 
 ### `LineGraph`
 **File:** `components/LineGraph.jsx`  
@@ -245,6 +249,7 @@ Route-level page components in `src/pages/`.
 
 | Page | File | Props/API |
 |------|------|-----------|
+| `TenantHealthPage` | `pages/admin/health/index.jsx` | props: status | calls: /.rest/admin/tenant-health |
 | `AdminOrganisationsIndex` | `pages/admin/organisations/index.jsx` | calls: /.rest/accounts/admin/organisations-overview, /.rest/accounts/admin/organisations/${orgId} |
 | `index.test` | `pages/admin/organisations/index.test.jsx` | — |
 | `AuditIndexPage` | `pages/audit/index.jsx` | — |
@@ -271,9 +276,9 @@ Route-level page components in `src/pages/`.
 | `DesignPreview` | `pages/sandbox/design-preview.jsx` | props: name, size, color, stroke |
 | `Sandbox` | `pages/sandbox/index.jsx` | props: binding, label, onChange |
 | `NewSupplier` | `pages/supplier/Add.jsx` | — |
-| `ListBloggers` | `pages/supplier/index.jsx` | calls: /.rest/stats/responsiveness/all |
-| `SupplierListView` | `pages/supplier/index2.jsx` | props: label, field, sortBy, sortDir, onSort, className | calls: /.rest/stats/responsiveness/all, /.rest/supplierSupport/list?${params} |
-| `App` | `pages/supplier/search/[demandid].jsx` | calls: /.rest/stats/responsiveness/all |
+| `ListBloggers` | `pages/supplier/index.jsx` | — |
+| `SupplierListView` | `pages/supplier/index2.jsx` | props: label, field, sortBy, sortDir, onSort, className | calls: /.rest/supplierSupport/list?${params}, /.rest/paidlinksupport/getcountsforsuppliers?supplierIds= |
+| `App` | `pages/supplier/search/[demandid].jsx` | calls: /.rest/paidlinks/search/countByDemand_domain?domain=, /.rest/paidlinksupport/getcountsforsuppliers?supplierIds= |
 | `EditSupplier` | `pages/supplier/[supplierid].jsx` | — |
 | `UsersIndex` | `pages/users/index.jsx` | calls: /.rest/accounts/organisations, /.rest/accounts/keycloak-users?orgId=${orgId} |
 | `VerifyEmail` | `pages/verify-email/index.jsx` | calls: /.rest/accounts/verify-email |

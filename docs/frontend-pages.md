@@ -33,6 +33,7 @@ Defined in `frontend/react/src/App.jsx`.
 | `/categories` | `CategoriesIndex` | `pages/categories/index.jsx` | Protected |
 | `/organisations` | `OrganisationsIndex` | `pages/organisations/index.jsx` | Protected |
 | `/admin/organisations` | `AdminOrganisationsIndex` | `pages/admin/organisations/index.jsx` | Protected |
+| `/admin/health` | `TenantHealth` | `pages/admin/health/index.jsx` | Protected |
 | `/users` | `UsersIndex` | `pages/users/index.jsx` | Protected |
 | `/paidlinks/staging` | `PaidLinksStaging` | `pages/paidlinks/staging.jsx` | Protected |
 | `/sandbox` | `Sandbox` | `pages/sandbox/index.jsx` | Protected |
@@ -48,6 +49,10 @@ Defined in `frontend/react/src/App.jsx`.
 - Authenticated fetch calls should use `fetchWithAuth` from `@/utils/fetchWithAuth`
 
 ## Page Notes
+
+### `TenantHealthPage` — `/admin/health`
+**API:** `/.rest/admin/tenant-health`
+**Props:** status
 
 ### `AdminOrganisationsIndex` — `/admin/organisations`
 **API:** `/.rest/accounts/admin/organisations-overview`, `/.rest/accounts/admin/organisations/${orgId}`, `/.rest/accounts/admin/organisations/…`
@@ -84,7 +89,7 @@ Converts an ISO expiry timestamp into a human-readable countdown label and urgen
 
 ### `LeadsIndex` — `/leads`
 Returns category strings for this lead that are still PENDING in the mapping table.
-**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/leads`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/collaborator/session/status?sessionId=${encodeURIComponent(savedId)}`, `/.rest/leads/…`, `/.rest/leads/collaborator/session/status?sessionId=…`
+**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/categories/${id}`, `/.rest/leads/${lead.id}/categories`, `/.rest/leads`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/collaborator/session/status?sessionId=${encodeURIComponent(savedId)}`, `/.rest/leads/…`, `/.rest/categories/…`, `/.rest/leads/collaborator/session/status?sessionId=…`
 **Props:** status
 
 ### `ListOrders` — `/orders`
@@ -121,14 +126,13 @@ Returns category strings for this lead that are still PENDING in the mapping tab
 ### `NewSupplier` — `/supplier/add`
 
 ### `ListBloggers` — `/supplier/cards`
-**API:** `/.rest/stats/responsiveness/all`
 
 ### `SupplierListView` — `/supplier`
-**API:** `/.rest/stats/responsiveness/all`, `/.rest/supplierSupport/list?${params}`, `/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=`, `/.rest/supplierSupport/list?…`
+**API:** `/.rest/supplierSupport/list?${params}`, `/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=`, `/.rest/supplierSupport/list?…`
 **Props:** label, field, sortBy, sortDir, onSort, className
 
 ### `App` — `/supplier/search/:demandid`
-**API:** `/.rest/stats/responsiveness/all`
+**API:** `/.rest/paidlinks/search/countByDemand_domain?domain=`, `/.rest/paidlinksupport/getcountsforsuppliers?supplierIds=`
 
 ### `EditSupplier` — `/supplier/:supplierid`
 
