@@ -54,15 +54,19 @@ pipeline {
                         withKubeConfig(credentialsId: 'prod-k8s', serverUrl: "${env.K8S_SERVER_URL}") {
                             sh "kubectl get namespace ${env.TARGET_TENANT}"
 
+                            def parallelSteps = [:]
                             workloads.each { workload ->
-                                def image = "${env.IMAGE_REPOSITORY}-${workload.imageSuffix}:${env.TARGET_IMAGE_VERSION}"
-
-                                echo "Rolling ${workload.displayName} using image ${image}"
-                                sh """
-                                    kubectl -n ${env.TARGET_TENANT} set image deployment/${workload.deployment} ${workload.container}=${image}
-                                    kubectl -n ${env.TARGET_TENANT} rollout status deployment/${workload.deployment} --timeout=5m
-                                """
+                                def w = workload
+                                parallelSteps[w.displayName] = {
+                                    def image = "${env.IMAGE_REPOSITORY}-${w.imageSuffix}:${env.TARGET_IMAGE_VERSION}"
+                                    echo "Rolling ${w.displayName} using image ${image}"
+                                    sh """
+                                        kubectl -n ${env.TARGET_TENANT} set image deployment/${w.deployment} ${w.container}=${image}
+                                        kubectl -n ${env.TARGET_TENANT} rollout status deployment/${w.deployment} --timeout=5m
+                                    """
+                                }
                             }
+                            parallel parallelSteps
                         }
                     }
                 }
