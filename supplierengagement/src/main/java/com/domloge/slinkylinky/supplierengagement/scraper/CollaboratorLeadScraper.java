@@ -298,7 +298,10 @@ public class CollaboratorLeadScraper implements LeadScraper {
         dto.domain = item.path("name").asText(null);
 
         // Price: pricePublicationRaw is a clean numeric value; currency is the last 3 chars
-        // of the formatted string, e.g. "77.62 GBP" → currency "GBP"
+        // of the formatted string, e.g. "77.62 GBP" → currency "GBP".
+        // Store the raw listed price on the lead — our suggested fee (the discounted +
+        // rounded number we quote in outreach and convert with) is derived from this via
+        // LeadPricing.suggestedFee. Keep raw here so the source data stays auditable.
         JsonNode formats = item.path("price").path("formats");
         if (formats.isArray() && formats.size() > 0) {
             JsonNode fmt = formats.get(0);

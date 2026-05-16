@@ -18,6 +18,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.domloge.slinkylinky.supplierengagement.pricing.LeadPricing;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -76,4 +81,11 @@ public class SupplierLead {
 
     @Column(name = "category_suggestion_reviewed", nullable = false)
     private boolean categorySuggestionReviewed = false;
+
+    /** Derived: our quoted fee — 10% off the listed price, rounded to the nearest 5. */
+    @Transient
+    @JsonProperty(value = "suggestedFee", access = JsonProperty.Access.READ_ONLY)
+    public java.math.BigDecimal getSuggestedFee() {
+        return LeadPricing.suggestedFee(this.price);
+    }
 }

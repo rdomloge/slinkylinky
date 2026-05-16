@@ -463,12 +463,17 @@ public class LeadController {
                     ? lead.getCurrency().substring(0, 1)
                     : "£";
 
+            // weWriteFee = our quoted fee (10% off listed, rounded to 5) — same number
+            // the lead saw in the outreach email. Fall back to 0 if no listed price.
+            java.math.BigDecimal weWriteFee = com.domloge.slinkylinky.supplierengagement.pricing.LeadPricing
+                    .suggestedFee(lead.getPrice());
+
             Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("name",               lead.getDomain());
             payload.put("email",              lead.getContactEmail() != null ? lead.getContactEmail() : "contact@" + lead.getDomain());
             payload.put("website",            "https://" + lead.getDomain());
             payload.put("domain",             lead.getDomain());
-            payload.put("weWriteFee",         lead.getPrice() != null ? lead.getPrice() : 0);
+            payload.put("weWriteFee",         weWriteFee != null ? weWriteFee : 0);
             payload.put("weWriteFeeCurrency", currency);
             payload.put("thirdParty",         false);
             payload.put("source",             "Automated outreach");

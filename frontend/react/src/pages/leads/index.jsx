@@ -916,6 +916,7 @@ export default function LeadsIndex() {
                                         <tr className="border-b border-slate-100 text-left">
                                             <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Domain</th>
                                             <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Price</th>
+                                            <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide" title="Our quote: 10% off, rounded to nearest 5">SL Price</th>
                                             <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Categories</th>
                                             <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Contact</th>
                                             <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Status</th>
@@ -953,6 +954,9 @@ export default function LeadsIndex() {
                                                     </td>
                                                     <td className="px-4 py-2.5 text-slate-700 whitespace-nowrap text-sm font-medium">
                                                         {lead.price ? `${lead.currency ?? ''} ${lead.price}` : <span className="text-slate-300">—</span>}
+                                                    </td>
+                                                    <td className="px-4 py-2.5 text-emerald-700 whitespace-nowrap text-sm font-semibold" title="10% off listed price, rounded to nearest 5">
+                                                        {lead.suggestedFee ? `${lead.currency ?? ''} ${lead.suggestedFee}` : <span className="text-slate-300">—</span>}
                                                     </td>
                                                     <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[200px]">
                                                         <div className="flex flex-col gap-1">

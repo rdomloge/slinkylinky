@@ -15,6 +15,7 @@ import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
 import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
+import com.domloge.slinkylinky.supplierengagement.pricing.LeadPricing;
 import com.domloge.slinkylinky.supplierengagement.repo.CollaboratorCategoryMappingRepo;
 
 import freemarker.template.Template;
@@ -80,12 +81,8 @@ public class LeadEmailContentBuilder {
     }
 
     private String calculateSuggestedFee(java.math.BigDecimal price) {
-        if (price == null) {
-            return "contact us";
-        }
-        long priceAsLong = price.longValue();
-        long roundedDown = (priceAsLong / 5) * 5;
-        return String.valueOf(roundedDown);
+        java.math.BigDecimal fee = LeadPricing.suggestedFee(price);
+        return fee == null ? "contact us" : fee.stripTrailingZeros().toPlainString();
     }
 
     private String getCurrencySymbol(String currencyCode) {
