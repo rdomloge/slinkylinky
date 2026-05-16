@@ -80,7 +80,8 @@ public class LeadEmailContentBuilder {
         return List.copyOf(names);
     }
 
-    private String calculateSuggestedFee(java.math.BigDecimal price) {
+    // Package-private for unit testing.
+    String calculateSuggestedFee(java.math.BigDecimal price) {
         java.math.BigDecimal fee = LeadPricing.suggestedFee(price);
         return fee == null ? "contact us" : fee.stripTrailingZeros().toPlainString();
     }
