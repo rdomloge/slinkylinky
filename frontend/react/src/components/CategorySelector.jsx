@@ -44,6 +44,9 @@ const multiValueStyles = {
             ':hover': { backgroundColor: p.border, color: p.color },
         };
     },
+    // The menu is portaled to <body> with menuPortalTarget; bump its z-index so
+    // it renders above Modal (z-50). Safe on non-modal pages — nothing competes.
+    menuPortal: base => ({ ...base, zIndex: 9999 }),
 };
 
 export default function CategorySelector({changeHandler, label, initialValue}) {

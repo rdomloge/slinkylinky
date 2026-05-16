@@ -424,18 +424,31 @@ public class LeadController {
      */
     @PostMapping("/{id}/convert")
     @PreAuthorize("hasRole('global_admin')")
-    public ResponseEntity<Void> convertToSupplier(@PathVariable long id, Authentication authentication) {
+    public ResponseEntity<?> convertToSupplier(@PathVariable long id, Authentication authentication) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
         if (lead == null) return ResponseEntity.notFound().build();
-        if (hasPendingMappings(lead)) return ResponseEntity.unprocessableEntity().build();
+        if (hasPendingMappings(lead)) {
+            return ResponseEntity.unprocessableEntity()
+                    .body(Map.of("error", "Resolve category mappings before converting"));
+        }
+        if (lead.getCategorySuggestion() != null && !lead.getCategorySuggestion().isBlank()
+                && !lead.isCategorySuggestionReviewed()) {
+            return ResponseEntity.unprocessableEntity()
+                    .body(Map.of("error", "Lead has an unreviewed category suggestion. Review it before converting."));
+        }
 
         try {
             String accessToken = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
             String url = linkServiceBase + "/suppliers";
 
-            // Resolve MAPPED categories to linkservice URI references for Spring Data REST
+            // Resolve categories to linkservice URI references for Spring Data REST.
+            // If the admin has set a per-lead override, use those IDs verbatim;
+            // otherwise fall back to the global Collaborator → SL mapping table.
             List<String> categoryUris = new java.util.ArrayList<>();
-            if (lead.getCategories() != null && !lead.getCategories().isEmpty()) {
+            if (lead.getOverrideSlCategoryIds() != null && !lead.getOverrideSlCategoryIds().isEmpty()) {
+                lead.getOverrideSlCategoryIds().forEach(slId ->
+                        categoryUris.add(linkServiceBase + "/categories/" + slId));
+            } else if (lead.getCategories() != null && !lead.getCategories().isEmpty()) {
                 lead.getCategories().stream()
                     .filter(cat -> !cat.isBlank())
                     .forEach(cat -> mappingRepo.findByCollaboratorCategory(cat).ifPresent(m -> {
@@ -503,6 +516,54 @@ public class LeadController {
         }
     }
 
+    /**
+     * Admin endpoint: sets the per-lead SL category override and marks the lead's
+     * category suggestion (if any) as reviewed. An empty {@code overrideSlCategoryIds}
+     * clears any existing override — convert will then fall back to the auto-mapping
+     * derived from the global Collaborator → SL category mapping table.
+     */
+    @PatchMapping("/{id}/categories")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<SupplierLead> patchCategories(
+            @PathVariable long id,
+            @RequestBody Map<String, Object> body) {
+
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+
+        List<Long> ids = new java.util.ArrayList<>();
+        Object raw = body != null ? body.get("overrideSlCategoryIds") : null;
+        if (raw instanceof List<?>) {
+            for (Object o : (List<?>) raw) {
+                if (o instanceof Number) {
+                    ids.add(((Number) o).longValue());
+                } else if (o instanceof String && !((String) o).isBlank()) {
+                    try { ids.add(Long.parseLong(((String) o).trim())); }
+                    catch (NumberFormatException ignored) { /* skip */ }
+                }
+            }
+        }
+
+        lead.getOverrideSlCategoryIds().clear();
+        lead.getOverrideSlCategoryIds().addAll(ids);
+        lead.setCategorySuggestionReviewed(true);
+        SupplierLead saved = leadRepo.save(lead);
+
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        TenantContext.getOrganisationId()
+            .map(UUID::fromString)
+            .ifPresent(ae::setOrganisationId);
+        ae.setWhat("lead categories overridden");
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("SupplierLead");
+        ae.setEntityId(String.valueOf(id));
+        ae.setDetail(ids.isEmpty() ? "(cleared override)" : ids.stream().map(String::valueOf).collect(Collectors.joining(",")));
+        auditRabbitTemplate.convertAndSend(ae);
+
+        return ResponseEntity.ok(saved);
+    }
+
     // ── Public endpoints (whitelisted in SecurityConfig) ─────────────────────
 
     /**
@@ -523,14 +584,24 @@ public class LeadController {
     public ResponseEntity<Void> accept(
             @RequestParam("guid") String guid,
             @RequestParam(value = "googleDocUrl", required = false) String googleDocUrl,
+            @RequestParam(value = "categorySuggestion", required = false) String categorySuggestion,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         SupplierLead lead = leadRepo.findByGuid(guid);
         if (lead == null) return ResponseEntity.notFound().build();
+        if (lead.getStatus() == LeadStatus.CONVERTED) {
+            // Lead has already been onboarded as a Supplier — refuse to re-open the workflow.
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
 
         lead.setStatus(LeadStatus.ACCEPTED);
         if (googleDocUrl != null && !googleDocUrl.isBlank()) {
             lead.setGoogleDocUrl(googleDocUrl);
+        }
+        if (categorySuggestion != null && !categorySuggestion.isBlank()) {
+            String trimmed = categorySuggestion.trim();
+            lead.setCategorySuggestion(trimmed.length() > 2000 ? trimmed.substring(0, 2000) : trimmed);
+            lead.setCategorySuggestionReviewed(false);
         }
         if (file != null && !file.isEmpty()) {
             if (file.getSize() > 5 * 1024 * 1024) {
@@ -564,6 +635,10 @@ public class LeadController {
 
         SupplierLead lead = leadRepo.findByGuid(guid);
         if (lead == null) return ResponseEntity.notFound().build();
+        if (lead.getStatus() == LeadStatus.CONVERTED) {
+            // Lead has already been onboarded as a Supplier — refuse to re-open the workflow.
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
 
         lead.setStatus(LeadStatus.DECLINED);
         if (body != null && body.containsKey("declineReason")) {

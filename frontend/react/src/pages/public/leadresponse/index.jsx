@@ -57,20 +57,30 @@ function SrNotFound() {
 }
 
 function SrResponded({ status }) {
-    const accepted = status === 'ACCEPTED';
+    const converted = status === 'CONVERTED';
+    const accepted  = status === 'ACCEPTED';
+    const positive  = converted || accepted;
+
+    let tag, headline, sub;
+    if (converted) {
+        tag      = '✓  Already Onboarded';
+        headline = 'You\'re already on the platform.';
+        sub      = 'You\'re fully set up as a Supplier. Placement requests will arrive at your registered contact email.';
+    } else if (accepted) {
+        tag      = '✓  Invitation Accepted';
+        headline = 'Welcome aboard.';
+        sub      = 'Thanks for registering your interest. Our team will be in touch shortly.';
+    } else {
+        tag      = 'Invitation Declined';
+        headline = 'Understood.';
+        sub      = 'Thanks for letting us know. We\'ll remove you from our list.';
+    }
+
     return (
-        <div className={`sr-responded sr-responded--${accepted ? 'accepted' : 'declined'}`}>
-            <div className="sr-responded__tag">
-                {accepted ? '✓  Invitation Accepted' : 'Invitation Declined'}
-            </div>
-            <h1 className="sr-responded__headline">
-                {accepted ? 'Welcome aboard.' : 'Understood.'}
-            </h1>
-            <p className="sr-responded__sub">
-                {accepted
-                    ? 'Thanks for registering your interest. Our team will be in touch shortly.'
-                    : 'Thanks for letting us know. We\'ll remove you from our list.'}
-            </p>
+        <div className={`sr-responded sr-responded--${positive ? 'accepted' : 'declined'}`}>
+            <div className="sr-responded__tag">{tag}</div>
+            <h1 className="sr-responded__headline">{headline}</h1>
+            <p className="sr-responded__sub">{sub}</p>
         </div>
     );
 }
@@ -108,6 +118,7 @@ export default function LeadResponse() {
     const [showDeclineModal, setShowDeclineModal] = useState(false);
     const [googleDocUrl, setGoogleDocUrl]     = useState('');
     const [file, setFile]                     = useState(null);
+    const [categorySuggestion, setCategorySuggestion] = useState('');
     const [declineReason, setDeclineReason]   = useState('');
     const [submitting, setSubmitting]         = useState(false);
     const [acceptError, setAcceptError]       = useState(null);
@@ -133,6 +144,7 @@ export default function LeadResponse() {
         const guid = searchParams.get('guid');
         const fd = new FormData();
         if (googleDocUrl.trim()) fd.append('googleDocUrl', googleDocUrl.trim());
+        if (categorySuggestion.trim()) fd.append('categorySuggestion', categorySuggestion.trim());
         if (file) fd.append('file', file);
 
         try {
@@ -167,7 +179,7 @@ export default function LeadResponse() {
         finally { setSubmitting(false); }
     };
 
-    const isResponded = lead && (lead.status === 'ACCEPTED' || lead.status === 'DECLINED');
+    const isResponded = lead && (lead.status === 'ACCEPTED' || lead.status === 'DECLINED' || lead.status === 'CONVERTED');
 
     return (
         <div className="sr-root">
@@ -299,6 +311,20 @@ export default function LeadResponse() {
                                 {file && (
                                     <p className="sr-file-name">{file.name}</p>
                                 )}
+                            </div>
+                            <div className="sr-input-group">
+                                <label className="sr-label">
+                                    If our categorisation looks wrong, tell us what to change (optional)
+                                </label>
+                                <textarea
+                                    className="sr-input sr-textarea"
+                                    value={categorySuggestion}
+                                    onChange={e => setCategorySuggestion(e.target.value.slice(0, 2000))}
+                                    placeholder="e.g. We're more of a Health & Wellness blog than Lifestyle…"
+                                    rows={3}
+                                    maxLength={2000}
+                                />
+                                <p className="sr-char-count">{categorySuggestion.length} / 2000</p>
                             </div>
                             {acceptError && <p className="sr-error">{acceptError}</p>}
                             <div className="sr-modal__actions">

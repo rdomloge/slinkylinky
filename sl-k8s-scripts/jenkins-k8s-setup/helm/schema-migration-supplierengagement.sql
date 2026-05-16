@@ -21,22 +21,24 @@ CREATE SEQUENCE IF NOT EXISTS public.supplier_lead_seq
     START WITH 1 INCREMENT BY 50 NO MINVALUE NO MAXVALUE CACHE 1;
 
 CREATE TABLE IF NOT EXISTS public.supplier_lead (
-    id             bigint        NOT NULL DEFAULT nextval('public.supplier_lead_seq'),
-    source         varchar(255)  NOT NULL DEFAULT 'collaborator.pro',
-    domain         varchar(512)  NOT NULL,
-    price          numeric(10,2),
-    currency       varchar(10),
-    countries      varchar(512),
-    language       varchar(255),
-    contact_email  varchar(255),
-    outreach_sent  timestamp(6)  without time zone,
-    guid           varchar(255),
-    status         varchar(50)   NOT NULL DEFAULT 'NEW',
-    file_blob      bytea,
-    file_name      varchar(255),
-    google_doc_url varchar(1024),
-    decline_reason varchar(255),
-    scraped_at     timestamp(6)  without time zone NOT NULL DEFAULT now(),
+    id                            bigint        NOT NULL DEFAULT nextval('public.supplier_lead_seq'),
+    source                        varchar(255)  NOT NULL DEFAULT 'collaborator.pro',
+    domain                        varchar(512)  NOT NULL,
+    price                         numeric(10,2),
+    currency                      varchar(10),
+    countries                     varchar(512),
+    language                      varchar(255),
+    contact_email                 varchar(255),
+    outreach_sent                 timestamp(6)  without time zone,
+    guid                          varchar(255),
+    status                        varchar(50)   NOT NULL DEFAULT 'NEW',
+    file_blob                     bytea,
+    file_name                     varchar(255),
+    google_doc_url                varchar(1024),
+    decline_reason                varchar(255),
+    scraped_at                    timestamp(6)  without time zone NOT NULL DEFAULT now(),
+    category_suggestion           varchar(2000),
+    category_suggestion_reviewed  boolean       NOT NULL DEFAULT false,
     CONSTRAINT supplier_lead_pkey        PRIMARY KEY (id),
     CONSTRAINT supplier_lead_guid_unique UNIQUE (guid),
     CONSTRAINT supplier_lead_status_check CHECK (
@@ -91,7 +93,24 @@ ALTER TABLE IF EXISTS public.supplier_lead
         status IN ('NEW','SEARCHING','BROWSER_QUEUED','CONTACT_FOUND','CONTACT_NOT_FOUND','OUTREACH_SENT','ACCEPTED','DECLINED','CONVERTED')
     );
 
--- Step 13: Grant supplierengagement_user access to all tables and sequences.
+-- Step 13: Per-lead SL category override + lead category suggestion.
+--   Older installations have supplier_lead but lack these fields and the
+--   junction table. ALTER ... IF NOT EXISTS makes this safe to re-run.
+ALTER TABLE IF EXISTS public.supplier_lead
+    ADD COLUMN IF NOT EXISTS category_suggestion varchar(2000);
+ALTER TABLE IF EXISTS public.supplier_lead
+    ADD COLUMN IF NOT EXISTS category_suggestion_reviewed boolean NOT NULL DEFAULT false;
+
+CREATE TABLE IF NOT EXISTS public.supplier_lead_sl_category (
+    lead_id        bigint NOT NULL REFERENCES public.supplier_lead(id) ON DELETE CASCADE,
+    sl_category_id bigint NOT NULL,
+    CONSTRAINT supplier_lead_sl_category_pkey PRIMARY KEY (lead_id, sl_category_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_supplier_lead_sl_category_lead_id
+    ON public.supplier_lead_sl_category USING btree (lead_id);
+
+-- Step 14: Grant supplierengagement_user access to all tables and sequences.
 --   Tables created above are owned by the postgres superuser; the application
 --   user has no access until explicitly granted.
 GRANT ALL ON ALL TABLES    IN SCHEMA public TO supplierengagement_user;

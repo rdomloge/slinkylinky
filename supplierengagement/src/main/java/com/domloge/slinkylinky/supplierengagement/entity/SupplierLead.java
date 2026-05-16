@@ -47,6 +47,11 @@ public class SupplierLead {
     @Column(name = "category")
     private List<String> categories = new ArrayList<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "supplier_lead_sl_category", joinColumns = @JoinColumn(name = "lead_id"))
+    @Column(name = "sl_category_id")
+    private List<Long> overrideSlCategoryIds = new ArrayList<>();
+
     private String contactEmail;
     private LocalDateTime outreachSent;
     private String guid;
@@ -65,4 +70,10 @@ public class SupplierLead {
 
     private String declineReason;
     private LocalDateTime scrapedAt;
+
+    @Column(name = "category_suggestion", length = 2000)
+    private String categorySuggestion;
+
+    @Column(name = "category_suggestion_reviewed", nullable = false)
+    private boolean categorySuggestionReviewed = false;
 }

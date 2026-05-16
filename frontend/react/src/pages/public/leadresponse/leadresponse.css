@@ -49,6 +49,22 @@
   max-width: 280px;
 }
 
+/* ── Category suggestion textarea ──────────────────────────────────────────── */
+.sr-textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+  line-height: 1.5;
+  font-family: var(--sr-font-ui);
+}
+
+.sr-char-count {
+  font-family: var(--sr-font-mono);
+  font-size: 0.65rem;
+  color: var(--sr-text-dim);
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
 /* ── File input ────────────────────────────────────────────────────────────── */
 .sr-file-input {
   font-family: var(--sr-font-ui);

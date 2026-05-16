@@ -23,6 +23,14 @@
             no chasing. If the content sent doesn't suit your website, simply decline and you can
             review the next paid placement.
         </p>
+        <#if mappedCategoryNames?? && (mappedCategoryNames?size > 0)>
+        <p>
+            Based on your listing, we've categorised <strong>${domain}</strong> under:
+            <strong>${mappedCategoryNames?join(", ")}</strong>.
+            If that doesn't look right, you'll be able to suggest changes when you register your interest —
+            we'll review your suggestion before adding you to the platform.
+        </p>
+        </#if>
         <p>
             If you're interested, please click <a href="${responseUrl}">here</a> to find
             out more and register your interest. You can also upload a list of other sites

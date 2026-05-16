@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/AuthProvider';
 import Layout from '@/components/layout/Layout';
 import Loading from '@/components/Loading';
 import Modal from '@/components/atoms/Modal';
+import CategorySelector from '@/components/CategorySelector';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { useToast } from '@/components/atoms/Toasts';
 
@@ -266,6 +267,130 @@ function ManualEmailModal({ lead, onClose, onSaved }) {
     );
 }
 
+// ── Review-and-edit SL categories modal (per-lead override) ──────────────────
+
+function EditLeadCategoriesModal({ lead, mappings, onClose, onSaved }) {
+    const { addToast: toast } = useToast();
+    const [initialCategories, setInitialCategories] = useState(null); // null = loading
+    const [selected, setSelected]                   = useState([]);
+    const [saving, setSaving]                       = useState(false);
+
+    const autoMappedNames = [...new Set(
+        (lead.categories ?? [])
+            .map(cat => mappings.find(m => m.collaboratorCategory === cat))
+            .filter(m => m && m.status === 'MAPPED' && m.slCategoryName)
+            .map(m => m.slCategoryName)
+    )].sort();
+
+    useEffect(() => {
+        const ids = lead.overrideSlCategoryIds ?? [];
+        if (ids.length === 0) {
+            setInitialCategories([]);
+            setSelected([]);
+            return;
+        }
+        Promise.all(ids.map(id =>
+            fetchWithAuth(`/.rest/categories/${id}`)
+                .then(r => r.ok ? r.json() : null)
+                .catch(() => null)
+        )).then(results => {
+            const valid = results.filter(c => c != null);
+            setInitialCategories(valid);
+            setSelected(valid.map(c => ({ value: `/categories/${c.id}`, label: c.name })));
+        });
+    }, [lead.id]);
+
+    function handleSelection(value) {
+        setSelected(value || []);
+    }
+
+    async function save() {
+        setSaving(true);
+        try {
+            const ids = (selected ?? [])
+                .map(item => {
+                    const match = String(item.value).match(/categories\/(\d+)/);
+                    return match ? parseInt(match[1], 10) : null;
+                })
+                .filter(id => id != null);
+
+            const r = await fetchWithAuth(`/.rest/leads/${lead.id}/categories`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ overrideSlCategoryIds: ids }),
+            });
+            if (!r.ok) throw new Error(r.status);
+            const updated = await r.json();
+            toast(ids.length > 0
+                ? `Saved ${ids.length} override categor${ids.length === 1 ? 'y' : 'ies'}`
+                : 'Suggestion acknowledged — will use auto-mapping',
+                'success');
+            onSaved(updated);
+        } catch {
+            toast('Failed to save categories', 'error');
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <Modal title={`Review categories — ${lead.domain}`} dismissHandler={onClose} width="w-full max-w-lg">
+            <div className="flex flex-col gap-4">
+                {lead.categorySuggestion && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                        <p className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider mb-1.5">
+                            Lead's suggestion
+                        </p>
+                        <p className="text-sm text-amber-900 whitespace-pre-wrap leading-relaxed">
+                            {lead.categorySuggestion}
+                        </p>
+                    </div>
+                )}
+
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Auto-mapped from Collaborator categories
+                    </p>
+                    <p className="text-sm text-slate-700">
+                        {autoMappedNames.length > 0
+                            ? autoMappedNames.join(', ')
+                            : <em className="text-slate-400">(no auto-mapped categories)</em>}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-2 leading-snug">
+                        Leave the picker empty to use these on convert. Pick categories below to override.
+                    </p>
+                </div>
+
+                {initialCategories === null ? (
+                    <p className="text-sm text-slate-400 text-center py-3">Loading existing override…</p>
+                ) : (
+                    <CategorySelector
+                        label="Override SL categories (optional)"
+                        initialValue={initialCategories}
+                        changeHandler={handleSelection}
+                    />
+                )}
+
+                <div className="flex justify-end gap-2 pt-1">
+                    <button
+                        onClick={onClose}
+                        className="text-sm px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={save}
+                        disabled={saving || initialCategories === null}
+                        className="text-sm px-4 py-1.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors border border-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                        {saving ? 'Saving…' : 'Save & Acknowledge'}
+                    </button>
+                </div>
+            </div>
+        </Modal>
+    );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LeadsIndex() {
@@ -301,6 +426,7 @@ export default function LeadsIndex() {
     const [pendingDiscovery, setPendingDiscovery] = useState(new Set());
     const [autoDiscovering, setAutoDiscovering]   = useState(false);
     const [manualEmailLead, setManualEmailLead]   = useState(null);
+    const [editCategoriesLead, setEditCategoriesLead] = useState(null);
 
     const pollRef              = useRef(null);
     const leadsRef             = useRef(null);
@@ -620,7 +746,15 @@ export default function LeadsIndex() {
                 setBusyId(lead.id);
                 try {
                     const r = await fetchWithAuth(`/.rest/leads/${lead.id}/convert`, { method: 'POST' });
-                    if (r?.status === 422) { toast('Resolve category mappings before converting', 'error'); return; }
+                    if (r?.status === 422) {
+                        let msg = 'Resolve category mappings before converting';
+                        try {
+                            const body = await r.json();
+                            if (body?.error) msg = body.error;
+                        } catch { /* keep default */ }
+                        toast(msg, 'error');
+                        return;
+                    }
                     if (!r?.ok) throw new Error(r?.status);
                     setLeads(prev => prev.filter(l => l.id !== lead.id));
                     toast(`${lead.domain} converted to Supplier`, 'success');
@@ -820,8 +954,26 @@ export default function LeadsIndex() {
                                                     <td className="px-4 py-2.5 text-slate-700 whitespace-nowrap text-sm font-medium">
                                                         {lead.price ? `${lead.currency ?? ''} ${lead.price}` : <span className="text-slate-300">—</span>}
                                                     </td>
-                                                    <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[180px] truncate" title={lead.categories?.join(' | ')}>
-                                                        {lead.categories?.length ? lead.categories.join(' | ') : <span className="text-slate-300">—</span>}
+                                                    <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[200px]">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className="truncate" title={lead.categories?.join(' | ')}>
+                                                                {lead.categories?.length ? lead.categories.join(' | ') : <span className="text-slate-300">—</span>}
+                                                            </div>
+                                                            {lead.categorySuggestion && (
+                                                                <button
+                                                                    onClick={() => setEditCategoriesLead(lead)}
+                                                                    title={lead.categorySuggestion}
+                                                                    className={`self-start inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border transition-colors max-w-full ${
+                                                                        lead.categorySuggestionReviewed
+                                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                                                                            : 'bg-amber-100 text-amber-700 border-amber-300 hover:bg-amber-200'
+                                                                    }`}
+                                                                >
+                                                                    <span>{lead.categorySuggestionReviewed ? '✓' : '💬'}</span>
+                                                                    <span className="truncate">{lead.categorySuggestionReviewed ? 'Reviewed' : 'Suggestion'}</span>
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                     <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[160px] truncate">
                                                         {lead.contactEmail || <span className="text-slate-300">—</span>}
@@ -876,15 +1028,30 @@ export default function LeadsIndex() {
                                                             {lead.status === 'ACCEPTED' && lead.fileBlob && (
                                                                 <ActionBtn label="Download File" onClick={() => downloadFile(lead)} disabled={busyId === lead.id} />
                                                             )}
-                                                            {lead.status === 'ACCEPTED' && (
+                                                            {lead.status === 'ACCEPTED' && lead.categorySuggestion && (
                                                                 <ActionBtn
-                                                                    label="Convert to Supplier"
-                                                                    variant="success"
-                                                                    onClick={() => convertToSupplier(lead)}
-                                                                    disabled={busyId === lead.id || hasUnmapped}
-                                                                    title={hasUnmapped ? 'Resolve category mappings first' : undefined}
+                                                                    label="Review Categories"
+                                                                    variant="warning"
+                                                                    onClick={() => setEditCategoriesLead(lead)}
+                                                                    disabled={busyId === lead.id}
                                                                 />
                                                             )}
+                                                            {lead.status === 'ACCEPTED' && (() => {
+                                                                const needsReview = lead.categorySuggestion && !lead.categorySuggestionReviewed;
+                                                                return (
+                                                                    <ActionBtn
+                                                                        label="Convert to Supplier"
+                                                                        variant="success"
+                                                                        onClick={() => convertToSupplier(lead)}
+                                                                        disabled={busyId === lead.id || hasUnmapped || needsReview}
+                                                                        title={
+                                                                            hasUnmapped ? 'Resolve category mappings first'
+                                                                                : needsReview ? 'Review the category suggestion first'
+                                                                                : undefined
+                                                                        }
+                                                                    />
+                                                                );
+                                                            })()}
                                                             <ActionBtn label="Delete" variant="ghost" onClick={() => deleteLead(lead)} disabled={busyId === lead.id} />
                                                         </div>
                                                     </td>
@@ -1195,6 +1362,18 @@ export default function LeadsIndex() {
                     onMapped={async () => {
                         setMappingModalLead(null);
                         await fetchMappings();
+                    }}
+                />
+            )}
+
+            {editCategoriesLead && (
+                <EditLeadCategoriesModal
+                    lead={editCategoriesLead}
+                    mappings={mappings}
+                    onClose={() => setEditCategoriesLead(null)}
+                    onSaved={(updated) => {
+                        setEditCategoriesLead(null);
+                        setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
                     }}
                 />
             )}
