@@ -1,14 +1,16 @@
-# Multi-Tenancy Keycloak Setup Guide
+# Keycloak Setup Guide
 
-This document describes the manual Keycloak configuration required to enable multi-tenancy in SlinkyLinky. No realm export exists in this repository — all configuration is done via the Keycloak Admin UI or Admin REST API.
+This document describes the Keycloak configuration required for a SlinkyLinky deployment. No realm export exists in this repository — all configuration is done via the Keycloak Admin UI or Admin REST API (the Jenkins provisioning pipeline automates this for new deployments).
+
+**One Keycloak realm per deployment.** Multiple organisations share that realm; there is no separate realm per organisation. Organisation membership is conveyed via the `org_id` user attribute, which is mapped into every JWT as a claim.
 
 ## Role Model
 
 | Keycloak Role | Name in UI | Capabilities |
 |---|---|---|
-| `global_admin` | Platform Admin | Cross-tenant access, Supplier CRUD, global-disable Suppliers, Blacklist management, Categories, Orders, tenant creation, tenant switching |
-| `tenant_admin` | Tenant Admin | Manage own tenant's users, approve/manage Proposals, exclude Suppliers for their org, full Demand/DemandSite CRUD within own org |
-| *(no special role)* | Tenant Operator | Read/create access within own org; cannot manage users or exclude Suppliers |
+| `global_admin` | Platform Admin | Cross-organisation access, Supplier CRUD, global-disable Suppliers, Blacklist management, Categories, Orders, organisation creation |
+| `tenant_admin` | Organisation Admin | Manage own organisation's users, approve/manage Proposals, exclude Suppliers for their org, full Demand/DemandSite CRUD within own org |
+| *(no special role)* | Organisation Operator | Read/create access within own org; cannot manage users or exclude Suppliers |
 
 ## Step 1 — Create the `org_id` Claim Mapper
 
@@ -147,14 +149,21 @@ Without this, the Organisations Overview page shows **Never** for all last-login
 | `KEYCLOAK_ADMIN_CLIENT_ID` | linkservice | `sl-admin` |
 | `KEYCLOAK_ADMIN_CLIENT_SECRET` | linkservice / K8s secret | From step 6 credentials |
 
-## Per-Tenant Onboarding Checklist
+## New Organisation Onboarding Checklist
 
-When a new organisation is created via the platform:
+When a new organisation joins an existing deployment (no new realm, no new deployment needed):
 
-- [ ] Create new tenant realm in Keycloak
-- [ ] Enable login events for the realm (Step 8 above)
 - [ ] Insert row into `organisation` table (done by `OrganisationController.createOrganisation`)
-- [ ] Create first user in Keycloak (done by `KeycloakUserController.createUser`)
+- [ ] Create first user in Keycloak within the existing realm (done by `KeycloakUserController.createUser`)
 - [ ] Set `org_id` attribute on that user to the new org's UUID
 - [ ] Assign `tenant_admin` role to the first user
 - [ ] Verify the user can log in and sees only their org's data
+
+## New Deployment Checklist
+
+When provisioning a brand-new SlinkyLinky deployment (new K8s namespace, new databases, new Keycloak realm), the Jenkins pipeline (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) automates all of the following:
+
+- [ ] Run the Helm pipeline to create the K8s namespace and all services
+- [ ] Pipeline creates the Keycloak realm and configures `org_id` scope, `sl-webapp`, `sl-server`, `sl-admin` clients, and `internal_service` scope
+- [ ] Enable login events for the new realm (Step 8 above) — not yet automated
+- [ ] Verify the default `admin` user can log in

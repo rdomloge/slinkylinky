@@ -41,27 +41,33 @@ SlinkyLinky is a "dating agency" for SEO link building — it matches **demand**
 - **Organisation**: a tenant — a company using the platform. All data except Suppliers and Categories is scoped to an Organisation.
 - **DemandSite**: a customer's website that wants inbound links for SEO
 - **Demand**: a monthly work order raised by a DemandSite — think of it as "I need a link this month"
-- **Supplier**: a website owner who can place a link on their site — **shared across all tenants** (global resource)
+- **Supplier**: a website owner who can place a link on their site — **shared across all organisations** (global resource)
 - **PaidLink**: the historical record of a link placed between two domains
-- **SupplierTenantExclusion**: per-tenant suppression of a Supplier from matching (does not affect other orgs)
+- **SupplierTenantExclusion**: per-organisation suppression of a Supplier from matching (does not affect other orgs)
 
-A Demand is matched to a Supplier at most once per DemandSite–Supplier domain pair **within the same Organisation**. Since Google SEO gives no benefit from multiple links between the same two domains, a DemandSite must never be matched to the same Supplier again within its tenant. **PaidLink is the authoritative history that enforces this uniqueness constraint.**
+Google gives no SEO benefit for more than one link between any two domains — this is a universal constraint, not scoped to an organisation or deployment. A DemandSite must therefore never be matched to a Supplier whose domain has already linked to the DemandSite's domain, anywhere on the web. **PaidLink is SlinkyLinky's internal history that enforces this constraint for links the platform placed.** Moz is consulted as an external check because a link between two domains may exist on the web without SlinkyLinky knowing about it.
 
-## Multi-Tenancy
+## Organisations & Access Control
 
-SlinkyLinky is being converted from per-deployment single-tenancy to a true shared multi-tenant platform. All work is in branch `feature/multi-tenancy`.
+Multi-tenancy in SlinkyLinky is achieved through **Organisations** within a single shared deployment — not through separate deployments. Multiple organisations share the same database and Supplier pool, with all data (except Suppliers and Categories) segregated by `org_id`. Suppliers are intentionally shared across all organisations: avoiding duplication of the Supplier database across customers is a core value-add of the platform.
+
+**Production deployment:** The canonical deployment lives at `www.slinkylinky.uk`. The apex domain (`slinkylinky.uk`) was the original home of **Front Page Advantage (FPA)** — the founding customer and the organisation the platform was originally built for. FPA is migrating from the apex domain to `www.slinkylinky.uk` and will be the default organisation in the shared deployment. Going forward, additional organisations will join the same deployment via self-service registration.
+
+The Jenkins/K8s pipeline (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) provisions a complete SlinkyLinky *deployment* (K8s namespace, databases, Keycloak realm, Cloudflare tunnel). The pipeline parameter is named `TENANT_NAME` for historical reasons — it sets the deployment's subdomain and K8s namespace name, not an organisation name. Within a deployment, new organisations join via the platform's registration/onboarding flow; no new deployment is needed per organisation.
+
+Work to implement org-based data segregation lives in branch `feature/multi-tenancy`.
 
 **Role hierarchy** (Keycloak realm roles):
 
 | Role | Description |
 |------|-------------|
-| `global_admin` | Platform admin / root. Cross-tenant access, Supplier CRUD, global-disable Suppliers, Blacklist, Categories, Orders, tenant creation/switching |
-| `tenant_admin` | Admin of their org. Manage users, approve Proposals, exclude Suppliers for their org |
-| *(default)* | Tenant operator. Read/create within own org only |
+| `global_admin` | Platform admin / root. Cross-organisation access, Supplier CRUD, global-disable Suppliers, Blacklist, Categories, Orders, organisation creation |
+| `tenant_admin` | Admin of their organisation. Manage users, approve Proposals, exclude Suppliers for their org |
+| *(default)* | Organisation operator. Read/create within own org only |
 
 **Supplier visibility model:**
-- `supplier.disabled` — set by `global_admin`, hides from ALL tenants' matching
-- `SupplierTenantExclusion` — per-tenant hide set by `tenant_admin`; only affects matching for that org
+- `supplier.disabled` — set by `global_admin`, hides from ALL organisations' matching
+- `SupplierTenantExclusion` — per-organisation hide set by `tenant_admin`; only affects matching for that org
 - `BlackListedSupplier` — global, `global_admin`-only, used at Supplier onboarding time (not matching)
 
 See [`docs/multi-tenancy-keycloak-setup.md`](docs/multi-tenancy-keycloak-setup.md) for Keycloak configuration steps.
