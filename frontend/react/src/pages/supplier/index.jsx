@@ -104,7 +104,7 @@ export default function ListBloggers() {
     return (
         <Layout pagetitle='Supplier list'
             headerTitle={<>Suppliers {suppliers && <span className="font-normal text-slate-400">({suppliers.length})</span>}</>}
-            headerActions={<AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}><Link to='/supplier/Add' rel='nofollow'><SessionButton label="New"/></Link></AuthorizedAccess>}
+            headerActions={<AuthorizedAccess allowedRoles={['global_admin']}><Link to='/supplier/Add' rel='nofollow'><SessionButton label="New"/></Link></AuthorizedAccess>}
         >
 
             {/* View switcher */}

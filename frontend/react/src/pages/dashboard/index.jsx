@@ -1156,7 +1156,7 @@ export default function Dashboard() {
                                                 : missingCatSuppliers.slice(0, supplierSlice).map(s => (
                                                     <div key={s.id} className="flex items-center justify-between py-1 border-b border-slate-50 last:border-0">
                                                         <span className="text-xs text-slate-700 truncate">{s.domain || s.name}</span>
-                                                        <Link to={`/supplier/${s.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--supplier-color)'}}>Edit →</Link>
+                                                        <AuthorizedAccess allowedRoles={['global_admin']}><Link to={`/supplier/${s.id}`} className="shrink-0 ml-2 text-xs font-medium hover:underline" style={{color: 'var(--supplier-color)'}}>Edit →</Link></AuthorizedAccess>
                                                     </div>
                                                 ))
                                             }

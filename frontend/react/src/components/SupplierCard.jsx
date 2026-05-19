@@ -183,7 +183,7 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, usageCount,
                 <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
                     <ExcludeButton supplierId={supplier.id} />
                 </AuthorizedAccess>
-                <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                <AuthorizedAccess allowedRoles={['global_admin']}>
                     <Link to={'/supplier/' + supplier.id} rel='nofollow'
                           title="Edit supplier"
                           className="flex items-center justify-center w-7 h-7 rounded-full bg-slate-100 hover:bg-indigo-100 text-slate-500 hover:text-indigo-600 transition-all duration-200">
@@ -226,7 +226,7 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         </button>
                     )}
                     {editable &&
-                        <AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}>
+                        <AuthorizedAccess allowedRoles={['global_admin']}>
                             <Link to={'/supplier/' + supplier.id} rel='nofollow' id="supplier-editbtn-id" className="card-action-link card-action-link-muted">
                                 Edit
                             </Link>

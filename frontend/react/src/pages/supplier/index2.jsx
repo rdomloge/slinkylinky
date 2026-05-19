@@ -108,7 +108,7 @@ export default function SupplierListView() {
     return (
         <Layout pagetitle='Supplier list'
             headerTitle={<>Suppliers {totalElements !== null && <span className="font-normal text-slate-400">({totalElements})</span>}</>}
-            headerActions={<AuthorizedAccess allowedRoles={['tenant_admin', 'global_admin']}><Link to='/supplier/Add' rel='nofollow'><SessionButton label="New"/></Link></AuthorizedAccess>}
+            headerActions={<AuthorizedAccess allowedRoles={['global_admin']}><Link to='/supplier/Add' rel='nofollow'><SessionButton label="New"/></Link></AuthorizedAccess>}
         >
 
 
