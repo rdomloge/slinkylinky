@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +22,6 @@ import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 import com.domloge.slinkylinky.supplierengagement.entity.EngagementStatus;
 import com.domloge.slinkylinky.supplierengagement.repo.EngagementRepo;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
@@ -48,7 +49,7 @@ public class ProposalAutoCanceller  {
     private AmqpTemplate auditRabbitTemplate;
 
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent.class)
     @Scheduled(fixedRate = 1000 * 60 * 60)
     public void findExpiredProposals() {
         log.info("Finding expired proposals");
