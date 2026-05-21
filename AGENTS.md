@@ -38,6 +38,7 @@ At the end of every substantial answer, include:
 
 ## Tools
 - Kubectl is available, but is not configured to connect to the kubernetes environment. You will have to ask questions or infer from the Helm scripts in `sl-k8s-scripts/`
+- mvnw is available in the root of the repo. It is not in the path and will have to be invoked with the full path name.
 
 ## Mandatory behaviour
 
