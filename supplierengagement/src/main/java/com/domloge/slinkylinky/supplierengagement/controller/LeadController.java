@@ -30,6 +30,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -112,13 +113,75 @@ public class LeadController {
     // ── Collection listing ────────────────────────────────────────────────────
 
     /**
-     * Returns all leads except those already converted to a Supplier.
+     * Returns active leads — excludes those already converted to a Supplier and
+     * those that have been dismissed (soft-deleted).
      * Overrides the Spring Data REST default GET /.rest/leads collection endpoint.
      */
     @GetMapping
     @PreAuthorize("hasRole('global_admin')")
     public ResponseEntity<Iterable<SupplierLead>> list() {
-        return ResponseEntity.ok(leadRepo.findByStatusNotOrderByDomainAsc(LeadStatus.CONVERTED));
+        return ResponseEntity.ok(
+                leadRepo.findByStatusNotAndDeletedAtIsNullOrderByDomainAsc(LeadStatus.CONVERTED));
+    }
+
+    /**
+     * Returns dismissed (soft-deleted) leads, for the restore view.
+     */
+    @GetMapping("/dismissed")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<Iterable<SupplierLead>> listDismissed() {
+        return ResponseEntity.ok(leadRepo.findByDeletedAtIsNotNullOrderByDomainAsc());
+    }
+
+    /**
+     * Soft-deletes ("dismisses") a lead. The row is kept as a tombstone so the scraper
+     * never re-creates the domain on a subsequent scrape. Overrides the Spring Data REST
+     * default DELETE /.rest/leads/{id} (which would hard-delete the row).
+     */
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<Void> dismiss(@PathVariable long id) {
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+        if (lead.getDeletedAt() == null) {
+            lead.setDeletedAt(LocalDateTime.now());
+            lead.setDeletedBy(TenantContext.getUsername());
+            leadRepo.save(lead);
+            sendLeadAudit("lead dismissed", id, lead.getDomain());
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Restores a previously dismissed lead, clearing the soft-delete marker so it
+     * reappears in the active list.
+     */
+    @PostMapping("/{id}/undismiss")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<SupplierLead> undismiss(@PathVariable long id) {
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+        if (lead.getDeletedAt() != null) {
+            lead.setDeletedAt(null);
+            lead.setDeletedBy(null);
+            leadRepo.save(lead);
+            sendLeadAudit("lead restored", id, lead.getDomain());
+        }
+        return ResponseEntity.ok(lead);
+    }
+
+    private void sendLeadAudit(String what, long id, String domain) {
+        AuditEvent ae = new AuditEvent();
+        ae.setWho(TenantContext.getUsername());
+        TenantContext.getOrganisationId()
+            .map(UUID::fromString)
+            .ifPresent(ae::setOrganisationId);
+        ae.setWhat(what);
+        ae.setEventTime(LocalDateTime.now());
+        ae.setEntityType("SupplierLead");
+        ae.setEntityId(String.valueOf(id));
+        ae.setDetail(domain);
+        auditRabbitTemplate.convertAndSend(ae);
     }
 
     // ── Admin endpoints ───────────────────────────────────────────────────────

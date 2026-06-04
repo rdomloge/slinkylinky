@@ -39,6 +39,8 @@ CREATE TABLE IF NOT EXISTS public.supplier_lead (
     scraped_at                    timestamp(6)  without time zone NOT NULL DEFAULT now(),
     category_suggestion           varchar(2000),
     category_suggestion_reviewed  boolean       NOT NULL DEFAULT false,
+    deleted_at                    timestamp(6)  without time zone,
+    deleted_by                    varchar(255),
     CONSTRAINT supplier_lead_pkey        PRIMARY KEY (id),
     CONSTRAINT supplier_lead_guid_unique UNIQUE (guid),
     CONSTRAINT supplier_lead_status_check CHECK (
@@ -110,7 +112,18 @@ CREATE TABLE IF NOT EXISTS public.supplier_lead_sl_category (
 CREATE INDEX IF NOT EXISTS idx_supplier_lead_sl_category_lead_id
     ON public.supplier_lead_sl_category USING btree (lead_id);
 
--- Step 14: Grant supplierengagement_user access to all tables and sequences.
+-- Step 15: Soft-delete ("dismiss") support for leads.
+--   Dismissed leads are kept as tombstones so the scraper does not re-create the
+--   domain on a subsequent scrape. Older installations lack these columns.
+ALTER TABLE IF EXISTS public.supplier_lead
+    ADD COLUMN IF NOT EXISTS deleted_at timestamp(6) without time zone;
+ALTER TABLE IF EXISTS public.supplier_lead
+    ADD COLUMN IF NOT EXISTS deleted_by varchar(255);
+
+CREATE INDEX IF NOT EXISTS idx_supplier_lead_deleted_at
+    ON public.supplier_lead USING btree (deleted_at);
+
+-- Step 16: Grant supplierengagement_user access to all tables and sequences.
 --   Tables created above are owned by the postgres superuser; the application
 --   user has no access until explicitly granted.
 GRANT ALL ON ALL TABLES    IN SCHEMA public TO supplierengagement_user;

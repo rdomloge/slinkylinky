@@ -219,6 +219,16 @@ public class CollaboratorLeadScraper implements LeadScraper {
                         log.debug("Skipping {} — already a supplier in linkservice", dto.domain);
                         continue;
                     }
+                    // Look up any existing lead row up front (one read, reused by upsert).
+                    // Dismissed rows are kept as tombstones: skip them so a manually
+                    // dismissed domain is never re-created on a later scrape.
+                    SupplierLead existing = StringUtils.hasText(dto.domain)
+                            ? leadRepo.findByDomainAndSource(dto.domain, SOURCE_KEY)
+                            : null;
+                    if (existing != null && existing.getDeletedAt() != null) {
+                        log.debug("Skipping {} — previously dismissed", dto.domain);
+                        continue;
+                    }
                     if (effectiveLimit > 0 && newLeadsFound >= effectiveLimit) {
                         log.info("Scrape limit of {} reached — stopping early", effectiveLimit);
                         // Save metadata before returning
@@ -227,7 +237,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
                     }
                     newLeadsFound++;
                     try {
-                        upsert(dto);
+                        upsert(dto, existing);
                     } catch (Exception e) {
                         log.warn("Failed to upsert item {}: {}", newLeadsFound, e.getMessage());
                     }
@@ -330,10 +340,9 @@ public class CollaboratorLeadScraper implements LeadScraper {
         return dto;
     }
 
-    private void upsert(LeadDto dto) {
+    private void upsert(LeadDto dto, SupplierLead existing) {
         if (!StringUtils.hasText(dto.domain)) return;
 
-        SupplierLead existing = leadRepo.findByDomainAndSource(dto.domain, SOURCE_KEY);
         if (existing != null) {
             // Refresh catalog data; never reset outreach progress
             existing.setPrice(dto.price);

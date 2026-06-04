@@ -427,6 +427,8 @@ export default function LeadsIndex() {
     const [autoDiscovering, setAutoDiscovering]   = useState(false);
     const [manualEmailLead, setManualEmailLead]   = useState(null);
     const [editCategoriesLead, setEditCategoriesLead] = useState(null);
+    const [showDismissed, setShowDismissed]       = useState(false);
+    const [dismissedLeads, setDismissedLeads]     = useState(null);
 
     const pollRef              = useRef(null);
     const leadsRef             = useRef(null);
@@ -469,6 +471,26 @@ export default function LeadsIndex() {
             }
         } catch {
             setError('Could not load leads');
+        }
+    }
+
+    async function fetchDismissed() {
+        try {
+            const r = await fetchWithAuth('/.rest/leads/dismissed');
+            if (!r.ok) throw new Error(r.status);
+            const data = await r.json();
+            setDismissedLeads(Array.isArray(data) ? data : (data._embedded?.leads ?? []));
+        } catch {
+            setError('Could not load dismissed leads');
+        }
+    }
+
+    function toggleDismissedView() {
+        const next = !showDismissed;
+        setShowDismissed(next);
+        if (next) {
+            setDismissedLeads(null);
+            fetchDismissed();
         }
     }
 
@@ -767,24 +789,39 @@ export default function LeadsIndex() {
         });
     }
 
-    function deleteLead(lead) {
+    function dismissLead(lead) {
         setConfirmModal({
-            message: `Delete lead for ${lead.domain}? It will be rediscovered on the next scrape.`,
-            confirmLabel: 'Delete',
+            message: `Dismiss lead for ${lead.domain}? It won't reappear on future scrapes. You can restore it later from the dismissed view.`,
+            confirmLabel: 'Dismiss',
             onConfirm: async () => {
                 setBusyId(lead.id);
                 try {
                     const r = await fetchWithAuth(`/.rest/leads/${lead.id}`, { method: 'DELETE' });
                     if (!r?.ok) throw new Error(r?.status);
                     setLeads(prev => prev.filter(l => l.id !== lead.id));
-                    toast(`${lead.domain} deleted`, 'success');
+                    toast(`${lead.domain} dismissed`, 'success');
                 } catch {
-                    toast('Failed to delete lead', 'error');
+                    toast('Failed to dismiss lead', 'error');
                 } finally {
                     setBusyId(null);
                 }
             },
         });
+    }
+
+    async function undismissLead(lead) {
+        setBusyId(lead.id);
+        try {
+            const r = await fetchWithAuth(`/.rest/leads/${lead.id}/undismiss`, { method: 'POST' });
+            if (!r?.ok) throw new Error(r?.status);
+            setDismissedLeads(prev => (prev ?? []).filter(l => l.id !== lead.id));
+            fetchLeads(); // refresh active list so the restored lead reappears
+            toast(`${lead.domain} restored`, 'success');
+        } catch {
+            toast('Failed to restore lead', 'error');
+        } finally {
+            setBusyId(null);
+        }
     }
 
     /** Returns category strings for this lead that are still PENDING in the mapping table. */
@@ -795,13 +832,16 @@ export default function LeadsIndex() {
         });
     }
 
+    // Which set of leads the table renders: active leads, or the dismissed tombstones.
+    const visibleLeads = showDismissed ? dismissedLeads : leads;
+
     return (
         <Layout
             pagetitle="Leads"
             headerTitle={
                 <span className="flex items-center gap-2">
-                    Leads
-                    {leads && <span className="text-sm font-normal text-slate-400">({leads.length})</span>}
+                    {showDismissed ? 'Dismissed leads' : 'Leads'}
+                    {visibleLeads && <span className="text-sm font-normal text-slate-400">({visibleLeads.length})</span>}
                     {scraping && (
                         <span className="inline-flex items-center gap-1.5 text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2.5 py-0.5 animate-pulse">
                             <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
@@ -812,7 +852,17 @@ export default function LeadsIndex() {
             }
             headerActions={
                 <div className="flex items-center gap-2">
-                    {leads?.some(l => l.status === 'NEW') && (
+                    <button
+                        onClick={toggleDismissedView}
+                        className={`text-sm font-semibold rounded-lg px-3 py-1.5 transition-colors border ${
+                            showDismissed
+                                ? 'bg-slate-700 text-white border-slate-800 hover:bg-slate-800'
+                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                        }`}
+                    >
+                        {showDismissed ? 'View active' : 'View dismissed'}
+                    </button>
+                    {!showDismissed && leads?.some(l => l.status === 'NEW') && (
                         autoDiscovering ? (
                             <button
                                 onClick={cancelAutoDiscover}
@@ -836,6 +886,7 @@ export default function LeadsIndex() {
                             </button>
                         )
                     )}
+                    {!showDismissed && (
                     <button
                         onClick={async () => {
                             const savedId = localStorage.getItem('sl_collab_session_id');
@@ -872,23 +923,28 @@ export default function LeadsIndex() {
                         </svg>
                         {scraping ? 'Scraping…' : 'Scrape Collaborator.pro'}
                     </button>
+                    )}
                 </div>
             }
         >
-            {leads ? (
-                leads.length === 0 ? (
+            {visibleLeads ? (
+                visibleLeads.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-center gap-3">
                         <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center">
                             <svg className="w-7 h-7 text-orange-400" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                             </svg>
                         </div>
-                        <p className="text-slate-600 font-medium text-sm">No leads yet</p>
-                        <p className="text-slate-400 text-xs max-w-xs">Click "Scrape Collaborator.pro" to populate this table with potential supplier domains.</p>
+                        <p className="text-slate-600 font-medium text-sm">{showDismissed ? 'No dismissed leads' : 'No leads yet'}</p>
+                        <p className="text-slate-400 text-xs max-w-xs">
+                            {showDismissed
+                                ? 'Leads you dismiss will appear here, where you can restore them.'
+                                : 'Click "Scrape Collaborator.pro" to populate this table with potential supplier domains.'}
+                        </p>
                     </div>
                 ) : (
                     <>
-                        <PipelineBar leads={leads} />
+                        {!showDismissed && <PipelineBar leads={leads} />}
                         <div className="px-6 pb-6">
                             {(scraping || leads?.some(l => l.status === 'BROWSER_QUEUED' || l.status === 'SEARCHING')) && (
                                 <div className="flex items-center gap-3 text-[11px] text-slate-400 mb-2 px-0.5">
@@ -924,7 +980,7 @@ export default function LeadsIndex() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50">
-                                        {leads.map((lead, index) => {
+                                        {visibleLeads.map((lead, index) => {
                                             const pendingCats = getPendingCategories(lead);
                                             const hasUnmapped = pendingCats.length > 0;
                                             return (
@@ -992,6 +1048,15 @@ export default function LeadsIndex() {
                                                     </td>
                                                     <td className="px-4 py-2.5">
                                                         <div className="flex items-center gap-1">
+                                                            {lead.deletedAt ? (
+                                                                <ActionBtn
+                                                                    label="Undismiss"
+                                                                    variant="primary"
+                                                                    onClick={() => undismissLead(lead)}
+                                                                    disabled={busyId === lead.id}
+                                                                />
+                                                            ) : (
+                                                            <>
                                                             {hasUnmapped && (
                                                                 <ActionBtn
                                                                     label="Map Categories"
@@ -1056,7 +1121,9 @@ export default function LeadsIndex() {
                                                                     />
                                                                 );
                                                             })()}
-                                                            <ActionBtn label="Delete" variant="ghost" onClick={() => deleteLead(lead)} disabled={busyId === lead.id} />
+                                                            <ActionBtn label="Dismiss" variant="ghost" onClick={() => dismissLead(lead)} disabled={busyId === lead.id} />
+                                                            </>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

@@ -76,6 +76,14 @@ public class SupplierLead {
     private String declineReason;
     private LocalDateTime scrapedAt;
 
+    /**
+     * Soft-delete ("dismiss") marker. When set, the lead is hidden from the active
+     * list and is treated as a tombstone by the scraper so the domain is never
+     * re-created on a subsequent scrape. Cleared on undismiss.
+     */
+    private LocalDateTime deletedAt;
+    private String deletedBy;
+
     @Column(name = "category_suggestion", length = 2000)
     private String categorySuggestion;
 

@@ -290,6 +290,101 @@ class LeadControllerTest {
         }
     }
 
+    // ── DELETE /{id} (dismiss) + /{id}/undismiss ──────────────────────────────
+
+    @Test
+    void dismiss_unknownLead_returnsNotFound() {
+        when(leadRepo.findById(404L)).thenReturn(Optional.empty());
+
+        ResponseEntity<Void> response = controller.dismiss(404L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(leadRepo, never()).save(any());
+        verifyNoInteractions(auditRabbitTemplate);
+    }
+
+    @Test
+    void dismiss_setsDeletedAtAndEmitsAudit() {
+        SupplierLead lead = leadAt(LeadStatus.OUTREACH_SENT);
+        lead.setId(3L);
+        lead.setDomain("example.com");
+        when(leadRepo.findById(3L)).thenReturn(Optional.of(lead));
+
+        ResponseEntity<Void> response = controller.dismiss(3L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        verify(leadRepo).save(leadCaptor.capture());
+        // Workflow status is preserved — soft-delete is a separate axis.
+        assertThat(leadCaptor.getValue().getStatus()).isEqualTo(LeadStatus.OUTREACH_SENT);
+        assertThat(leadCaptor.getValue().getDeletedAt()).isNotNull();
+
+        verify(auditRabbitTemplate).convertAndSend(auditCaptor.capture());
+        AuditEvent audit = auditCaptor.getValue();
+        assertThat(audit.getWhat()).isEqualTo("lead dismissed");
+        assertThat(audit.getEntityType()).isEqualTo("SupplierLead");
+        assertThat(audit.getEntityId()).isEqualTo("3");
+        assertThat(audit.getDetail()).isEqualTo("example.com");
+    }
+
+    @Test
+    void dismiss_alreadyDismissed_isNoOp_butStillNoContent() {
+        SupplierLead lead = leadAt(LeadStatus.NEW);
+        lead.setId(4L);
+        lead.setDeletedAt(java.time.LocalDateTime.now().minusDays(1));
+        when(leadRepo.findById(4L)).thenReturn(Optional.of(lead));
+
+        ResponseEntity<Void> response = controller.dismiss(4L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        verify(leadRepo, never()).save(any());
+        verifyNoInteractions(auditRabbitTemplate);
+    }
+
+    @Test
+    void undismiss_unknownLead_returnsNotFound() {
+        when(leadRepo.findById(404L)).thenReturn(Optional.empty());
+
+        ResponseEntity<SupplierLead> response = controller.undismiss(404L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(leadRepo, never()).save(any());
+        verifyNoInteractions(auditRabbitTemplate);
+    }
+
+    @Test
+    void undismiss_clearsDeletedMarkerAndEmitsAudit() {
+        SupplierLead lead = leadAt(LeadStatus.NEW);
+        lead.setId(5L);
+        lead.setDomain("revive.com");
+        lead.setDeletedAt(java.time.LocalDateTime.now().minusDays(2));
+        lead.setDeletedBy("admin");
+        when(leadRepo.findById(5L)).thenReturn(Optional.of(lead));
+
+        ResponseEntity<SupplierLead> response = controller.undismiss(5L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isSameAs(lead);
+        verify(leadRepo).save(leadCaptor.capture());
+        assertThat(leadCaptor.getValue().getDeletedAt()).isNull();
+        assertThat(leadCaptor.getValue().getDeletedBy()).isNull();
+
+        verify(auditRabbitTemplate).convertAndSend(auditCaptor.capture());
+        assertThat(auditCaptor.getValue().getWhat()).isEqualTo("lead restored");
+    }
+
+    @Test
+    void undismiss_notDismissed_isNoOp() {
+        SupplierLead lead = leadAt(LeadStatus.NEW);
+        lead.setId(6L);
+        when(leadRepo.findById(6L)).thenReturn(Optional.of(lead));
+
+        ResponseEntity<SupplierLead> response = controller.undismiss(6L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(leadRepo, never()).save(any());
+        verifyNoInteractions(auditRabbitTemplate);
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     private static SupplierLead leadAt(LeadStatus status) {

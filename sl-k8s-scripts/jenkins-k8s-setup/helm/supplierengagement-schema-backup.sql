@@ -122,6 +122,8 @@ CREATE TABLE public.supplier_lead (
     scraped_at                    timestamp(6)  without time zone NOT NULL DEFAULT now(),
     category_suggestion           varchar(2000),
     category_suggestion_reviewed  boolean       NOT NULL DEFAULT false,
+    deleted_at                    timestamp(6)  without time zone,
+    deleted_by                    varchar(255),
     CONSTRAINT supplier_lead_pkey PRIMARY KEY (id),
     CONSTRAINT supplier_lead_guid_unique UNIQUE (guid),
     CONSTRAINT supplier_lead_status_check CHECK (

@@ -31,5 +31,13 @@ public interface SupplierLeadRepo extends CrudRepository<SupplierLead, Long> {
     @Transactional
     Iterable<SupplierLead> findByStatusNotOrderByDomainAsc(LeadStatus status);
 
+    /** Active leads: excludes a terminal status (e.g. CONVERTED) and dismissed tombstones. */
+    @Transactional
+    Iterable<SupplierLead> findByStatusNotAndDeletedAtIsNullOrderByDomainAsc(LeadStatus status);
+
+    /** Dismissed (soft-deleted) leads, for the restore view. */
+    @Transactional
+    Iterable<SupplierLead> findByDeletedAtIsNotNullOrderByDomainAsc();
+
     long countBySource(String source);
 }
