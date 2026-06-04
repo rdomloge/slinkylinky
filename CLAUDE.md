@@ -51,7 +51,7 @@ Google gives no SEO benefit for more than one link between any two domains — t
 
 Multi-tenancy in SlinkyLinky is achieved through **Organisations** within a single shared deployment — not through separate deployments. Multiple organisations share the same database and Supplier pool, with all data (except Suppliers and Categories) segregated by `org_id`. Suppliers are intentionally shared across all organisations: avoiding duplication of the Supplier database across customers is a core value-add of the platform.
 
-**Production deployment:** The canonical deployment lives at `www.slinkylinky.uk`. The apex domain (`slinkylinky.uk`) was the original home of **Front Page Advantage (FPA)** — the founding customer and the organisation the platform was originally built for. FPA is migrating from the apex domain to `www.slinkylinky.uk` and will be the default organisation in the shared deployment. Going forward, additional organisations will join the same deployment via self-service registration.
+**Production deployment:** The canonical deployment lives at `www.slinkylinky.uk`. The apex domain (`slinkylinky.uk`) was the original home of **Front Page Advantage (FPA)** — the founding customer and the organisation the platform was originally built for. As of 2026-06-03, FPA has completed its migration from the apex domain onto the latest codebase running in Kubernetes at `www.slinkylinky.uk`, where it is the default organisation in the shared deployment. Going forward, additional organisations will join the same deployment via self-service registration.
 
 The Jenkins/K8s pipeline (`sl-k8s-scripts/jenkins-k8s-setup/helm/Jenkinsfile`) provisions a complete SlinkyLinky *deployment* (K8s namespace, databases, Keycloak realm, Cloudflare tunnel). The pipeline parameter is named `TENANT_NAME` for historical reasons — it sets the deployment's subdomain and K8s namespace name, not an organisation name. Within a deployment, new organisations join via the platform's registration/onboarding flow; no new deployment is needed per organisation.
 
@@ -258,6 +258,36 @@ Backend services expect these env vars:
 Frontend expects (in `.env.development` for dev, injected via `window.__CONFIG__` in production):
 - `BACKEND_HOST` (defaults to `localhost`)
 - `VITE_KEYCLOAK_URL`, `VITE_KEYCLOAK_REALM`, `VITE_KEYCLOAK_CLIENT_ID`
+
+## K8s Secrets: How Values Actually Get Populated
+
+**The `changeme` placeholders in `values.yaml` are NOT necessarily what ends up in the live secret.** The Helm chart renders every `secrets[].data` value literally (`secret.yml` does `b64enc` on whatever the values file says), but the Jenkinsfile then runs a series of `kubectl patch secret` stages *after* `helm install` that overwrite specific keys with real values. This splits secrets into two tiers:
+
+**Tier 1 — pipeline-reconciled** (real value injected at deploy; `values.yaml` placeholder is irrelevant; reproducible on redeploy):
+
+| Secret | Keys patched | Real value source |
+|---|---|---|
+| `db-connection-secret` | `*_DB_PASSWORD` (linkservice/stats/audit/supplierengagement/userservice), `KC_DB_PASSWORD` | `openssl rand -base64 24`, generated per deploy |
+| `rabbitmq-credentials` | `RABBITMQ_PASSWORD` | `openssl rand` |
+| `keycloak-credentials` | `KC_DB_PASSWORD` + realm/client values | generated / Jenkins folder properties |
+| `mail-secret` | `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_HOST` | **Jenkins folder properties** (`withFolderProperties()`) |
+| `backup-ssh-credentials`, `backup-ssh-key` | backup creds / SSH key | Jenkins folder properties |
+
+**Tier 2 — NOT reconciled** (whatever `values.yaml` says ships as-is; there is no patch stage):
+
+| Secret | Keys | Consequence |
+|---|---|---|
+| `stats-secret` | `MOZ_SECRET`, `SEMRUSH_KEY` | Deploy with `changeme` unless hand-patched live |
+| `collaborator-secret` | `COLLABORATOR_SESSION_COOKIES` (the only live key — see [`supplierengagement/CLAUDE.md`](supplierengagement/CLAUDE.md)) | Deploy with `changeme` unless hand-patched live |
+
+**Implications when working with secrets:**
+- For **Tier 1** keys, the source of truth is the pipeline (generated passwords) or **Jenkins folder properties** — *not* `values.yaml` and *not* the live secret. Editing `values.yaml` for these does nothing; the patch stage overwrites it.
+- For **Tier 2** keys, any real value exists *only* because someone ran a live `kubectl patch`. It is not in git or Jenkins and **will be lost on any redeploy** (`helm install` on a fresh namespace, DR, or the `restore-demo` pipeline), silently reverting to `changeme`. To make a Tier 2 value durable, mirror the mail pattern: add it to Jenkins folder properties + a `kubectl patch secret` stage (model on the `mail-secret` block in the Jenkinsfile).
+- The deploy uses `helm install` (one-shot per tenant), **not** `helm upgrade`, so a live `kubectl patch` on a running tenant is not auto-reverted during normal operation — only on a full redeploy.
+
+**DB passwords live in two places that must match:** the password is baked into Postgres at `CREATE USER ... WITH ENCRYPTED PASSWORD` time (init-sql in `postgres.yml`) *and* stored in `db-connection-secret` for services to present. The pipeline keeps them in sync by feeding the same generated value to both (`--set` for init-sql, `kubectl patch` for the secret). If you ever change a DB password by hand, you must `ALTER USER ... WITH PASSWORD` in Postgres, patch the secret, **and** `kubectl rollout restart` the consuming deployments (secret env vars are injected only at pod start — they do not hot-reload).
+
+**Editing a secret value by hand (PowerShell / Windows):** use a `stringData` merge patch so you don't have to base64-encode, but beware the PS 5.1 native-quote-stripping bug — pass the JSON via `--patch-file` or escape the inner quotes as `\"`. Always `kubectl rollout restart` the consumer afterwards.
 
 ## Database Schema & CI
 
