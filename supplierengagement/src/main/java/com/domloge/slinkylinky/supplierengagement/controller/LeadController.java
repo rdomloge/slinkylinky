@@ -241,13 +241,24 @@ public class LeadController {
         boolean incremental = body != null && Boolean.TRUE.equals(body.get("incremental"));
         scraper.scrapeAsync(cookies, scrapeLimit, incremental, projectId);
 
+        String limitDesc = scrapeLimit > 0 ? scrapeLimit + " leads requested" : "unlimited leads requested";
         AuditEvent ae = new AuditEvent();
-        ae.setWho(authentication != null ? authentication.getName() : "unknown");
-        ae.setWhat("start lead scrape");
+        ae.setWho(TenantContext.getUsername());
+        ae.setWhat(String.format("lead scrape started (%s, incremental=%b)", limitDesc, incremental));
         ae.setEventTime(LocalDateTime.now());
-        // ae.setEntityType("LeadScrape");
-        ae.setDetail(source);
-        auditRabbitTemplate.convertAndSend(ae);
+        ae.setDetail(String.format("source=%s, limit=%s, incremental=%s",
+                source, scrapeLimit > 0 ? scrapeLimit : "unlimited", incremental));
+        // A scrape is a cross-cutting action with no single target entity, so entityType/
+        // entityId are left null (same shape as the "login" audit). organisationId is therefore
+        // mandatory — the audit service silently drops records that have neither set.
+        TenantContext.getOrganisationId().ifPresentOrElse(
+            orgId -> {
+                ae.setOrganisationId(UUID.fromString(orgId));
+                auditRabbitTemplate.convertAndSend(ae);
+            },
+            () -> log.warn("Scrape audit for source '{}' not recorded — org_id claim missing "
+                    + "from JWT for user {}", source, ae.getWho())
+        );
 
         return ResponseEntity.accepted().body(Map.of("started", true, "source", source));
     }
