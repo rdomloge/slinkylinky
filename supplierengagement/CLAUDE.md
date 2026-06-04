@@ -67,8 +67,9 @@ Session statuses: `PENDING` → `AUTHENTICATED` | `FAILED` | `EXPIRED`
 
 ```java
 String getSourceKey();
-void scrapeAsync(String cookies, int scrapeLimit, boolean incremental);
+void scrapeAsync(String cookies, int scrapeLimit, boolean incremental, long projectId, int startPage);
 ScrapeStatus getStatus();
+ScrapeProgress getProgress();
 ```
 
 ---
@@ -76,14 +77,20 @@ ScrapeStatus getStatus();
 ### `CollaboratorLeadScraper`
 `scraper/CollaboratorLeadScraper.java` — implements `LeadScraper`
 
-Paginates `GET /catalog/api/data/load?project_id=...&page=N&per-page=100`, upserts
-`SupplierLead` rows, and optionally skips already-seen domains (incremental mode).
+Paginates `GET /catalog/api/data/load?project_id=...&page=N&per-page=20`, pages
+forward (skipping known suppliers, dismissed tombstones, and existing leads) until
+`scrapeLimit` brand-new `SupplierLead` rows are **inserted** or the catalogue ends.
+`scrapeLimit` is a stop condition (new leads to add), not a page size. End of
+catalogue is detected by an empty/short page; on reaching it the resume offset is
+reset to 0 so the next scrape wraps to the top. Start offset precedence:
+`startPage` > incremental resume (`scraping_metadata.lastOffset`) > beginning.
 
 | Method | Signature | Notes |
 |--------|-----------|-------|
 | `getSourceKey` | `String getSourceKey()` | Returns `"collaborator"` |
-| `getStatus` | `ScrapeStatus getStatus()` | Thread-safe; reads `AtomicBoolean running`, `AtomicInteger leadsFound` |
-| `scrapeAsync` | `void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental)` | `@Async` — runs on Spring async pool |
+| `getStatus` | `ScrapeStatus getStatus()` | Thread-safe; reads `AtomicBoolean running`, `AtomicInteger leadsFound` (brand-new inserts only) |
+| `getProgress` | `ScrapeProgress getProgress()` | Resume position (offset, current page, pageSize, lastScrapedAt) from `scraping_metadata` |
+| `scrapeAsync` | `void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental, long projectId, int startPage)` | `@Async` — runs on Spring async pool |
 
 ---
 
@@ -166,8 +173,9 @@ Value object returned by `LeadScraper.getStatus()`:
 | `verify2fa` | POST | `/.rest/leads/collaborator/session/login/verify` | Submit 2FA code |
 | `importCollaboratorCookies` | POST | `/.rest/leads/collaborator/session/import` | Manual cookie import |
 | `sessionStatus` | GET | `/.rest/leads/collaborator/session/status` | Poll session state |
-| `scrape` | POST | `/.rest/leads/scrape` | Kick off async scrape |
-| `scrapeStatus` | GET | `/.rest/leads/scrape/status` | Poll scrape progress |
+| `scrape` | POST | `/.rest/leads/scrape` | Kick off async scrape (`limit`, `incremental`, optional `startPage`) |
+| `scrapeStatus` | GET | `/.rest/leads/scrape/status` | Poll scrape progress (running, leadsFound) |
+| `scrapeMetadata` | GET | `/.rest/leads/scrape/metadata` | Resume position (offset, current page) for the scrape modal |
 | `discover` | POST | `/.rest/leads/{id}/discover` | HTTP contact discovery; enqueues browser if needed |
 | `requeueBrowser` | POST | `/.rest/leads/{id}/requeueBrowser` | Force browser queue for a lead |
 | `browserQueueStatus` | GET | `/.rest/leads/browser-queue/status` | Queue depth + processed count |

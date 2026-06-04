@@ -56,6 +56,7 @@ import com.domloge.slinkylinky.supplierengagement.scraper.CollaboratorLoginServi
 import com.domloge.slinkylinky.supplierengagement.scraper.ContactDiscoveryService;
 import com.domloge.slinkylinky.supplierengagement.scraper.LeadOutreachService;
 import com.domloge.slinkylinky.supplierengagement.scraper.LeadScraper;
+import com.domloge.slinkylinky.supplierengagement.scraper.ScrapeProgress;
 import com.domloge.slinkylinky.supplierengagement.scraper.ScrapeStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -222,32 +223,24 @@ public class LeadController {
                         .body(Map.of("error", "Collaborator session is not ready or has expired"));
             }
         }
-        int scrapeLimit = 0;
-        if (body != null && body.get("limit") != null) {
-            Object limitObj = body.get("limit");
-            if (limitObj instanceof Number) {
-                scrapeLimit = ((Number) limitObj).intValue();
-            } else if (limitObj instanceof String) {
-                try {
-                    scrapeLimit = Integer.parseInt((String) limitObj);
-                } catch (NumberFormatException e) {
-                    // ignore, use default 0
-                }
-            }
-        }
+        int scrapeLimit = parseIntField(body, "limit", 0);
+        // Optional explicit start page (1-based). 0 = not specified → use incremental/beginning.
+        int startPage = parseIntField(body, "startPage", 0);
 
         long projectId = collaboratorAuthSessionService.findProjectId(cookies);
 
         boolean incremental = body != null && Boolean.TRUE.equals(body.get("incremental"));
-        scraper.scrapeAsync(cookies, scrapeLimit, incremental, projectId);
+        scraper.scrapeAsync(cookies, scrapeLimit, incremental, projectId, startPage);
 
         String limitDesc = scrapeLimit > 0 ? scrapeLimit + " leads requested" : "unlimited leads requested";
+        String startDesc = startPage > 0 ? "page " + startPage : (incremental ? "resume" : "top");
         AuditEvent ae = new AuditEvent();
         ae.setWho(TenantContext.getUsername());
-        ae.setWhat(String.format("lead scrape started (%s, incremental=%b)", limitDesc, incremental));
+        ae.setWhat(String.format("lead scrape started (%s, start=%s)", limitDesc, startDesc));
         ae.setEventTime(LocalDateTime.now());
-        ae.setDetail(String.format("source=%s, limit=%s, incremental=%s",
-                source, scrapeLimit > 0 ? scrapeLimit : "unlimited", incremental));
+        ae.setDetail(String.format("source=%s, limit=%s, incremental=%s, startPage=%s",
+                source, scrapeLimit > 0 ? scrapeLimit : "unlimited", incremental,
+                startPage > 0 ? startPage : "-"));
         // A scrape is a cross-cutting action with no single target entity, so entityType/
         // entityId are left null (same shape as the "login" audit). organisationId is therefore
         // mandatory — the audit service silently drops records that have neither set.
@@ -385,6 +378,41 @@ public class LeadController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(scraper.getStatus());
+    }
+
+    /**
+     * Returns the resume position (offset/current page) for the given source, so the
+     * scrape modal can show where the next scrape will resume and default the start-page input.
+     */
+    @GetMapping("/scrape/metadata")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<ScrapeProgress> scrapeMetadata(
+            @RequestParam(value = "source", defaultValue = "collaborator.pro") String source) {
+
+        LeadScraper scraper = findScraper(source);
+        if (scraper == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(scraper.getProgress());
+    }
+
+    /** Defensively parses an optional integer field from the request body (Number or String). */
+    private static int parseIntField(Map<String, Object> body, String key, int defaultValue) {
+        if (body == null || body.get(key) == null) {
+            return defaultValue;
+        }
+        Object val = body.get(key);
+        if (val instanceof Number) {
+            return ((Number) val).intValue();
+        }
+        if (val instanceof String) {
+            try {
+                return Integer.parseInt(((String) val).trim());
+            } catch (NumberFormatException e) {
+                return defaultValue;
+            }
+        }
+        return defaultValue;
     }
 
     /**

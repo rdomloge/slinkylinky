@@ -50,7 +50,7 @@ public class CollaboratorLeadScraper implements LeadScraper {
 
     private static final String SOURCE_KEY  = "collaborator.pro";
     private static final String API_URL     = "https://collaborator.pro/catalog/api/data/load";
-    private static final int    PAGE_SIZE   = 100;
+    private static final int    PAGE_SIZE   = 20;
     private static final String USER_AGENT  =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
             "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -108,8 +108,17 @@ public class CollaboratorLeadScraper implements LeadScraper {
     }
 
     @Override
+    public ScrapeProgress getProgress() {
+        ScrapingMetadata metadata = scrapingMetadataRepo.findById(SOURCE_KEY).orElse(null);
+        int offset = metadata != null ? metadata.getLastOffset() : 0;
+        int currentPage = (offset / PAGE_SIZE) + 1;
+        return new ScrapeProgress(offset, currentPage, PAGE_SIZE,
+                metadata != null ? metadata.getLastScrapedAt() : null);
+    }
+
+    @Override
     @Async
-    public void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental, long projectId) {
+    public void scrapeAsync(String cookiesOverride, int limitOverride, boolean incremental, long projectId, int startPage) {
         if (!running.compareAndSet(false, true)) {
             log.warn("Scrape already in progress — ignoring duplicate trigger");
             return;
@@ -125,24 +134,24 @@ public class CollaboratorLeadScraper implements LeadScraper {
             return;
         }
 
-        // Use the override limit if provided (> 0), otherwise use the config limit
+        // The limit is a STOP CONDITION: how many brand-new leads to add. 0 = unlimited (config default).
         int effectiveLimit = limitOverride > 0 ? limitOverride : scrapeLimit;
 
-        // Load offset from metadata if incremental; otherwise start from 0
-        int startOffset = 0;
-        if (incremental) {
+        // Resolve where to start. Precedence: explicit startPage > incremental resume > beginning.
+        int startOffset;
+        if (startPage > 0) {
+            startOffset = (startPage - 1) * PAGE_SIZE;
+            log.info("Scrape starting from explicit page {} (offset {}) — project_id={}, target={}",
+                    startPage, startOffset, projectId, targetDesc(effectiveLimit));
+        } else if (incremental) {
             ScrapingMetadata metadata = scrapingMetadataRepo.findById(SOURCE_KEY).orElse(null);
-            if (metadata != null) {
-                startOffset = metadata.getLastOffset();
-                log.info("Incremental scrape: resuming from offset {} — project_id={}, limit={}",
-                        startOffset, projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
-            } else {
-                log.info("Incremental scrape requested but no metadata found; starting from offset 0 — project_id={}, limit={}",
-                        projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
-            }
+            startOffset = metadata != null ? metadata.getLastOffset() : 0;
+            log.info("Incremental scrape: resuming from offset {} (page {}) — project_id={}, target={}",
+                    startOffset, (startOffset / PAGE_SIZE) + 1, projectId, targetDesc(effectiveLimit));
         } else {
-            log.info("Starting fresh scrape from offset 0 — project_id={}, limit={}",
-                    projectId, effectiveLimit > 0 ? effectiveLimit : "unlimited");
+            startOffset = 0;
+            log.info("Starting fresh scrape from the top — project_id={}, target={}",
+                    projectId, targetDesc(effectiveLimit));
         }
 
         try {
@@ -150,21 +159,18 @@ public class CollaboratorLeadScraper implements LeadScraper {
                     .followRedirects(HttpClient.Redirect.NORMAL)
                     .build();
 
-            // Calculate page size: use requested limit if smaller than PAGE_SIZE, otherwise use PAGE_SIZE
-            int pageSize = (effectiveLimit > 0 && effectiveLimit < PAGE_SIZE) ? effectiveLimit : PAGE_SIZE;
+            int startPageNum = (startOffset / PAGE_SIZE) + 1;
+            int skipWithinFirstPage = startOffset % PAGE_SIZE;
 
-            // Calculate starting page and skip count from offset
-            int startPage = (startOffset / pageSize) + 1;
-            int skipWithinFirstPage = startOffset % pageSize;
+            int page = startPageNum;
+            int totalConsumed = 0;       // items examined this run; advances the resume offset
+            int newLeadsFound = 0;       // brand-new rows actually inserted
+            int totalCount = 0;          // total catalogue size, from the API pagination block
+            boolean reachedEnd = false;  // true once the catalogue runs out
 
-            int page = startPage;
-            int totalPages = startPage; // updated after first response
-            int totalConsumed = 0; // all items seen from API (including known suppliers)
-            int newLeadsFound = 0; // items actually upserted
-
-            do {
+            while (true) {
                 String url = API_URL + "?project_id=" + projectId
-                        + "&page=" + page + "&per-page=" + pageSize;
+                        + "&page=" + page + "&per-page=" + PAGE_SIZE;
 
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(url))
@@ -192,69 +198,100 @@ public class CollaboratorLeadScraper implements LeadScraper {
                 }
 
                 JsonNode data = root.path("data");
-                JsonNode pagination = data.path("pagination");
-                totalPages = pagination.path("totalPageCount").asInt(1);
-
-                if (page == startPage) {
-                    log.info("Catalog has {} items across {} pages (page size {})",
-                            pagination.path("totalCount").asInt(),
-                            totalPages,
-                            pageSize);
+                if (page == startPageNum) {
+                    totalCount = data.path("pagination").path("totalCount").asInt(0);
+                    log.info("Catalog reports {} items total (page size {})", totalCount, PAGE_SIZE);
                 }
 
                 JsonNode items = data.path("items");
-                int itemsOnThisPage = 0;
+                int itemsReturned = items.isArray() ? items.size() : 0;
+
+                // An empty page means we've run off the end of the catalogue.
+                if (itemsReturned == 0) {
+                    reachedEnd = true;
+                    break;
+                }
+
+                int indexOnPage = 0;
+                boolean limitReached = false;
                 for (JsonNode item : items) {
-                    // Skip items that are before our offset position on the first page
-                    if (page == startPage && itemsOnThisPage < skipWithinFirstPage) {
-                        itemsOnThisPage++;
-                        totalConsumed++;
+                    // On the first page, skip items before our offset position within the page.
+                    if (page == startPageNum && indexOnPage < skipWithinFirstPage) {
+                        indexOnPage++;
                         continue;
                     }
-                    itemsOnThisPage++;
+                    indexOnPage++;
                     totalConsumed++;
 
                     LeadDto dto = parseItem(item);
+                    if (!StringUtils.hasText(dto.domain)) {
+                        log.debug("Skipping item with no domain");
+                        continue;
+                    }
                     if (isKnownSupplier(dto.domain)) {
                         log.debug("Skipping {} — already a supplier in linkservice", dto.domain);
                         continue;
                     }
-                    // Look up any existing lead row up front (one read, reused by upsert).
-                    // Dismissed rows are kept as tombstones: skip them so a manually
-                    // dismissed domain is never re-created on a later scrape.
-                    SupplierLead existing = StringUtils.hasText(dto.domain)
-                            ? leadRepo.findByDomainAndSource(dto.domain, SOURCE_KEY)
-                            : null;
+
+                    // Existing rows never count toward the target. Dismissed tombstones are
+                    // skipped entirely; live leads are refreshed but do not advance the count.
+                    SupplierLead existing = leadRepo.findByDomainAndSource(dto.domain, SOURCE_KEY);
                     if (existing != null && existing.getDeletedAt() != null) {
                         log.debug("Skipping {} — previously dismissed", dto.domain);
                         continue;
                     }
-                    if (effectiveLimit > 0 && newLeadsFound >= effectiveLimit) {
-                        log.info("Scrape limit of {} reached — stopping early", effectiveLimit);
-                        // Save metadata before returning
-                        saveScrapingMetadata(startOffset, totalConsumed);
-                        return;
+                    if (existing != null) {
+                        try {
+                            refreshExisting(existing, dto);
+                        } catch (Exception e) {
+                            log.warn("Failed to refresh existing lead {}: {}", dto.domain, e.getMessage());
+                        }
+                        continue;
+                    }
+
+                    // Brand-new domain — only a successful insert advances the count.
+                    try {
+                        insertNew(dto);
+                    } catch (Exception e) {
+                        log.warn("Failed to insert new lead {}: {}", dto.domain, e.getMessage());
+                        continue;
                     }
                     newLeadsFound++;
-                    try {
-                        upsert(dto, existing);
-                    } catch (Exception e) {
-                        log.warn("Failed to upsert item {}: {}", newLeadsFound, e.getMessage());
+                    leadsFound.set(newLeadsFound);
+
+                    if (effectiveLimit > 0 && newLeadsFound >= effectiveLimit) {
+                        limitReached = true;
+                        break;
                     }
                 }
 
-                log.info("Page {}/{} done — {} consumed, {} new leads found, {} total upserted",
-                        page, totalPages, totalConsumed, newLeadsFound, leadsFound.get());
+                log.info("Page {} done — {} consumed this run, {} new leads inserted", page, totalConsumed, newLeadsFound);
 
-                // Save metadata after each page
-                saveScrapingMetadata(startOffset, totalConsumed);
+                // Persist resume position after each page: offset = just past everything consumed.
+                saveScrapingMetadata(startOffset + totalConsumed);
+
+                if (limitReached) {
+                    log.info("Target of {} new leads reached — stopping", effectiveLimit);
+                    return;
+                }
+
+                // End of catalogue: we've consumed every item the API reports. We deliberately
+                // do NOT treat a short page (fewer than PAGE_SIZE items) as the end — the API can
+                // return short pages mid-catalogue, and doing so stopped scrapes early.
+                if (totalCount > 0 && (startOffset + totalConsumed) >= totalCount) {
+                    reachedEnd = true;
+                    break;
+                }
 
                 page++;
+                Thread.sleep(200); // be polite to the server
+            }
 
-                // Small pause to be respectful of the server
-                if (page <= totalPages) Thread.sleep(200);
-
-            } while (page <= totalPages);
+            if (reachedEnd) {
+                // Wrap back to the top so the next scrape picks up newly-added bloggers.
+                log.info("Reached the end of the catalogue — resetting resume offset to 0 (inserted {} new leads)", newLeadsFound);
+                saveScrapingMetadata(0);
+            }
 
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
@@ -263,18 +300,20 @@ public class CollaboratorLeadScraper implements LeadScraper {
             log.error("Collaborator.pro scrape failed", e);
         } finally {
             running.set(false);
-            log.info("Collaborator.pro scrape finished. Total leads upserted: {}", leadsFound.get());
+            log.info("Collaborator.pro scrape finished. New leads inserted: {}", leadsFound.get());
         }
     }
 
+    private static String targetDesc(int effectiveLimit) {
+        return effectiveLimit > 0 ? effectiveLimit + " new leads" : "unlimited";
+    }
+
     /**
-     * Saves or updates the scraping metadata with the new offset.
-     * @param startOffset The initial offset at the start of this scrape run
-     * @param totalConsumed The total items consumed during this scrape run
+     * Saves or updates the scraping metadata with the given absolute offset.
+     * @param newOffset The absolute item offset to resume from on the next scrape.
      */
-    private void saveScrapingMetadata(int startOffset, int totalConsumed) {
+    private void saveScrapingMetadata(int newOffset) {
         try {
-            int newOffset = startOffset + totalConsumed;
             ScrapingMetadata metadata = scrapingMetadataRepo.findById(SOURCE_KEY)
                     .orElseGet(() -> new ScrapingMetadata());
             metadata.setSource(SOURCE_KEY);
@@ -340,27 +379,26 @@ public class CollaboratorLeadScraper implements LeadScraper {
         return dto;
     }
 
-    private void upsert(LeadDto dto, SupplierLead existing) {
-        if (!StringUtils.hasText(dto.domain)) return;
+    /** Inserts a brand-new lead row. Caller is responsible for the new-lead count. */
+    private void insertNew(LeadDto dto) {
+        SupplierLead lead = new SupplierLead();
+        lead.setSource(SOURCE_KEY);
+        lead.setDomain(dto.domain);
+        lead.setPrice(dto.price);
+        lead.setCurrency(dto.currency);
+        lead.setCategories(dto.categories);
+        lead.setStatus(LeadStatus.NEW);
+        lead.setScrapedAt(LocalDateTime.now());
+        leadRepo.save(lead);
+        syncCategoryMappings(dto.categories);
+    }
 
-        if (existing != null) {
-            // Refresh catalog data; never reset outreach progress
-            existing.setPrice(dto.price);
-            existing.setCurrency(dto.currency);
-            existing.setCategories(dto.categories);
-            leadRepo.save(existing);
-        } else {
-            SupplierLead lead = new SupplierLead();
-            lead.setSource(SOURCE_KEY);
-            lead.setDomain(dto.domain);
-            lead.setPrice(dto.price);
-            lead.setCurrency(dto.currency);
-            lead.setCategories(dto.categories);
-            lead.setStatus(LeadStatus.NEW);
-            lead.setScrapedAt(LocalDateTime.now());
-            leadRepo.save(lead);
-        }
-        leadsFound.incrementAndGet();
+    /** Refreshes catalog data on an existing lead; never resets outreach progress, never counts. */
+    private void refreshExisting(SupplierLead existing, LeadDto dto) {
+        existing.setPrice(dto.price);
+        existing.setCurrency(dto.currency);
+        existing.setCategories(dto.categories);
+        leadRepo.save(existing);
         syncCategoryMappings(dto.categories);
     }
 
