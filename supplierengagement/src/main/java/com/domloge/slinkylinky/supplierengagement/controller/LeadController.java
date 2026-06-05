@@ -624,6 +624,34 @@ public class LeadController {
     }
 
     /**
+     * Updates mutable fields on a lead (contactEmail, status).
+     * Used by the manual-email entry modal in the frontend.
+     */
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('global_admin')")
+    public ResponseEntity<SupplierLead> patchLead(
+            @PathVariable long id,
+            @RequestBody Map<String, Object> body) {
+
+        SupplierLead lead = leadRepo.findById(id).orElse(null);
+        if (lead == null) return ResponseEntity.notFound().build();
+
+        if (body.containsKey("contactEmail")) {
+            Object val = body.get("contactEmail");
+            lead.setContactEmail(val != null ? val.toString().trim() : null);
+        }
+        if (body.containsKey("status")) {
+            Object val = body.get("status");
+            if (val != null) {
+                try {
+                    lead.setStatus(LeadStatus.valueOf(val.toString()));
+                } catch (IllegalArgumentException ignored) { /* skip unknown status */ }
+            }
+        }
+        return ResponseEntity.ok(leadRepo.save(lead));
+    }
+
+    /**
      * Admin endpoint: sets the per-lead SL category override and marks the lead's
      * category suggestion (if any) as reviewed. An empty {@code overrideSlCategoryIds}
      * clears any existing override — convert will then fall back to the auto-mapping
