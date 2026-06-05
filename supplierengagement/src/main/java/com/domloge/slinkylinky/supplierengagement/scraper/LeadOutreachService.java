@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.supplierengagement.email.LeadEmailContentBuilder;
@@ -53,6 +54,9 @@ public class LeadOutreachService {
 
     @Value("${spring.mail.testing.addresses}")
     private String testingAddresses;
+
+    @Value("${spring.mail.bccRecipients}")
+    private String bccRecipients;
 
     /**
      * Sends the outreach email to the lead's contact email address.
@@ -101,6 +105,9 @@ public class LeadOutreachService {
 
         String recipient = isTesting ? testingAddresses : lead.getContactEmail();
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipient));
+        if (StringUtils.hasText(bccRecipients)) {
+            msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
+        }
         msg.setSubject("Partnership opportunity — " + lead.getDomain());
 
         MimeBodyPart body = new MimeBodyPart();
