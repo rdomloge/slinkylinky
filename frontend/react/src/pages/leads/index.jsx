@@ -757,8 +757,7 @@ export default function LeadsIndex() {
                     const r = await fetchWithAuth(`/.rest/leads/${lead.id}/sendOutreach`, { method: 'POST' });
                     if (r?.status === 422) { toast('Resolve category mappings before sending outreach', 'error'); return; }
                     if (!r?.ok) throw new Error(r?.status);
-                    const r2 = await fetchWithAuth(`/.rest/leads/${lead.id}`);
-                    const updated = await r2.json();
+                    const updated = await r.json();
                     setLeads(prev => prev.map(l => l.id === updated.id ? updated : l));
                     toast(`Outreach sent to ${lead.contactEmail}`, 'success');
                 } catch {

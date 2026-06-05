@@ -480,7 +480,7 @@ public class LeadController {
      */
     @PostMapping("/{id}/sendOutreach")
     @PreAuthorize("hasRole('global_admin')")
-    public ResponseEntity<Void> sendOutreach(@PathVariable long id) {
+    public ResponseEntity<SupplierLead> sendOutreach(@PathVariable long id) {
         SupplierLead lead = leadRepo.findById(id).orElse(null);
         if (lead == null) {
             log.error("sendOutreach: lead not found: {}", id);
@@ -492,7 +492,7 @@ public class LeadController {
         }
         try {
             outreachService.sendOutreach(id);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(leadRepo.findById(id).orElseThrow());
         } catch (IllegalArgumentException e) {
             log.error("sendOutreach: IllegalArgumentException for lead {}: {}", id, e.getMessage(), e);
             return ResponseEntity.notFound().build();
