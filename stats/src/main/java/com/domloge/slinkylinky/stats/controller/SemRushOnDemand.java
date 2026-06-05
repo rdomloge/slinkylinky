@@ -8,10 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.stats.semrush.Loader;
 import com.domloge.slinkylinky.stats.semrush.SemRushResponseLine;
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(".rest/semrush")
 @Slf4j
 public class SemRushOnDemand {
-    
+
     @Autowired
     private Semrush semrush;
 
@@ -33,9 +33,11 @@ public class SemRushOnDemand {
 
 
     @GetMapping(path = "/lookup", produces = "application/json")
-    public ResponseEntity<SemRushResponseLine[]> generate(@RequestParam String domain, @RequestHeader String user) {
-        log.info("{} generating SEMrush data for {}", user, domain);
+    public ResponseEntity<SemRushResponseLine[]> generate(@RequestParam String domain) {
         
+        String user = TenantContext.getUsername();
+        log.info("{} generating SEMrush data for {}", user, domain);
+
         AuditEvent auditEvent = new AuditEvent();
         auditEvent.setEventTime(java.time.LocalDateTime.now());
         auditEvent.setWho(user);

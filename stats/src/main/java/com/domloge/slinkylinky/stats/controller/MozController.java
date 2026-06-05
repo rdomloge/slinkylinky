@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.domloge.slinkylinky.common.TenantContext;
 import com.domloge.slinkylinky.events.AuditEvent;
 import com.domloge.slinkylinky.stats.moz.DaChecker;
 import com.domloge.slinkylinky.stats.moz.LinkChecker;
@@ -41,24 +42,22 @@ public class MozController {
     }
 
     @GetMapping(path = "/checkdomain", produces = "application/json")
-    public @ResponseBody MozDomain check(@RequestParam String domain, @RequestHeader String user)  throws JsonProcessingException {
-
+    public @ResponseBody MozDomain check(@RequestParam String domain) throws JsonProcessingException {
+        String user = TenantContext.getUsername();
         log.info("Checking DA for " + domain);
 
         MozDomain domainResults = domainChecker.getCurrent(user, domain);
         return domainResults;
     }
-    
+
     @GetMapping(path = "/checklink", produces = "application/json")
     public @ResponseBody MozPageLink check(@RequestParam String demandurl, @RequestParam String supplierDomain,
-            @RequestHeader long demandId, @RequestHeader String user, @RequestHeader UUID organisationId)  throws JsonProcessingException {
+            @RequestHeader long demandId) throws JsonProcessingException {
+
+        String user = TenantContext.getUsername();
+        UUID organisationId = TenantContext.getOrganisationId().map(UUID::fromString).orElse(null);
 
         log.info("Checking " + demandurl);
-
-        // if(System.currentTimeMillis() % 2 == 0) {
-        //     log.warn("[][][][] Returning fake result [][][][]");
-        //     return linkChecker.check("frontpageadvantage.com", "businessmention.co.uk", null);
-        // }
 
         // audit the usage of the Moz API
         AuditEvent auditEvent = new AuditEvent();
