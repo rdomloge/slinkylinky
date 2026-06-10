@@ -108,7 +108,7 @@ public class LeadOutreachService {
         if (StringUtils.hasText(bccRecipients)) {
             msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(bccRecipients));
         }
-        msg.setSubject("Partnership opportunity — " + lead.getDomain());
+        msg.setSubject("Paid Article Placements — " + lead.getDomain());
 
         MimeBodyPart body = new MimeBodyPart();
         body.setContent(htmlContent, "text/html; charset=utf-8");

@@ -9,6 +9,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
+import com.domloge.slinkylinky.common.EmailUrls;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import jakarta.mail.internet.MimeMessage;
@@ -37,7 +39,7 @@ public class EmailSender {
     public void sendVerificationEmail(String to, String rawToken) throws Exception {
         Template template = freemarkerConfig.getTemplate("verify-email.ftl");
         Map<String, Object> model = Map.of(
-            "verificationLink", domain + "/verify-email?token=" + rawToken,
+            "verificationLink", EmailUrls.normaliseBaseUrl(domain) + "/verify-email?token=" + rawToken,
             "email", to
         );
         String body = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);

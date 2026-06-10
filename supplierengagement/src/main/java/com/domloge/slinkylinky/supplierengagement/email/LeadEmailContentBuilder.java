@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import com.domloge.slinkylinky.common.EmailUrls;
 import com.domloge.slinkylinky.supplierengagement.entity.MappingStatus;
 import com.domloge.slinkylinky.supplierengagement.entity.SupplierLead;
 import com.domloge.slinkylinky.supplierengagement.pricing.LeadPricing;
@@ -42,7 +43,7 @@ public class LeadEmailContentBuilder {
     private String signoffContactDetails;
 
     public String buildOutreachContent(SupplierLead lead) {
-        String responseUrl = slinkyLinkyDomain + "/public/leadresponse?guid=" + lead.getGuid();
+        String responseUrl = EmailUrls.normaliseBaseUrl(slinkyLinkyDomain) + "/public/leadresponse?guid=" + lead.getGuid();
         String suggestedFee = calculateSuggestedFee(lead.getPrice());
         String currencySymbol = getCurrencySymbol(lead.getCurrency());
         List<String> mappedCategoryNames = resolveMappedCategoryNames(lead);

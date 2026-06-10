@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer;
 
+import com.domloge.slinkylinky.common.EmailUrls;
 import com.domloge.slinkylinky.supplierengagement.entity.Engagement;
 
 import freemarker.template.Template;
@@ -62,7 +63,7 @@ public class ContentBuilder {
 
     public String buildForSupplierEngagement(Context ctx) {
 
-        String responseUrl = slinkyLinkyDomain + "/public/supplierresponse?id="+ctx.getDbEngagement().getGuid();
+        String responseUrl = EmailUrls.normaliseBaseUrl(slinkyLinkyDomain) + "/public/supplierresponse?id="+ctx.getDbEngagement().getGuid();
         String fee = ctx.getEvent().getSupplierWeWriteFeeCurrency() + ctx.getEvent().getSupplierWeWriteFee();
 
         Map<String, Object> templateModel = new HashMap<>();

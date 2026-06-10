@@ -106,7 +106,7 @@ configMaps:
       VITE_GA_TRACKING_ID: "G-4K0WX1L508"
   - name: common-config
     data:
-      SLINKYLINKY_DOMAIN: "changeme.slinkylinky.uk"
+      SLINKYLINKY_DOMAIN: "https://changeme.slinkylinky.uk"
       SLINKYLINKY_VHOST: "slinkylinky"
       SLINKYLINKY_RABBITMQ_HOST: "rabbit-service"
       SLINKYLINKY_RABBITMQ_PORT: "5672"
