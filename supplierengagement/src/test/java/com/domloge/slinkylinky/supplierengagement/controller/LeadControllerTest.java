@@ -68,7 +68,7 @@ class LeadControllerTest {
     void accept_unknownGuid_returnsNotFound() throws Exception {
         when(leadRepo.findByGuid("missing")).thenReturn(null);
 
-        ResponseEntity<Void> response = controller.accept("missing", null, null, null);
+        ResponseEntity<Void> response = controller.accept("missing", null, null, null, null, null, null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         verify(leadRepo, never()).save(any());
@@ -81,7 +81,7 @@ class LeadControllerTest {
         lead.setGuid("converted-guid");
         when(leadRepo.findByGuid("converted-guid")).thenReturn(lead);
 
-        ResponseEntity<Void> response = controller.accept("converted-guid", null, "please remove Tech", null);
+        ResponseEntity<Void> response = controller.accept("converted-guid", null, "please remove Tech", null, null, null, null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
         verify(leadRepo, never()).save(any());
@@ -97,7 +97,8 @@ class LeadControllerTest {
         lead.setGuid("g1");
         when(leadRepo.findByGuid("g1")).thenReturn(lead);
 
-        ResponseEntity<Void> response = controller.accept("g1", "https://docs.example.com", "  swap Tech for Health  ", null);
+        ResponseEntity<Void> response = controller.accept("g1", "https://docs.example.com", "  swap Tech for Health  ", 2,
+                new java.math.BigDecimal("40"), "  please link to our sister site too  ", null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(leadRepo).save(leadCaptor.capture());
@@ -106,6 +107,12 @@ class LeadControllerTest {
         assertThat(saved.getCategorySuggestion()).isEqualTo("swap Tech for Health");
         assertThat(saved.isCategorySuggestionReviewed()).isFalse();
         assertThat(saved.getGoogleDocUrl()).isEqualTo("https://docs.example.com");
+        // The supplier's chosen links-permitted value (2) is persisted on the lead.
+        assertThat(saved.getLinksPermitted()).isEqualTo(2);
+        // The fee the supplier quoted for themselves is stored as the agreed fee.
+        assertThat(saved.getAgreedFee()).isEqualByComparingTo(new java.math.BigDecimal("40"));
+        // The free-text message is trimmed and stored.
+        assertThat(saved.getMessage()).isEqualTo("please link to our sister site too");
         // Audit was emitted ("lead response accepted")
         verify(auditRabbitTemplate).convertAndSend(any(AuditEvent.class));
     }
@@ -117,7 +124,7 @@ class LeadControllerTest {
         lead.setCategorySuggestion("previous note");
         when(leadRepo.findByGuid("g2")).thenReturn(lead);
 
-        controller.accept("g2", null, "   ", null);
+        controller.accept("g2", null, "   ", null, null, null, null);
 
         verify(leadRepo).save(leadCaptor.capture());
         assertThat(leadCaptor.getValue().getCategorySuggestion()).isEqualTo("previous note");
@@ -235,6 +242,88 @@ class LeadControllerTest {
         controller.patchCategories(9L, Map.of("overrideSlCategoryIds", List.of(1, "2", 3L)));
 
         assertThat(lead.getOverrideSlCategoryIds()).containsExactly(1L, 2L, 3L);
+    }
+
+    // ── PATCH /{id} (edit details) ──────────────────────────────────────────────
+
+    @Test
+    void patchLead_unknownLead_returnsNotFound() {
+        when(leadRepo.findById(99L)).thenReturn(Optional.empty());
+
+        ResponseEntity<SupplierLead> response = controller.patchLead(99L, Map.of("price", "60"));
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        verify(leadRepo, never()).save(any());
+    }
+
+    @Test
+    void patchLead_updatesEditableParameters() {
+        SupplierLead lead = leadAt(LeadStatus.NEW);
+        lead.setId(5L);
+        lead.setPrice(new java.math.BigDecimal("50"));
+        lead.setCurrency("GBP");
+        when(leadRepo.findById(5L)).thenReturn(Optional.of(lead));
+        when(leadRepo.save(any(SupplierLead.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("price", "120");
+        body.put("currency", "USD");
+        body.put("countries", "United States");
+        body.put("language", "English");
+
+        ResponseEntity<SupplierLead> response = controller.patchLead(5L, body);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(lead.getPrice()).isEqualByComparingTo("120");
+        assertThat(lead.getCurrency()).isEqualTo("USD");
+        assertThat(lead.getCountries()).isEqualTo("United States");
+        assertThat(lead.getLanguage()).isEqualTo("English");
+        // SL price is derived from the (now updated) price.
+        assertThat(lead.getSuggestedFee()).isEqualByComparingTo("110"); // 120 * 0.9 = 108 → nearest 5 = 110
+    }
+
+    @Test
+    void patchLead_ignoresUnknownAndMalformedFields() {
+        SupplierLead lead = leadAt(LeadStatus.NEW);
+        lead.setId(6L);
+        lead.setPrice(new java.math.BigDecimal("80"));
+        when(leadRepo.findById(6L)).thenReturn(Optional.of(lead));
+        when(leadRepo.save(any(SupplierLead.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("price", "not-a-number"); // malformed → left unchanged
+        body.put("totallyUnknownKey", "x"); // unknown → ignored
+
+        controller.patchLead(6L, body);
+
+        assertThat(lead.getPrice()).isEqualByComparingTo("80");
+    }
+
+    @Test
+    void patchLead_emailOnStalledLead_advancesToContactFound() {
+        SupplierLead lead = leadAt(LeadStatus.CONTACT_NOT_FOUND);
+        lead.setId(10L);
+        when(leadRepo.findById(10L)).thenReturn(Optional.of(lead));
+        when(leadRepo.save(any(SupplierLead.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        controller.patchLead(10L, Map.of("contactEmail", "hello@example.com"));
+
+        assertThat(lead.getContactEmail()).isEqualTo("hello@example.com");
+        assertThat(lead.getStatus()).isEqualTo(LeadStatus.CONTACT_FOUND);
+    }
+
+    @Test
+    void patchLead_emailCorrectionAfterOutreach_doesNotRewindStatus() {
+        SupplierLead lead = leadAt(LeadStatus.OUTREACH_SENT);
+        lead.setId(11L);
+        lead.setContactEmail("old@example.com");
+        when(leadRepo.findById(11L)).thenReturn(Optional.of(lead));
+        when(leadRepo.save(any(SupplierLead.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        controller.patchLead(11L, Map.of("contactEmail", "new@example.com"));
+
+        assertThat(lead.getContactEmail()).isEqualTo("new@example.com");
+        assertThat(lead.getStatus()).isEqualTo(LeadStatus.OUTREACH_SENT); // not rewound
     }
 
     // ── /convert ──────────────────────────────────────────────────────────────

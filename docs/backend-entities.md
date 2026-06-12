@@ -191,6 +191,7 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - `currency: String`
 - `countries: String`
 - `language: String`
+- `agreedFee: BigDecimal`
 - `contactEmail: String`
 - `outreachSent: LocalDateTime`
 - `guid: String`
@@ -198,6 +199,8 @@ Schema is **not** managed by Hibernate — DDL lives in `sl-k8s-scripts/jenkins-
 - `googleDocUrl: String`
 - `declineReason: String`
 - `scrapedAt: LocalDateTime`
+- `deletedAt: LocalDateTime`
+- `deletedBy: String`
 - `categorySuggestion: String`
 
 ## `DaMonthlyData`

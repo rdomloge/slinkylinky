@@ -146,16 +146,21 @@ Spring Data REST auto-exposes CRUD at `/.rest/{entityPluralName}` — only *cust
 | Method | Path | Handler |
 |--------|------|--------|
 | `GET` | `/.rest/leads` | `list()` |
+| `GET` | `/.rest/leads/dismissed` | `listDismissed()` |
+| `DELETE` | `/.rest/leads/{id}` | `dismiss()` |
+| `POST` | `/.rest/leads/{id}/undismiss` | `undismiss()` |
 | `POST` | `/.rest/leads/collaborator/session/import` | `importCollaboratorCookies()` |
 | `POST` | `/.rest/leads/collaborator/session/login` | `autoLogin()` |
 | `GET` | `/.rest/leads/collaborator/session/status` | `sessionStatus()` |
 | `POST` | `/.rest/leads/collaborator/session/login/verify` | `verify2fa()` |
 | `GET` | `/.rest/leads/scrape/status` | `scrapeStatus()` |
+| `GET` | `/.rest/leads/scrape/metadata` | `scrapeMetadata()` |
 | `POST` | `/.rest/leads/{id}/discover` | `discover()` |
 | `POST` | `/.rest/leads/{id}/requeueBrowser` | `requeueBrowser()` |
 | `POST` | `/.rest/leads/{id}/sendOutreach` | `sendOutreach()` |
 | `GET` | `/.rest/leads/{id}/downloadFile` | `downloadFile()` |
 | `POST` | `/.rest/leads/{id}/convert` | `convertToSupplier()` |
+| `PATCH` | `/.rest/leads/{id}` | `patchLead()` |
 | `PATCH` | `/.rest/leads/{id}/categories` | `patchCategories()` |
 | `GET` | `/.rest/leads/response` | `getByGuid()` |
 | `PATCH` | `/.rest/leads/accept` | `accept()` |

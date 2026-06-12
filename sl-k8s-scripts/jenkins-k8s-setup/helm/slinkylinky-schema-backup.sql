@@ -456,7 +456,8 @@ CREATE TABLE public.supplier (
     created_date bigint DEFAULT 0 NOT NULL,
     modified_date bigint DEFAULT 0,
     version bigint DEFAULT 0,
-    spam_score integer
+    spam_score integer,
+    links_permitted integer DEFAULT 3 NOT NULL
 );
 
 
@@ -482,7 +483,8 @@ CREATE TABLE public.supplier_aud (
     we_write_fee integer,
     we_write_fee_currency character varying(255),
     website character varying(255),
-    spam_score integer
+    spam_score integer,
+    links_permitted integer
 );
 
 

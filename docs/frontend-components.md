@@ -12,6 +12,7 @@ Small, reusable UI primitives in `src/components/atoms/`.
 | `StyledCheckbox` | `components/atoms/Checkbox.jsx` | label, checked, onChangeHandler |  |
 | `NiceDate` | `components/atoms/DateTime.jsx` | isostring |  |
 | `DotMenu` | `components/atoms/DotMenu.jsx` | items, classNames |  |
+| `Drawer` | `components/atoms/Drawer.jsx` | open, onClose, title, subtitle, width, dismissOnBackdropClick, children | Slide-out panel anchored to the right edge (full-width on mobile). Styled to match the Modal atom (orange accent strip, blurred scrim, Escape-to-close). The portal stays mounted so both enter and exit transitions play; visibility is driven entirely by `open`. The caller owns the open lead/content and keeps rendering it during the close transition. Props: - open                  show/hide the panel - onClose               called on scrim click, Escape, or the close button - title / subtitle      header nodes (e.g. domain + status badge) - width                 panel width classes (default: full on mobile, 26rem on sm+) - dismissOnBackdropClick guard backdrop dismissal (e.g. while a form is dirty) |
 | `LabeledText` | `components/atoms/LabeledText.jsx` | label, text, labelClasses, textClasses |  |
 | `ErrorMessage` | `components/atoms/Messages.jsx` | message, id, icon, colorClasses |  |
 | `Modal` | `components/atoms/Modal.jsx` | children, dismissHandler, title, width, id, dismissOnBackdropClick |  |
@@ -263,7 +264,9 @@ Route-level page components in `src/pages/`.
 | `History` | `pages/demandsites/history.jsx` | — |
 | `DemandSiteList` | `pages/demandsites/index.jsx` | calls: /.rest/demandssitesupport/delete?demandSiteId= |
 | `DemandSite` | `pages/demandsites/[demandsiteid].jsx` | — |
-| `LeadsIndex` | `pages/leads/index.jsx` | props: status | calls: /.rest/categories, /.rest/engagements/category-mappings/resolve |
+| `LeadsIndex` | `pages/leads/index.jsx` | props: leads | calls: /.rest/categories, /.rest/engagements/category-mappings/resolve |
+| `leadActions` | `pages/leads/leadActions.jsx` | props: status |
+| `LeadDrawer` | `pages/leads/LeadDrawer.jsx` | props: open, lead, actions, editable, onClose, onRunAction, onSaved | calls: /.rest/leads/${shown.id}, /.rest/leads/… |
 | `ListOrders` | `pages/orders/index.jsx` | calls: /.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder |
 | `OrganisationsIndex` | `pages/organisations/index.jsx` | calls: /.rest/accounts/organisations |
 | `App` | `pages/paidlinks/staging.jsx` | — |

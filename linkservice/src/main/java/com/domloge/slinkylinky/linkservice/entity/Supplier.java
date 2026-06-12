@@ -61,6 +61,15 @@ public class Supplier {
     private String domain;
     private int weWriteFee;
     private String weWriteFeeCurrency;
+
+    /**
+     * How many links this supplier permits on a single page. Only 2 or 3 are supported
+     * (never 1). Defaults to 3. Honoured when bundling a proposal — a proposal may not
+     * contain more PaidLinks than the supplier permits.
+     */
+    @Column(name = "links_permitted", nullable = false, columnDefinition = "integer default 3")
+    private int linksPermitted = 3;
+
     private boolean thirdParty;
     @GlobalAdminOnly
     private String source;

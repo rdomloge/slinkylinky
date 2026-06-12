@@ -65,6 +65,185 @@
   margin-top: 0.25rem;
 }
 
+/* ── Contrast lift (scoped to the lead page) ───────────────────────────────────
+   The shared --sr-text-dim (#475569) is too faint for field labels and helper
+   text on this dark surface. Override to a legible slate everywhere it matters. */
+.sr-label {
+  color: #9FACC0;
+}
+
+.sr-fee-field__hint,
+.sr-char-count,
+.sr-file-name {
+  color: #8493A8;
+}
+
+/* Smooth the modal width change when the optional section expands/collapses. */
+.sr-modal {
+  transition: max-width 0.28s cubic-bezier(0.2, 0.9, 0.4, 1);
+}
+
+/* ── Accept modal: essentials grid (fee + links) ───────────────────────────── */
+.sr-essentials {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.125rem 1.75rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .sr-essentials { grid-template-columns: 1fr; }
+}
+
+/* ── Progressive-disclosure toggle ─────────────────────────────────────────── */
+.sr-disclosure {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed var(--sr-border-hi);
+  border-radius: 7px;
+  font-family: var(--sr-font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--sr-text-mid);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.sr-disclosure:hover {
+  background: rgba(59, 130, 246, 0.07);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: var(--sr-text);
+}
+
+.sr-disclosure--open {
+  background: rgba(59, 130, 246, 0.06);
+  border-style: solid;
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--sr-text);
+}
+
+.sr-disclosure__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--sr-blue-dim);
+  color: var(--sr-blue);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.sr-disclosure__label {
+  flex: 1;
+  text-align: left;
+}
+
+.sr-disclosure__tag {
+  font-family: var(--sr-font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sr-text-mid);
+  border: 1px solid var(--sr-border-hi);
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+}
+
+.sr-optional-reveal {
+  animation: sr-fade-up 0.28s ease both;
+}
+
+/* ── Accept modal: two-column field layout ─────────────────────────────────── */
+.sr-accept-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.125rem 1.75rem;
+  align-items: stretch;
+}
+
+.sr-accept-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+  min-width: 0;
+}
+
+/* Let a group (and its textarea) stretch to fill the column height so the two
+   columns stay balanced and the modal needs no scrolling. */
+.sr-input-group--grow {
+  flex: 1;
+  min-height: 0;
+}
+
+.sr-textarea--fill {
+  flex: 1;
+  min-height: 6rem;
+}
+
+/* Collapse to a single column on narrow viewports. */
+@media (max-width: 640px) {
+  .sr-accept-grid {
+    grid-template-columns: 1fr;
+    gap: 1.125rem;
+  }
+}
+
+/* ── Fee field (currency-prefixed) ─────────────────────────────────────────── */
+.sr-fee-field {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--sr-border-hi);
+  border-radius: 6px;
+  background: var(--sr-surface);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sr-fee-field:focus-within {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.sr-fee-field__ccy {
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  font-family: var(--sr-font-price);
+  font-size: 1.05rem;
+  color: var(--sr-text-mid);
+  background: rgba(255, 255, 255, 0.03);
+  border-right: 1px solid var(--sr-border);
+}
+
+.sr-fee-field__input.sr-input {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: var(--sr-font-price);
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+.sr-fee-field__input.sr-input:focus {
+  box-shadow: none;
+}
+
+.sr-fee-field__hint {
+  font-size: 0.72rem;
+  color: var(--sr-text-dim);
+  line-height: 1.55;
+  margin-top: 0.1rem;
+}
+
 /* ── File input ────────────────────────────────────────────────────────────── */
 .sr-file-input {
   font-family: var(--sr-font-ui);

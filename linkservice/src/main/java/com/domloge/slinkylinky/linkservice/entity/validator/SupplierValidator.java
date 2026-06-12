@@ -20,6 +20,9 @@ public class SupplierValidator implements Validator {
 
         if(null == s.getName() || s.getName().trim().length() < 2) errors.rejectValue("name", "incorrect");
 
+        // We only support suppliers that permit 2 or 3 links per page (never 1).
+        if(s.getLinksPermitted() != 2 && s.getLinksPermitted() != 3) errors.rejectValue("linksPermitted", "incorrect");
+
         if( ! s.isThirdParty()) {
             if(null == s.getEmail() || s.getEmail().trim().length() < 5) errors.rejectValue("email", "incorrect");
             if(null == s.getWebsite() || s.getWebsite().trim().length() < 5) errors.rejectValue("website", "incorrect");

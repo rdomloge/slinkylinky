@@ -1,13 +1,16 @@
 package com.domloge.slinkylinky.supplierengagement.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -67,6 +70,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/.rest/leads")
 @Slf4j
 public class LeadController {
+
+    /** States in which a lead has no confirmed contact yet; supplying an email
+     *  manually advances these to {@link LeadStatus#CONTACT_FOUND}. */
+    private static final Set<LeadStatus> PRE_CONTACT_STATES = EnumSet.of(
+            LeadStatus.NEW, LeadStatus.SEARCHING, LeadStatus.BROWSER_QUEUED, LeadStatus.CONTACT_NOT_FOUND);
 
     @Autowired
     private SupplierLeadRepo leadRepo;
@@ -565,10 +573,14 @@ public class LeadController {
                     ? lead.getCurrency().substring(0, 1)
                     : "£";
 
-            // weWriteFee = our quoted fee (10% off listed, rounded to 5) — same number
-            // the lead saw in the outreach email. Fall back to 0 if no listed price.
-            java.math.BigDecimal weWriteFee = com.domloge.slinkylinky.supplierengagement.pricing.LeadPricing
-                    .suggestedFee(lead.getPrice());
+            // weWriteFee = the fee we'll actually use: the lead's agreed fee if they quoted
+            // one, otherwise our derived quote (10% off listed, rounded to 5) — the same
+            // number the lead saw in the outreach email. Fall back to 0 if neither exists.
+            java.math.BigDecimal weWriteFee = lead.getEffectiveFee();
+
+            // Links the supplier permits per page (2 or 3); default 3 if unset.
+            int linksPermitted = lead.getLinksPermitted() != null && (lead.getLinksPermitted() == 2 || lead.getLinksPermitted() == 3)
+                    ? lead.getLinksPermitted() : 3;
 
             Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("name",               lead.getDomain());
@@ -577,6 +589,7 @@ public class LeadController {
             payload.put("domain",             lead.getDomain());
             payload.put("weWriteFee",         weWriteFee != null ? weWriteFee : 0);
             payload.put("weWriteFeeCurrency", currency);
+            payload.put("linksPermitted",     linksPermitted);
             payload.put("thirdParty",         false);
             payload.put("source",             "Automated outreach");
             payload.put("createdBy",          "supplierengagement-bot");
@@ -638,7 +651,19 @@ public class LeadController {
 
         if (body.containsKey("contactEmail")) {
             Object val = body.get("contactEmail");
-            lead.setContactEmail(val != null ? val.toString().trim() : null);
+            String email = val != null ? val.toString().trim() : "";
+            lead.setContactEmail(email.isEmpty() ? null : email);
+
+            // Manually supplying a contact email unblocks a lead that discovery
+            // could not progress: advance it into the outreach-ready state so the
+            // workflow can continue. We only ever move forward, and only from
+            // pre-contact states — correcting the email on a lead that is already
+            // OUTREACH_SENT or beyond must never rewind its status. An explicit
+            // "status" in the same request (e.g. ManualEmailModal) still wins.
+            if (lead.getContactEmail() != null && !body.containsKey("status")
+                    && PRE_CONTACT_STATES.contains(lead.getStatus())) {
+                lead.setStatus(LeadStatus.CONTACT_FOUND);
+            }
         }
         if (body.containsKey("status")) {
             Object val = body.get("status");
@@ -646,6 +671,46 @@ public class LeadController {
                 try {
                     lead.setStatus(LeadStatus.valueOf(val.toString()));
                 } catch (IllegalArgumentException ignored) { /* skip unknown status */ }
+            }
+        }
+        // Editable lead parameters (drawer "Edit details"). SL price is derived from
+        // price (LeadPricing.suggestedFee), so editing price re-quotes automatically.
+        if (body.containsKey("price")) {
+            Object val = body.get("price");
+            String s = val != null ? val.toString().trim() : "";
+            try {
+                lead.setPrice(s.isEmpty() ? null : new BigDecimal(s));
+            } catch (NumberFormatException ignored) { /* skip non-numeric price */ }
+        }
+        if (body.containsKey("currency")) {
+            Object val = body.get("currency");
+            String s = val != null ? val.toString().trim() : "";
+            lead.setCurrency(s.isEmpty() ? null : s);
+        }
+        if (body.containsKey("countries")) {
+            Object val = body.get("countries");
+            String s = val != null ? val.toString().trim() : "";
+            lead.setCountries(s.isEmpty() ? null : s);
+        }
+        if (body.containsKey("language")) {
+            Object val = body.get("language");
+            String s = val != null ? val.toString().trim() : "";
+            lead.setLanguage(s.isEmpty() ? null : s);
+        }
+        // Fee the lead has quoted in their reply. When set it overrides the listed price
+        // and the derived SL price (see SupplierLead.getEffectiveFee()). Empty clears it.
+        if (body.containsKey("agreedFee")) {
+            Object val = body.get("agreedFee");
+            String s = val != null ? val.toString().trim() : "";
+            try {
+                lead.setAgreedFee(s.isEmpty() ? null : new BigDecimal(s));
+            } catch (NumberFormatException ignored) { /* skip non-numeric agreed fee */ }
+        }
+        // Links the supplier permits per page — only 2 or 3 are supported; anything else is ignored.
+        if (body.containsKey("linksPermitted")) {
+            int lp = parseIntField(body, "linksPermitted", lead.getLinksPermitted() != null ? lead.getLinksPermitted() : 3);
+            if (lp == 2 || lp == 3) {
+                lead.setLinksPermitted(lp);
             }
         }
         return ResponseEntity.ok(leadRepo.save(lead));
@@ -720,6 +785,9 @@ public class LeadController {
             @RequestParam("guid") String guid,
             @RequestParam(value = "googleDocUrl", required = false) String googleDocUrl,
             @RequestParam(value = "categorySuggestion", required = false) String categorySuggestion,
+            @RequestParam(value = "linksPermitted", required = false) Integer linksPermitted,
+            @RequestParam(value = "agreedFee", required = false) BigDecimal agreedFee,
+            @RequestParam(value = "message", required = false) String message,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
         SupplierLead lead = leadRepo.findByGuid(guid);
@@ -730,6 +798,20 @@ public class LeadController {
         }
 
         lead.setStatus(LeadStatus.ACCEPTED);
+        // The supplier chooses how many links they permit per page on the public page (2 or 3).
+        if (linksPermitted != null && (linksPermitted == 2 || linksPermitted == 3)) {
+            lead.setLinksPermitted(linksPermitted);
+        }
+        // Fee the supplier quoted for themselves on the response page. Overrides the
+        // listed price and the derived SL price everywhere (see getEffectiveFee()).
+        if (agreedFee != null && agreedFee.signum() > 0) {
+            lead.setAgreedFee(agreedFee);
+        }
+        // Free-text note the supplier left instead of replying to the outreach email.
+        if (message != null && !message.isBlank()) {
+            String trimmed = message.trim();
+            lead.setMessage(trimmed.length() > 4000 ? trimmed.substring(0, 4000) : trimmed);
+        }
         if (googleDocUrl != null && !googleDocUrl.isBlank()) {
             lead.setGoogleDocUrl(googleDocUrl);
         }

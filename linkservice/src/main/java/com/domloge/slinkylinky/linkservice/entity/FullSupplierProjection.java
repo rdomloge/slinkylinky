@@ -17,6 +17,8 @@ public interface FullSupplierProjection {
 
     Integer getWeWriteFee();
 
+    int getLinksPermitted();
+
     boolean isThirdParty();
 
     boolean isDisabled();

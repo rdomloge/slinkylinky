@@ -23,6 +23,8 @@ public interface GlobalAdminSupplierProjection {
 
     Integer getWeWriteFee();
 
+    int getLinksPermitted();
+
     boolean isThirdParty();
 
     boolean isDisabled();

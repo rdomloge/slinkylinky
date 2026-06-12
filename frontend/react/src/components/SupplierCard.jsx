@@ -122,6 +122,9 @@ export function SupplierCardHorizontalRowLayout({supplier, linkable, usageCount,
                     <span className="text-sm font-semibold text-slate-800 truncate block">{supplier.website}</span>
                 )}
                 <div className="flex flex-wrap gap-1 mt-0.5">
+                    <span className="text-xs bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full border border-slate-200" title="Links this supplier permits per page">
+                        {supplier.linksPermitted ?? 3} links
+                    </span>
                     {supplier.thirdParty &&
                         <AuthorizedAccess allowedRoles={['global_admin']}>
                             <span className="text-xs bg-sky-50 text-sky-700 px-1.5 py-0.5 rounded-full border border-sky-200">3rd party</span>
@@ -291,6 +294,10 @@ export default function SupplierCard({supplier, editable, linkable, usages, late
                         <span>{usages[supplier.id]}</span>
                     </span>
                 }
+                <span className="metric-pill metric-pill-neutral" title="Links this supplier permits per page">
+                    <span className="metric-pill-label">Links</span>
+                    <span>{supplier.linksPermitted ?? 3}</span>
+                </span>
             </div>
 
             {showCategories &&

@@ -89,8 +89,16 @@ Converts an ISO expiry timestamp into a human-readable countdown label and urgen
 
 ### `LeadsIndex` — `/leads`
 Returns category strings for this lead that are still PENDING in the mapping table.
-**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/categories/${id}`, `/.rest/leads/${lead.id}/categories`, `/.rest/leads`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/collaborator/session/status?sessionId=${encodeURIComponent(savedId)}`, `/.rest/leads/…`, `/.rest/categories/…`, `/.rest/leads/collaborator/session/status?sessionId=…`
+**API:** `/.rest/categories`, `/.rest/engagements/category-mappings/resolve`, `/.rest/leads/${lead.id}`, `/.rest/categories/${id}`, `/.rest/leads/${lead.id}/categories`, `/.rest/leads/scrape/metadata`, `/.rest/leads`, `/.rest/leads/dismissed`, `/.rest/engagements/category-mappings`, `/.rest/leads/scrape/status`, `/.rest/leads/scrape`, `/.rest/leads/collaborator/session/import`, `/.rest/leads/collaborator/session/login`, `/.rest/leads/collaborator/session/login/verify`, `/.rest/leads/${lead.id}/discover`, `/.rest/leads/${lead.id}/requeueBrowser`, `/.rest/leads/${lead.id}/sendOutreach`, `/.rest/leads/${lead.id}/downloadFile`, `/.rest/leads/${lead.id}/convert`, `/.rest/leads/${lead.id}/undismiss`, `/.rest/leads/collaborator/session/status?sessionId=${encodeURIComponent(savedId)}`, `/.rest/leads/…`, `/.rest/categories/…`, `/.rest/leads/collaborator/session/status?sessionId=…`
+**Props:** leads
+
+### `leadActions` — `pages/leads/leadActions.jsx`
 **Props:** status
+
+### `LeadDrawer` — `pages/leads/LeadDrawer.jsx`
+Lead detail drawer with a View ⇄ Edit mode-swap. - View mode  : read-only details + the action list (where you DO things). - Edit mode  : the field form + Save/Cancel (where you CHANGE things). Actions are not rendered, so an immediate action can never fire with unsaved edits. Closing/cancelling while dirty prompts to discard.
+**API:** `/.rest/leads/${shown.id}`, `/.rest/leads/…`
+**Props:** open, lead, actions, editable, onClose, onRunAction, onSaved
 
 ### `ListOrders` — `/orders`
 **API:** `/.rest/orders/search/findOrdersByArchivedEquals?archived=false&projection=lightOrder`

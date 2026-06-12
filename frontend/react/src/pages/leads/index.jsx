@@ -7,50 +7,8 @@ import Modal from '@/components/atoms/Modal';
 import CategorySelector from '@/components/CategorySelector';
 import { fetchWithAuth } from '@/utils/fetchWithAuth';
 import { useToast } from '@/components/atoms/Toasts';
-
-// ── Status config ─────────────────────────────────────────────────────────────
-
-const STATUS_CONFIG = {
-    NEW:               { label: 'New',              bg: 'bg-slate-100',   text: 'text-slate-600',   dot: '#94a3b8' },
-    SEARCHING:         { label: 'Searching',        bg: 'bg-amber-100',   text: 'text-amber-700',   dot: '#f59e0b' },
-    BROWSER_QUEUED:    { label: 'Browser Queued',   bg: 'bg-violet-100',  text: 'text-violet-700',  dot: '#7c3aed' },
-    CONTACT_FOUND:     { label: 'Contact Found',    bg: 'bg-amber-100',   text: 'text-amber-700',   dot: '#f59e0b' },
-    CONTACT_NOT_FOUND: { label: 'Not Found',        bg: 'bg-rose-100',    text: 'text-rose-600',    dot: '#f43f5e' },
-    OUTREACH_SENT:     { label: 'Outreach Sent',    bg: 'bg-blue-100',    text: 'text-blue-700',    dot: '#3b82f6' },
-    ACCEPTED:          { label: 'Accepted',         bg: 'bg-emerald-100', text: 'text-emerald-700', dot: '#10b981' },
-    DECLINED:          { label: 'Declined',         bg: 'bg-red-100',     text: 'text-red-600',     dot: '#ef4444' },
-};
-
-const PIPELINE_STEPS = ['NEW', 'BROWSER_QUEUED', 'CONTACT_FOUND', 'OUTREACH_SENT', 'ACCEPTED'];
-
-function StatusBadge({ status }) {
-    const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.NEW;
-    return (
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${cfg.bg} ${cfg.text}`}>
-            <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: cfg.dot }} />
-            {cfg.label}
-        </span>
-    );
-}
-
-function ActionBtn({ label, onClick, disabled, variant = 'ghost', title }) {
-    const variants = {
-        ghost:   'text-slate-500 hover:text-slate-800 hover:bg-slate-100',
-        primary: 'text-white bg-indigo-600 hover:bg-indigo-700',
-        success: 'text-white bg-emerald-600 hover:bg-emerald-700',
-        warning: 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100',
-    };
-    return (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            title={title}
-            className={`text-xs px-2.5 py-1 rounded-md font-medium border border-transparent transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${variants[variant]}`}
-        >
-            {label}
-        </button>
-    );
-}
+import LeadDrawer from './LeadDrawer';
+import { STATUS_CONFIG, PIPELINE_STEPS, StatusBadge, Icon, toneClasses, buildLeadActions } from './leadActions';
 
 // ── Pipeline summary bar ──────────────────────────────────────────────────────
 
@@ -432,6 +390,7 @@ export default function LeadsIndex() {
     const [editCategoriesLead, setEditCategoriesLead] = useState(null);
     const [showDismissed, setShowDismissed]       = useState(false);
     const [dismissedLeads, setDismissedLeads]     = useState(null);
+    const [drawerLeadId, setDrawerLeadId]         = useState(null);
 
     const pollRef              = useRef(null);
     const leadsRef             = useRef(null);
@@ -853,6 +812,40 @@ export default function LeadsIndex() {
 
     // Which set of leads the table renders: active leads, or the dismissed tombstones.
     const visibleLeads = showDismissed ? dismissedLeads : leads;
+    const drawerLead = (visibleLeads ?? []).find(l => l.id === drawerLeadId) ?? null;
+
+    // Wire a lead's available actions to the page's existing handlers. Single source
+    // of truth (leadActions.buildLeadActions) drives both the inline row primary
+    // button and the full list inside the drawer.
+    function leadActionsFor(lead) {
+        return buildLeadActions(lead, {
+            pendingCats: getPendingCategories(lead),
+            busy: busyId === lead.id,
+            isDismissed: showDismissed || !!lead.deletedAt,
+            on: {
+                map:              () => setMappingModalLead(lead),
+                find:             () => discoverContact(lead),
+                retryBrowser:     () => requeueBrowser(lead),
+                enterEmail:       () => setManualEmailLead(lead),
+                sendOutreach:     () => sendOutreach(lead),
+                downloadFile:     () => downloadFile(lead),
+                reviewCategories: () => setEditCategoriesLead(lead),
+                convert:          () => convertToSupplier(lead),
+                dismiss:          () => dismissLead(lead),
+                undismiss:        () => undismissLead(lead),
+                visitSite:        () => window.open(`https://${lead.domain}`, '_blank', 'noopener,noreferrer'),
+                copyDomain:       () => { navigator.clipboard?.writeText(lead.domain); toast(`Copied ${lead.domain}`, 'success'); },
+            },
+        });
+    }
+
+    // Run an action, then close the drawer if the action navigates away (opens a
+    // modal or removes the lead from the list).
+    function runLeadAction(action) {
+        if (!action || action.disabled) return;
+        action.run();
+        if (action.closesDrawer) setDrawerLeadId(null);
+    }
 
     return (
         <Layout
@@ -1002,14 +995,20 @@ export default function LeadsIndex() {
                                         {visibleLeads.map((lead, index) => {
                                             const pendingCats = getPendingCategories(lead);
                                             const hasUnmapped = pendingCats.length > 0;
+                                            const acts = leadActionsFor(lead);
                                             return (
-                                                <tr key={lead.id ?? `${lead.domain ?? 'lead'}-${index}`} className="hover:bg-slate-50 transition-colors group">
+                                                <tr
+                                                    key={lead.id ?? `${lead.domain ?? 'lead'}-${index}`}
+                                                    onClick={() => setDrawerLeadId(lead.id)}
+                                                    className="hover:bg-slate-50 transition-colors group cursor-pointer"
+                                                >
                                                     <td className="px-4 py-2.5 font-mono text-xs max-w-[200px] font-medium">
                                                         <div className="flex items-center gap-1.5 min-w-0">
                                                             <a
                                                                 href={`https://${lead.domain}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
+                                                                onClick={e => e.stopPropagation()}
                                                                 className="text-indigo-600 hover:text-indigo-800 hover:underline transition-colors truncate"
                                                             >
                                                                 {lead.domain}
@@ -1030,8 +1029,11 @@ export default function LeadsIndex() {
                                                     <td className="px-4 py-2.5 text-slate-700 whitespace-nowrap text-sm font-medium">
                                                         {lead.price ? `${lead.currency ?? ''} ${lead.price}` : <span className="text-slate-300">—</span>}
                                                     </td>
-                                                    <td className="px-4 py-2.5 text-emerald-700 whitespace-nowrap text-sm font-semibold" title="10% off listed price, rounded to nearest 5">
-                                                        {lead.suggestedFee ? `${lead.currency ?? ''} ${lead.suggestedFee}` : <span className="text-slate-300">—</span>}
+                                                    <td className="px-4 py-2.5 text-emerald-700 whitespace-nowrap text-sm font-semibold"
+                                                        title={lead.agreedFee ? 'Fee agreed with the lead' : '10% off listed price, rounded to nearest 5'}>
+                                                        {lead.agreedFee
+                                                            ? <span className="inline-flex items-center gap-1">{`${lead.currency ?? ''} ${lead.agreedFee}`}<span className="text-[9px] font-bold uppercase tracking-wide text-emerald-500 bg-emerald-50 border border-emerald-200 rounded px-1 py-px">agreed</span></span>
+                                                            : lead.suggestedFee ? `${lead.currency ?? ''} ${lead.suggestedFee}` : <span className="text-slate-300">—</span>}
                                                     </td>
                                                     <td className="px-4 py-2.5 text-slate-500 text-xs max-w-[200px]">
                                                         <div className="flex flex-col gap-1">
@@ -1040,7 +1042,7 @@ export default function LeadsIndex() {
                                                             </div>
                                                             {lead.categorySuggestion && (
                                                                 <button
-                                                                    onClick={() => setEditCategoriesLead(lead)}
+                                                                    onClick={e => { e.stopPropagation(); setEditCategoriesLead(lead); }}
                                                                     title={lead.categorySuggestion}
                                                                     className={`self-start inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border transition-colors max-w-full ${
                                                                         lead.categorySuggestionReviewed
@@ -1065,84 +1067,29 @@ export default function LeadsIndex() {
                                                             </p>
                                                         )}
                                                     </td>
-                                                    <td className="px-4 py-2.5">
-                                                        <div className="flex items-center gap-1">
-                                                            {lead.deletedAt ? (
-                                                                <ActionBtn
-                                                                    label="Undismiss"
-                                                                    variant="primary"
-                                                                    onClick={() => undismissLead(lead)}
-                                                                    disabled={busyId === lead.id}
-                                                                />
-                                                            ) : (
-                                                            <>
-                                                            {hasUnmapped && (
-                                                                <ActionBtn
-                                                                    label="Map Categories"
-                                                                    variant="warning"
-                                                                    onClick={() => setMappingModalLead(lead)}
-                                                                    disabled={busyId === lead.id}
-                                                                />
-                                                            )}
-                                                            {lead.status === 'NEW' && !pendingDiscovery.has(lead.id) && (
-                                                                <ActionBtn
-                                                                    label="Find Contact"
-                                                                    onClick={() => discoverContact(lead)}
-                                                                    disabled={busyId === lead.id || hasUnmapped}
-                                                                    title={hasUnmapped ? 'Resolve category mappings first' : undefined}
-                                                                />
-                                                            )}
-                                                            {lead.status === 'SEARCHING' && (
-                                                                <span className="text-xs text-amber-500 italic px-1">Searching…</span>
-                                                            )}
-                                                            {lead.status === 'BROWSER_QUEUED' && (
-                                                                <span className="text-xs text-violet-500 italic px-1">Browser queued…</span>
-                                                            )}
-                                                            {lead.status === 'CONTACT_NOT_FOUND' && (
-                                                                <>
-                                                                    <ActionBtn label="Retry Browser" onClick={() => requeueBrowser(lead)} disabled={busyId === lead.id} />
-                                                                    <ActionBtn label="Enter Email" variant="primary" onClick={() => setManualEmailLead(lead)} disabled={busyId === lead.id} />
-                                                                </>
-                                                            )}
-                                                            {lead.contactEmail && lead.status === 'CONTACT_FOUND' && (
-                                                                <ActionBtn
-                                                                    label="Send Outreach"
-                                                                    variant="primary"
-                                                                    onClick={() => sendOutreach(lead)}
-                                                                    disabled={busyId === lead.id || hasUnmapped}
-                                                                    title={hasUnmapped ? 'Resolve category mappings first' : undefined}
-                                                                />
-                                                            )}
-                                                            {lead.status === 'ACCEPTED' && lead.fileBlob && (
-                                                                <ActionBtn label="Download File" onClick={() => downloadFile(lead)} disabled={busyId === lead.id} />
-                                                            )}
-                                                            {lead.status === 'ACCEPTED' && lead.categorySuggestion && (
-                                                                <ActionBtn
-                                                                    label="Review Categories"
-                                                                    variant="warning"
-                                                                    onClick={() => setEditCategoriesLead(lead)}
-                                                                    disabled={busyId === lead.id}
-                                                                />
-                                                            )}
-                                                            {lead.status === 'ACCEPTED' && (() => {
-                                                                const needsReview = lead.categorySuggestion && !lead.categorySuggestionReviewed;
-                                                                return (
-                                                                    <ActionBtn
-                                                                        label="Convert to Supplier"
-                                                                        variant="success"
-                                                                        onClick={() => convertToSupplier(lead)}
-                                                                        disabled={busyId === lead.id || hasUnmapped || needsReview}
-                                                                        title={
-                                                                            hasUnmapped ? 'Resolve category mappings first'
-                                                                                : needsReview ? 'Review the category suggestion first'
-                                                                                : undefined
-                                                                        }
-                                                                    />
-                                                                );
-                                                            })()}
-                                                            <ActionBtn label="Dismiss" variant="ghost" onClick={() => dismissLead(lead)} disabled={busyId === lead.id} />
-                                                            </>
-                                                            )}
+                                                    <td className="px-4 py-2.5" onClick={e => e.stopPropagation()}>
+                                                        <div className="flex items-center justify-end gap-1.5">
+                                                            {acts.waiting ? (
+                                                                <span className="text-xs italic text-slate-400 px-1 whitespace-nowrap">{acts.waiting}</span>
+                                                            ) : acts.primary ? (
+                                                                <button
+                                                                    onClick={() => runLeadAction(acts.primary)}
+                                                                    disabled={acts.primary.disabled}
+                                                                    title={acts.primary.disabledHint}
+                                                                    className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${toneClasses(acts.primary.tone)}`}
+                                                                >
+                                                                    <Icon name={acts.primary.icon} className="w-3.5 h-3.5" />
+                                                                    <span>{acts.primary.label}</span>
+                                                                </button>
+                                                            ) : null}
+                                                            <button
+                                                                onClick={() => setDrawerLeadId(lead.id)}
+                                                                title="Details & more actions"
+                                                                aria-label="Details & more actions"
+                                                                className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-colors"
+                                                            >
+                                                                <Icon name="chevron" className="w-4 h-4" />
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -1506,6 +1453,16 @@ export default function LeadsIndex() {
                     }}
                 />
             )}
+
+            <LeadDrawer
+                open={drawerLeadId != null}
+                lead={drawerLead}
+                actions={drawerLead ? leadActionsFor(drawerLead) : { secondary: [], danger: [] }}
+                editable={!!drawerLead && !showDismissed && !drawerLead.deletedAt}
+                onClose={() => setDrawerLeadId(null)}
+                onRunAction={runLeadAction}
+                onSaved={(updated) => setLeads(prev => prev.map(l => l.id === updated.id ? updated : l))}
+            />
         </Layout>
     );
 }

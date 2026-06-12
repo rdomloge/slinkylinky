@@ -20,6 +20,8 @@ public interface LiteSupplierProjection {
 
     Integer getWeWriteFee();
 
+    int getLinksPermitted();
+
     boolean isThirdParty();
 
     boolean isDisabled();

@@ -41,9 +41,11 @@ export default function ProposalValidationPanel({primaryDemand, otherDemands, su
     }
 
     function checkTooManyLinks() {
-        var disabled = false;
-        if(otherDemands.length > 2) {
-            validationErrors.push("Too many links in proposal");
+        // Honour the supplier's links-permitted cap (2 or 3). The primary demand counts as
+        // one link, so the number of *other* demands may not exceed cap - 1.
+        const cap = (supplier?.linksPermitted === 2 || supplier?.linksPermitted === 3) ? supplier.linksPermitted : 3;
+        if(otherDemands.length > cap - 1) {
+            validationErrors.push("Too many links in proposal — this supplier only permits " + cap);
             setValidationErrors(validationErrors);
         }
     }

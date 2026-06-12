@@ -23,11 +23,11 @@ function SrInput({ label, value, onChange, placeholder = '' }) {
     );
 }
 
-function SrModal({ children, onClose, title }) {
+function SrModal({ children, onClose, title, wide = false }) {
     const handleOverlay = e => { if (e.target === e.currentTarget) onClose(); };
     return (
         <div className="sr-modal-overlay" onClick={handleOverlay}>
-            <div className="sr-modal">
+            <div className={`sr-modal${wide ? ' sr-modal--wide' : ''}`}>
                 <div className="sr-modal-header">
                     <span className="sr-modal-title">{title}</span>
                     <button className="sr-modal-close" onClick={onClose} aria-label="Close">✕</button>
@@ -115,10 +115,15 @@ export default function LeadResponse() {
     const [lead, setLead]                     = useState(null);
     const [guidError, setGuidError]           = useState(null);
     const [showAcceptModal, setShowAcceptModal] = useState(false);
+    const [showOptional, setShowOptional]     = useState(false);
     const [showDeclineModal, setShowDeclineModal] = useState(false);
     const [googleDocUrl, setGoogleDocUrl]     = useState('');
     const [file, setFile]                     = useState(null);
     const [categorySuggestion, setCategorySuggestion] = useState('');
+    const [linksPermitted, setLinksPermitted] = useState(3);
+    const [agreedFee, setAgreedFee]           = useState('');
+    const [suggestedFee, setSuggestedFee]     = useState('');
+    const [message, setMessage]               = useState('');
     const [declineReason, setDeclineReason]   = useState('');
     const [submitting, setSubmitting]         = useState(false);
     const [acceptError, setAcceptError]       = useState(null);
@@ -134,7 +139,18 @@ export default function LeadResponse() {
         if (!guid) { setGuidError(true); return; }
         fetch('/.rest/leads/response?guid=' + guid)
             .then(r => r.ok ? r.json() : Promise.reject(r))
-            .then(data => setLead(data))
+            .then(data => {
+                setLead(data);
+                // Pre-fill the fee field with our suggested SL price so the supplier
+                // can confirm it or quote their own. Strips trailing zeros (45.00 → 45).
+                // We remember the suggestion separately so we only persist an agreedFee
+                // when the supplier actually changes it (see handleAccept).
+                if (data.suggestedFee != null) {
+                    const fee = String(Number(data.suggestedFee));
+                    setAgreedFee(fee);
+                    setSuggestedFee(fee);
+                }
+            })
             .catch(() => setGuidError(true));
     }, [searchParams]);
 
@@ -145,6 +161,13 @@ export default function LeadResponse() {
         const fd = new FormData();
         if (googleDocUrl.trim()) fd.append('googleDocUrl', googleDocUrl.trim());
         if (categorySuggestion.trim()) fd.append('categorySuggestion', categorySuggestion.trim());
+        fd.append('linksPermitted', String(linksPermitted));
+        // Only persist an agreed fee when the supplier changed it from our suggestion —
+        // an untouched (or re-entered identical) value leaves agreedFee null on the lead,
+        // so the derived SL price remains the source of truth.
+        const fee = String(agreedFee).trim();
+        if (fee && Number(fee) !== Number(suggestedFee)) fd.append('agreedFee', fee);
+        if (message.trim()) fd.append('message', message.trim());
         if (file) fd.append('file', file);
 
         try {
@@ -222,11 +245,11 @@ export default function LeadResponse() {
                                             receive paid article placement requests matching your
                                             site&apos;s niche — no cold outreach required.
                                         </p>
-                                        {lead.price && (
+                                        {lead.suggestedFee && (
                                             <p className="sr-offer__sub">
-                                                Your listing shows a placement fee of{' '}
-                                                <strong>{lead.currency}{lead.price}</strong>.
-                                                You can adjust this when you join.
+                                                For your website we would suggest a price of{' '}
+                                                <strong>{lead.currency}{Number(lead.suggestedFee)}</strong>{' '}
+                                                per article. You can confirm or adjust this when you join.
                                             </p>
                                         )}
                                         <p className="sr-offer__notice">
@@ -247,7 +270,7 @@ export default function LeadResponse() {
                                         </div>
                                         <div className="sr-actions__primary">
                                             <SrButton variant="accent"
-                                                onClick={() => setShowAcceptModal(true)}>
+                                                onClick={() => { setShowOptional(false); setShowAcceptModal(true); }}>
                                                 Join as Supplier →
                                             </SrButton>
                                         </div>
@@ -286,46 +309,132 @@ export default function LeadResponse() {
                     </footer>
 
                     {showAcceptModal && (
-                        <SrModal title="Join as Supplier" onClose={() => setShowAcceptModal(false)}>
+                        <SrModal title="Join as Supplier" wide={showOptional} onClose={() => setShowAcceptModal(false)}>
                             <p className="sr-modal__agreement">
-                                By accepting, you confirm you own or manage{' '}
-                                <strong>{lead.domain}</strong> and agree to receive placement
-                                requests through our platform.
+                                Almost there — just confirm your fee and you&apos;re in. By accepting,
+                                you confirm you own or manage <strong>{lead.domain}</strong> and agree
+                                to receive placement requests through our platform.
                             </p>
-                            <SrInput
-                                label="Google Doc URL (optional)"
-                                value={googleDocUrl}
-                                onChange={setGoogleDocUrl}
-                                placeholder="https://docs.google.com/…"
-                            />
-                            <div className="sr-input-group">
-                                <label className="sr-label">
-                                    Upload site list (optional — CSV, Excel, or text)
-                                </label>
-                                <input
-                                    type="file"
-                                    className="sr-file-input"
-                                    accept=".csv,.xlsx,.xls,.txt,.pdf"
-                                    onChange={e => setFile(e.target.files[0] ?? null)}
-                                />
-                                {file && (
-                                    <p className="sr-file-name">{file.name}</p>
-                                )}
+
+                            {/* Essentials — the only things we actually need */}
+                            <div className="sr-essentials">
+                                <div className="sr-input-group">
+                                    <label className="sr-label">
+                                        Your fee per article placement
+                                    </label>
+                                    <div className="sr-fee-field">
+                                        <span className="sr-fee-field__ccy">{lead.currency}</span>
+                                        <input
+                                            className="sr-input sr-fee-field__input"
+                                            type="number"
+                                            min="0"
+                                            step="any"
+                                            inputMode="decimal"
+                                            value={agreedFee}
+                                            onChange={e => setAgreedFee(e.target.value)}
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    <p className="sr-fee-field__hint">
+                                        The amount you&apos;ll receive per placement. We&apos;ve
+                                        pre-filled our suggested price — adjust it if you&apos;d like.
+                                    </p>
+                                </div>
+                                <div className="sr-input-group">
+                                    <label className="sr-label">
+                                        How many links do you allow per page?
+                                    </label>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        {[3, 2].map(n => (
+                                            <button
+                                                key={n}
+                                                type="button"
+                                                onClick={() => setLinksPermitted(n)}
+                                                className={`sr-btn sr-btn--${linksPermitted === n ? 'accent' : 'ghost'}`}
+                                                style={{ flex: 1 }}
+                                            >
+                                                {n} links
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="sr-input-group">
-                                <label className="sr-label">
-                                    If our categorisation looks wrong, tell us what to change (optional)
-                                </label>
-                                <textarea
-                                    className="sr-input sr-textarea"
-                                    value={categorySuggestion}
-                                    onChange={e => setCategorySuggestion(e.target.value.slice(0, 2000))}
-                                    placeholder="e.g. We're more of a Health & Wellness blog than Lifestyle…"
-                                    rows={3}
-                                    maxLength={2000}
-                                />
-                                <p className="sr-char-count">{categorySuggestion.length} / 2000</p>
-                            </div>
+
+                            {/* Progressive disclosure — keep the form unintimidating by default,
+                                let keen suppliers add a message, portfolio or category notes. */}
+                            <button
+                                type="button"
+                                className={`sr-disclosure${showOptional ? ' sr-disclosure--open' : ''}`}
+                                aria-expanded={showOptional}
+                                onClick={() => setShowOptional(v => !v)}
+                            >
+                                <span className="sr-disclosure__icon">{showOptional ? '−' : '+'}</span>
+                                <span className="sr-disclosure__label">
+                                    {showOptional ? 'Hide message & details' : 'Add a message for our team'}
+                                </span>
+                                <span className="sr-disclosure__tag">Optional</span>
+                            </button>
+
+                            {showOptional && (
+                                <div className="sr-accept-grid sr-optional-reveal">
+                                    {/* Left column — the message takes the lead */}
+                                    <div className="sr-accept-col">
+                                        <div className="sr-input-group sr-input-group--grow">
+                                            <label className="sr-label">
+                                                Your message
+                                            </label>
+                                            <textarea
+                                                className="sr-input sr-textarea sr-textarea--fill"
+                                                value={message}
+                                                onChange={e => setMessage(e.target.value.slice(0, 4000))}
+                                                placeholder="Specific terms, other sites you own, sale variations — anything you'd otherwise reply to the email with…"
+                                                maxLength={4000}
+                                                autoFocus
+                                            />
+                                            <p className="sr-char-count">{message.length} / 4000</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Right column — supporting extras */}
+                                    <div className="sr-accept-col">
+                                        <SrInput
+                                            label="Google Doc URL (optional)"
+                                            value={googleDocUrl}
+                                            onChange={setGoogleDocUrl}
+                                            placeholder="https://docs.google.com/…"
+                                        />
+                                        <div className="sr-input-group">
+                                            <label className="sr-label">
+                                                Upload site list (optional — CSV, Excel, or text)
+                                            </label>
+                                            <input
+                                                type="file"
+                                                className="sr-file-input"
+                                                accept=".csv,.xlsx,.xls,.txt,.pdf"
+                                                onChange={e => setFile(e.target.files[0] ?? null)}
+                                            />
+                                            {file && (
+                                                <p className="sr-file-name">{file.name}</p>
+                                            )}
+                                        </div>
+                                        <div className="sr-input-group">
+                                            <label className="sr-label">
+                                                If our categorisation looks wrong, tell us what to change
+                                            </label>
+                                            <textarea
+                                                className="sr-input sr-textarea"
+                                                value={categorySuggestion}
+                                                onChange={e => setCategorySuggestion(e.target.value.slice(0, 2000))}
+                                                placeholder="e.g. We're more of a Health & Wellness blog than Lifestyle…"
+                                                rows={3}
+                                                maxLength={2000}
+                                            />
+                                            <p className="sr-char-count">{categorySuggestion.length} / 2000</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {acceptError && <p className="sr-error">{acceptError}</p>}
                             <div className="sr-modal__actions">
                                 <SrButton variant="ghost" onClick={() => setShowAcceptModal(false)}>

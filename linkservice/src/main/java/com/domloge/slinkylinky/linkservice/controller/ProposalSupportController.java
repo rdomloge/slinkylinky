@@ -217,6 +217,7 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
 
         // 0 = ok, 400 = conflict, 404 = not found
         int[] errorStatus = {0};
+        String[] errorMessage = {null};
 
         Proposal dbProposal;
         try {
@@ -240,6 +241,18 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
                 });
                 if(dbDemands.size() != demandIds.length) {
                     errorStatus[0] = 404;
+                    return null;
+                }
+
+                // Honour the supplier's links-permitted cap (2 or 3): a proposal may not
+                // contain more PaidLinks than the supplier allows on a single page.
+                int linksPermitted = (supplier.getLinksPermitted() == 2 || supplier.getLinksPermitted() == 3)
+                        ? supplier.getLinksPermitted() : 3;
+                if(dbDemands.size() > linksPermitted) {
+                    log.error("Proposal for supplier {} has {} demands but the supplier only permits {} links",
+                            supplierId, dbDemands.size(), linksPermitted);
+                    errorStatus[0] = 400;
+                    errorMessage[0] = "This supplier only permits " + linksPermitted + " links per page";
                     return null;
                 }
 
@@ -307,8 +320,9 @@ public class ProposalSupportController implements ApplicationEventPublisherAware
         }
 
         if(dbProposal == null) {
-            return errorStatus[0] == 404
-                ? ResponseEntity.notFound().build()
+            if(errorStatus[0] == 404) return ResponseEntity.notFound().build();
+            return errorMessage[0] != null
+                ? ResponseEntity.badRequest().body(Map.of("error", errorMessage[0]))
                 : ResponseEntity.badRequest().build();
         }
 

@@ -138,4 +138,19 @@ ALTER TABLE IF EXISTS public.supplier     ADD COLUMN IF NOT EXISTS spam_score in
 ALTER TABLE IF EXISTS public.supplier_aud ADD COLUMN IF NOT EXISTS spam_score integer;
 CREATE INDEX IF NOT EXISTS idx_supplier_spam_score ON public.supplier(spam_score);
 
+-- Step 10 (v6.4): Links-permitted (2 or 3) on suppliers, plus agreed-fee and
+--   links-permitted on supplier leads.
+--   This file is applied against BOTH the slinkylinky and supplierengagement databases;
+--   the IF EXISTS guards make each ALTER a no-op against the database that lacks the table.
+--   slinkylinky DB — supplier (Audited, so supplier_aud gets a nullable mirror):
+ALTER TABLE IF EXISTS public.supplier     ADD COLUMN IF NOT EXISTS links_permitted integer DEFAULT 3 NOT NULL;
+ALTER TABLE IF EXISTS public.supplier_aud ADD COLUMN IF NOT EXISTS links_permitted integer;
+--   supplierengagement DB — supplier_lead:
+ALTER TABLE IF EXISTS public.supplier_lead ADD COLUMN IF NOT EXISTS agreed_fee numeric(10,2);
+ALTER TABLE IF EXISTS public.supplier_lead ADD COLUMN IF NOT EXISTS links_permitted integer DEFAULT 3 NOT NULL;
+
+-- Step 11: Free-text message a lead can leave on the public response page (instead of
+--   replying to the outreach email). supplierengagement DB — supplier_lead.
+ALTER TABLE IF EXISTS public.supplier_lead ADD COLUMN IF NOT EXISTS lead_message varchar(4000);
+
 
